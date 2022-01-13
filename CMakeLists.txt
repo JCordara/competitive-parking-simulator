@@ -95,6 +95,9 @@ file(GLOB sources
 	srcFiles/*
 )
 set(INCLUDES ${INCLUDES} srcFiles)
+set(INCLUDES ${INCLUDES} thirdparty)
+set(LIBRARIES ${LIBRARIES} ${CMAKE_SOURCE_DIR}/thirdparty/libsndfile/sndfile.lib)
+set(LIBRARIES ${LIBRARIES} ${CMAKE_SOURCE_DIR}/thirdparty/OpenAL/OpenAL32.lib)
 #set(APP_NAME "CPSC-585-Project")
 
 # Copy all the shaders and tell the build system to re-run CMAKE if one of them changes

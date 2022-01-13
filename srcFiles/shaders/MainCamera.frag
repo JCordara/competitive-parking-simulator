@@ -37,7 +37,7 @@ vec3 specular(vec3 col, vec3 lightDir, vec3 normal, vec3 vDir, float k, float a)
 void main() {
 	vec4 baseColour;
 	if(useColour != 0){ baseColour = vec4(fragColour, 1.0);}
-	else{ baseColour = texture(colourText,fragTextureCoordinate);}
+	//else{ baseColour = texture(colourText,fragTextureCoordinate);}
 
 	vec3 normal = normalize(fragNormal);
 	vec3 vDir = normalize(renderCameraPosition - fragPos);

@@ -25,7 +25,18 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "AudioManager.h"
+
 int main() {
+
+	Audio sound = AudioManager::instance().loadAudio("rev.wav");
+	AudioSource car = AudioManager::instance().createSource();
+	car.setGain(1.5f);
+	car.setPosition(glm::vec3(7.0f, 0.0f, 1.5f));
+	car.setVelocity(glm::vec3(-10.0f, 0.0f, 0.0f));
+
+	// ----------------------------
+
 	Log::debug("Starting main");
 
 	// WINDOW
@@ -38,8 +49,10 @@ int main() {
 
 	ShaderProgram shader("shaders/MainCamera.vert", "shaders/MainCamera.frag");
 	glm::mat4 identiy(1.0f);
+
 	//-----Cameras
 	Camera mainCamera = Camera(glm::vec3(2.0f,2.5f,0.0f), glm::radians(45.0f), glm::radians(-45.0f));
+
 	//-----Lights
 	std::vector<PointLight> scenePointLights = {
 		PointLight(glm::vec3(0.5f, 1.0f, 1.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.f, 0.f)),
@@ -53,7 +66,9 @@ int main() {
 		Model(generateTestCubeModel(glm::vec3(0.0f, 0.2f, 1.0f)), glm::vec4(0.7f, 1.7f, 32.0f, 0.05f), true),
 		Model(generateTestPlaneModel(glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec4(1.0f, 3.0f, 4.0f, 0.05f), true)
 	};
+
 	GPU_Geometry drawGeom;
+
 	//------Objects
 	std::vector<GameObject> sceneCubeGameObjects = {
 		GameObject(0,-1, glm::translate(glm::scale(identiy,glm::vec3(1.f,1.f,1.f)), glm::vec3(0.0f, 0.0f, -2.0f))),
@@ -64,7 +79,7 @@ int main() {
 		GameObject(1, -1, glm::translate(glm::scale(identiy, glm::vec3(30.f, 1.f, 30.f)), glm::vec3(0.0f, -2.0f, 0.0f)))
 	};
 
-		
+	car.playAudio(sound);
 	//-------Real Time controls in (Seconds)
 	double realTimePrevious = glfwGetTime(), realTimeCurrent = realTimePrevious, changeInTimeSince, timeAccumulator = 0.0f, initialTime = realTimePrevious;
 	//---Game Loop----
@@ -113,7 +128,9 @@ int main() {
 		sceneRenderModels[1].renderModel(scenePlaneGameObjects.size());
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
-		window.swapBuffers(); 
+		window.swapBuffers();
+
+		car.setPosition(car.position() + glm::vec3(-0.25f, 0.0f, 0.0f));
 	}
 	glfwTerminate();
 	return 0;
