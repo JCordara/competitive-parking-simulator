@@ -1,59 +1,102 @@
 cmake_minimum_required(VERSION 3.15.0)
 project(CPSC-585-Project)
 
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-
 # Use modern C++
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(OpenGL_GL_PREFERENCE GLVND)
 
-#-------------------------------------------------------------------------------
-# https://github.com/adishavit/argh/releases/tag/v1.3.1
-include_directories(SYSTEM thirdparty/argh-1.3.1/)
 
-#-------------------------------------------------------------------------------
-# http://glew.sourceforge.net/
-include_directories(SYSTEM thirdparty/glew-2.1.0/include)
+#------------------------------- AudioSystem -----------------------------------
+# Build AudioSystem as a separate library
 
-#-------------------------------------------------------------------------------
+add_subdirectory(src/audio)
+set(libraries ${libraries} AudioSystem)
+
+
+# -------------------------------- GLEW ----------------------------------------
+# OpenGL Extension Wrangler library
+# Make sure you have glew32.dll installed (copy to C:\Windows\System32 folder)
+#https://github.com/nigels-com/glew
+
+set(libraries ${libraries} ${CMAKE_SOURCE_DIR}/lib/glew-2.2.0/glew32.lib)
+
+
+# -------------------------------- GLFW ----------------------------------------
+# OpenGL FrameWork library
 # https://www.glfw.org/
 
-# Turn off building their docs/tests/examples.
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(libraries ${libraries} ${CMAKE_SOURCE_DIR}/lib/glfw-3.3.6/glfw3.lib)
 
-add_subdirectory(thirdparty/glfw-3.3.2)
-set(LIBRARIES ${LIBRARIES} glfw)
 
-#-------------------------------------------------------------------------------
-# https://github.com/gurki/vivid/releases/tag/v2.2.1
-include_directories(SYSTEM thirdparty/vivid-2.2.1/include)
-include_directories(SYSTEM thirdparty/vivid-2.2.1/dependencies/glm)
+# -------------------------------- ImGui ---------------------------------------
+# Development GUI library (built separately)
+# https://github.com/ocornut/imgui/releases/tag/v1.78
 
-#-------------------------------------------------------------------------------
-# https://glm.g-truc.net/0.9.9/index.html
-include_directories(SYSTEM thirdparty/glm-0.9.9.7/)
+add_subdirectory(lib/imgui-1.78)
+set(libraries ${libraries} Imgui)
 
-#-------------------------------------------------------------------------------
-# https://fmt.dev/latest/index.html
-# Turn off building their tests
-set(FMT_TES OFF CACHE BOOL "" FORCE)
-add_subdirectory(thirdparty/fmt-7.0.3)
-set(LIBRARIES ${LIBRARIES} fmt::fmt)
-include_directories(SYSTEM thirdparty/fmt-7.0.3/include)
+# -------------------------------- vivid ---------------------------------------
+# Console text color library
+# https://github.com/gurki/vivid/releases/tag/v3.0.1
 
-include_directories(SYSTEM thirdparty/stb-2.26)
-include_directories(SYSTEM thirdparty/imgui-1.78)
+set(libraries ${libraries} ${CMAKE_SOURCE_DIR}/lib/vivid-3.0.1/vivid.lib)
 
+# ------------------- Everything else (Header only libraries) ------------------
+# Set the "inc" directory as a system include directory (angle brackets)
+include_directories(SYSTEM inc)
+
+# ------------------------------------------------------------------------------
+
+
+# Some CMake magic
+# Searches for an OpenGL cmake module that comes with cmake installation
 find_package(OpenGL REQUIRED)
-set(LIBRARIES ${LIBRARIES} ${OPENGL_gl_LIBRARY})
+set(libraries ${libraries} ${OPENGL_gl_LIBRARY})
 
 
+# Link to the proper threading libraries depending on the build platform
+if(APPLE)
+	set(libraries ${libraries} pthread dl)
+elseif(UNIX)
+	set(libraries ${libraries} pthread GL dl)
+elseif(WIN32)
+endif()
+
+
+# Copy all the shaders to build path 
+# Tell the build system to re-run CMAKE if one of them changes
+file(GLOB files ${CMAKE_SOURCE_DIR}/src/shaders/*)
+foreach(file ${files})
+	get_filename_component(name ${file} NAME)
+	configure_file(${file} shaders/${name})
+endforeach()
+
+# Copy all the audio files to build path 
+file(GLOB_RECURSE audio_files ${CMAKE_SOURCE_DIR}/res/audio/*)
+foreach(file ${audio_files})
+	get_filename_component(name ${file} NAME)
+	configure_file(${file} audio/${name} COPYONLY)
+endforeach()
+
+# Copy all texture files to build path
+file(GLOB_RECURSE texture_files ${CMAKE_SOURCE_DIR}/res/textures/*)
+foreach(file ${texture_files})
+	get_filename_component(name ${file} NAME)
+	configure_file(${file} textures/${name} COPYONLY)
+endforeach()
+
+# Group source files together
+# Good for agile development style
+file(GLOB sources src/*)
+
+# Create main application and link libraries
+add_executable(${PROJECT_NAME} ${sources})
+target_link_libraries(${PROJECT_NAME} ${libraries})
+
+
+# ------------------------------------------------------------------------------
+# Set compiler specific options and stuff
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	list(APPEND _MY_CMAKE_CXX_FLAGS ${_MY_CMAKE_CXX_FLAGS} "-Wall" "-pedantic")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -63,7 +106,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 	# using Intel C++
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	add_compile_options("/permissive-")
-	add_compile_options("/Zc:preprocessor")
+	add_compile_options("/Zc:preprocessor") # Causes a warning?
 	# Remove the default warning level.
 	# https://stackoverflow.com/questions/58708772/cmake-project-in-visual-studio-gives-flag-override-warnings-command-line-warnin
 	string(REGEX REPLACE "/W[3|4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -75,44 +118,5 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 endif()
 
-if(APPLE)
-	set(LIBRARIES ${LIBRARIES} pthread dl)
-elseif(UNIX)
-	set(LIBRARIES ${LIBRARIES} pthread GL dl)
-elseif(WIN32)
-endif()
-
-
-# add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD=ON)
-# include_directories(SYSTEM thirdparty/imgui thirdparty/imgui/examples)
-# include_directories(src)
-
-
-# Compile our main application
-file(GLOB sources
-    thirdparty/glew-2.1.0/src/glew.c
-	thirdparty/imgui-1.78/imgui/*.cpp
-	srcFiles/*
-)
-set(INCLUDES ${INCLUDES} srcFiles)
-set(INCLUDES ${INCLUDES} thirdparty)
-set(LIBRARIES ${LIBRARIES} ${CMAKE_SOURCE_DIR}/thirdparty/libsndfile/sndfile.lib)
-set(LIBRARIES ${LIBRARIES} ${CMAKE_SOURCE_DIR}/thirdparty/OpenAL/OpenAL32.lib)
-#set(APP_NAME "CPSC-585-Project")
-
-# Copy all the shaders and tell the build system to re-run CMAKE if one of them changes
-file(GLOB files srcFiles/shaders/*)
-foreach(file ${files})
-	get_filename_component(name ${file} NAME)
-	configure_file(${file} shaders/${name})
-endforeach()
-
-#To copy textures off build, use similar to above
-
-
-add_executable(${PROJECT_NAME} ${sources} ${example_source})
-target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDES})
-target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
 target_compile_definitions(${PROJECT_NAME} PRIVATE ${DEFINITIONS})
 target_compile_options(${PROJECT_NAME} PRIVATE ${_MY_CMAKE_CXX_FLAGS})
-set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "./" BUILD_RPATH "./")
