@@ -1,6 +1,8 @@
 #ifndef AUDIO_DEVICE_H
 #define AUDIO_DEVICE_H
 
+#define AL_LIBTYPE_STATIC
+
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>

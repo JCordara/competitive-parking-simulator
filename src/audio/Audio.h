@@ -3,12 +3,14 @@
 
 #include <string>
 
+#define AL_LIBTYPE_STATIC
+
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
 #include <AL/efx.h>
-#include <sndfile/sndfile.h>
 
+#include <sndfile/sndfile.h>
 #include "OpenALError.h"
 
 

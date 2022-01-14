@@ -198,6 +198,7 @@ typedef _W64 int ptrdiff_t;
  * GLEW_BUILD  is defined for building the DLL library.
  */
 
+#define GLEW_STATIC // I added this to build it as a separate static library
 #ifdef GLEW_STATIC
 #  define GLEWAPI extern
 #else

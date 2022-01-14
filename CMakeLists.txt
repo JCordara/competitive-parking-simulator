@@ -6,6 +6,16 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+	set(CONFIG Debug)
+elseif(CMAKE_BUILD_TYPE MATCHES "Release")
+	set(CONFIG Release)
+else()
+	set(CONFIG Debug)
+endif()
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 
 #------------------------------- AudioSystem -----------------------------------
 # Build AudioSystem as a separate library
@@ -16,17 +26,17 @@ set(libraries ${libraries} AudioSystem)
 
 # -------------------------------- GLEW ----------------------------------------
 # OpenGL Extension Wrangler library
-# Make sure you have glew32.dll installed (copy to C:\Windows\System32 folder)
 #https://github.com/nigels-com/glew
 
-set(libraries ${libraries} ${CMAKE_SOURCE_DIR}/lib/glew-2.2.0/glew32.lib)
+add_subdirectory(lib/glew-2.2.0)
+set(libraries ${libraries} glew)
 
 
 # -------------------------------- GLFW ----------------------------------------
 # OpenGL FrameWork library
 # https://www.glfw.org/
 
-set(libraries ${libraries} ${CMAKE_SOURCE_DIR}/lib/glfw-3.3.6/glfw3.lib)
+set(libraries ${libraries} ${CMAKE_SOURCE_DIR}/lib/glfw-3.3.6/glfw3_mt.lib)
 
 
 # -------------------------------- ImGui ---------------------------------------
@@ -61,6 +71,7 @@ if(APPLE)
 elseif(UNIX)
 	set(libraries ${libraries} pthread GL dl)
 elseif(WIN32)
+	# Nothing to do here 
 endif()
 
 
@@ -69,21 +80,21 @@ endif()
 file(GLOB files ${CMAKE_SOURCE_DIR}/src/shaders/*)
 foreach(file ${files})
 	get_filename_component(name ${file} NAME)
-	configure_file(${file} shaders/${name})
+	configure_file(${file} ${CMAKE_BINARY_DIR}/${CONFIG}/shaders/${name})
 endforeach()
 
 # Copy all the audio files to build path 
 file(GLOB_RECURSE audio_files ${CMAKE_SOURCE_DIR}/res/audio/*)
 foreach(file ${audio_files})
 	get_filename_component(name ${file} NAME)
-	configure_file(${file} audio/${name} COPYONLY)
+	configure_file(${file} ${CMAKE_BINARY_DIR}/${CONFIG}/audio/${name} COPYONLY)
 endforeach()
 
 # Copy all texture files to build path
 file(GLOB_RECURSE texture_files ${CMAKE_SOURCE_DIR}/res/textures/*)
 foreach(file ${texture_files})
 	get_filename_component(name ${file} NAME)
-	configure_file(${file} textures/${name} COPYONLY)
+	configure_file(${file} ${CMAKE_BINARY_DIR}/${CONFIG}/textures/${name} COPYONLY)
 endforeach()
 
 # Group source files together
@@ -91,12 +102,14 @@ endforeach()
 file(GLOB sources src/*)
 
 # Create main application and link libraries
-add_executable(${PROJECT_NAME} ${sources})
-target_link_libraries(${PROJECT_NAME} ${libraries})
+set(APP_NAME "CPSC-585-Project")
+add_executable(${APP_NAME} ${sources})
+target_link_libraries(${APP_NAME} ${libraries})
 
 
 # ------------------------------------------------------------------------------
 # Set compiler specific options and stuff
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	list(APPEND _MY_CMAKE_CXX_FLAGS ${_MY_CMAKE_CXX_FLAGS} "-Wall" "-pedantic")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -105,6 +118,9 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 	# using Intel C++
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+	set(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} "/NODEFAULTLIB:LIBCMT")
+	set(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} "/NODEFAULTLIB:LIBCMTD")
+	set(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} "/NODEFAULTLIB:MSVCRT")
 	add_compile_options("/permissive-")
 	add_compile_options("/Zc:preprocessor") # Causes a warning?
 	# Remove the default warning level.
@@ -118,5 +134,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 endif()
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE ${DEFINITIONS})
-target_compile_options(${PROJECT_NAME} PRIVATE ${_MY_CMAKE_CXX_FLAGS})
+target_link_options(${APP_NAME} PRIVATE ${CMAKE_SHARED_LINKER_FLAGS})
+target_compile_definitions(${APP_NAME} PRIVATE ${DEFINITIONS})
+target_compile_options(${APP_NAME} PRIVATE ${_MY_CMAKE_CXX_FLAGS})
+set_target_properties(${APP_NAME} PROPERTIES INSTALL_RPATH "./" BUILD_RPATH "./")

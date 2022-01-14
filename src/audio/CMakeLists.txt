@@ -11,7 +11,7 @@ add_library (AudioSystem
 
 # Link libraries required to build AudioSystem
 target_link_libraries(AudioSystem 
-    ${CMAKE_SOURCE_DIR}/lib/openal-soft-1.21.1/OpenAL32.lib
+    ${CMAKE_SOURCE_DIR}/lib/openal-soft-1.21.1/*.lib
     ${CMAKE_SOURCE_DIR}/lib/libsndfile-1.0.31/sndfile.lib
 )
 

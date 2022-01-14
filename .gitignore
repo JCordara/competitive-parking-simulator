@@ -1,7 +1,9 @@
 # Own stuff here
 build
 compile_commands.json
-CMakeSettings.json
+.vscode
+settings.json
+launch.json
 
 # Created by https://www.gitignore.io/api/visualstudio
 

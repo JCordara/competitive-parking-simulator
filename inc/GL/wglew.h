@@ -75,6 +75,7 @@
  * GLEW_STATIC needs to be set when using the static version.
  * GLEW_BUILD is set when building the DLL version.
  */
+#define GLEW_STATIC // I added this to build it as a separate static library
 #ifdef GLEW_STATIC
 #  define GLEWAPI extern
 #else

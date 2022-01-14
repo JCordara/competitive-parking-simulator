@@ -1,3 +1,5 @@
+#define GLEW_STATIC
+#define AL_LIBTYPE_STATIC
 #define FMT_HEADER_ONLY
 #define _USE_MATH_DEFINES
 

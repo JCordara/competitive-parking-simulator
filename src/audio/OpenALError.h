@@ -1,13 +1,16 @@
 #ifndef OPEN_AL_ERROR_H
 #define OPEN_AL_ERROR_H
 
-#include <string>
-#include <iostream>
+#define AL_LIBTYPE_STATIC
 
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
 #include <AL/efx.h>
+
+#include <string>
+#include <iostream>
+
 
 #define alCheckErrors() check_al_errors(__FILE__, __LINE__)
 #define alcCheckErrors(device) check_alc_errors(__FILE__, __LINE__, device)
