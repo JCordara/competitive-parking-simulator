@@ -1,81 +1,105 @@
 #pragma once
+#include "Window.h"
+#include <list>
+#include <functional>
+#include <set>
 
+//Use these to generate the function object
+#define bindMethodFunction_2_Variables(a,b) std::bind(a,b, std::placeholders::_1, std::placeholders::_2)
+#define bindMethodFunction_0_Variables(a,b) std::bind(a,b)
 
-/*
-class testCallback : public CallbackInterface {
+class GameEventManager : public CallbackInterface {
+
 public:
-	struct testParameters {
-		glm::vec2 mousePos = glm::vec2(0.0f, 1.0f);
-		bool ClickW_Pos_Edge_Trigger = false;
-		bool ClickW_Neg_Edge_Trigger = false;
-		bool ClickW_held = false;
+	// These are the types of functions that can be set to respond to an event, if a function
+	// you want to call does not follows these (example extra inputs), a wrapper will need to be
+	// created of the form below that then calls the intended function
+	using mousePositionFunction = std::function<void(double, double)>;
+	using windowSizeFunction = std::function<void(int, int)>;
+	using scrollFunction = std::function<void(double, double)>;
+	using mouseButtonFunction = std::function<void()>;
+	using keyFunction = std::function<void()>;
 
-		bool ClickS_Pos_Edge_Trigger = false;
-		bool ClickS_Neg_Edge_Trigger = false;
-		bool ClickS_held = false;
+	// These are for the window to call to notify a event has happened
+	void keyCallback(int key, int scancode, int action, int mods);
+	void mouseButtonCallback(int button, int action, int mods);
+	void cursorPosCallback(double xpos, double ypos);
+	void scrollCallback(double xoffset, double yoffset);
+	void windowSizeCallback(int width, int height);
 
-		bool ClickA_Pos_Edge_Trigger = false;
-		bool ClickA_Neg_Edge_Trigger = false;
-		bool ClickA_held = false;
+	//Functions to register/deregister a fucntion of the types defined above
+	unsigned int registerWindowSize(windowSizeFunction func);
+	bool deregisterWindowSize(windowSizeFunction func, unsigned int id);
 
-		bool ClickD_Pos_Edge_Trigger = false;
-		bool ClickD_Neg_Edge_Trigger = false;
-		bool ClickD_held = false;
-	};
-	virtual void keyCallback(int key, int scancode, int action, int mods) {
-		if (key == GLFW_KEY_W && action == GLFW_PRESS) {
-			parameters.ClickW_held = true;
-			parameters.ClickW_Pos_Edge_Trigger = true;
-		}
-		if (key == GLFW_KEY_W && action == GLFW_RELEASE) {
-			parameters.ClickW_held = false;
-			parameters.ClickW_Neg_Edge_Trigger = true;
-		}
-		if (key == GLFW_KEY_S && action == GLFW_PRESS) {
-			parameters.ClickS_held = true;
-			parameters.ClickS_Pos_Edge_Trigger = true;
-		}
-		if (key == GLFW_KEY_S && action == GLFW_RELEASE) {
-			parameters.ClickS_held = false;
-			parameters.ClickS_Neg_Edge_Trigger = true;
-		}
-		if (key == GLFW_KEY_A && action == GLFW_PRESS) {
-			parameters.ClickA_held = true;
-			parameters.ClickA_Pos_Edge_Trigger = true;
-		}
-		if (key == GLFW_KEY_A && action == GLFW_RELEASE) {
-			parameters.ClickA_held = false;
-			parameters.ClickA_Neg_Edge_Trigger = true;
-		}
-		if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-			parameters.ClickD_held = true;
-			parameters.ClickD_Pos_Edge_Trigger = true;
-		}
-		if (key == GLFW_KEY_D && action == GLFW_RELEASE) {
-			parameters.ClickD_held = false;
-			parameters.ClickD_Neg_Edge_Trigger = true;
-		}
-	}
-	virtual void mouseButtonCallback(int button, int action, int mods) {
-		//Do Nothing
-	}
-	virtual void cursorPosCallback(double xpos, double ypos) {
-		if (xpos < 0) xScreenPos = 0;
-		else if (xpos > windowWidth - 1) xScreenPos = windowWidth - 1;
-		else xScreenPos = xpos;
-		if (ypos < 0) yScreenPos = 0;
-		else if (ypos > windowWidth - 1) yScreenPos = windowHeight - 1;
-		else yScreenPos = ypos;
-		parameters.mousePos = mouseGL();
-	}
-	virtual void scrollCallback(double xoffset, double yoffset) {
-		camera.incrementR(yoffset);
-	}
-	virtual void windowSizeCallback(int width, int height) {
-		// The CallbackInterface::windowSizeCallback will call glViewport for us
-		CallbackInterface::windowSizeCallback(width, height);
-		aspect = float(width) / float(height);
-	}
+	unsigned int registerKey(keyFunction func, int key, int action, int mods);
+	bool deregisterKey(keyFunction func, unsigned int id, int key, int action, int mods);
+
+	unsigned int registerMousePosition(mousePositionFunction func);
+	bool deregisterMousePosition(mousePositionFunction func, unsigned int id);
+
+	unsigned int registerScroll(scrollFunction func);
+	bool deregisterScroll(scrollFunction func, unsigned int id);
+
+	unsigned int registerMouseButton(mouseButtonFunction func, int button, int action, int mods);
+	bool deregisterMouseButton(mouseButtonFunction func, unsigned int id, int button, int action, int mods);
+
 private:
+	std::set<unsigned int> keylogger;
+	unsigned int current = 0;
 
-}*/
+	unsigned int nextValidKey() {
+		unsigned int start = current - 1;
+		for (; keylogger.find(current) != keylogger.end(); current++) {
+			if (current == start) exit(-1); //Unlikely to happen (would need 4,294,967,295 registered functions at once)
+		}
+		return current;
+	}
+
+	bool removeKey(unsigned int id) {
+		auto it = keylogger.find(id);
+		if (it == keylogger.end()) return false;
+		keylogger.erase(it);
+		return true;
+	}
+
+	template <typename T>
+	class id_function {
+	public:
+		struct desc {
+			int buttonOrKey;
+			int action;
+			int mod;
+		};
+
+		bool compareDescriptor(int buttonOrKey, int action, int mod) {
+			if (mod > 0) return (buttonOrKey == descriptor.buttonOrKey) && (action == descriptor.action);
+			return (buttonOrKey == descriptor.buttonOrKey) && (action == descriptor.action) && (mod == descriptor.mod);
+		}
+		id_function(T function, unsigned int id) {
+			this->function = function;
+			this->id = id;
+		}
+		id_function(T function, unsigned int id, int buttonOrKey, int action, int mod) {
+			this->function = function;
+			this->id = id;
+			this->descriptor.buttonOrKey = buttonOrKey;
+			this->descriptor.action = action;
+			this->descriptor.mod = mod;
+		}
+
+		bool operator==(const id_function<T>& o) const { return id == o.id; }
+		T getFunction() { return function; }
+		int getDescriptor() { return descriptor; }
+	private:
+		unsigned int id;
+		T function;
+		desc descriptor;
+	};
+
+	std::list<id_function<windowSizeFunction>> windowSizeCallBacks;
+	std::list<id_function<mousePositionFunction>> mousePositionCallBacks;
+	std::list<id_function<scrollFunction>> scrollCallBacks;
+	std::list<id_function<mouseButtonFunction>> mouseButtonCallBacks;
+	std::list<id_function<keyFunction>> keyCallBacks;
+
+};

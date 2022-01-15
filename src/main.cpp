@@ -25,12 +25,43 @@
 #include "Lighting.h"
 #include "GameObject.h"
 #include "Model.h"
+#include "GameCallback.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
 #include "AudioManager.h"
 
+//Classes to test the manager with
+class SizeTogglerTest{//This class is a resister for registering haha
+	public: 
+	SizeTogglerTest(std::shared_ptr<GameEventManager> em, Camera& c) : eventManager(em), mainCamera(c){
+		function = bindMethodFunction_2_Variables(&Camera::windowSizeChanged, &mainCamera);
+		enableWindowUpdate();
+	};
+	std::shared_ptr<GameEventManager> eventManager;
+	Camera& mainCamera;
+	unsigned int mainCameraid;
+	GameEventManager::mousePositionFunction function;
+	void enableWindowUpdate() {
+		mainCameraid = eventManager->registerWindowSize(function);
+	}
+	void disableWindowUpdate() {
+		eventManager->deregisterWindowSize(function, mainCameraid);
+	}
+};
+
+class PlayCarSound {
+public:
+	PlayCarSound(AudioSource& c, Audio& s) : car(c), sound(s) {};
+	AudioSource& car;
+	Audio& sound;
+	void playVROOOOOOM() {
+		car.setPosition(glm::vec3(7.5f, 0.0f, 1.5f));
+		car.playAudio(sound);
+	}
+};
+//-------------------------------
 int main() {
 
 	Audio sound = AudioManager::instance().loadAudio("audio/rev.wav");
@@ -46,17 +77,23 @@ int main() {
 	// WINDOW
 	glfwInit();
 	Window window(1200, 800, "Test Window");
+	std::shared_ptr<GameEventManager> eventManager = std::make_shared<GameEventManager>();
+	window.setCallbacks(eventManager);
 
+	// -----Example--method--Registration--
+	PlayCarSound testPlayer = PlayCarSound(car, sound);
+	eventManager->registerKey(bindMethodFunction_0_Variables(&PlayCarSound::playVROOOOOOM, &testPlayer), GLFW_KEY_S, GLFW_PRESS, 0);
+	// ------------------------------------
 	GLDebug::enable();
-
-	//window.setCallbacks(a4);
 
 	ShaderProgram shader("shaders/MainCamera.vert", "shaders/MainCamera.frag");
 	glm::mat4 identiy(1.0f);
 
 	//-----Cameras
-	Camera mainCamera = Camera(glm::vec3(2.0f,2.5f,0.0f), glm::radians(45.0f), glm::radians(-45.0f));
-
+	Camera mainCamera = Camera(glm::vec3(2.0f,2.5f,0.0f), glm::radians(45.0f), glm::radians(-45.0f), glm::radians(100.f), 3.f / 2.f, 0.01f, 1000.0f);
+	SizeTogglerTest toggleSize = SizeTogglerTest(eventManager, mainCamera);
+	eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::enableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_RELEASE, 0);
+	eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::disableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_PRESS, 0);
 	//-----Lights
 	std::vector<PointLight> scenePointLights = {
 		PointLight(glm::vec3(0.5f, 1.0f, 1.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.f, 0.f)),
@@ -99,7 +136,7 @@ int main() {
 		for (; timeAccumulator >= timeStepTaken; timeAccumulator -= timeStepTaken) {
 			//Do per iteration
 			//mainCamera.incrementTheta(glm::radians(0.3f));
-			scenePointLights[0].setPos(glm::vec3(cosf(0.2f * (realTimeCurrent - initialTime)), sinf(0.2f * (realTimeCurrent - initialTime)), 1.0f));
+			scenePointLights[0].setPos(glm::vec3(cosf(0.2f * ((float)(realTimeCurrent - initialTime))), sinf(0.2f * ((float)(realTimeCurrent - initialTime))), 1.0f));
 		}
 
 		//---Render Frame
@@ -114,7 +151,7 @@ int main() {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		shader.use();
-		mainCamera.usePerspective(glGetUniformLocation(shader, "V"), glGetUniformLocation(shader, "P"), glGetUniformLocation(shader, "renderCameraPosition"), glm::radians(60.f), 3.f/2.f, 0.01f, 1000.0f);
+		mainCamera.usePerspective(glGetUniformLocation(shader, "V"), glGetUniformLocation(shader, "P"), glGetUniformLocation(shader, "renderCameraPosition"));
 		preparePointLightsForRendering(
 			glGetUniformLocation(shader, "lightPositions"),
 			glGetUniformLocation(shader, "lightColours"),
@@ -126,10 +163,10 @@ int main() {
 
 		prepareGameObjectsForRendering(glGetUniformLocation(shader, "Ms"), glGetUniformLocation(shader, "MsInverseTransposed"), sceneCubeGameObjects);
 		sceneRenderModels[0].prepareModelForRendering(glGetUniformLocation(shader, "uniformPhongConstaints"), glGetUniformLocation(shader, "useColour"), drawGeom);
-		sceneRenderModels[0].renderModel(sceneCubeGameObjects.size());
+		sceneRenderModels[0].renderModel((int)sceneCubeGameObjects.size());
 		prepareGameObjectsForRendering(glGetUniformLocation(shader, "Ms"), glGetUniformLocation(shader, "MsInverseTransposed"), scenePlaneGameObjects);
 		sceneRenderModels[1].prepareModelForRendering(glGetUniformLocation(shader, "uniformPhongConstaints"), glGetUniformLocation(shader, "useColour"), drawGeom);
-		sceneRenderModels[1].renderModel(scenePlaneGameObjects.size());
+		sceneRenderModels[1].renderModel((int)scenePlaneGameObjects.size());
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 		window.swapBuffers();
