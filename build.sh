@@ -21,7 +21,7 @@ clean () {
 
 # Generate the CMake files in Debug
 generate () {
-    cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug ..
+    cmake -S . -B build ..
 }
 
 # Build the project in Debug
@@ -38,7 +38,7 @@ run () {
 
 # Generate the CMake files in Release
 generate_release () {
-    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release ..
+    cmake -S . -B build ..
 }
 
 # Build the project in Release

@@ -1,5 +1,14 @@
+/** Some kind of big comment to document stuff probably goes here
+* Authors, license, disclaimer, whatever
+*/
+
+// Build glew library statically
 #define GLEW_STATIC
+
+// Use header only FMT library to avoid unnecessary shared libraries
 #define FMT_HEADER_ONLY
+
+// For math functions
 #define _USE_MATH_DEFINES
 
 #include <GL/glew.h>
@@ -21,10 +30,16 @@
 #include "Texture.h"
 #include "Window.h"
 #include "Camera.h"
+#include "EditorCamera.h"
 #include "Lighting.h"
 #include "GameObject.h"
 #include "Model.h"
 #include "GameCallback.h"
+
+// Include Time static class and initialize it's members
+#include "Time.h"
+double Time::lastFrameTime = glfwGetTime();
+double Time::delta_ = 0.0;
 
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -83,16 +98,25 @@ int main() {
 	PlayCarSound testPlayer = PlayCarSound(car, sound);
 	eventManager->registerKey(bindMethodFunction_0_Variables(&PlayCarSound::playVROOOOOOM, &testPlayer), GLFW_KEY_S, GLFW_PRESS, 0);
 	// ------------------------------------
-	GLDebug::enable();
+	//GLDebug::enable();
 
 	ShaderProgram shader("shaders/MainCamera.vert", "shaders/MainCamera.frag");
 	glm::mat4 identiy(1.0f);
 
 	//-----Cameras
-	Camera mainCamera = Camera(glm::vec3(2.0f,2.5f,0.0f), glm::radians(45.0f), glm::radians(-45.0f), glm::radians(100.f), 3.f / 2.f, 0.01f, 1000.0f);
-	SizeTogglerTest toggleSize = SizeTogglerTest(eventManager, mainCamera);
-	eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::enableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_RELEASE, 0);
-	eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::disableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_PRESS, 0);
+	EditorCamera mainCamera = EditorCamera();
+
+	/* No idea how to register the inputs for the camera */
+
+	// -- Here's what we need inputs for though:
+	// mainCamera.move(mouse_x, mouse_y)
+	// mainCamera.rotateAroundTarget(mouse_x, mouse_y)
+	// mainCamera.zoom(scroll_wheel_y)
+
+	//Camera mainCamera = Camera(glm::vec3(2.0f,2.5f,0.0f), glm::radians(45.0f), glm::radians(-45.0f), glm::radians(100.f), 3.f / 2.f, 0.01f, 1000.0f);
+	//SizeTogglerTest toggleSize = SizeTogglerTest(eventManager, mainCamera);
+	//eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::enableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_RELEASE, 0);
+	//eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::disableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_PRESS, 0);
 	//-----Lights
 	std::vector<PointLight> scenePointLights = {
 		PointLight(glm::vec3(0.5f, 1.0f, 1.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.f, 0.f)),
@@ -124,6 +148,10 @@ int main() {
 	double realTimePrevious = glfwGetTime(), realTimeCurrent = realTimePrevious, changeInTimeSince, timeAccumulator = 0.0f, initialTime = realTimePrevious;
 	//---Game Loop----
 	while (!window.shouldClose()) {
+		// Update time values for this frame using Time static class
+		// Time::now(), Time::delta()
+		Time::computeTimeDelta();
+
 		glfwPollEvents();
 		//Update the Time values for this frame
 		realTimePrevious = realTimeCurrent;
@@ -148,9 +176,15 @@ int main() {
 
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+		
 		shader.use();
-		mainCamera.usePerspective(glGetUniformLocation(shader, "V"), glGetUniformLocation(shader, "P"), glGetUniformLocation(shader, "renderCameraPosition"));
+
+		//mainCamera.usePerspective(glGetUniformLocation(shader, "V"), glGetUniformLocation(shader, "P"), glGetUniformLocation(shader, "renderCameraPosition"));
+		float viewportAspectRatio = static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight());
+		glUniformMatrix4fv(glGetUniformLocation(shader, "P"), 1, GL_FALSE, glm::value_ptr(glm::perspective(glm::radians(100.f), viewportAspectRatio, 0.01f, 1000.0f)));
+		glUniformMatrix4fv(glGetUniformLocation(shader, "V"), 1, GL_FALSE, glm::value_ptr(mainCamera.getViewMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(shader, "renderCameraPosition"), 1, GL_FALSE, glm::value_ptr(mainCamera.getPosition()));
+
 		preparePointLightsForRendering(
 			glGetUniformLocation(shader, "lightPositions"),
 			glGetUniformLocation(shader, "lightColours"),
