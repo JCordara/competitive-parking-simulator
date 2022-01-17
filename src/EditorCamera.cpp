@@ -2,36 +2,39 @@
 
 // Constructor initializes camera on z axis looking at target
 // TODO: Get rid of magic numbers
-EditorCamera::EditorCamera() {
+EditorCamera::EditorCamera()
 
-	// Set default values for camera position and options
-	zoomAmount = default_cam_init_zoom;
-	pitch = default_cam_init_pitch;
-	yaw = default_cam_init_yaw;
-	mouseSensitivity = default_cam_init_sensitivity * 500.0f; // Magic number
-	scrollSensitivity = 0.3f; // Magic number - makes for natural scrolling
-	moveSpeed = default_cam_init_speed;
+	: zoomAmount(default_cam_init_zoom)
+	, pitch(default_cam_init_pitch)
+	, yaw(default_cam_init_yaw)
+	, mouseSensitivity(default_cam_init_sensitivity)
+	, scrollSensitivity(0.3f) // Magic number - makes for natural scrolling
+	, moveSpeed(default_cam_init_speed)
 
-	// Default view matrix (identity)
-	viewMatrix = glm::mat4(1.0f);
+	, viewMatrix(glm::mat4(1.0f)) // Default view matrix (identity)
 
 	// Initialize important reference vectors
-	worldUp = up = glm::vec3(0.0f, 1.0f, 0.0f);
-	right = glm::vec3(1.0f, 0.0f, 0.0f);
-	target = glm::vec3(0.0f, 0.0f, 0.0f);
+	, worldUp(glm::vec3(0.0f, 1.0f, 0.0f))
+	, up(worldUp)
+	, right(glm::vec3(1.0f, 0.0f, 0.0f))
+	, target(glm::vec3(0.0f, 0.0f, 0.0f))
 
+	// Embedded controller variables
+	, c_MB1Down_(false)
+	, c_MB2Down_(false)
+{
 	// Calculate initial values
 	updateRadius();
-	updateVectors();
 	updatePosition();
+	updateVectors();
 }
 
 // Initialize camera with a point to look at
 EditorCamera::EditorCamera(glm::vec3 initLookAt) : EditorCamera() {
 	target = initLookAt;
 	updateRadius();
-	updateVectors();
 	updatePosition();
+	updateVectors();
 }
 
 
@@ -39,42 +42,60 @@ EditorCamera::EditorCamera(glm::vec3 initLookAt) : EditorCamera() {
 
 void EditorCamera::rotateAroundTarget(double xOffset, double yOffset) {
 
-	xOffset *= mouseSensitivity;
-	yOffset *= mouseSensitivity;
+	// Only when right mouse button is down
+	if (c_MB2Down_)
+	{
+		// TODO: fix this - it's screen dependent (window size, resolution)
+		double sensitivityFactor = mouseSensitivity * 2.5;
 
-	yaw   += xOffset * Time::delta();
-	pitch += yOffset * Time::delta();
+		double deltaX = xOffset - c_mouseLastX_;
+		double deltaY = yOffset - c_mouseLastY_;
+		
+		deltaX *= sensitivityFactor;
+		deltaY *= sensitivityFactor;
 
-	// Clamp pitch between looking straight up and straight down
-	if (pitch >  89.99f) pitch =  89.99f;
-	if (pitch < -89.99f) pitch = -89.99f;
+		yaw   += deltaX * Time::delta();
+		pitch -= deltaY * Time::delta();
 
-	updatePosition();
-	updateVectors();
+		// Clamp pitch between looking straight up and straight down
+		if (pitch >  89.99f) pitch =  89.99f;
+		if (pitch < -89.99f) pitch = -89.99f;
+
+		updatePosition();
+		updateVectors();
+	}
+
+	// Update last frame's mouse positions
+	c_mouseLastX_ = xOffset;
+	c_mouseLastY_ = yOffset;
 }
 
 // Move the camera without rotating
 void EditorCamera::move(double xOffset, double yOffset) {
 
-	// TODO: fix this - it's screen dependent (window size, resolution)
-	double moveSensitivity = mouseSensitivity * 0.4f;
+	// Only when left mouse button is down
+	if (!c_MB1Down_) return;
+
+	double deltaX = xOffset - c_mouseLastX_;
+	double deltaY = yOffset - c_mouseLastY_;
 
 	// Move both the target (being looked at) and position (camera position)
 	// by the same amount
 	float xAmount = static_cast<float>(
-		xOffset * moveSensitivity * moveSpeed * Time::delta());
+		deltaX * mouseSensitivity * moveSpeed * Time::delta());
 	float yAmount = static_cast<float>(
-		yOffset * moveSensitivity * moveSpeed * Time::delta());
+		deltaY * mouseSensitivity * moveSpeed * Time::delta());
 
 	// Move lookat target by specified amount
 	target   += right * xAmount;
-	target   -= up    * yAmount;
+	target   += up    * yAmount;
 
 	updatePosition();
+
 }
 
-void EditorCamera::zoom(double offset) {
-	zoomAmount += offset * scrollSensitivity;
+void EditorCamera::zoom(double, double yOffset) {
+	zoomAmount += yOffset * scrollSensitivity;
 
 	// Clamp zoom min and max
 	if (zoomAmount > 10.0f) zoomAmount = 10.0f;
@@ -90,15 +111,16 @@ void EditorCamera::resetTarget() {
 	target.y = 0.0f;
 	target.z = 0.0f;
 
-	updateVectors();
+	updateRadius();
 	updatePosition();
+	updateVectors();
 }
 
 
 // Accessor functions ---------------------------------------
 
 glm::mat4 EditorCamera::getViewMatrix() {
-	/* viewMatrix = glm::lookAt(position, position + front, up); */
+	//viewMatrix = glm::lookAt(position, target, up);
 	viewMatrix = lookAt(position, target, up);
 	return viewMatrix;
 }
@@ -113,12 +135,13 @@ glm::vec3 EditorCamera::getViewDirection() const {
 
 void EditorCamera::setLookAt(glm::vec3 newLookAt) {
 	target = newLookAt;
-	updateVectors();
+	updateRadius();
 	updatePosition();
+	updateVectors();
 }
 
 void EditorCamera::setSensitivity(double newSensitivity) {
-	mouseSensitivity = newSensitivity * 60.0f;
+	mouseSensitivity = newSensitivity;
 }
 
 
@@ -184,12 +207,30 @@ void EditorCamera::setZoom(double v) {
 
 void EditorCamera::setPitch(double v) {
 	pitch = v;
-	updateVectors();
+	updateRadius();
 	updatePosition();
+	updateVectors();
 }
 
 void EditorCamera::setYaw(double v) {
 	yaw = v;
-	updateVectors();
+	updateRadius();
 	updatePosition();
+	updateVectors();
+}
+
+
+/* Embedded controller functions */
+
+void EditorCamera::button1Down() {
+	c_MB1Down_ = true;
+}
+void EditorCamera::button1Up() {
+	c_MB1Down_ = false;
+}
+void EditorCamera::button2Down() {
+	c_MB2Down_ = true;
+}
+void EditorCamera::button2Up() {
+	c_MB2Down_ = false;
 }

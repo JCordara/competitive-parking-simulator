@@ -18,19 +18,19 @@
 /* --- Default intial values --- */
 
 // Initial yaw (y-axis rotation)
-const double default_cam_init_yaw         = 0.0f;
+const double default_cam_init_yaw         = 0.0;
 
 // Initial pitch (x-axis rotation)
-const double default_cam_init_pitch       = 0.0f;
+const double default_cam_init_pitch       = 0.0;
 
 // Camera move speed multiplier
-const double default_cam_init_speed       = 0.05f;
+const double default_cam_init_speed       = 0.05;
 
 // Mouse sensitivity multiplier
-const double default_cam_init_sensitivity = 8.0f;
+const double default_cam_init_sensitivity = 4.0;
 
 // Initial zoom amount (clamped from 1 - 10)
-const double default_cam_init_zoom        = 7.5f;
+const double default_cam_init_zoom        = 5.0;
 
 
 class EditorCamera {
@@ -55,7 +55,7 @@ public:
 	void move(double xOffset, double yOffset);
 
 	// Update the distance from the target given scroll wheel offset
-	void zoom(double offset);
+	void zoom(double, double yOffset);
 
 	// Reset lookat target to origin (0,0,0)
 	void resetTarget();
@@ -87,7 +87,19 @@ public:
 		printf("target:   (%.2f, %.2f, %.2f)\n", target.x, target.y, target.z);
 	};
 
+	/* Embedded controller functions */
+	void button1Down();
+	void button1Up();
+	void button2Down();
+	void button2Up();
+
 private:
+
+	/* Embedded controller variables */
+	bool c_MB1Down_;		// Is left mouse button down
+	bool c_MB2Down_;		// Is right mouse button down
+	double c_mouseLastX_;	// Mouse X coordinate from last frame
+	double c_mouseLastY_;	// Mouse Y coordinate from last frame
 
 	double radius; 		// Distance of camera from target
 	double zoomAmount; 	// Current zoom of the camera

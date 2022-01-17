@@ -105,18 +105,24 @@ int main() {
 
 	//-----Cameras
 	EditorCamera mainCamera = EditorCamera();
+	mainCamera.setPitch(-40.0);
+	mainCamera.setYaw(-45.0);
+	mainCamera.setZoom(6.5);
+	mainCamera.setLookAt(glm::vec3(0.0f, 0.0f, -1.0f));
 
-	/* No idea how to register the inputs for the camera */
-
-	// -- Here's what we need inputs for though:
-	// mainCamera.move(mouse_x, mouse_y)
-	// mainCamera.rotateAroundTarget(mouse_x, mouse_y)
-	// mainCamera.zoom(scroll_wheel_y)
-
+	// Register camera input events
+	eventManager->registerMouseButton(bindMethodFunction_0_Variables(&EditorCamera::button1Down, &mainCamera), GLFW_MOUSE_BUTTON_1, GLFW_PRESS, 0);
+	eventManager->registerMouseButton(bindMethodFunction_0_Variables(&EditorCamera::button1Up, &mainCamera), GLFW_MOUSE_BUTTON_1, GLFW_RELEASE, 0);
+	eventManager->registerMouseButton(bindMethodFunction_0_Variables(&EditorCamera::button2Down, &mainCamera), GLFW_MOUSE_BUTTON_2, GLFW_PRESS, 0);
+	eventManager->registerMouseButton(bindMethodFunction_0_Variables(&EditorCamera::button2Up, &mainCamera), GLFW_MOUSE_BUTTON_2, GLFW_RELEASE, 0);
+	eventManager->registerMousePosition(bindMethodFunction_2_Variables(&EditorCamera::move, &mainCamera));
+	eventManager->registerMousePosition(bindMethodFunction_2_Variables(&EditorCamera::rotateAroundTarget, &mainCamera));
+	eventManager->registerScroll(bindMethodFunction_2_Variables(&EditorCamera::zoom, &mainCamera));
 	//Camera mainCamera = Camera(glm::vec3(2.0f,2.5f,0.0f), glm::radians(45.0f), glm::radians(-45.0f), glm::radians(100.f), 3.f / 2.f, 0.01f, 1000.0f);
 	//SizeTogglerTest toggleSize = SizeTogglerTest(eventManager, mainCamera);
 	//eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::enableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_RELEASE, 0);
 	//eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::disableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_PRESS, 0);
+
 	//-----Lights
 	std::vector<PointLight> scenePointLights = {
 		PointLight(glm::vec3(0.5f, 1.0f, 1.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.f, 0.f)),
@@ -181,9 +187,9 @@ int main() {
 
 		//mainCamera.usePerspective(glGetUniformLocation(shader, "V"), glGetUniformLocation(shader, "P"), glGetUniformLocation(shader, "renderCameraPosition"));
 		float viewportAspectRatio = static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight());
-		glUniformMatrix4fv(glGetUniformLocation(shader, "P"), 1, GL_FALSE, glm::value_ptr(glm::perspective(glm::radians(100.f), viewportAspectRatio, 0.01f, 1000.0f)));
+		glUniformMatrix4fv(glGetUniformLocation(shader, "P"), 1, GL_FALSE, glm::value_ptr(glm::perspective(glm::radians(60.f), viewportAspectRatio, 0.01f, 1000.0f)));
 		glUniformMatrix4fv(glGetUniformLocation(shader, "V"), 1, GL_FALSE, glm::value_ptr(mainCamera.getViewMatrix()));
-		glUniformMatrix4fv(glGetUniformLocation(shader, "renderCameraPosition"), 1, GL_FALSE, glm::value_ptr(mainCamera.getPosition()));
+		glUniform3fv(glGetUniformLocation(shader, "renderCameraPosition"), 1, glm::value_ptr(mainCamera.getPosition()));
 
 		preparePointLightsForRendering(
 			glGetUniformLocation(shader, "lightPositions"),
