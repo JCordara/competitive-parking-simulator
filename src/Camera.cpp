@@ -29,5 +29,9 @@ void Camera::usePerspective(GLint viewMatrixLocation, GLint projectionMatrixLoca
 }
 
 void Camera::windowSizeChanged(int width, int height) {
+	if (height == 0) {
+		aspectRatio = 0.0f;
+		return;
+	}
 	aspectRatio = ((float)width)/((float)height);
 }

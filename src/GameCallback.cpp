@@ -15,10 +15,15 @@ bool GameEventManager::deregisterWindowSize(windowSizeFunction func, unsigned in
 	}else return false;
 }
 
+#include <iostream>
+
 void GameEventManager::windowSizeCallback(int width, int height) {
 	CallbackInterface::windowSizeCallback(width, height); //Will call glViewport for us (dont remove)
-	for (std::list<id_function<windowSizeFunction>>::iterator iteratior = windowSizeCallBacks.begin(); iteratior != windowSizeCallBacks.end(); iteratior++)
-		(*iteratior).getFunction()(width, height);
+	std::cout << "********************************* " <<windowSizeCallBacks.size()<<"\n";
+	if (windowSizeCallBacks.size() > 0) {
+		for (std::list<id_function<windowSizeFunction>>::iterator iteratior = windowSizeCallBacks.begin(); iteratior != windowSizeCallBacks.end(); iteratior++)
+			(*iteratior).getFunction()(width, height);
+	}
 }
 
 unsigned int GameEventManager::registerMousePosition(mousePositionFunction func) {

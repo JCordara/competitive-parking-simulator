@@ -1,5 +1,6 @@
 # Own stuff here
 build
+local
 compile_commands.json
 .vscode
 settings.json
@@ -23,9 +24,7 @@ launch.json
 *.userprefs
 
 # Build results
-[Dd]ebug/
 [Dd]ebugPublic/
-[Rr]elease/
 [Rr]eleases/
 x64/
 x86/
