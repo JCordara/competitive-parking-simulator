@@ -46,7 +46,7 @@ void EditorCamera::rotateAroundTarget(double xOffset, double yOffset) {
 	if (c_MB2Down_)
 	{
 		// TODO: fix this - it's screen dependent (window size, resolution)
-		double sensitivityFactor = mouseSensitivity * 2.5;
+		double sensitivityFactor = mouseSensitivity * 2.0;
 
 		double deltaX = xOffset - c_mouseLastX_;
 		double deltaY = yOffset - c_mouseLastY_;
@@ -133,6 +133,10 @@ glm::vec3 EditorCamera::getViewDirection() const {
 	return glm::normalize(position - target);
 }
 
+glm::vec3 EditorCamera::getUpDirection() const {
+	return glm::normalize(up);
+}
+
 void EditorCamera::setLookAt(glm::vec3 newLookAt) {
 	target = newLookAt;
 	updateRadius();
@@ -157,9 +161,17 @@ void EditorCamera::updateVectors() {
 
 // Given radius, pitch, yaw, and target, recalculate camera position
 void EditorCamera::updatePosition() {
-	position.x = -radius * sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	position.y = -radius * sin(glm::radians(pitch));
-	position.z = radius * cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	// Factor out common values
+	double d_pitch = glm::radians(pitch);
+	double d_yaw = glm::radians(yaw);
+	double cosPitch = cos(d_pitch);
+
+	// Calculate relative position
+	position.x = static_cast<float>(-radius * sin(d_yaw) * cosPitch);
+	position.y = static_cast<float>(-radius * sin(d_pitch));
+	position.z = static_cast<float>( radius * cos(d_yaw) * cosPitch);
+
+	// Calculate world position
 	position += target;
 }
 

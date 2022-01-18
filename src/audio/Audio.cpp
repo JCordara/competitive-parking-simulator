@@ -1,12 +1,15 @@
 #include "Audio.h"
 
 Audio::Audio() 
-    : bufferID(0)
+    : Audio("audio/null.wav")
 {}
 
 Audio::Audio(const std::string filepath) 
-    : Audio()
+    : _bufferID(0)
 {
+
+    _filepath = filepath;
+
     ALenum format;
     SNDFILE* sndfile;
     SF_INFO sfinfo;
@@ -92,8 +95,8 @@ Audio::Audio(const std::string filepath)
 
 
     // Copy the audio data into a new buffer object
-    alGenBuffers(1, &bufferID);
-    alBufferData(bufferID, format, membuf, num_bytes, sfinfo.samplerate);
+    alGenBuffers(1, &_bufferID);
+    alBufferData(_bufferID, format, membuf, num_bytes, sfinfo.samplerate);
 
     // Release resources
     free(membuf);
@@ -103,12 +106,14 @@ Audio::Audio(const std::string filepath)
     ALenum err = alGetError();
     if(err != AL_NO_ERROR) {
         std::cerr << "OpenAL Error: " << alGetString(err) << "\n";
-        if (bufferID && alIsBuffer(bufferID))
-            alDeleteBuffers(1, &bufferID);
+        if (_bufferID && alIsBuffer(_bufferID))
+            alDeleteBuffers(1, &_bufferID);
         return;
     }
 }
 
 Audio::~Audio() {
-    alDeleteBuffers(1, &bufferID);
+    debug_log("Entering Audio destructor");
+    if(alIsBuffer(_bufferID)) alDeleteBuffers(1, &_bufferID);
+    debug_log("Leaving Audio destructor");
 }

@@ -35,17 +35,19 @@
 #include "GameObject.h"
 #include "Model.h"
 #include "GameCallback.h"
+#include "AudioManager.h"
 
 // Include Time static class and initialize it's members
 #include "Time.h"
 double Time::lastFrameTime = glfwGetTime();
-double Time::delta_ = 0.0;
+double Time::delta_ = 0.01; // Initialize to non-zero value
 
-#include "glm/glm.hpp"
-#include "glm/gtc/type_ptr.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-#include "AudioManager.h"
+#define TRACKBALL_CAM
 
+/* This was generating a nasty warning
 //Classes to test the manager with
 class SizeTogglerTest{//This class is a resister for registering haha
 	public: 
@@ -64,25 +66,22 @@ class SizeTogglerTest{//This class is a resister for registering haha
 		eventManager->deregisterWindowSize(function, mainCameraid);
 	}
 };
-
+*/
 class PlayCarSound {
 public:
 	PlayCarSound(AudioSource& c, Audio& s) : car(c), sound(s) {};
 	AudioSource& car;
 	Audio& sound;
 	void playVROOOOOOM() {
-		car.setPosition(glm::vec3(7.5f, 0.0f, 1.5f));
 		car.playAudio(sound);
 	}
 };
+
 //-------------------------------
 int main() {
-
-	Audio sound = AudioManager::instance().loadAudio("audio/rev.wav");
-	AudioSource car = AudioManager::instance().createSource();
-	car.setGain(1.5f);
-	car.setPosition(glm::vec3(7.5f, 0.0f, 1.5f));
-	car.setVelocity(glm::vec3(-10.0f, 0.0f, 0.0f));
+	
+	Audio& sound = AudioManager::instance().loadAudio("audio/rev.wav");
+	AudioSource& car = AudioManager::instance().createStaticSource(glm::vec3(0.0f, 0.0f, -2.0f));
 
 	// ----------------------------
 
@@ -104,10 +103,12 @@ int main() {
 	glm::mat4 identiy(1.0f);
 
 	//-----Cameras
+
+#ifdef TRACKBALL_CAM
 	EditorCamera mainCamera = EditorCamera();
-	mainCamera.setPitch(-40.0);
+	mainCamera.setPitch(-35.0);
 	mainCamera.setYaw(-45.0);
-	mainCamera.setZoom(6.5);
+	mainCamera.setZoom(5.5);
 	mainCamera.setLookAt(glm::vec3(0.0f, 0.0f, -1.0f));
 
 	// Register camera input events
@@ -118,10 +119,12 @@ int main() {
 	eventManager->registerMousePosition(bindMethodFunction_2_Variables(&EditorCamera::move, &mainCamera));
 	eventManager->registerMousePosition(bindMethodFunction_2_Variables(&EditorCamera::rotateAroundTarget, &mainCamera));
 	eventManager->registerScroll(bindMethodFunction_2_Variables(&EditorCamera::zoom, &mainCamera));
-	//Camera mainCamera = Camera(glm::vec3(2.0f,2.5f,0.0f), glm::radians(45.0f), glm::radians(-45.0f), glm::radians(100.f), 3.f / 2.f, 0.01f, 1000.0f);
-	//SizeTogglerTest toggleSize = SizeTogglerTest(eventManager, mainCamera);
-	//eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::enableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_RELEASE, 0);
-	//eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::disableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_PRESS, 0);
+#else
+	Camera mainCamera = Camera(glm::vec3(2.0f,2.5f,0.0f), glm::radians(45.0f), glm::radians(-45.0f), glm::radians(100.f), 3.f / 2.f, 0.01f, 1000.0f);
+	SizeTogglerTest toggleSize = SizeTogglerTest(eventManager, mainCamera);
+	eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::enableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_RELEASE, 0);
+	eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::disableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_PRESS, 0);
+#endif
 
 	//-----Lights
 	std::vector<PointLight> scenePointLights = {
@@ -185,11 +188,17 @@ int main() {
 		
 		shader.use();
 
-		//mainCamera.usePerspective(glGetUniformLocation(shader, "V"), glGetUniformLocation(shader, "P"), glGetUniformLocation(shader, "renderCameraPosition"));
+#ifdef TRACKBALL_CAM
 		float viewportAspectRatio = static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight());
 		glUniformMatrix4fv(glGetUniformLocation(shader, "P"), 1, GL_FALSE, glm::value_ptr(glm::perspective(glm::radians(60.f), viewportAspectRatio, 0.01f, 1000.0f)));
 		glUniformMatrix4fv(glGetUniformLocation(shader, "V"), 1, GL_FALSE, glm::value_ptr(mainCamera.getViewMatrix()));
 		glUniform3fv(glGetUniformLocation(shader, "renderCameraPosition"), 1, glm::value_ptr(mainCamera.getPosition()));
+
+		AudioManager::instance().setListenerPosition(mainCamera.getPosition());
+		AudioManager::instance().setListenerOrientation(mainCamera.getViewMatrix());
+#else
+		mainCamera.usePerspective(glGetUniformLocation(shader, "V"), glGetUniformLocation(shader, "P"), glGetUniformLocation(shader, "renderCameraPosition"));
+#endif
 
 		preparePointLightsForRendering(
 			glGetUniformLocation(shader, "lightPositions"),
@@ -210,7 +219,7 @@ int main() {
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 		window.swapBuffers();
 
-		car.setPosition(car.position() + glm::vec3(-0.22f, 0.0f, 0.0f));
+		//car.setPosition(car.position() + glm::vec3(-0.22f, 0.0f, 0.0f));
 	}
 	glfwTerminate();
 	return 0;

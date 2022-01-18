@@ -27,7 +27,7 @@ const double default_cam_init_pitch       = 0.0;
 const double default_cam_init_speed       = 0.05;
 
 // Mouse sensitivity multiplier
-const double default_cam_init_sensitivity = 4.0;
+const double default_cam_init_sensitivity = 4.5;
 
 // Initial zoom amount (clamped from 1 - 10)
 const double default_cam_init_zoom        = 5.0;
@@ -70,6 +70,9 @@ public:
 
 	// Return current view direction vector of camera (normalized)
 	glm::vec3 getViewDirection() const;
+
+	// Return current up direction vector of camera (normalized)
+	glm::vec3 getUpDirection() const;
 
 	// Direct access to underlying camera settings
 	void setLookAt(glm::vec3 newLookAt);

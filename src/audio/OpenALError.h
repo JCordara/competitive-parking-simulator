@@ -1,7 +1,7 @@
 #ifndef OPEN_AL_ERROR_H
 #define OPEN_AL_ERROR_H
 
-#define AL_LIBTYPE_STATIC
+#include "AudioSettings.h"
 
 #include <AL/al.h>
 #include <AL/alc.h>

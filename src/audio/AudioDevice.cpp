@@ -48,7 +48,16 @@ void AudioDevice::close() {
     isOpen = false;
 }
 
+std::string AudioDevice::name() const {
+    return name_;
+}
+
+AudioDevice::operator ALCdevice*() const {
+    return p_alcDevice;
+}
+
 AudioDevice::~AudioDevice() {
+    debug_log("Entering AudioDevice destructor");
     // If device hasn't been successfully opened yet, return
     if (!p_alcDevice) return;
     if (!isOpen) return; // Return is device isnt flagged as open
@@ -57,12 +66,5 @@ AudioDevice::~AudioDevice() {
         std::cerr << "Failed to close sound device \"" << name_ << "\"\n";
     }
     isOpen = false;
-}
-
-std::string AudioDevice::name() const {
-    return name_;
-}
-
-AudioDevice::operator ALCdevice*() const {
-    return p_alcDevice;
+    debug_log("Leaving AudioDevice destructor");
 }

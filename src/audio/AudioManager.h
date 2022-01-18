@@ -1,7 +1,7 @@
 #ifndef AUDIO_MANAGER_H
 #define AUDIO_MANAGER_H
 
-#define AL_LIBTYPE_STATIC
+#include "AudioSettings.h"
 
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -9,6 +9,8 @@
 #include <AL/efx.h>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "../Time.h"
 
 #include "AudioDevice.h"
 #include "AudioSource.h"
@@ -27,6 +29,15 @@ public:
     AudioSource& createSource();
     AudioSource& createSource(const glm::vec3 position_init);
 
+    AudioSource& createStaticSource();
+    AudioSource& createStaticSource(const glm::vec3 position_init);
+
+    void setListenerPosition(const glm::vec3& _position);
+    void setListenerOrientation(const glm::vec3& _front, const glm::vec3& _up);
+    
+    // Listener orientation can also be set using the camera's view matrix
+    void setListenerOrientation(const glm::mat4& _vm);
+
     // ----- Device management methods -----
     int availableDevicesCount() const;
     void openDevice(int deviceID);
@@ -44,9 +55,9 @@ public:
 
 private:
 
-    std::vector<Audio> audioBuffers;
-    std::vector<AudioSource> audioSources;
-    std::vector<AudioDevice> audioDevices;
+    std::vector<std::shared_ptr<Audio>> audioBuffers;
+    std::vector<std::shared_ptr<AudioSource>> audioSources;
+    std::vector<std::shared_ptr<AudioDevice>> audioDevices;
 
     uint8_t currentDevice;
     ALCcontext* p_alcContext;

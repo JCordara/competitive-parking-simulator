@@ -1,7 +1,7 @@
 #ifndef AUDIO_SOURCE_H
 #define AUDIO_SOURCE_H
 
-#define AL_LIBTYPE_STATIC
+#include "AudioSettings.h"
 
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -9,6 +9,8 @@
 #include <AL/efx.h>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "../Time.h"
 
 #include "Audio.h"
 #include "OpenALError.h"
@@ -19,22 +21,24 @@ class AudioSource {
 
 public:
 
-    AudioSource();
-    AudioSource(const glm::vec3 position_init);
+    AudioSource(bool staticSource = false);
+    AudioSource(const glm::vec3 position_init, bool staticSource = false);
     AudioSource& operator=(const AudioSource& other);
     ~AudioSource();
 
     void playAudio(const Audio& audio);
     bool isPlaying();
 
-    void setPosition(const glm::vec3 pos);
-    void setVelocity(const glm::vec3 vel);
+    void setPosition(const glm::vec3& _position);
+    //void setVelocity(const glm::vec3 vel);
     glm::vec3 position() const;
     glm::vec3 velocity() const;
 
     void setGain(const float g);
 
     void regenerateSource();
+
+    operator ALuint() const { return sourceID; }
 
 private:
 
@@ -45,8 +49,10 @@ private:
     float pitch;
     float gain;
     bool looping;
+    bool _isStatic;
     
-    Audio currAudio;
+    const Audio* currAudio;
+    Audio _null;
 
 };
 

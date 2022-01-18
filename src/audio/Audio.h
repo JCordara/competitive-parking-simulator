@@ -1,9 +1,9 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-#include <string>
+#include "AudioSettings.h"
 
-#define AL_LIBTYPE_STATIC
+#include <string>
 
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -22,11 +22,12 @@ public:
     Audio(const std::string filepath);
     ~Audio();
 
-    ALuint id() const { return bufferID; }
+    operator ALuint() const { return _bufferID; }
 
 private:
 
-    ALuint bufferID;
+    ALuint _bufferID;
+    std::string _filepath;
 
 };
 
