@@ -115,16 +115,13 @@ CPU_Geometry generateSphereGeometry(glm::vec3 colour, unsigned int xFactor, unsi
 	CPU_Geometry ret;
 	float dP = M_PI / yFactor;
 	float d0 = M_PI / xFactor;
-	float dY = 1.0f / yFactor;
-	float dX = 0.5f / xFactor;;
 	glm::vec3 T3;
 	for (int i = 0; i <= 2 * xFactor; i++) {
 		for (int j = 0; j <= yFactor; j++) {
-			if (j == yFactor) T3 = glm::vec3(0.0f, -1.0f, 0.0f);
-			else T3 = glm::vec3(sinf(dP * j) * cosf(d0 * i), cosf(dP * j), sinf(dP * j) * sinf(d0 * i));
+			if (j == yFactor) T3 = glm::vec3(0.0f, -0.5f, 0.0f);
+			else T3 = glm::vec3(0.5f*sinf(dP * j) * cosf(d0 * i), 0.5f * cosf(dP * j), 0.5f * sinf(dP * j) * sinf(d0 * i));
 			ret.verts.push_back(T3);
-			ret.normals.push_back(T3);
-			ret.texCoords.push_back(glm::vec2(dX * (2 * xFactor - i), dY * (yFactor - j)));
+			ret.normals.push_back(glm::normalize(T3));
 			ret.cols.push_back(colour);
 			if (i > 0 && j > 0) {
 				ret.ind.push_back(FaceIndex(yFactor, i - 1, j - 1));
