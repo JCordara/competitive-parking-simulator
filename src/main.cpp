@@ -161,32 +161,30 @@ int main() {
 	};
 
 	car.playAudio(sound);
+	Time::computeTimeDelta();
 	//-------Real Time controls in (Seconds)
-	double realTimePrevious = glfwGetTime(), realTimeCurrent = realTimePrevious, changeInTimeSince, timeAccumulator = 0.0f, initialTime = realTimePrevious;
+	double  timeAccumulator = 0.0, initialTime = Time::now(), timeStepTaken = 0.01, currentTime = initialTime;
+	float viewportAspectRatio;
 	//---Game Loop----
 	while (!window.shouldClose()) {
+		glfwPollEvents();
 		// Update time values for this frame using Time static class
 		// Time::now(), Time::delta()
 		Time::computeTimeDelta();
-
-		glfwPollEvents();
 		//Update the Time values for this frame
-		realTimePrevious = realTimeCurrent;
-		realTimeCurrent = glfwGetTime();
-		changeInTimeSince = realTimeCurrent - realTimePrevious;
-		timeAccumulator += changeInTimeSince;
-		double timeStepTaken = 0.01f; //Temporary variable so it might be moved to an other spot
+		timeAccumulator += Time::delta();
+		currentTime = Time::now();
 		//----Physics loop---(Unsure how physX works with this so it might change) -------//
-		for (; timeAccumulator >= timeStepTaken; timeAccumulator -= timeStepTaken) {
-			//Do per iteration
-			//mainCamera.incrementTheta(glm::radians(0.3f));
-			scenePointLights[0].setPos(glm::vec3(cosf(0.2f * ((float)(realTimeCurrent - initialTime))), sinf(0.2f * ((float)(realTimeCurrent - initialTime))), 1.0f));
+		for (; timeAccumulator >= timeStepTaken; timeAccumulator -= timeStepTaken) {//Do per iteration
+			scenePointLights[0].setPos(glm::vec3(cosf(0.5f * ((float)(currentTime - initialTime))), sinf(0.5f * ((float)(currentTime - initialTime))), 10.0f));
 		}
 
 		//---Render Frame
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
 		glEnable(GL_FRAMEBUFFER_SRGB);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
@@ -197,7 +195,8 @@ int main() {
 		shader.use();
 
 #if TRACKBALL_CAM
-		float viewportAspectRatio = static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight());
+		if (window.getHeight() != 0) viewportAspectRatio = static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight());
+		else viewportAspectRatio = 0.0;
 		glUniformMatrix4fv(glGetUniformLocation(shader, "P"), 1, GL_FALSE, glm::value_ptr(glm::perspective(glm::radians(60.f), viewportAspectRatio, 0.01f, 1000.0f)));
 		glUniformMatrix4fv(glGetUniformLocation(shader, "V"), 1, GL_FALSE, glm::value_ptr(mainCamera.getViewMatrix()));
 		glUniform3fv(glGetUniformLocation(shader, "renderCameraPosition"), 1, glm::value_ptr(mainCamera.getPosition()));
