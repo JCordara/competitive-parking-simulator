@@ -136,16 +136,16 @@ int main() {
 
 	//-----Lights
 	std::vector<PointLight> scenePointLights = {
-		PointLight(glm::vec3(0.5f, 1.0f, 1.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.f, 0.f)),
-		PointLight(glm::vec3(2.0f, 15.0f, -7.0f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f))
+		PointLight(glm::vec3(0.5f, 1.0f, 1.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 4.f, 4.f)),
+		PointLight(glm::vec3(1.0f, 2.0f, -0.5f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.5f, 0.5f))
 	};
 	glm::vec3 ambientLight = glm::vec3(1.0f, 1.0f, 1.0f);
 	std::vector <std::vector<GLfloat>> lightRenderInfo;
 
 	//-----Models
 	std::vector<Model> sceneRenderModels = {
-		Model(generateCubeGeometry(glm::vec3(0.0f, 0.2f, 1.0f)), glm::vec4(0.7f, 1.7f, 32.0f, 0.00f), true),
-		Model(generatePlaneGeometry(glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec4(1.0f, 3.0f, 4.0f, 0.00f), true),
+		Model(generateCubeGeometry(glm::vec3(0.0f, 0.2f, 1.0f)), glm::vec4(0.7f, 1.0f, 100.0f, 0.01f), true),
+		Model(generatePlaneGeometry(glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec4(1.0f, 1.0f, 50.0f, 0.01f), true),
 		Model(generateSphereGeometry(glm::vec3(1.0f, 1.0f, 1.0f), 8, 8), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), true)
 	};
 
@@ -154,16 +154,16 @@ int main() {
 	//------Objects
 	std::vector<GameObject> sceneCubeGameObjects = {
 		GameObject(0,-1, glm::translate(identity, glm::vec3(0.0f, 0.0f, 0.0f))),
-		GameObject(0,-1, glm::translate(glm::scale(identity, glm::vec3(1.0f, 2.0f, 0.5f)), glm::vec3(0.0f, 0.0f, 6.0f)))
+		GameObject(0,-1, glm::scale(glm::translate(identity, glm::vec3(0.0f, 0.0f, 6.0f)), glm::vec3(1.0f, 2.0f, 0.5f)))
 	};
 
 	std::vector<GameObject> scenePlaneGameObjects = {
-		GameObject(1, -1, glm::translate(glm::scale(identity, glm::vec3(30.f, 1.f, 30.f)), glm::vec3(0.0f, -1.0f, 0.0f)))
+		GameObject(1, -1, glm::scale(glm::translate(identity, glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(30.f, 1.f, 30.f)))
 	};
 
 	std::vector<GameObject> sceneSphereGameObjects = {
-		GameObject(1, -1, glm::translate(glm::scale(identity, glm::vec3(0.1f, 0.1f, 0.1f)), scenePointLights[0].getPos())),
-		GameObject(1, -1, glm::translate(glm::scale(identity, glm::vec3(0.1f, 0.1f, 0.1f)), scenePointLights[1].getPos())),
+		GameObject(1, -1, glm::scale(glm::translate(identity, scenePointLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f))),
+		GameObject(1, -1, glm::scale(glm::translate(identity, scenePointLights[1].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)))
 	};
 
 	car.playAudio(sound);
@@ -182,8 +182,8 @@ int main() {
 		currentTime = Time::now();
 		//----Physics loop---(Unsure how physX works with this so it might change) -------//
 		for (; timeAccumulator >= timeStepTaken; timeAccumulator -= timeStepTaken) {//Do per iteration
-			scenePointLights[0].setPos(2.f*glm::vec3(cosf(0.5f * ((float)(currentTime - initialTime))), 2.f * sinf(0.5f * ((float)(currentTime - initialTime))), 10.0f));
-			sceneSphereGameObjects[0].setTransformation(glm::translate(glm::scale(identity, glm::vec3(0.1f, 0.1f, 0.1f)), scenePointLights[0].getPos()));
+			scenePointLights[0].setPos(2.f*glm::vec3(cosf(0.5f * ((float)(currentTime - initialTime))), glm::abs(2.f * sinf(0.5f * ((float)(currentTime - initialTime)))), 5.0f));
+			sceneSphereGameObjects[0].setTransformation(glm::scale(glm::translate(identity, scenePointLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)));
 		}
 
 		//---Render Frame
