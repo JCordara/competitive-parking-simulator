@@ -14,6 +14,9 @@ uniform vec3 lightAttenuationConstaints[10];
 uniform vec3 ambientLight;
 uniform int numberOfLights;
 
+uniform vec3 directionalLightDirection;
+uniform vec3 directionalLightColour;
+
 uniform vec4 uniformPhongConstaints;//  (K-Diff, K-Spec, Alpha, K-Amb)
 uniform vec3 renderCameraPosition;
 
@@ -42,6 +45,7 @@ void main() {
 	vec3 normal = normalize(fragNormal);
 	vec3 vDir = normalize(renderCameraPosition - fragPos);
 
+	//Point Light, specular and diffuse
 	vec3 phonglightAccumulator = vec3(0.0,0.0,0.0), phonglight = vec3(0.0,0.0,0.0);
 	vec3 lightDir;
 	float distanceToLight;
@@ -54,6 +58,15 @@ void main() {
 		phonglight = attenuate(phonglight, lightAttenuationConstaints[i], distanceToLight);
 		phonglightAccumulator += phonglight;
 	}
+	//Directional Light
+	phonglightAccumulator += diffuse(directionalLightColour, -directionalLightDirection, normal, uniformPhongConstaints[0]);
+	phonglightAccumulator += specular(directionalLightColour, -directionalLightDirection, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]);
+
+	//Ambient Light
 	phonglightAccumulator += uniformPhongConstaints[3] * ambientLight;
+
 	color = baseColour*vec4(phonglightAccumulator,1.0);
+
+	//Directional Light
+
 }

@@ -137,15 +137,17 @@ int main() {
 	//-----Lights
 	std::vector<PointLight> scenePointLights = {
 		PointLight(glm::vec3(0.5f, 1.0f, 1.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 4.f, 4.f)),
-		PointLight(glm::vec3(1.0f, 2.0f, -0.5f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.5f, 0.5f))
+		PointLight(glm::vec3(1.0f, 2.0f, -0.5f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(1.f, 0.1f, 0.5f))
 	};
 	glm::vec3 ambientLight = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 directionalLightColour = glm::vec3(0.5f, 0.5f, 0.5f);
+	glm::vec3 directionalLightDirection = glm::normalize(glm::vec3(0.0f, -1.0f, 1.0f));
 	std::vector <std::vector<GLfloat>> lightRenderInfo;
 
 	//-----Models
 	std::vector<Model> sceneRenderModels = {
-		Model(generateCubeGeometry(glm::vec3(0.0f, 0.2f, 1.0f)), glm::vec4(0.7f, 1.0f, 100.0f, 0.01f), true),
-		Model(generatePlaneGeometry(glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec4(1.0f, 1.0f, 50.0f, 0.01f), true),
+		Model(generateCubeGeometry(glm::vec3(0.5f, 0.2f, 1.0f)), glm::vec4(0.7f, 1.0f, 100.0f, 0.05f), true),
+		Model(generatePlaneGeometry(glm::vec3(0.2f, 0.5f, 0.1f)), glm::vec4(1.0f, 1.0f, 50.0f, 0.05f), true),
 		Model(generateSphereGeometry(glm::vec3(1.0f, 1.0f, 1.0f), 8, 8), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), true)
 	};
 
@@ -182,7 +184,7 @@ int main() {
 		currentTime = Time::now();
 		//----Physics loop---(Unsure how physX works with this so it might change) -------//
 		for (; timeAccumulator >= timeStepTaken; timeAccumulator -= timeStepTaken) {//Do per iteration
-			scenePointLights[0].setPos(2.f*glm::vec3(cosf(0.5f * ((float)(currentTime - initialTime))), glm::abs(2.f * sinf(0.5f * ((float)(currentTime - initialTime)))), 5.0f));
+			scenePointLights[0].setPos(2.f*glm::vec3(cosf(0.5f * ((float)(currentTime - initialTime))) , glm::abs(2.f * sinf(0.5f * ((float)(currentTime - initialTime)))) - 0.4f, 5.0f));
 			sceneSphereGameObjects[0].setTransformation(glm::scale(glm::translate(identity, scenePointLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)));
 		}
 
@@ -222,6 +224,8 @@ int main() {
 			scenePointLights
 		);
 		glUniform3fv(glGetUniformLocation(shader, "ambientLight"), 1, &ambientLight[0]);
+		glUniform3fv(glGetUniformLocation(shader, "directionalLightColour"), 1, &directionalLightColour[0]);
+		glUniform3fv(glGetUniformLocation(shader, "directionalLightDirection"), 1, &directionalLightDirection[0]);
 
 		prepareGameObjectsForRendering(glGetUniformLocation(shader, "Ms"), glGetUniformLocation(shader, "MsInverseTransposed"), sceneCubeGameObjects);
 		sceneRenderModels[0].prepareModelForRendering(glGetUniformLocation(shader, "uniformPhongConstaints"), glGetUniformLocation(shader, "useColour"), drawGeom);
