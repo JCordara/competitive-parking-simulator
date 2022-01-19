@@ -3,7 +3,7 @@
 ################################################################################
 #                              Usage:                                          #
 #  No flags .. Generate CMake files and build                                  #
-#  -c ........ Clean build (empty build directory before building)             #
+#  -c ........ Clean reconfigure (empty build directory before configuration)  #
 #  -b ........ Build only                                                      #
 #  -r ........ Build and run (Equivalent to Visual Studio play button)         #
 #  -b-rel .... Build in release mode (Not working yet)                         #
@@ -55,7 +55,7 @@ run_release () {
 
 for arg; do
   case $arg in
-    -c) clean && generate && build ; exit 0 ;;
+    -c) clean && generate ; exit 0 ;;
     -b) build ; exit 0 ;;
     -r) build && run ; exit 0 ;;
     -b-rel) build_release ; exit 0 ;;

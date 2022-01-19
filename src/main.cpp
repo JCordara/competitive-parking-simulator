@@ -14,6 +14,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <PhysX/PxPhysicsAPI.h>
+
 #include <iostream>
 #include <string>
 #include <list>
@@ -45,7 +47,8 @@ double Time::delta_ = 0.01; // Initialize to non-zero value
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#define TRACKBALL_CAM
+#define TRACKBALL_CAM	1	// Use a trackball dev cam
+#define PHYSX_TEST		0	// Run PhysX test function
 
 /* This was generating a nasty warning
 //Classes to test the manager with
@@ -67,6 +70,9 @@ class SizeTogglerTest{//This class is a resister for registering haha
 	}
 };
 */
+
+void physX_test();
+
 class PlayCarSound {
 public:
 	PlayCarSound(AudioSource& c, Audio& s) : car(c), sound(s) {};
@@ -79,7 +85,9 @@ public:
 
 //-------------------------------
 int main() {
-	
+#if PHYSX_TEST
+	physX_test();
+#endif
 	Audio& sound = AudioManager::instance().loadAudio("audio/rev.wav");
 	AudioSource& car = AudioManager::instance().createStaticSource(glm::vec3(0.0f, 0.0f, -2.0f));
 
@@ -104,7 +112,7 @@ int main() {
 
 	//-----Cameras
 
-#ifdef TRACKBALL_CAM
+#if TRACKBALL_CAM
 	EditorCamera mainCamera = EditorCamera();
 	mainCamera.setPitch(-35.0);
 	mainCamera.setYaw(-45.0);
@@ -188,7 +196,7 @@ int main() {
 		
 		shader.use();
 
-#ifdef TRACKBALL_CAM
+#if TRACKBALL_CAM
 		float viewportAspectRatio = static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight());
 		glUniformMatrix4fv(glGetUniformLocation(shader, "P"), 1, GL_FALSE, glm::value_ptr(glm::perspective(glm::radians(60.f), viewportAspectRatio, 0.01f, 1000.0f)));
 		glUniformMatrix4fv(glGetUniformLocation(shader, "V"), 1, GL_FALSE, glm::value_ptr(mainCamera.getViewMatrix()));
@@ -223,4 +231,80 @@ int main() {
 	}
 	glfwTerminate();
 	return 0;
+}
+
+
+
+void physX_test() {
+
+    // declare variables
+    physx::PxDefaultAllocator      mDefaultAllocatorCallback;
+    physx::PxDefaultErrorCallback  mDefaultErrorCallback;
+    physx::PxDefaultCpuDispatcher* mDispatcher = NULL;
+    physx::PxTolerancesScale       mToleranceScale;
+
+    physx::PxFoundation* mFoundation = NULL;
+    physx::PxPhysics* mPhysics = NULL;
+
+    physx::PxScene* mScene = NULL;
+    physx::PxMaterial* mMaterial = NULL;
+
+    physx::PxPvd* mPvd = NULL;
+
+
+    // init physx
+    mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, mDefaultAllocatorCallback, mDefaultErrorCallback);
+    if (!mFoundation) throw("PxCreateFoundation failed!");
+    mPvd = PxCreatePvd(*mFoundation);
+    physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+    mPvd->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
+    //mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, PxTolerancesScale(),true, mPvd);
+    mToleranceScale.length = 100;        // typical length of an object
+    mToleranceScale.speed = 981;         // typical speed of an object, gravity*1s is a reasonable choice
+    mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, mToleranceScale, true, mPvd);
+    //mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, mToleranceScale);
+
+    physx::PxSceneDesc sceneDesc(mPhysics->getTolerancesScale());
+    sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
+    mDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
+    sceneDesc.cpuDispatcher = mDispatcher;
+    sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+    mScene = mPhysics->createScene(sceneDesc);
+
+    physx::PxPvdSceneClient* pvdClient = mScene->getScenePvdClient();
+    if (pvdClient)
+    {
+        pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+        pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+        pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+    }
+
+
+    // create simulation
+    mMaterial = mPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+    physx::PxRigidStatic* groundPlane = PxCreatePlane(*mPhysics, physx::PxPlane(0, 1, 0, 50), *mMaterial);
+    mScene->addActor(*groundPlane);
+
+    float halfExtent = .5f;
+    physx::PxShape* shape = mPhysics->createShape(physx::PxBoxGeometry(halfExtent, halfExtent, halfExtent), *mMaterial);
+    physx::PxU32 size = 30;
+    physx::PxTransform t(physx::PxVec3(0));
+    for (physx::PxU32 i = 0; i < size; i++) {
+        for (physx::PxU32 j = 0; j < size - i; j++) {
+            physx::PxTransform localTm(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 + 1), 0) * halfExtent);
+            physx::PxRigidDynamic* body = mPhysics->createRigidDynamic(t.transform(localTm));
+            body->attachShape(*shape);
+            physx::PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+            mScene->addActor(*body);
+        }
+    }
+    shape->release();
+    
+
+    while (1)
+    {
+        mScene->simulate(1.0f / 60.0f);
+        mScene->fetchResults(true);
+    }
+
 }

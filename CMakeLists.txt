@@ -1,7 +1,7 @@
 # Allow for multiple versions of CMake (we should use cmake 3.22 tho)
 cmake_minimum_required(VERSION 3.15...3.22)
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
-    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+    cmake_policy(VERSION "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}")
 endif()
 
 # Set this specific policy in order to link against C runtime libraries
@@ -29,9 +29,36 @@ add_subdirectory(src/audio)
 list(APPEND LIBRARIES AudioSystem)
 
 
+#--------------------------------- PhysX ---------------------------------------
+# Physics library
+# https://github.com/NVIDIAGameWorks/PhysX
+
+list(APPEND LIBRARIES
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/LowLevel_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/LowLevelAABB_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/LowLevelDynamics_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/PhysX_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/PhysXCharacterKinematic_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/PhysXCommon_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/PhysXCooking_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/PhysXExtensions_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/PhysXFoundation_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/PhysXPvdSDK_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/PhysXTask_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/PhysXVehicle_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/SampleBase_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/SampleFramework_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/SamplesToolkit_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/SceneQuery_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/SimulationController_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/SnippetRender_static_64.lib"
+	"${CMAKE_SOURCE_DIR}/lib/physx-4.1/$<CONFIG>/SnippetUtils_static_64.lib"
+)
+
+
 # -------------------------------- GLEW ----------------------------------------
 # OpenGL Extension Wrangler library
-#https://github.com/nigels-com/glew
+# https://github.com/nigels-com/glew
 
 add_subdirectory(lib/glew-2.2.0)
 list(APPEND LIBRARIES glew)
@@ -81,7 +108,7 @@ endif()
 
 # Group source files together
 # Good for agile development style
-file(GLOB SOURCES src/*)
+file(GLOB SOURCES "src/*")
 
 # Create main application and link libraries
 set(APP_NAME "CompetitiveParkingSimulator")
