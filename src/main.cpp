@@ -144,8 +144,8 @@ int main() {
 
 	//-----Models
 	std::vector<Model> sceneRenderModels = {
-		Model(generateTestCubeModel(glm::vec3(0.0f, 0.2f, 1.0f)), glm::vec4(0.7f, 1.7f, 32.0f, 0.05f), true),
-		Model(generateTestPlaneModel(glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec4(1.0f, 3.0f, 4.0f, 0.05f), true)
+		Model(generateCubeGeometry(glm::vec3(0.0f, 0.2f, 1.0f)), glm::vec4(0.7f, 1.7f, 32.0f, 0.05f), true),
+		Model(generatePlaneGeometry(glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec4(1.0f, 3.0f, 4.0f, 0.05f), true)
 	};
 
 	GPU_Geometry drawGeom;

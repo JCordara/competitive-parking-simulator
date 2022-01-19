@@ -2,7 +2,7 @@
 
 #include "VertexArray.h"
 #include "VertexBuffer.h"
-
+#define _USE_MATH_DEFINES
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
@@ -43,6 +43,7 @@ private:
 	VertexBuffer texCoordBuffer;
 	IndexBuffer indexBuffer;
 };
+CPU_Geometry generatePlaneGeometry(glm::vec3 colour);
+CPU_Geometry generateCubeGeometry(glm::vec3 colour);
+CPU_Geometry generateSphereGeometry(glm::vec3 colour, unsigned int xFactor, unsigned int yFactor);
 
-CPU_Geometry generateTestCubeModel(glm::vec3 colour);
-CPU_Geometry generateTestPlaneModel(glm::vec3 colour);

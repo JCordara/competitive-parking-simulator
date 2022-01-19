@@ -33,78 +33,108 @@ void GPU_Geometry::setInds(const std::vector<GLuint>& inds) {
 	indexBuffer.uploadData(sizeof(GLuint) * inds.size(), inds.data(), GL_STATIC_DRAW);
 }
 
-CPU_Geometry generateTestCubeModel(glm::vec3 colour) {
+CPU_Geometry generatePlaneGeometry(glm::vec3 colour) {
+	CPU_Geometry plane;
+	plane.verts = {
+		glm::vec3(0.5f,0.0f,0.5f),
+		glm::vec3(0.5f,0.0f,-0.5f),
+		glm::vec3(-0.5f,0.0f,-0.5f),
+		glm::vec3(-0.5f,0.0f,0.5f),
+	};
+	plane.cols = {colour,colour,colour,colour};
+	plane.normals = {glm::vec3(0.0f,1.0f,0.0f),glm::vec3(0.0f,1.0f,0.0f),glm::vec3(0.0f,1.0f,0.0f),glm::vec3(0.0f,1.0f,0.0f)};
+	plane.ind = {
+		0,1,2,
+		0,2,3,
+	};
+	return plane;
+}
+
+
+CPU_Geometry generateCubeGeometry(glm::vec3 colour) {
 	CPU_Geometry cube;
-	cube.verts =	{
-						glm::vec3(1.0f,1.0f,1.0f),
-						glm::vec3(-1.0f,1.0f,1.0f),
-						glm::vec3(-1.0f,-1.0f,1.0f),
-						glm::vec3(1.0f,-1.0f,1.0f),
-						glm::vec3(1.0f,1.0f,-1.0f),
-						glm::vec3(-1.0f,1.0f,-1.0f),
-						glm::vec3(-1.0f,-1.0f,-1.0f),
-						glm::vec3(1.0f,-1.0f,-1.0f)
-					};
-	cube.cols =		{
-						colour,
-						colour,
-						colour,
-						colour,
-						colour,
-						colour,
-						colour,
-						colour
-					};
-	cube.normals =	{
-						glm::normalize(glm::vec3(1.0f,1.0f,1.0f)),
-						glm::normalize(glm::vec3(-1.0f,1.0f,1.0f)),
-						glm::normalize(glm::vec3(-1.0f,-1.0f,1.0f)),
-						glm::normalize(glm::vec3(1.0f,-1.0f,1.0f)),
-						glm::normalize(glm::vec3(1.0f,1.0f,-1.0f)),
-						glm::normalize(glm::vec3(-1.0f,1.0f,-1.0f)),
-						glm::normalize(glm::vec3(-1.0f,-1.0f,-1.0f)),
-						glm::normalize(glm::vec3(1.0f,-1.0f,-1.0f))
-					};
-	cube.ind =		{
-						0,1,2,
-						0,2,3,
-						4,0,3,
-						4,3,7,
-						5,4,7,
-						5,7,6,
-						1,5,6,
-						1,6,2,
-						4,5,1,
-						4,1,0,
-						3,2,6,
-						3,6,7
-					};
+	cube.verts = {
+		//   +X
+		glm::vec3(0.5f,0.5f,-0.5f),
+		glm::vec3(0.5f,0.5f,0.5f),
+		glm::vec3(0.5f,-0.5f,0.5f),
+		glm::vec3(0.5f,-0.5f,-0.5f),
+		//   -X
+		glm::vec3(-0.5f,0.5f,0.5f),
+		glm::vec3(-0.5f,0.5f,-0.5f),
+		glm::vec3(-0.5f,-0.5f,-0.5f),
+		glm::vec3(-0.5f,-0.5f,0.5f),
+		//   +Y
+		glm::vec3(-0.5f,0.5f,-0.5f),
+		glm::vec3(-0.5f,0.5f,0.5f),
+		glm::vec3(0.5f,0.5f,0.5f),
+		glm::vec3(0.5f,0.5f,-0.5f),
+		//   -Y
+		glm::vec3(0.5f,-0.5f,-0.5f),
+		glm::vec3(0.5f,-0.5f,0.5f),
+		glm::vec3(-0.5f,-0.5f,0.5f),
+		glm::vec3(-0.5f,-0.5f,-0.5f),
+		//   +Z
+		glm::vec3(0.5f,0.5f,0.5f),
+		glm::vec3(-0.5f,0.5f,0.5f),
+		glm::vec3(-0.5f,-0.5f,0.5f),
+		glm::vec3(0.5f,-0.5f,0.5f),
+		//   -Z
+		glm::vec3(-0.5f,0.5f,-0.5f),
+		glm::vec3(0.5f,0.5f,-0.5f),
+		glm::vec3(0.5f,-0.5f,-0.5f),
+		glm::vec3(-0.5f,-0.5f,-0.5f),
+	};
+	for (int i = 0; i < 4 * 6; i++) cube.cols.push_back(colour);
+	cube.normals = {
+		glm::vec3(1.0f,0.0f,0.0f), glm::vec3(1.0f,0.0f,0.0f), glm::vec3(1.0f,0.0f,0.0f), glm::vec3(1.0f,0.0f,0.0f),
+		glm::vec3(-1.0f,0.0f,0.0f), glm::vec3(-1.0f,0.0f,0.0f), glm::vec3(-1.0f,0.0f,0.0f), glm::vec3(-1.0f,0.0f,0.0f),
+		glm::vec3(0.0f,1.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f),
+		glm::vec3(0.0f,-1.0f,0.0f), glm::vec3(0.0f,-1.0f,0.0f), glm::vec3(0.0f,-1.0f,0.0f), glm::vec3(0.0f,-1.0f,0.0f),
+		glm::vec3(0.0f,0.0f,1.0f), glm::vec3(0.0f,0.0f,1.0f), glm::vec3(0.0f,0.0f,1.0f), glm::vec3(0.0f,0.0f,1.0f),
+		glm::vec3(0.0f,0.0f,-1.0f), glm::vec3(0.0f,0.0f,-1.0f), glm::vec3(0.0f,0.0f,-1.0f), glm::vec3(0.0f,0.0f,-1.0f)
+	};
+	for (int i = 0; i < 6; i++) {
+		cube.ind.push_back(4 * i + 0);
+		cube.ind.push_back(4 * i + 1);
+		cube.ind.push_back(4 * i + 2);
+		cube.ind.push_back(4 * i + 0);
+		cube.ind.push_back(4 * i + 2);
+		cube.ind.push_back(4 * i + 3);
+	}
 	return cube;
 }
 
-CPU_Geometry generateTestPlaneModel(glm::vec3 colour) {
-	CPU_Geometry plane;
-	plane.verts =	{
-						glm::vec3(1.0f,0.0f,1.0f),
-						glm::vec3(-1.0f,0.0f,1.0f),
-						glm::vec3(-1.0f,0.0f,-1.0f),
-						glm::vec3(1.0f,0.0f,-1.0f),
-					};
-	plane.cols =		{
-						colour,
-						colour,
-						colour,
-						colour
-					};
-	plane.normals = {
-						glm::normalize(glm::vec3(0.0f,1.0f,0.0f)),
-						glm::normalize(glm::vec3(0.0f,1.0f,0.0f)),
-						glm::normalize(glm::vec3(0.0f,1.0f,0.0f)),
-						glm::normalize(glm::vec3(0.0f,1.0f,0.0f)),
-					};
-	plane.ind =		{
-						0,1,2,
-						0,2,3,
-					};
-	return plane;
+
+
+int FaceIndex(int offset, int i, int j) {
+	return (offset + 1) * i + j;
+}
+
+CPU_Geometry generateSphereGeometry(glm::vec3 colour, unsigned int xFactor, unsigned int yFactor) {
+	CPU_Geometry ret;
+	float dP = M_PI / yFactor;
+	float d0 = M_PI / xFactor;
+	float dY = 1.0f / yFactor;
+	float dX = 0.5f / xFactor;;
+	glm::vec3 T3;
+	for (int i = 0; i <= 2 * xFactor; i++) {
+		for (int j = 0; j <= yFactor; j++) {
+			if (j == yFactor) T3 = glm::vec3(0.0f, -1.0f, 0.0f);
+			else T3 = glm::vec3(sinf(dP * j) * cosf(d0 * i), cosf(dP * j), sinf(dP * j) * sinf(d0 * i));
+			ret.verts.push_back(T3);
+			ret.normals.push_back(T3);
+			ret.texCoords.push_back(glm::vec2(dX * (2 * xFactor - i), dY * (yFactor - j)));
+			ret.cols.push_back(colour);
+			if (i > 0 && j > 0) {
+				ret.ind.push_back(FaceIndex(yFactor, i - 1, j - 1));
+				ret.ind.push_back(FaceIndex(yFactor, i, j));
+				ret.ind.push_back(FaceIndex(yFactor, i - 1, j));
+				ret.ind.push_back(FaceIndex(yFactor, i - 1, j - 1));
+				ret.ind.push_back(FaceIndex(yFactor, i, j - 1));
+				ret.ind.push_back(FaceIndex(yFactor, i, j));
+			}
+		}
+	}
+	return ret;
 }
