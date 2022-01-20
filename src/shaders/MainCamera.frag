@@ -62,6 +62,22 @@ float directionalLightShadow(vec3 fragPositionInLight, float bias){
     return shadow;
 }
 
+vec3 cellShader(vec3 light, int bands){
+	if(bands < 2) return light;
+	vec3 nf = floor(light * vec3(bands));
+	ivec3 n = ivec3(nf);
+
+	light = (nf + vec3(0.5))*(1.0 / vec3(bands));
+
+	if (n[0] == 0) light[0] = 0.0;
+	else if (n[0] == (bands - 1)) light[0] = 1.0;
+	if (n[1] == 0) light[1] = 0.0;
+	else if (n[1] == (bands - 1)) light[1] = 1.0;
+	if (n[2] == 0) light[2] = 0.0;
+	else if (n[2] == (bands - 1)) light[2] = 1.0;
+	return light;
+}
+
 void main() {
 	vec4 baseColour;
 	if(useColour != 0){ baseColour = vec4(fragColour, 1.0);}
@@ -90,6 +106,8 @@ void main() {
 	phonglightAccumulator += (1.0 - directionalLightShadow(FragPosLightSpace,max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005))) * phonglight;
 	//Ambient Light
 	phonglightAccumulator += uniformPhongConstaints[3] * ambientLight;
+
+	phonglightAccumulator = cellShader(phonglightAccumulator,0);
 
 	color = baseColour*vec4(phonglightAccumulator,1.0);
 }
