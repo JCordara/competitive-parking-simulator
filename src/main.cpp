@@ -39,10 +39,8 @@
 #include "GameCallback.h"
 #include "AudioManager.h"
 
-// Include Time static class and initialize it's members
 #include "Time.h"
-double Time::lastFrameTime = glfwGetTime();
-double Time::delta_ = 0.01; // Initialize to non-zero value
+#include "GUI.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -85,15 +83,11 @@ public:
 
 //-------------------------------
 int main() {
+	Log::debug("Starting main");
+
 #if PHYSX_TEST
 	physX_test();
 #endif
-	Audio& sound = AudioManager::instance().loadAudio("audio/rev.wav");
-	AudioSource& car = AudioManager::instance().createStaticSource(glm::vec3(0.0f, 0.0f, -2.0f));
-
-	// ----------------------------
-
-	Log::debug("Starting main");
 
 	// WINDOW
 	glfwInit();
@@ -101,18 +95,24 @@ int main() {
 	std::shared_ptr<GameEventManager> eventManager = std::make_shared<GameEventManager>();
 	window.setCallbacks(eventManager);
 
+	// --------------------------- Example Audio -------------------------------
+	Audio& sound = AudioManager::instance().loadAudio("audio/rev.wav");
+	AudioSource& car = 
+		AudioManager::instance().createStaticSource(glm::vec3(0.0f, 0.0f, 0.0f));
+	// -------------------------------------------------------------------------
+
 	// -----Example--method--Registration--
 	PlayCarSound testPlayer = PlayCarSound(car, sound);
 	eventManager->registerKey(bindMethodFunction_0_Variables(&PlayCarSound::playVROOOOOOM, &testPlayer), GLFW_KEY_S, GLFW_PRESS, 0);
 	// ------------------------------------
+	// screw gldebug
 	//GLDebug::enable();
 
 	ShaderProgram shader("shaders/MainCamera.vert", "shaders/MainCamera.frag");
 	ShaderProgram depthTextureShader("shaders/DepthTexture.vert", "shaders/DepthTexture.frag");
 	glm::mat4 identity(1.0f);
 
-	//-----Cameras
-
+	// ------------------------------ Cameras ----------------------------------
 #if TRACKBALL_CAM
 	EditorCamera mainCamera = EditorCamera();
 	mainCamera.setPitch(-35.0);
@@ -121,19 +121,45 @@ int main() {
 	mainCamera.setLookAt(glm::vec3(0.0f, 0.0f, -1.0f));
 
 	// Register camera input events
-	eventManager->registerMouseButton(bindMethodFunction_0_Variables(&EditorCamera::button1Down, &mainCamera), GLFW_MOUSE_BUTTON_1, GLFW_PRESS, 0);
-	eventManager->registerMouseButton(bindMethodFunction_0_Variables(&EditorCamera::button1Up, &mainCamera), GLFW_MOUSE_BUTTON_1, GLFW_RELEASE, 0);
-	eventManager->registerMouseButton(bindMethodFunction_0_Variables(&EditorCamera::button2Down, &mainCamera), GLFW_MOUSE_BUTTON_2, GLFW_PRESS, 0);
-	eventManager->registerMouseButton(bindMethodFunction_0_Variables(&EditorCamera::button2Up, &mainCamera), GLFW_MOUSE_BUTTON_2, GLFW_RELEASE, 0);
-	eventManager->registerMousePosition(bindMethodFunction_2_Variables(&EditorCamera::move, &mainCamera));
-	eventManager->registerMousePosition(bindMethodFunction_2_Variables(&EditorCamera::rotateAroundTarget, &mainCamera));
-	eventManager->registerScroll(bindMethodFunction_2_Variables(&EditorCamera::zoom, &mainCamera));
+	eventManager->registerMouseButton(
+		bindMethodFunction_0_Variables(&EditorCamera::button1Down, &mainCamera), 
+		GLFW_MOUSE_BUTTON_1, GLFW_PRESS, 0
+	);
+
+	eventManager->registerMouseButton(
+		bindMethodFunction_0_Variables(&EditorCamera::button1Up, &mainCamera), 
+		GLFW_MOUSE_BUTTON_1, GLFW_RELEASE, 0
+	);
+
+	eventManager->registerMouseButton(
+		bindMethodFunction_0_Variables(&EditorCamera::button2Down, &mainCamera), 
+		GLFW_MOUSE_BUTTON_2, GLFW_PRESS, 0
+	);
+	
+	eventManager->registerMouseButton(
+		bindMethodFunction_0_Variables(&EditorCamera::button2Up, &mainCamera), 
+		GLFW_MOUSE_BUTTON_2, GLFW_RELEASE, 0
+	);
+
+	eventManager->registerMousePosition(
+		bindMethodFunction_2_Variables(&EditorCamera::move, &mainCamera)
+	);
+
+	eventManager->registerMousePosition(
+		bindMethodFunction_2_Variables(&EditorCamera::rotateAroundTarget, &mainCamera)
+	);
+
+	eventManager->registerScroll(
+		bindMethodFunction_2_Variables(&EditorCamera::zoom, &mainCamera)
+	);
+
 #else
 	Camera mainCamera = Camera(glm::vec3(2.0f,2.5f,0.0f), glm::radians(45.0f), glm::radians(-45.0f), glm::radians(100.f), 3.f / 2.f, 0.01f, 1000.0f);
 	SizeTogglerTest toggleSize = SizeTogglerTest(eventManager, mainCamera);
 	eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::enableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_RELEASE, 0);
 	eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::disableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_PRESS, 0);
 #endif
+	// -------------------------------------------------------------------------
 
 	//-----Lights
 	std::vector<PointLight> scenePointLights = {
@@ -194,20 +220,35 @@ int main() {
 		GameObject(1, -1, glm::scale(glm::translate(identity, scenePointLights[1].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)))
 	};
 
-	car.playAudio(sound);
-	Time::computeTimeDelta();
-	//-------Real Time controls in (Seconds)
+	// ---------------------------- Time stuff ---------------------------------
+	Time::init();
 	double  timeAccumulator = 0.0, initialTime = Time::now(), timeStepTaken = 0.01, currentTime = initialTime;
 	float viewportAspectRatio;
+	// -------------------------------------------------------------------------
+
+
+	// ---------------------------- Simple GUI ---------------------------------
+	std::shared_ptr<GUI> gui = std::make_shared<GUI>();
+	// -------------------------------------------------------------------------
+
+
 	//---Game Loop----
 	while (!window.shouldClose()) {
+		
+		// Get current input events
 		glfwPollEvents();
-		// Update time values for this frame using Time static class
-		// Time::now(), Time::delta()
-		Time::computeTimeDelta();
+
+		// Update time-related values (fps, frame delta, etc.)
+		Time::update();
+
+		// Display fps
+		std::cout.precision(2);
+		std::cout << "FPS: " << std::fixed << Time::fps() << "\n";
+
 		//Update the Time values for this frame
 		timeAccumulator += Time::delta();
 		currentTime = Time::now();
+
 		//----Physics loop---(Unsure how physX works with this so it might change) -------//
 		for (; timeAccumulator >= timeStepTaken; timeAccumulator -= timeStepTaken) {//Do per iteration
 			scenePointLights[0].setPos(2.f*glm::vec3(cosf(0.5f * ((float)(currentTime - initialTime))) , glm::abs(2.f * sinf(0.5f * ((float)(currentTime - initialTime)))) - 0.4f, 5.0f));
@@ -291,9 +332,8 @@ int main() {
 		sceneRenderModels[2].renderModel((int)sceneSphereGameObjects.size());
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
+		gui->draw();
 		window.swapBuffers();
-
-		//car.setPosition(car.position() + glm::vec3(-0.22f, 0.0f, 0.0f));
 	}
 	glfwTerminate();
 	return 0;
