@@ -104,10 +104,12 @@ void main() {
 	phonglight = diffuse(directionalLightColour, -directionalLightDirection, normal, uniformPhongConstaints[0]);
 	phonglight += specular(directionalLightColour, -directionalLightDirection, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]);
 	phonglightAccumulator += (1.0 - directionalLightShadow(FragPosLightSpace,max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005))) * phonglight;
+	//cell shader
+	phonglightAccumulator = cellShader(phonglightAccumulator,0);//To turn on the cell shading, this needs to be given >1 band number
 	//Ambient Light
 	phonglightAccumulator += uniformPhongConstaints[3] * ambientLight;
 
-	phonglightAccumulator = cellShader(phonglightAccumulator,0);
+	
 
 	color = baseColour*vec4(phonglightAccumulator,1.0);
 }
