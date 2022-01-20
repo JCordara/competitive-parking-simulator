@@ -4,9 +4,11 @@ in vec3 fragPos;
 in vec3 fragColour;
 in vec3 fragNormal;
 in vec2 fragTextureCoordinate;
+in vec3 FragPosLightSpace;
 
 uniform int useColour;
 uniform sampler2D colourText;
+uniform sampler2D shadowMap;
 
 uniform vec3 lightPositions[10];
 uniform vec3 lightColours[10];
@@ -36,6 +38,29 @@ vec3 specular(vec3 col, vec3 lightDir, vec3 normal, vec3 vDir, float k, float a)
 	if(d < 0.0 || d2 < 0.0) return 0.0 * col;
 	return k * pow(d2,a) * col;
 }
+float directionalLightShadow(vec3 fragPositionInLight, float bias){
+
+    // transform to [0,1] range
+    vec3 projCoords = fragPositionInLight * 0.5 + 0.5;
+	if(projCoords.z > 1.0) return 0.0;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+	float shadow = 0.0;
+	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+	for(int x = -1; x <= 1; ++x)
+	{
+		for(int y = -1; y <= 1; ++y)
+		{
+			float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+		}    
+	}
+	shadow /= 9.0;
+    return shadow;
+}
 
 void main() {
 	vec4 baseColour;
@@ -59,14 +84,12 @@ void main() {
 		phonglightAccumulator += phonglight;
 	}
 	//Directional Light
-	phonglightAccumulator += diffuse(directionalLightColour, -directionalLightDirection, normal, uniformPhongConstaints[0]);
-	phonglightAccumulator += specular(directionalLightColour, -directionalLightDirection, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]);
 
+	phonglight = diffuse(directionalLightColour, -directionalLightDirection, normal, uniformPhongConstaints[0]);
+	phonglight += specular(directionalLightColour, -directionalLightDirection, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]);
+	phonglightAccumulator += (1.0 - directionalLightShadow(FragPosLightSpace,max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005))) * phonglight;
 	//Ambient Light
 	phonglightAccumulator += uniformPhongConstaints[3] * ambientLight;
 
 	color = baseColour*vec4(phonglightAccumulator,1.0);
-
-	//Directional Light
-
 }
