@@ -31,6 +31,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Window.h"
+
 #include "Camera.h"
 #include "EditorCamera.h"
 #include "Lighting.h"
@@ -38,7 +39,6 @@
 #include "Model.h"
 #include "GameCallback.h"
 #include "AudioManager.h"
-
 #include "Time.h"
 #include "GUI.h"
 
@@ -240,10 +240,6 @@ int main() {
 
 		// Update time-related values (fps, frame delta, etc.)
 		Time::update();
-
-		// Display fps
-		std::cout.precision(2);
-		std::cout << "FPS: " << std::fixed << Time::fps() << "\n";
 
 		//Update the Time values for this frame
 		timeAccumulator += Time::delta();

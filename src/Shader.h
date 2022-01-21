@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SHADER_H
+#define SHADER_H
 
 #include "GLHandles.h"
 
@@ -16,8 +17,9 @@ public:
 	// Public interface
 	std::string getPath() const { return path; }
 	GLenum getType() const { return type; }
-
-	void friend attach(ShaderProgram& sp, Shader& s);
+	
+	// Allow casting to GLuint
+	operator GLuint() const { return shaderID; }
 
 private:
 	ShaderHandle shaderID;
@@ -28,3 +30,4 @@ private:
 	bool compile();
 };
 
+#endif

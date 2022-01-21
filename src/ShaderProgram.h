@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SHADER_PROGRAM_H
+#define SHADER_PROGRAM_H
 
 #include "Shader.h"
 
@@ -7,28 +8,39 @@
 #include <GL/glew.h>
 
 #include <string>
+#include <list>
+#include <utility>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+
+#include "Log.h"
 
 
 class ShaderProgram {
 
 public:
-	ShaderProgram(const std::string& vertexPath, const std::string& fragmentPath);
+
+	ShaderProgram();
+	ShaderProgram(const std::string& vertexPath, 
+				  const std::string& fragmentPath);
 
 	// Public interface
-	bool recompile();
 	void use() const { glUseProgram(programID); }
+	void addShader(GLenum type, const std::string& vertexPath);
+	bool recompile();
 
-	void friend attach(ShaderProgram& sp, Shader& s);
-
-	operator GLuint() const {
-		return programID;
-	}
+	// Allow casting to GLuint
+	operator GLuint() const { return programID; }
 
 private:
+
 	ShaderProgramHandle programID;
 
-	Shader vertex;
-	Shader fragment;
+	std::list<Shader> shaders;
 
-	bool checkAndLogLinkSuccess() const;
+	bool link() const;
 };
+
+
+#endif
