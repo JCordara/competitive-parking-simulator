@@ -4,6 +4,8 @@
 
 #include <GL/glew.h>
 
+#include <utility>
+
 
 class VertexBuffer {
 
@@ -15,7 +17,7 @@ public:
 	void uploadData(GLsizeiptr size, const void* data, GLenum usage);
 
 private:
-	VertexBufferHandle bufferID;
+	BufferHandle bufferID;
 };
 
 class IndexBuffer {
@@ -28,6 +30,6 @@ public:
 	void uploadData(GLsizeiptr size, const void* data, GLenum usage);
 
 private:
-	VertexBufferHandle bufferID;
+	BufferHandle bufferID;
 };
 

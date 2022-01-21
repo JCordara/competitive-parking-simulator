@@ -1,11 +1,16 @@
-#pragma once
+#ifndef GEOMETRY_H
+#define GEOMETRY_H
+
+#define _USE_MATH_DEFINES
 
 #include "VertexArray.h"
 #include "VertexBuffer.h"
-#define _USE_MATH_DEFINES
+
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+#include <math.h>
+#include <utility>
 #include <vector>
 
 // List of vertices and texture coordinates using std::vector and glm::vec3
@@ -47,3 +52,5 @@ CPU_Geometry generatePlaneGeometry(glm::vec3 colour);
 CPU_Geometry generateCubeGeometry(glm::vec3 colour);
 CPU_Geometry generateSphereGeometry(glm::vec3 colour, unsigned int xFactor, unsigned int yFactor);
 
+
+#endif

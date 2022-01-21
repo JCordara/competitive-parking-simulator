@@ -1,7 +1,5 @@
 #include "VertexBuffer.h"
 
-#include <utility>
-
 
 VertexBuffer::VertexBuffer(GLuint index, GLint size, GLenum dataType)
 	: bufferID{}

@@ -1,7 +1,5 @@
 #include "Geometry.h"
 
-#include <utility>
-
 
 GPU_Geometry::GPU_Geometry()
 	: vao()

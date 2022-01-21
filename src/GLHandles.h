@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GL_HANDLES_H
+#define GL_HANDLES_H
 
 #include <GL/glew.h>
 
@@ -99,61 +100,34 @@ private:
 };
 
 
-// An RAII class for managing a VertexArray GLuint for OpenGL.
-class VertexArrayHandle {
+// An RAII class for managing Buffer GLuints for OpenGL.
+class BufferHandle {
 
 public:
-	VertexArrayHandle();
+	BufferHandle();
 
 	// Disallow copying
-	VertexArrayHandle(const VertexArrayHandle&) = delete;
-	VertexArrayHandle operator=(const VertexArrayHandle&) = delete;
+	BufferHandle(const BufferHandle&) = delete;
+	BufferHandle operator=(const BufferHandle&) = delete;
 
 	// Allow moving
-	VertexArrayHandle(VertexArrayHandle&& other) noexcept;
-	VertexArrayHandle& operator=(VertexArrayHandle&& other) noexcept;
+	BufferHandle(BufferHandle&& other) noexcept;
+	BufferHandle& operator=(BufferHandle&& other) noexcept;
 
 	// Clean up after ourselves.
-	~VertexArrayHandle();
+	~BufferHandle();
 
 
 	// Allow casting from this type into a GLuint
 	// This allows usage in situations where a function expects a GLuint
-	operator GLuint() const;
-	GLuint value() const;
+	operator GLuint() const { return bufferID; }
+	GLuint value() const { return bufferID; }
 
 private:
-	GLuint vaoID;
+	GLuint bufferID;
 
 };
 
-// An RAII class for managing a VertexBuffer GLuint for OpenGL.
-class VertexBufferHandle {
-
-public:
-	VertexBufferHandle();
-
-	// Disallow copying
-	VertexBufferHandle(const VertexBufferHandle&) = delete;
-	VertexBufferHandle operator=(const VertexBufferHandle&) = delete;
-
-	// Allow moving
-	VertexBufferHandle(VertexBufferHandle&& other) noexcept;
-	VertexBufferHandle& operator=(VertexBufferHandle&& other) noexcept;
-
-	// Clean up after ourselves.
-	~VertexBufferHandle();
-
-
-	// Allow casting from this type into a GLuint
-	// This allows usage in situations where a function expects a GLuint
-	operator GLuint() const;
-	GLuint value() const;
-
-private:
-	GLuint vboID;
-
-};
 
 // An RAII class for managing a VertexBuffer GLuint for OpenGL.
 class TextureHandle {
@@ -182,3 +156,5 @@ private:
 	GLuint textureID;
 
 };
+
+#endif

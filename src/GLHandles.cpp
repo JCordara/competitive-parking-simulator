@@ -71,79 +71,36 @@ GLuint ShaderProgramHandle::value() const {
 	return programID;
 }
 
-//------------------------------------------------------------------------------
-
-
-VertexArrayHandle::VertexArrayHandle()
-	: vaoID(0) // Due to OpenGL syntax, we can't initial directly here, like we want.
-{
-	glGenVertexArrays(1, &vaoID);
-}
-
-
-VertexArrayHandle::VertexArrayHandle(VertexArrayHandle&& other) noexcept
-	: vaoID(std::move(other.vaoID))
-{
-	other.vaoID = 0;
-}
-
-
-VertexArrayHandle& VertexArrayHandle::operator=(VertexArrayHandle&& other) noexcept {
-	std::swap(vaoID, other.vaoID);
-	return *this;
-}
-
-
-VertexArrayHandle::~VertexArrayHandle() {
-	glDeleteVertexArrays(1, &vaoID);
-}
-
-
-VertexArrayHandle::operator GLuint() const {
-	return vaoID;
-}
-
-
-GLuint VertexArrayHandle::value() const {
-	return vaoID;
-}
 
 //------------------------------------------------------------------------------
 
 
-VertexBufferHandle::VertexBufferHandle()
-	: vboID(0) // Due to OpenGL syntax, we can't initial directly here, like we want.
+BufferHandle::BufferHandle()
+	: bufferID(0) // Due to OpenGL syntax, we can't initial directly here, like we want.
 {
-	glGenBuffers(1, &vboID);
+	glGenBuffers(1, &bufferID);
 }
 
 
-VertexBufferHandle::VertexBufferHandle(VertexBufferHandle&& other) noexcept
-	: vboID(std::move(other.vboID))
+BufferHandle::BufferHandle(BufferHandle&& other) noexcept
+	: bufferID(std::move(other.bufferID))
 {
-	other.vboID = 0;
+	other.bufferID = 0;
 }
 
 
-VertexBufferHandle& VertexBufferHandle::operator=(VertexBufferHandle&& other) noexcept {
-	std::swap(vboID, other.vboID);
+BufferHandle& BufferHandle::operator=(BufferHandle&& other) noexcept {
+	std::swap(bufferID, other.bufferID);
 	return *this;
 }
 
 
-VertexBufferHandle::~VertexBufferHandle() {
-	glDeleteBuffers(1, &vboID);
+BufferHandle::~BufferHandle() {
+	glDeleteBuffers(1, &bufferID);
 }
 
 
-VertexBufferHandle::operator GLuint() const {
-	return vboID;
-}
 
-
-GLuint VertexBufferHandle::value() const {
-	return vboID;
-}
 
 
 //------------------------------------------------------------------------------
