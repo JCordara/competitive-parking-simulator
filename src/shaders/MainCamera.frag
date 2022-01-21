@@ -24,8 +24,12 @@ uniform vec3 renderCameraPosition;
 
 out vec4 color;
 
-vec3 attenuate(vec3 col, vec3 constaints, float dis){
-	return col / max(constaints[0] + constaints[1]*dis + constaints[1]*dis*dis,0.0001);
+#define CELL_LAYER_COUNT_DIFFUSE 0
+#define CELL_LAYER_COUNT_SPECULAR CELL_LAYER_COUNT_DIFFUSE + 0
+
+
+float attenuate(vec3 constaints, float dis){
+	return 1 / max(constaints[0] + constaints[1]*dis + constaints[1]*dis*dis,0.0001);
 }
 
 vec3 diffuse(vec3 col, vec3 lightDir, vec3 normal, float k){
@@ -65,19 +69,10 @@ float directionalLightShadow(vec3 fragPositionInLight, float bias){
 vec3 cellShader(vec3 light, int bands){
 	if(bands < 2) return light;
 	vec3 nf = floor(light * vec3(bands));
-	ivec3 n = ivec3(nf);
-
-	light = (nf + vec3(0.5))*(1.0 / vec3(bands));
-
-	if (n[0] == 0) light[0] = 0.0;
-	else if (n[0] == (bands - 1)) light[0] = 1.0;
-	if (n[1] == 0) light[1] = 0.0;
-	else if (n[1] == (bands - 1)) light[1] = 1.0;
-	if (n[2] == 0) light[2] = 0.0;
-	else if (n[2] == (bands - 1)) light[2] = 1.0;
+	light = (nf)*(1.0 / vec3(bands));
 	return light;
 }
-
+  
 void main() {
 	vec4 baseColour;
 	if(useColour != 0){ baseColour = vec4(fragColour, 1.0);}
@@ -89,23 +84,23 @@ void main() {
 	//Point Light, specular and diffuse
 	vec3 phonglightAccumulator = vec3(0.0,0.0,0.0), phonglight = vec3(0.0,0.0,0.0);
 	vec3 lightDir;
-	float distanceToLight;
+	float distanceToLight, attenuateFactor;
 	for(int i = 0; i < min(numberOfLights,10); i++){
 		lightDir = lightPositions[i] - fragPos;
 		distanceToLight = length(lightDir);
+		attenuateFactor = attenuate(lightAttenuationConstaints[i], distanceToLight);
 		lightDir = normalize(lightDir);
-		phonglight = diffuse(lightColours[i], lightDir, normal, uniformPhongConstaints[0]);
-		phonglight += specular(lightColours[i], lightDir, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]);
-		phonglight = attenuate(phonglight, lightAttenuationConstaints[i], distanceToLight);
+		phonglight = cellShader(attenuateFactor * diffuse(lightColours[i], lightDir, normal, uniformPhongConstaints[0]), CELL_LAYER_COUNT_DIFFUSE);
+		phonglight += cellShader(attenuateFactor * specular(lightColours[i], lightDir, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]), CELL_LAYER_COUNT_SPECULAR);
 		phonglightAccumulator += phonglight;
 	}
 	//Directional Light
 
-	phonglight = diffuse(directionalLightColour, -directionalLightDirection, normal, uniformPhongConstaints[0]);
-	phonglight += specular(directionalLightColour, -directionalLightDirection, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]);
+	phonglight =  cellShader(diffuse(directionalLightColour, -directionalLightDirection, normal, uniformPhongConstaints[0]),CELL_LAYER_COUNT_DIFFUSE);
+	phonglight += cellShader(specular(directionalLightColour, -directionalLightDirection, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]), CELL_LAYER_COUNT_SPECULAR);
 	phonglightAccumulator += (1.0 - directionalLightShadow(FragPosLightSpace,max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005))) * phonglight;
 	//cell shader
-	phonglightAccumulator = cellShader(phonglightAccumulator,0);//To turn on the cell shading, this needs to be given >1 band number
+	//phonglightAccumulator = cellShader(phonglightAccumulator,0);//To turn on the cell shading, this needs to be given >1 band number
 	//Ambient Light
 	phonglightAccumulator += uniformPhongConstaints[3] * ambientLight;
 

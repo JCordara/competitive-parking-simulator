@@ -163,14 +163,14 @@ int main() {
 
 	//-----Lights
 	std::vector<PointLight> scenePointLights = {
-		PointLight(glm::vec3(0.5f, 1.0f, 1.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 4.f, 4.f)),
+		PointLight(glm::vec3(0.5f, 1.0f, 1.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.5f, 0.01f)),
 		PointLight(glm::vec3(1.0f, 2.0f, -0.5f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(1.f, 0.1f, 0.5f))
 	};
 	std::vector <std::vector<GLfloat>> lightRenderInfo;
 
 	glm::vec3 ambientLight = glm::vec3(1.0f, 1.0f, 1.0f);
 
-	glm::vec3 directionalLightColour = glm::vec3(0.5f, 0.5f, 0.5f);
+	glm::vec3 directionalLightColour = 0.05f * glm::vec3(1.f, 1.f, 1.f);
 	glm::vec3 directionalLightDirection = glm::normalize(glm::vec3(0.0f, -1.0f, 1.0f));
 	Camera directionalLightCamera = Camera(glm::vec3(0.0f, 15.0f, -15.0f), glm::radians(180.0f), glm::radians(-45.0f), 30.0f, 30.f, 0.f, 50.f, true);
 
