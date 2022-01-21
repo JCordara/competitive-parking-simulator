@@ -157,4 +157,31 @@ private:
 
 };
 
+// An RAII class for managing a VertexBuffer GLuint for OpenGL.
+class FrameBufferHandle {
+
+public:
+	FrameBufferHandle();
+
+	// Disallow copying
+	FrameBufferHandle(const FrameBufferHandle&) = delete;
+	FrameBufferHandle operator=(const FrameBufferHandle&) = delete;
+
+	// Allow moving
+	FrameBufferHandle(FrameBufferHandle&& other) noexcept;
+	FrameBufferHandle& operator=(FrameBufferHandle&& other) noexcept;
+
+	// Clean up after ourselves.
+	~FrameBufferHandle();
+
+	// Allow casting from this type into a GLuint
+	// This allows usage in situations where a function expects a GLuint
+	operator GLuint() const;
+	GLuint value() const;
+
+private:
+	GLuint FrameBufferID;
+
+};
+
 #endif

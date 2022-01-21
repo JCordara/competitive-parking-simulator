@@ -175,27 +175,10 @@ int main() {
 	Camera directionalLightCamera = Camera(glm::vec3(0.0f, 15.0f, -15.0f), glm::radians(180.0f), glm::radians(-45.0f), 30.0f, 30.f, 0.f, 50.f, true);
 
 	const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
-	GLuint depthMapFBO;
-	glGenFramebuffers(1, &depthMapFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	// create depth texture
-	GLuint depthMap;
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		return false;
-
-
+	FrameBuffer depthFrameBuffer = FrameBuffer(0);
+	Texture depthTexture = Texture(SHADOW_WIDTH, SHADOW_HEIGHT, GL_NEAREST, GL_DEPTH_COMPONENT, GL_FLOAT);
+	depthTexture.setBorderColour(glm::vec4(1.f, 1.f, 1.f, 1.f));
+	depthFrameBuffer.attachTexture(GL_DEPTH_ATTACHMENT, depthTexture.getTextureHandleID(), GL_NONE);
 	//-----Models
 	std::vector<Model> sceneRenderModels = {
 		Model(generateCubeGeometry(glm::vec3(1.0f, 1.0f, 1.0f)), glm::vec4(0.7f, 1.0f, 100.0f, 0.01f), true),
@@ -252,7 +235,7 @@ int main() {
 		}
 		//----Render Directional Light DepthTexture -----
 
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		depthFrameBuffer.bind();
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 		//glCullFace(GL_FRONT);
@@ -273,7 +256,7 @@ int main() {
 		prepareGameObjectsForRendering(glGetUniformLocation(depthTextureShader, "Ms"), glGetUniformLocation(depthTextureShader, "MsInverseTransposed"), sceneSphereGameObjects);
 		sceneRenderModels[2].prepareModelForRendering(glGetUniformLocation(depthTextureShader, "uniformPhongConstaints"), glGetUniformLocation(depthTextureShader, "useColour"), drawGeom);
 		sceneRenderModels[2].renderModel((int)sceneSphereGameObjects.size());
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		depthFrameBuffer.unbind();
 		
 		//---Render Frame -----------------------------
 		glEnable(GL_LINE_SMOOTH);
@@ -289,8 +272,8 @@ int main() {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		
 		shader.use();
-		glBindTexture(GL_TEXTURE_2D, depthMap);
-		glViewport(0, 0, window.getWidth(), window.getHeight());
+		depthTexture.bind();
+		window.resetViewport();
 #if TRACKBALL_CAM
 		if (window.getHeight() != 0) viewportAspectRatio = static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight());
 		else viewportAspectRatio = 0.0;
@@ -326,6 +309,7 @@ int main() {
 		prepareGameObjectsForRendering(glGetUniformLocation(shader, "Ms"), glGetUniformLocation(shader, "MsInverseTransposed"), sceneSphereGameObjects);
 		sceneRenderModels[2].prepareModelForRendering(glGetUniformLocation(shader, "uniformPhongConstaints"), glGetUniformLocation(shader, "useColour"), drawGeom);
 		sceneRenderModels[2].renderModel((int)sceneSphereGameObjects.size());
+		depthTexture.unbind();
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 		gui->draw();

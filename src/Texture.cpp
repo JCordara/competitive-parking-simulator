@@ -55,3 +55,19 @@ Texture::Texture(std::string path, GLint interpolation)
 		throw std::runtime_error("Failed to read texture data from file!");
 	}
 }
+
+Texture::Texture(int width, int height, GLint interpolation, GLuint format, GLenum type) : textureID(), path(""), interpolation(interpolation) {
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);		//Set alignment to be 1
+	bind();
+
+	//Loads texture data into bound texture
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, type, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpolation);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpolation);
+
+	// Clean up
+	unbind();
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);	//Return to default alignment
+}

@@ -137,3 +137,38 @@ TextureHandle::operator GLuint() const {
 GLuint TextureHandle::value() const {
 	return textureID;
 }
+
+//--------------------------------------------------------------------------------
+
+FrameBufferHandle::FrameBufferHandle()
+	: FrameBufferID(0) // Due to OpenGL syntax, we can't initial directly here, like we want.
+{
+	glGenFramebuffers(1, &FrameBufferID);
+}
+
+
+FrameBufferHandle::FrameBufferHandle(FrameBufferHandle&& other) noexcept
+	: FrameBufferID(std::move(other.FrameBufferID))
+{
+	other.FrameBufferID = 0;
+}
+
+FrameBufferHandle& FrameBufferHandle::operator=(FrameBufferHandle&& other) noexcept {
+	std::swap(FrameBufferID, other.FrameBufferID);
+	return *this;
+}
+
+
+FrameBufferHandle::~FrameBufferHandle() {
+	glDeleteFramebuffers(1, &FrameBufferID);
+}
+
+
+FrameBufferHandle::operator GLuint() const {
+	return FrameBufferID;
+}
+
+
+GLuint FrameBufferHandle::value() const {
+	return FrameBufferID;
+}
