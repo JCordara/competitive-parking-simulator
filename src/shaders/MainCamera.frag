@@ -10,9 +10,10 @@ uniform int useColour;
 uniform sampler2D colourText;
 uniform sampler2D shadowMap;
 
-uniform vec3 lightPositions[10];
-uniform vec3 lightColours[10];
-uniform vec3 lightAttenuationConstaints[10];
+#define MAX_NUMBER_POINT_LIGHTS 10
+uniform vec3 lightPositions[MAX_NUMBER_POINT_LIGHTS];
+uniform vec3 lightColours[MAX_NUMBER_POINT_LIGHTS];
+uniform vec3 lightAttenuationConstaints[MAX_NUMBER_POINT_LIGHTS];
 uniform vec3 ambientLight;
 uniform int numberOfLights;
 
@@ -24,8 +25,8 @@ uniform vec3 renderCameraPosition;
 
 out vec4 color;
 
-#define CELL_LAYER_COUNT_DIFFUSE 0
-#define CELL_LAYER_COUNT_SPECULAR CELL_LAYER_COUNT_DIFFUSE + 0
+#define CELL_LAYER_COUNT_DIFFUSE 32
+#define CELL_LAYER_COUNT_SPECULAR CELL_LAYER_COUNT_DIFFUSE + 4
 
 
 float attenuate(vec3 constaints, float dis){
@@ -37,10 +38,9 @@ vec3 diffuse(vec3 col, vec3 lightDir, vec3 normal, float k){
 }
 
 vec3 specular(vec3 col, vec3 lightDir, vec3 normal, vec3 vDir, float k, float a){
-	float d = dot( lightDir, normal);
-	float d2 = dot( 2 * d * normal - lightDir, vDir);
-	if(d < 0.0 || d2 < 0.0) return 0.0 * col;
-	return k * pow(d2,a) * col;
+	if(a < 0.00001) return k * col; 
+	vec3 halfwayDir = normalize(lightDir + vDir);  
+	return k * pow(max(dot(normal, halfwayDir), 0.0), a) * col;
 }
 float directionalLightShadow(vec3 fragPositionInLight, float bias){
 
@@ -85,7 +85,7 @@ void main() {
 	vec3 phonglightAccumulator = vec3(0.0,0.0,0.0), phonglight = vec3(0.0,0.0,0.0);
 	vec3 lightDir;
 	float distanceToLight, attenuateFactor;
-	for(int i = 0; i < min(numberOfLights,10); i++){
+	for(int i = 0; i < min(numberOfLights,MAX_NUMBER_POINT_LIGHTS); i++){
 		lightDir = lightPositions[i] - fragPos;
 		distanceToLight = length(lightDir);
 		attenuateFactor = attenuate(lightAttenuationConstaints[i], distanceToLight);

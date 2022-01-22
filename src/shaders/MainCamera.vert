@@ -4,8 +4,9 @@ layout (location = 1) in vec3 vertexColour;
 layout (location = 2) in vec3 vertexNormal;
 layout (location = 3) in vec2 vertexTextureCoordinate;
 
-uniform mat4 Ms[10]; //Array so we can send instanced versions, use M[0] for a single value
-uniform mat4 MsInverseTransposed[10]; //Array so we can send instanced versions, use M[0] for a single value
+#define MAX_NUMBER_INSTANCES 10
+uniform mat4 Ms[MAX_NUMBER_INSTANCES]; //Array so we can send instanced versions, use M[0] for a single value
+uniform mat4 MsInverseTransposed[MAX_NUMBER_INSTANCES]; //Array so we can send instanced versions, use M[0] for a single value
 uniform mat4 V;
 uniform mat4 P;
 uniform mat4 lightSpaceMatrix;
