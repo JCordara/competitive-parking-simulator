@@ -4,6 +4,7 @@
 #include <vector>
 #include "Geometry.h"
 
+
 class Model {
 public:
 	Model(CPU_Geometry cpuGeometry, glm::vec4 phongConstants, bool coloured);

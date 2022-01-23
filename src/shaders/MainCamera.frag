@@ -8,25 +8,28 @@ in vec3 FragPosLightSpace;
 
 uniform int useColour;
 uniform sampler2D colourText;
-uniform sampler2D shadowMap;
 
 #define MAX_NUMBER_POINT_LIGHTS 10
 uniform vec3 lightPositions[MAX_NUMBER_POINT_LIGHTS];
 uniform vec3 lightColours[MAX_NUMBER_POINT_LIGHTS];
 uniform vec3 lightAttenuationConstaints[MAX_NUMBER_POINT_LIGHTS];
-uniform vec3 ambientLight;
+uniform float lightRadius[MAX_NUMBER_POINT_LIGHTS];
 uniform int numberOfLights;
 
 uniform vec3 directionalLightDirection;
 uniform vec3 directionalLightColour;
+uniform int useShadowMap;
+uniform sampler2D shadowMap;
+
+uniform vec3 ambientLight;
 
 uniform vec4 uniformPhongConstaints;//  (K-Diff, K-Spec, Alpha, K-Amb)
 uniform vec3 renderCameraPosition;
 
 out vec4 color;
 
-#define CELL_LAYER_COUNT_DIFFUSE 32
-#define CELL_LAYER_COUNT_SPECULAR CELL_LAYER_COUNT_DIFFUSE + 4
+#define CELL_LAYER_COUNT_DIFFUSE 0
+#define CELL_LAYER_COUNT_SPECULAR CELL_LAYER_COUNT_DIFFUSE + 0
 
 
 float attenuate(vec3 constaints, float dis){
@@ -42,22 +45,15 @@ vec3 specular(vec3 col, vec3 lightDir, vec3 normal, vec3 vDir, float k, float a)
 	vec3 halfwayDir = normalize(lightDir + vDir);  
 	return k * pow(max(dot(normal, halfwayDir), 0.0), a) * col;
 }
-float directionalLightShadow(vec3 fragPositionInLight, float bias){
 
-    // transform to [0,1] range
+float directionalLightShadow(vec3 fragPositionInLight, float bias){
     vec3 projCoords = fragPositionInLight * 0.5 + 0.5;
 	if(projCoords.z > 1.0) return 0.0;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
-    // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
-    // check whether current frag pos is in shadow
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-	for(int x = -1; x <= 1; ++x)
-	{
-		for(int y = -1; y <= 1; ++y)
-		{
+	for(int x = -1; x <= 1; ++x){
+		for(int y = -1; y <= 1; ++y){
 			float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
 			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
 		}    
@@ -72,39 +68,43 @@ vec3 cellShader(vec3 light, int bands){
 	light = (nf)*(1.0 / vec3(bands));
 	return light;
 }
+
+vec4 sampleTexture(){
+	return texture(colourText,fragTextureCoordinate);
+}
   
 void main() {
 	vec4 baseColour;
 	if(useColour != 0){ baseColour = vec4(fragColour, 1.0);}
-	//else{ baseColour = texture(colourText,fragTextureCoordinate);}
+	//else{ baseColour = sampleTexture();}
 
 	vec3 normal = normalize(fragNormal);
 	vec3 vDir = normalize(renderCameraPosition - fragPos);
 
 	//Point Light, specular and diffuse
-	vec3 phonglightAccumulator = vec3(0.0,0.0,0.0), phonglight = vec3(0.0,0.0,0.0);
-	vec3 lightDir;
+	vec3 phonglightAccumulator = vec3(0.0,0.0,0.0), phonglight, lightDir;
 	float distanceToLight, attenuateFactor;
 	for(int i = 0; i < min(numberOfLights,MAX_NUMBER_POINT_LIGHTS); i++){
 		lightDir = lightPositions[i] - fragPos;
 		distanceToLight = length(lightDir);
-		attenuateFactor = attenuate(lightAttenuationConstaints[i], distanceToLight);
-		lightDir = normalize(lightDir);
-		phonglight = cellShader(attenuateFactor * diffuse(lightColours[i], lightDir, normal, uniformPhongConstaints[0]), CELL_LAYER_COUNT_DIFFUSE);
-		phonglight += cellShader(attenuateFactor * specular(lightColours[i], lightDir, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]), CELL_LAYER_COUNT_SPECULAR);
-		phonglightAccumulator += phonglight;
+		if(distanceToLight < lightRadius[i]){
+			attenuateFactor = attenuate(lightAttenuationConstaints[i], distanceToLight);
+			lightDir = normalize(lightDir);
+			phonglight = cellShader(attenuateFactor * diffuse(lightColours[i], lightDir, normal, uniformPhongConstaints[0]), CELL_LAYER_COUNT_DIFFUSE);
+			phonglight += cellShader(attenuateFactor * specular(lightColours[i], lightDir, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]), CELL_LAYER_COUNT_SPECULAR);
+			phonglightAccumulator += phonglight;
+		}
 	}
-	//Directional Light
-
+	//Directional Light, specular and diffuse + shadow mapping
 	phonglight =  cellShader(diffuse(directionalLightColour, -directionalLightDirection, normal, uniformPhongConstaints[0]),CELL_LAYER_COUNT_DIFFUSE);
 	phonglight += cellShader(specular(directionalLightColour, -directionalLightDirection, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]), CELL_LAYER_COUNT_SPECULAR);
-	phonglightAccumulator += (1.0 - directionalLightShadow(FragPosLightSpace,max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005))) * phonglight;
-	//cell shader
-	//phonglightAccumulator = cellShader(phonglightAccumulator,0);//To turn on the cell shading, this needs to be given >1 band number
+	if(useShadowMap == 1){
+		phonglightAccumulator += (1.0 - directionalLightShadow(FragPosLightSpace, max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005))) * phonglight;
+	}else{
+		phonglightAccumulator += phonglight;
+	}
 	//Ambient Light
 	phonglightAccumulator += uniformPhongConstaints[3] * ambientLight;
-
-	
-
-	color = baseColour*vec4(phonglightAccumulator,1.0);
+	//Final Result
+	color = baseColour * vec4(phonglightAccumulator,1.0);
 }

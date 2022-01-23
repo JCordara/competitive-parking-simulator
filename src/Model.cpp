@@ -13,7 +13,6 @@ void Model::prepareModelForRendering(GLint phongConstantsLocation, GLint coloure
 	drawGeometry.bind();
 	glUniform1i(colouredLocation, (coloured) ? 1 : 0);
 	glUniform4fv(phongConstantsLocation, 1, &phongConstants[0]);
-
 }
 
 void Model::renderModel(int instances) {

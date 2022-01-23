@@ -41,33 +41,13 @@
 #include "AudioManager.h"
 #include "Time.h"
 #include "GUI.h"
+#include "Renderers.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #define TRACKBALL_CAM	1	// Use a trackball dev cam
 #define PHYSX_TEST		0	// Run PhysX test function
-
-/* This was generating a nasty warning
-//Classes to test the manager with
-class SizeTogglerTest{//This class is a resister for registering haha
-	public: 
-	SizeTogglerTest(std::shared_ptr<GameEventManager> em, Camera& c) : eventManager(em), mainCamera(c){
-		function = bindMethodFunction_2_Variables(&Camera::windowSizeChanged, &mainCamera);
-		enableWindowUpdate();
-	};
-	std::shared_ptr<GameEventManager> eventManager;
-	Camera& mainCamera;
-	unsigned int mainCameraid;
-	GameEventManager::mousePositionFunction function;
-	void enableWindowUpdate() {
-		mainCameraid = eventManager->registerWindowSize(function);
-	}
-	void disableWindowUpdate() {
-		eventManager->deregisterWindowSize(function, mainCameraid);
-	}
-};
-*/
 
 void physX_test();
 
@@ -108,8 +88,8 @@ int main() {
 	// screw gldebug
 	//GLDebug::enable();
 
-	ShaderProgram shader("shaders/MainCamera.vert", "shaders/MainCamera.frag");
-	ShaderProgram depthTextureShader("shaders/DepthTexture.vert", "shaders/DepthTexture.frag");
+	//ShaderProgram shader("shaders/MainCamera.vert", "shaders/MainCamera.frag");
+	MainRenderer mainRenderer;
 	glm::mat4 identity(1.0f);
 
 	// ------------------------------ Cameras ----------------------------------
@@ -166,27 +146,19 @@ int main() {
 		PointLight(glm::vec3(0.5f, 1.0f, 1.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.5f, 0.01f)),
 		PointLight(glm::vec3(1.0f, 2.0f, -0.5f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(1.f, 0.1f, 0.5f))
 	};
-	std::vector <std::vector<GLfloat>> lightRenderInfo;
+
+	DirectionalLight dirLight = DirectionalLight(0.05f * glm::vec3(1.f, 1.f, 1.f), glm::normalize(glm::vec3(0.0f, -1.0f, 1.0f)));
+	Camera directionalLightCamera = Camera(glm::vec3(0.0f, 15.0f, -15.0f), glm::radians(180.0f), glm::radians(-45.0f), 30.0f, 30.f, 0.f, 50.f, true);
+	OrthographicDepthRenderer depthRenderer(2048, 2048);
 
 	glm::vec3 ambientLight = glm::vec3(1.0f, 1.0f, 1.0f);
 
-	glm::vec3 directionalLightColour = 0.05f * glm::vec3(1.f, 1.f, 1.f);
-	glm::vec3 directionalLightDirection = glm::normalize(glm::vec3(0.0f, -1.0f, 1.0f));
-	Camera directionalLightCamera = Camera(glm::vec3(0.0f, 15.0f, -15.0f), glm::radians(180.0f), glm::radians(-45.0f), 30.0f, 30.f, 0.f, 50.f, true);
-
-	const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
-	FrameBuffer depthFrameBuffer = FrameBuffer(0);
-	Texture depthTexture = Texture(SHADOW_WIDTH, SHADOW_HEIGHT, GL_NEAREST, GL_DEPTH_COMPONENT, GL_FLOAT);
-	depthTexture.setBorderColour(glm::vec4(1.f, 1.f, 1.f, 1.f));
-	depthFrameBuffer.attachTexture(GL_DEPTH_ATTACHMENT, depthTexture.getTextureHandleID(), GL_NONE);
 	//-----Models
 	std::vector<Model> sceneRenderModels = {
 		Model(generateCubeGeometry(glm::vec3(1.0f, 1.0f, 1.0f)), glm::vec4(0.7f, 1.0f, 100.0f, 0.01f), true),
 		Model(generatePlaneGeometry(glm::vec3(0.2f, 0.5f, 0.1f)), glm::vec4(1.0f, 1.0f, 50.0f, 0.01f), true),
 		Model(generateSphereGeometry(glm::vec3(1.0f, 1.0f, 1.0f), 8, 8), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), true)
 	};
-
-	GPU_Geometry drawGeom;
 
 	//------Objects
 	std::vector<GameObject> sceneCubeGameObjects = {
@@ -199,8 +171,8 @@ int main() {
 	};
 
 	std::vector<GameObject> sceneSphereGameObjects = {
-		GameObject(1, -1, glm::scale(glm::translate(identity, scenePointLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f))),
-		GameObject(1, -1, glm::scale(glm::translate(identity, scenePointLights[1].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)))
+		GameObject(2, -1, glm::scale(glm::translate(identity, scenePointLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f))),
+		GameObject(2, -1, glm::scale(glm::translate(identity, scenePointLights[1].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)))
 	};
 
 	// ---------------------------- Time stuff ---------------------------------
@@ -209,11 +181,9 @@ int main() {
 	float viewportAspectRatio;
 	// -------------------------------------------------------------------------
 
-
 	// ---------------------------- Simple GUI ---------------------------------
 	std::shared_ptr<GUI> gui = std::make_shared<GUI>();
 	// -------------------------------------------------------------------------
-
 
 	//---Game Loop----
 	while (!window.shouldClose()) {
@@ -234,82 +204,31 @@ int main() {
 			sceneSphereGameObjects[0].setTransformation(glm::scale(glm::translate(identity, scenePointLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)));
 		}
 		//----Render Directional Light DepthTexture -----
-
-		depthFrameBuffer.bind();
-		glEnable(GL_CULL_FACE);
-		glEnable(GL_DEPTH_TEST);
-		//glCullFace(GL_FRONT);
-		glClearDepth(1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glDisable(GL_ALPHA_TEST);
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-
-		depthTextureShader.use();
-		directionalLightCamera.useOrthographic(glGetUniformLocation(depthTextureShader, "V"), glGetUniformLocation(depthTextureShader, "P"));
-
-		prepareGameObjectsForRendering(glGetUniformLocation(depthTextureShader, "Ms"), glGetUniformLocation(depthTextureShader, "MsInverseTransposed"), sceneCubeGameObjects);
-		sceneRenderModels[0].prepareModelForRendering(glGetUniformLocation(depthTextureShader, "uniformPhongConstaints"), glGetUniformLocation(depthTextureShader, "useColour"), drawGeom);
-		sceneRenderModels[0].renderModel((int)sceneCubeGameObjects.size());
-		prepareGameObjectsForRendering(glGetUniformLocation(depthTextureShader, "Ms"), glGetUniformLocation(depthTextureShader, "MsInverseTransposed"), scenePlaneGameObjects);
-		sceneRenderModels[1].prepareModelForRendering(glGetUniformLocation(depthTextureShader, "uniformPhongConstaints"), glGetUniformLocation(depthTextureShader, "useColour"), drawGeom);
-		sceneRenderModels[1].renderModel((int)scenePlaneGameObjects.size());
-		prepareGameObjectsForRendering(glGetUniformLocation(depthTextureShader, "Ms"), glGetUniformLocation(depthTextureShader, "MsInverseTransposed"), sceneSphereGameObjects);
-		sceneRenderModels[2].prepareModelForRendering(glGetUniformLocation(depthTextureShader, "uniformPhongConstaints"), glGetUniformLocation(depthTextureShader, "useColour"), drawGeom);
-		sceneRenderModels[2].renderModel((int)sceneSphereGameObjects.size());
-		depthFrameBuffer.unbind();
-		
+		depthRenderer.use(directionalLightCamera);
+		depthRenderer.render(sceneCubeGameObjects, sceneRenderModels[0]);
+		depthRenderer.render(scenePlaneGameObjects, sceneRenderModels[1]);
+		depthRenderer.render(sceneSphereGameObjects, sceneRenderModels[2]);
+		depthRenderer.endUse();
 		//---Render Frame -----------------------------
-		glEnable(GL_LINE_SMOOTH);
-		glEnable(GL_FRAMEBUFFER_SRGB);
-		glEnable(GL_FRAMEBUFFER_SRGB);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		
-		shader.use();
-		depthTexture.bind();
 		window.resetViewport();
+		mainRenderer.use();
 #if TRACKBALL_CAM
 		if (window.getHeight() != 0) viewportAspectRatio = static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight());
 		else viewportAspectRatio = 0.0;
-		glUniformMatrix4fv(glGetUniformLocation(shader, "P"), 1, GL_FALSE, glm::value_ptr(glm::perspective(glm::radians(60.f), viewportAspectRatio, 0.01f, 1000.0f)));
-		glUniformMatrix4fv(glGetUniformLocation(shader, "V"), 1, GL_FALSE, glm::value_ptr(mainCamera.getViewMatrix()));
-		glUniform3fv(glGetUniformLocation(shader, "renderCameraPosition"), 1, glm::value_ptr(mainCamera.getPosition()));
-
-		AudioManager::instance().setListenerPosition(mainCamera.getPosition());
-		AudioManager::instance().setListenerOrientation(mainCamera.getViewMatrix());
+		mainRenderer.setCameraTransformations(mainCamera.getPosition(), mainCamera.getViewMatrix(), glm::perspective(glm::radians(60.f), viewportAspectRatio, 0.01f, 1000.0f));
 #else
-		mainCamera.usePerspective(glGetUniformLocation(shader, "V"), glGetUniformLocation(shader, "P"), glGetUniformLocation(shader, "renderCameraPosition"));
+		mainRenderer.setCameraTransformations(mainCamera.getPosition(), mainCamera.getView(), mainCamera.getPerspectiveProjection);
 #endif
-
-		preparePointLightsForRendering(
-			glGetUniformLocation(shader, "lightPositions"),
-			glGetUniformLocation(shader, "lightColours"),
-			glGetUniformLocation(shader, "lightAttenuationConstaints"),
-			glGetUniformLocation(shader, "numberOfLights"),
-			scenePointLights
-		);
-		glUniform3fv(glGetUniformLocation(shader, "ambientLight"), 1, &ambientLight[0]);
-		glUniform3fv(glGetUniformLocation(shader, "directionalLightColour"), 1, &directionalLightColour[0]);
-		glUniform3fv(glGetUniformLocation(shader, "directionalLightDirection"), 1, &directionalLightDirection[0]);
-		glm::mat4 lightSpace = directionalLightCamera.getOrthographicProjection() * directionalLightCamera.getView();
-		glUniformMatrix4fv(glGetUniformLocation(shader, "lightSpaceMatrix"), 1, GL_FALSE , &lightSpace[0][0]);
-
-		prepareGameObjectsForRendering(glGetUniformLocation(shader, "Ms"), glGetUniformLocation(shader, "MsInverseTransposed"), sceneCubeGameObjects);
-		sceneRenderModels[0].prepareModelForRendering(glGetUniformLocation(shader, "uniformPhongConstaints"), glGetUniformLocation(shader, "useColour"), drawGeom);
-		sceneRenderModels[0].renderModel((int)sceneCubeGameObjects.size());
-		prepareGameObjectsForRendering(glGetUniformLocation(shader, "Ms"), glGetUniformLocation(shader, "MsInverseTransposed"), scenePlaneGameObjects);
-		sceneRenderModels[1].prepareModelForRendering(glGetUniformLocation(shader, "uniformPhongConstaints"), glGetUniformLocation(shader, "useColour"), drawGeom);
-		sceneRenderModels[1].renderModel((int)scenePlaneGameObjects.size());
-		prepareGameObjectsForRendering(glGetUniformLocation(shader, "Ms"), glGetUniformLocation(shader, "MsInverseTransposed"), sceneSphereGameObjects);
-		sceneRenderModels[2].prepareModelForRendering(glGetUniformLocation(shader, "uniformPhongConstaints"), glGetUniformLocation(shader, "useColour"), drawGeom);
-		sceneRenderModels[2].renderModel((int)sceneSphereGameObjects.size());
-		depthTexture.unbind();
+		mainRenderer.setPointLights(scenePointLights);
+		mainRenderer.setDirectionalLight(dirLight);
+		mainRenderer.setAmbientLight(ambientLight);
+		mainRenderer.useShadowMappingOnDirectionalLight(directionalLightCamera);
+		depthRenderer.bindTextureForUse();
+		mainRenderer.render(sceneCubeGameObjects, sceneRenderModels[0]);
+		mainRenderer.render(scenePlaneGameObjects, sceneRenderModels[1]);
+		mainRenderer.render(sceneSphereGameObjects, sceneRenderModels[2]);
+		depthRenderer.unbindTextureForUse();
+		mainRenderer.endUse();
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 		gui->draw();

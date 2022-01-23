@@ -29,7 +29,7 @@ void IndexBuffer::uploadData(GLsizeiptr size, const void* data, GLenum usage) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, usage);
 }
 
-FrameBuffer::FrameBuffer(GLuint index) : bufferID{}
+FrameBuffer::FrameBuffer() : bufferID{}
 {
 // I dont think anything needs to be done??	
 }

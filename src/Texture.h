@@ -10,6 +10,7 @@
 
 class Texture {
 public:
+	Texture() : textureID() {}
 	Texture(std::string path, GLint interpolation);
 	Texture(int width, int height, GLint interpolation, GLuint format, GLenum type);
 

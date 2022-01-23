@@ -36,7 +36,7 @@ private:
 class FrameBuffer {
 
 public:
-	FrameBuffer(GLuint index);
+	FrameBuffer();
 
 	// Public interface
 	void bind() const { glBindFramebuffer(GL_FRAMEBUFFER, bufferID); }
