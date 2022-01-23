@@ -1,12 +1,12 @@
-/** Time.h
+/** TimeInfo.h
  * Static class for maintaining time-related values
  * now(): 	Current system time
  * delta(): Time elapsed since last frame
  * fps():	Current frames per second
 */
 
-#ifndef TIME_H
-#define TIME_H
+#ifndef TIME_INFO_H
+#define TIME_INFO_H
 
 // Use the last FPS_FRAMES_COUNT frames to calculate current fps
 #define FPS_FRAMES_COUNT 25

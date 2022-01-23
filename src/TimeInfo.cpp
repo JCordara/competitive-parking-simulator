@@ -1,4 +1,4 @@
-#include "Time.h"
+#include "TimeInfo.h"
 
 double Time::delta_ = 0.01; // Initialize to non-zero value
 double Time::fps_ = 60.0;	// Same, just in case

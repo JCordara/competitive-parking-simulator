@@ -27,7 +27,15 @@ EditorCamera::EditorCamera()
 	updateRadius();
 	updatePosition();
 	updateVectors();
+
+	// Register handler for GameStart event
+	Events::GameStart.registerHandler<EditorCamera, &EditorCamera::onGameStart>(this);
 }
+
+void EditorCamera::onGameStart() {
+	setZoom(7.0);
+}
+
 
 // Initialize camera with a point to look at
 EditorCamera::EditorCamera(glm::vec3 initLookAt) : EditorCamera() {
@@ -246,3 +254,5 @@ void EditorCamera::button2Down() {
 void EditorCamera::button2Up() {
 	c_MB2Down_ = false;
 }
+
+

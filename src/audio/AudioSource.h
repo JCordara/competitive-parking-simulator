@@ -10,7 +10,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "../Time.h"
+#include "TimeInfo.h"
 
 #include "Audio.h"
 #include "OpenALError.h"

@@ -11,8 +11,8 @@
 #include <iostream>
 #include <memory>
 
-// Needed to get delta time
-#include "Time.h"
+#include "TimeInfo.h"	// Time::delta()
+#include "Event.h"		// gameStartEvent
 
 
 /* --- Default intial values --- */
@@ -135,6 +135,8 @@ private:
 	// Calculate look at view matrix given necessary variables
 	// (I just wrote this to see if I could; I still use it because it's cool)
 	glm::mat4 lookAt(glm::vec3 camPosition, glm::vec3 lookDirection, glm::vec3 up);
+
+	void onGameStart();
 };
 
 #endif

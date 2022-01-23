@@ -38,10 +38,11 @@
 #include "GameObject.h"
 #include "Model.h"
 #include "GameCallback.h"
-#include "AudioManager.h"
-#include "Time.h"
+#include "AudioSystem.h"
+#include "TimeInfo.h"
 #include "GUI.h"
 #include "Renderers.h"
+#include "Event.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -53,38 +54,64 @@ void physX_test();
 
 class PlayCarSound {
 public:
-	PlayCarSound(AudioSource& c, Audio& s) : car(c), sound(s) {};
 	AudioSource& car;
 	Audio& sound;
+	PlayCarSound(AudioSource& c, Audio& s) : car(c), sound(s) {
+		// Respond to TestAudio events
+		Events::TestAudio.registerHandler<PlayCarSound, &PlayCarSound::playVROOOOOOM>(this);
+
+		// Respond to TestAudioParameter events
+		// When TestAudioParameter events are broadcast, they come with an audio
+		// buffer parameter to play
+		Events::TestAudioParameter.registerHandler<PlayCarSound, &PlayCarSound::playSound>(this);
+	}
+	void playSound(Audio& buf) {
+		car.playAudio(buf);
+	}
 	void playVROOOOOOM() {
 		car.playAudio(sound);
 	}
 };
+
 
 //-------------------------------
 int main() {
 	Log::debug("Starting main");
 
 #if PHYSX_TEST
-	physX_test();
+	physX_test(); // blocks main thread
 #endif
+
+	// Create and initialize game systems
+	std::shared_ptr<GameEventManager> eventManager = std::make_shared<GameEventManager>();
+	std::shared_ptr<AudioSystem> audioSystem = std::make_shared<AudioSystem>();
 
 	// WINDOW
 	glfwInit();
 	Window window(1200, 800, "Test Window");
-	std::shared_ptr<GameEventManager> eventManager = std::make_shared<GameEventManager>();
 	window.setCallbacks(eventManager);
 
 	// --------------------------- Example Audio -------------------------------
-	Audio& sound = AudioManager::instance().loadAudio("audio/rev.wav");
-	AudioSource& car = 
-		AudioManager::instance().createStaticSource(glm::vec3(0.0f, 0.0f, 0.0f));
+	// Use references to ensure proper memory deallocation
+	Audio& sound = audioSystem->loadAudio("audio/rev.wav");
+	Audio& defaultSound = audioSystem->loadAudio("audio/null.wav");
+	// Can also create a non-static source
+	// Non-static sources will need their positions updated each frame
+	AudioSource& car = audioSystem->createStaticSource(glm::vec3(0.0f, 0.0f, 0.0f));
 	// -------------------------------------------------------------------------
 
-	// -----Example--method--Registration--
+	// ---------------- Example Keyboard Event Registration --------------------
+	// Command to play vroom sound encapsulated in an object
 	PlayCarSound testPlayer = PlayCarSound(car, sound);
-	eventManager->registerKey(bindMethodFunction_0_Variables(&PlayCarSound::playVROOOOOOM, &testPlayer), GLFW_KEY_S, GLFW_PRESS, 0);
-	// ------------------------------------
+	
+	// Register S key to broadcast a TestAudio event
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::TestAudio), 
+		GLFW_KEY_S, GLFW_PRESS, 0
+	);
+	// -------------------------------------------------------------------------
+	
+	
 	// screw gldebug
 	//GLDebug::enable();
 
@@ -177,13 +204,25 @@ int main() {
 
 	// ---------------------------- Time stuff ---------------------------------
 	Time::init();
-	double  timeAccumulator = 0.0, initialTime = Time::now(), timeStepTaken = 0.01, currentTime = initialTime;
+	double timeAccumulator = 0.0;
+	double initialTime = Time::now();
+	double timeStepTaken = 0.01;
+	double currentTime = initialTime;
 	float viewportAspectRatio;
 	// -------------------------------------------------------------------------
 
 	// ---------------------------- Simple GUI ---------------------------------
+	// Currently only displays fps using ImGui
 	std::shared_ptr<GUI> gui = std::make_shared<GUI>();
 	// -------------------------------------------------------------------------
+
+	// ---------------------Example event broadcasting -------------------------
+	Events::GameStart.broadcast();	// Invoke observers of the GameStart event
+	
+	// Broadcast "defaultSound" to observers of this event
+	Events::TestAudioParameter.broadcast(defaultSound);
+	// -------------------------------------------------------------------------
+
 
 	//---Game Loop----
 	while (!window.shouldClose()) {
@@ -216,6 +255,8 @@ int main() {
 		if (window.getHeight() != 0) viewportAspectRatio = static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight());
 		else viewportAspectRatio = 0.0;
 		mainRenderer.setCameraTransformations(mainCamera.getPosition(), mainCamera.getViewMatrix(), glm::perspective(glm::radians(60.f), viewportAspectRatio, 0.01f, 1000.0f));
+		audioSystem->setListenerPosition(mainCamera.getPosition());
+		audioSystem->setListenerOrientation(mainCamera.getViewDirection(), mainCamera.getUpDirection());
 #else
 		mainRenderer.setCameraTransformations(mainCamera.getPosition(), mainCamera.getView(), mainCamera.getPerspectiveProjection);
 #endif

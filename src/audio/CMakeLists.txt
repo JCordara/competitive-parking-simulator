@@ -2,11 +2,11 @@
 
 # Create a library called "AudioSystem" from the source files
 add_library (AudioSystem STATIC
-    Audio.cpp
-    AudioDevice.cpp
-    AudioSource.cpp
-    AudioManager.cpp
-    OpenALError.cpp
+    "Audio.cpp"
+    "AudioDevice.cpp"
+    "AudioSource.cpp"
+    "AudioSystem.cpp"
+    "OpenALError.cpp"
 )
 
 # Link libraries required to build AudioSystem
@@ -17,9 +17,12 @@ target_link_libraries(AudioSystem
 
 # Make sure the compiler can find include files for Audio library
 # when other libraries or executables link to AudioSystem
+# And make any files in the src directory accessable as includes
+# (none of this #include "../[filename].h" crap)
 target_include_directories (AudioSystem PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/inc
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_SOURCE_DIR}/inc"
+    "${CMAKE_SOURCE_DIR}/src"
 )
 
 # Link to C runtime libraries
