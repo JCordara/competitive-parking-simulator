@@ -34,9 +34,14 @@ FrameBuffer::FrameBuffer() : bufferID{}
 // I dont think anything needs to be done??	
 }
 
-void FrameBuffer::attachTexture(GLenum attachment, GLuint texture, GLenum buf) {
+void FrameBuffer::attachTexture(GLenum attachment, GLuint texture) {
 	bind();
 	glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, 0);
-	glDrawBuffer(buf);
+	unbind();
+}
+
+void FrameBuffer::drawBuffers(std::vector<GLenum> buffers) {
+	bind();
+	glDrawBuffers(buffers.size(), buffers.data());
 	unbind();
 }
