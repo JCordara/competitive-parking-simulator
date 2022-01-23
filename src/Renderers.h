@@ -16,7 +16,7 @@ public:
 	void render(std::vector<GameObject>& GameObjects, Model& model);
 	void use(Camera& directionalLightCamera);
 	void endUse();
-	void bindTextureForUse() {depthTexture.bind();}
+	void bindTextureForUse() {glActiveTexture(GL_TEXTURE0);depthTexture.bind();}
 	void unbindTextureForUse() {depthTexture.unbind();}
 private:
 	FrameBuffer depthFrameBuffer;
@@ -33,20 +33,70 @@ public:
 	void render(std::vector<GameObject>& GameObjects, Model& model);
 	void setCameraTransformations(glm::vec3 position, glm::mat4 V, glm::mat4 P);
 	void setPointLights(std::vector<PointLight>& lights);
+	void setSpotLights(std::vector<SpotLight>& lights);
 	void setDirectionalLight(DirectionalLight& light);
 	void setAmbientLight(glm::vec3& light);
 	void useShadowMappingOnDirectionalLight(Camera& orthographicCamera);
 	void disableShadowMappingOnDirectionalLight();
-	void use();
-	void endUse() {}
+	void use(int width, int height);
+	void endUse() { renderFrameBuffer.unbind(); }
+
+
+	void bindTextureForUse() {
+		glActiveTexture(GL_TEXTURE0);
+		renderTexture.bind();
+		glActiveTexture(GL_TEXTURE0 + 1);
+		renderTexture_unshaded.bind();
+	}
+	void unbindTextureForUse() { renderTexture.unbind(); renderTexture_unshaded.unbind();
+	}
 
 private:
 	ShaderProgram shader;
 	GLint modelsLocation, modelsInverLocation, viewLocation, projectionLocation;
 	GLint useColourLocation, colourTextLocation;
 	GLint lightPositionsLocation, lightColoursLocation, lightAttenuationConstaintsLocation, lightRadiusLocation, numberOfLightsLocation;
+	GLint spotLightPositionsLocation, spotLightColoursLocation, spotLightAttenuationConstaintsLocation, spotLightRadiusLocation, spotLightDirectionsLocation, spotLightCosInnerAngleLocation, spotLightCosOuterAngleLocation, numberOfSpotLightsLocation;
 	GLint directionalLightDirectionLocation, directionalLightColourLocation, shadowMapLocation, useShadowMapLocation, lightSpaceMatrixLocation;
 	GLint ambientLightLocation;
 	GLint uniformPhongConstaintsLocation;
 	GLint renderCameraPositionLocation;
+
+	FrameBuffer renderFrameBuffer;
+	Texture renderTexture, renderTexture_unshaded, depthTexture;
+
+};
+
+class PostProcessingRenderer {
+public:
+	PostProcessingRenderer() : shader("shaders/EdgeDetection.vert", "shaders/EdgeDetection.frag") {
+		quad = screenQuad();
+		tex2Location = glGetUniformLocation(shader, "in_tex2");
+		tex2_unshadedLocation = glGetUniformLocation(shader, "in_tex2_no_shading");
+	};
+	void use(int width, int height) {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, width, height);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glDisable(GL_DEPTH_TEST);
+		shader.use();
+		glUniform1i(tex2Location, 0);
+		glUniform1i(tex2_unshadedLocation, 1);
+	}
+
+	void render() {
+		GPU_Geometry drawGeometry;
+		drawGeometry.setVerts(quad.verts);
+		drawGeometry.setCols(quad.cols);
+		drawGeometry.setNormals(quad.normals);
+		drawGeometry.setTexCoords(quad.texCoords);
+		drawGeometry.setInds(quad.ind);
+		drawGeometry.bind();
+		glDrawElementsInstanced(GL_TRIANGLES, quad.ind.size(), GL_UNSIGNED_INT, (void*)0, 1);
+
+	}
+private:
+	ShaderProgram shader;
+	CPU_Geometry quad;
+	GLint tex2Location, tex2_unshadedLocation;
 };

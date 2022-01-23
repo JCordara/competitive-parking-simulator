@@ -55,4 +55,24 @@ private:
 	glm::vec3 direction, col;
 };
 
+class SpotLight : public PointLight {
+public:
+	SpotLight(glm::vec3 pos, glm::vec3 col, glm::vec3 attenuationConsts, glm::vec3 direction, float innerAngle, float outerAngle) :
+		PointLight(pos, col, attenuationConsts), direction(direction), innerAngle(innerAngle), outerAngle(outerAngle){
+		cosInnerAngle = cosf(innerAngle);
+		cosOuterAngle = cosf(outerAngle);
+	}
+	void setDirection(glm::vec3 direction) { this->direction = direction; }
+	void setInnerAngle(float angle) { this->innerAngle = angle; cosInnerAngle = cosf(angle); }
+	void setOuterAngle(float angle) { this->outerAngle = angle; cosOuterAngle = cosf(angle); }
+	glm::vec3 getDirection() { return direction; }
+	float getInnerAngle() { return innerAngle; }
+	float getCosInnerAngle() { return cosInnerAngle; }
+	float getOuterAngle() { return outerAngle; }
+	float getCosOuterAngle() { return cosOuterAngle; }
+private:
+	glm::vec3 direction;
+	float innerAngle, cosInnerAngle, outerAngle, cosOuterAngle;
+};
+
 void preparePointLightsForRendering(GLint lightPositionsLocation, GLint lightColoursLocation, GLint lightAttenuationConstaintsLocation, GLint radiusLocation, GLint numberOfLightsLocation, std::vector<PointLight>& pointLights);

@@ -51,6 +51,6 @@ private:
 CPU_Geometry generatePlaneGeometry(glm::vec3 colour);
 CPU_Geometry generateCubeGeometry(glm::vec3 colour);
 CPU_Geometry generateSphereGeometry(glm::vec3 colour, unsigned int xFactor, unsigned int yFactor);
-
+CPU_Geometry screenQuad();
 
 #endif

@@ -6,7 +6,9 @@ OrthographicDepthRenderer::OrthographicDepthRenderer(unsigned int SHADOW_WIDTH, 
 	depthTextureShader = ShaderProgram("shaders/DepthTexture.vert", "shaders/DepthTexture.frag");
 	depthTexture = Texture(SHADOW_WIDTH, SHADOW_HEIGHT, GL_NEAREST, GL_DEPTH_COMPONENT, GL_FLOAT);
 	depthTexture.setBorderColour(glm::vec4(1.f, 1.f, 1.f, 1.f));
-	depthFrameBuffer.attachTexture(GL_DEPTH_ATTACHMENT, depthTexture.getTextureHandleID(), GL_NONE);
+	depthFrameBuffer.attachTexture(GL_DEPTH_ATTACHMENT, depthTexture.getTextureHandleID());
+	std::vector<GLenum> drawBuffer = { GL_NONE };
+	depthFrameBuffer.drawBuffers(drawBuffer);
 	modelsLocation = glGetUniformLocation(depthTextureShader, "Ms");
 	viewLocation = glGetUniformLocation(depthTextureShader, "V");
 	projectionLocation = glGetUniformLocation(depthTextureShader, "P");
@@ -20,7 +22,7 @@ void OrthographicDepthRenderer::use(Camera& directionalLightCamera) {
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	depthTextureShader.use();
 	directionalLightCamera.useOrthographic(viewLocation, projectionLocation);
 }
@@ -92,6 +94,16 @@ MainRenderer::MainRenderer(): shader("shaders/MainCamera.vert", "shaders/MainCam
 	lightAttenuationConstaintsLocation = glGetUniformLocation(shader, "lightAttenuationConstaints");
 	lightRadiusLocation = glGetUniformLocation(shader, "lightRadius");
 	numberOfLightsLocation = glGetUniformLocation(shader, "numberOfLights");
+
+	spotLightPositionsLocation = glGetUniformLocation(shader, "spotLightPositions");
+	spotLightColoursLocation = glGetUniformLocation(shader, "spotLightColours");
+	spotLightAttenuationConstaintsLocation = glGetUniformLocation(shader, "spotLightAttenuationConstaints");
+	spotLightRadiusLocation = glGetUniformLocation(shader, "spotLightRadius");
+	spotLightDirectionsLocation = glGetUniformLocation(shader, "spotLightDirections");
+	spotLightCosInnerAngleLocation = glGetUniformLocation(shader, "spotLightCosInnerAngles");
+	spotLightCosOuterAngleLocation = glGetUniformLocation(shader, "spotLightCosOuterAngles");
+	numberOfSpotLightsLocation = glGetUniformLocation(shader, "numberOfSpotLight");
+
 	directionalLightDirectionLocation = glGetUniformLocation(shader, "directionalLightDirection");
 	directionalLightColourLocation = glGetUniformLocation(shader, "directionalLightColour");
 	//shadowMapLocation
@@ -191,6 +203,47 @@ void MainRenderer::setPointLights(std::vector<PointLight>& pointLights) {
 	glUniform1i(numberOfLightsLocation, pointLights.size());
 }
 
+void MainRenderer::setSpotLights(std::vector<SpotLight>& spotLights){
+	std::vector<std::vector<GLfloat>> ret = std::vector<std::vector<GLfloat>>(7);
+	ret[0] = std::vector<GLfloat>(3 * spotLights.size());
+	ret[1] = std::vector<GLfloat>(3 * spotLights.size());
+	ret[2] = std::vector<GLfloat>(3 * spotLights.size());
+	ret[3] = std::vector<GLfloat>(3 * spotLights.size());
+	ret[4] = std::vector<GLfloat>(spotLights.size());
+	ret[5] = std::vector<GLfloat>(spotLights.size());
+	ret[6] = std::vector<GLfloat>(spotLights.size());
+	glm::vec3 temp;
+	for (int i = 0; i < spotLights.size(); i++) {
+		temp = spotLights[i].getPos();
+		ret[0][3 * i + 0] = temp[0];
+		ret[0][3 * i + 1] = temp[1];
+		ret[0][3 * i + 2] = temp[2];
+		temp = spotLights[i].getCol();
+		ret[1][3 * i + 0] = temp[0];
+		ret[1][3 * i + 1] = temp[1];
+		ret[1][3 * i + 2] = temp[2];
+		temp = spotLights[i].getAttenuationConsts();
+		ret[2][3 * i + 0] = temp[0];
+		ret[2][3 * i + 1] = temp[1];
+		ret[2][3 * i + 2] = temp[2];
+		temp = spotLights[i].getDirection();
+		ret[3][3 * i + 0] = temp[0];
+		ret[3][3 * i + 1] = temp[1];
+		ret[3][3 * i + 2] = temp[2];
+		ret[4][i] = spotLights[i].geRadius();
+		ret[5][i] = spotLights[i].getCosInnerAngle();
+		ret[6][i] = spotLights[i].getCosOuterAngle();
+	}
+	glUniform3fv(spotLightPositionsLocation, spotLights.size(), ret[0].data());
+	glUniform3fv(spotLightColoursLocation, spotLights.size(), ret[1].data());
+	glUniform3fv(spotLightAttenuationConstaintsLocation, spotLights.size(), ret[2].data());
+	glUniform3fv(spotLightDirectionsLocation, spotLights.size(), ret[3].data());
+	glUniform1fv(spotLightRadiusLocation, spotLights.size(), ret[4].data());
+	glUniform1fv(spotLightCosInnerAngleLocation, spotLights.size(), ret[5].data());
+	glUniform1fv(spotLightCosOuterAngleLocation, spotLights.size(), ret[6].data());
+	glUniform1i(numberOfSpotLightsLocation, spotLights.size());
+}
+
 void MainRenderer::setDirectionalLight(DirectionalLight& light) {
 	glUniform3fv(directionalLightColourLocation, 1, &light.getCol()[0]);
 	glUniform3fv(directionalLightDirectionLocation, 1, &light.getDirection()[0]);
@@ -208,7 +261,19 @@ void MainRenderer::disableShadowMappingOnDirectionalLight() {
 	glUniform1i(useShadowMapLocation, 0);
 }
 
-void MainRenderer::use() {
+void MainRenderer::use(int width, int height) {
+	renderTexture = Texture(width, height, GL_NEAREST, GL_RGB, GL_UNSIGNED_BYTE);
+	renderTexture.setBorderColour(glm::vec4(1.f, 1.f, 1.f, 1.f));
+	renderFrameBuffer.attachTexture(GL_COLOR_ATTACHMENT0, renderTexture.getTextureHandleID());
+	renderTexture_unshaded = Texture(width, height, GL_NEAREST, GL_RGB, GL_UNSIGNED_BYTE);
+	renderTexture_unshaded.setBorderColour(glm::vec4(1.f, 1.f, 1.f, 1.f));
+	renderFrameBuffer.attachTexture(GL_COLOR_ATTACHMENT1, renderTexture_unshaded.getTextureHandleID());
+	depthTexture = Texture(width, height, GL_NEAREST, GL_DEPTH_COMPONENT, GL_FLOAT);
+	depthTexture.setBorderColour(glm::vec4(1.f, 1.f, 1.f, 1.f));
+	renderFrameBuffer.attachTexture(GL_DEPTH_ATTACHMENT, depthTexture.getTextureHandleID());
+	std::vector<GLenum> drawBuffer = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+	renderFrameBuffer.drawBuffers(drawBuffer);
+	renderFrameBuffer.bind();
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_FRAMEBUFFER_SRGB);
 	glEnable(GL_FRAMEBUFFER_SRGB);
@@ -216,7 +281,7 @@ void MainRenderer::use() {
 	glCullFace(GL_BACK);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);;
+	glEnable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	shader.use();
 }

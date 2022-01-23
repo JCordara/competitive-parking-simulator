@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 
 #include <utility>
+#include <vector>
 
 
 class VertexBuffer {
@@ -41,7 +42,8 @@ public:
 	// Public interface
 	void bind() const { glBindFramebuffer(GL_FRAMEBUFFER, bufferID); }
 	void unbind() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
-	void attachTexture(GLenum attachment, GLuint texture, GLenum buf);
+	void attachTexture(GLenum attachment, GLuint texture);
+	void drawBuffers(std::vector<GLenum> buffers);
 
 private:
 	FrameBufferHandle bufferID;

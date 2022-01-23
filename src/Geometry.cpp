@@ -133,3 +133,37 @@ CPU_Geometry generateSphereGeometry(glm::vec3 colour, unsigned int xFactor, unsi
 	}
 	return ret;
 }
+
+CPU_Geometry screenQuad() {
+	CPU_Geometry plane;
+	plane.verts = {
+		glm::vec3(1.f,1.f,0.f),
+		glm::vec3(-1.f,1.f,0.f),
+		glm::vec3(-1.f,-1.f,0.f),
+		glm::vec3(1.f, -1.f,0.f)
+	};
+	plane.cols = {
+		glm::vec3(1.f,1.f,1.f),
+		glm::vec3(1.f,1.f,1.f),
+		glm::vec3(1.f,1.f,1.f),
+		glm::vec3(1.f,1.f,1.f)
+	};
+	plane.normals = {
+		glm::vec3(0.0f,0.0f,1.0f),
+		glm::vec3(0.0f,0.0f,1.0f),
+		glm::vec3(0.0f,0.0f,1.0f),
+		glm::vec3(0.0f,0.0f,1.0f)
+	};
+	plane.texCoords = {
+		glm::vec2(1.f,1.f),
+		glm::vec2(0.f,1.f),
+		glm::vec2(0.f,0.f),
+		glm::vec2(1.f,0.f)
+	};
+	plane.ind = {
+		0,1,2,
+		0,2,3,
+	};
+	return plane;
+}
+

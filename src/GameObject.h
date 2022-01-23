@@ -21,6 +21,7 @@ public:
 private:
 	int modelID;
 	int textureID;
+
 	glm::mat4 transformation; //Unsure how PhysX will handle this, for now, we will bake it.
 
 };

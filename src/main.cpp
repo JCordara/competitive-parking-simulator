@@ -117,6 +117,7 @@ int main() {
 
 	//ShaderProgram shader("shaders/MainCamera.vert", "shaders/MainCamera.frag");
 	MainRenderer mainRenderer;
+	PostProcessingRenderer postProcessingRenderer;
 	glm::mat4 identity(1.0f);
 
 	// ------------------------------ Cameras ----------------------------------
@@ -174,6 +175,11 @@ int main() {
 		PointLight(glm::vec3(1.0f, 2.0f, -0.5f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(1.f, 0.1f, 0.5f))
 	};
 
+	std::vector<SpotLight> sceneSpotLights = {
+		SpotLight(glm::vec3(0.0f, 2.0f, 2.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.01f, 0.00f), glm::normalize(glm::vec3(0.0f, -1.f, 0.0f)), glm::radians(12.0f), glm::radians(40.0f)),
+		SpotLight(glm::vec3(-1.5f, 1.0f, 0.0f), glm::vec3(0.f, 0.f, 1.f), glm::vec3(1.f, 0.01f, 0.00f), glm::normalize(glm::vec3(-1.f, -1.f, 0.f)), glm::radians(30.0f), glm::radians(55.0f))
+	};
+
 	DirectionalLight dirLight = DirectionalLight(0.05f * glm::vec3(1.f, 1.f, 1.f), glm::normalize(glm::vec3(0.0f, -1.0f, 1.0f)));
 	Camera directionalLightCamera = Camera(glm::vec3(0.0f, 15.0f, -15.0f), glm::radians(180.0f), glm::radians(-45.0f), 30.0f, 30.f, 0.f, 50.f, true);
 	OrthographicDepthRenderer depthRenderer(2048, 2048);
@@ -199,7 +205,9 @@ int main() {
 
 	std::vector<GameObject> sceneSphereGameObjects = {
 		GameObject(2, -1, glm::scale(glm::translate(identity, scenePointLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f))),
-		GameObject(2, -1, glm::scale(glm::translate(identity, scenePointLights[1].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)))
+		GameObject(2, -1, glm::scale(glm::translate(identity, scenePointLights[1].getPos()), glm::vec3(0.1f, 0.1f, 0.1f))),
+		GameObject(2, -1, glm::scale(glm::translate(identity, sceneSpotLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f))),
+		GameObject(2, -1, glm::scale(glm::translate(identity, sceneSpotLights[1].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)))
 	};
 
 	// ---------------------------- Time stuff ---------------------------------
@@ -241,6 +249,8 @@ int main() {
 		for (; timeAccumulator >= timeStepTaken; timeAccumulator -= timeStepTaken) {//Do per iteration
 			scenePointLights[0].setPos(2.f*glm::vec3(cosf(0.5f * ((float)(currentTime - initialTime))) , glm::abs(2.f * sinf(0.5f * ((float)(currentTime - initialTime)))) - 0.4f, 5.0f));
 			sceneSphereGameObjects[0].setTransformation(glm::scale(glm::translate(identity, scenePointLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)));
+			sceneSpotLights[0].setPos( glm::vec3(10.f * cosf(0.25f * ((float)(currentTime - initialTime))), 2.0f, 2.0f));
+			sceneSphereGameObjects[2].setTransformation(glm::scale(glm::translate(identity, sceneSpotLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)));
 		}
 		//----Render Directional Light DepthTexture -----
 		depthRenderer.use(directionalLightCamera);
@@ -250,7 +260,7 @@ int main() {
 		depthRenderer.endUse();
 		//---Render Frame -----------------------------
 		window.resetViewport();
-		mainRenderer.use();
+		mainRenderer.use(window.getWidth(),window.getHeight());
 #if TRACKBALL_CAM
 		if (window.getHeight() != 0) viewportAspectRatio = static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight());
 		else viewportAspectRatio = 0.0;
@@ -261,6 +271,7 @@ int main() {
 		mainRenderer.setCameraTransformations(mainCamera.getPosition(), mainCamera.getView(), mainCamera.getPerspectiveProjection);
 #endif
 		mainRenderer.setPointLights(scenePointLights);
+		mainRenderer.setSpotLights(sceneSpotLights);
 		mainRenderer.setDirectionalLight(dirLight);
 		mainRenderer.setAmbientLight(ambientLight);
 		mainRenderer.useShadowMappingOnDirectionalLight(directionalLightCamera);
@@ -270,6 +281,12 @@ int main() {
 		mainRenderer.render(sceneSphereGameObjects, sceneRenderModels[2]);
 		depthRenderer.unbindTextureForUse();
 		mainRenderer.endUse();
+
+		postProcessingRenderer.use(window.getWidth(), window.getHeight());
+		mainRenderer.bindTextureForUse();
+		postProcessingRenderer.render();
+		mainRenderer.unbindTextureForUse();
+
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 		gui->draw();

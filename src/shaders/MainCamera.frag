@@ -16,6 +16,16 @@ uniform vec3 lightAttenuationConstaints[MAX_NUMBER_POINT_LIGHTS];
 uniform float lightRadius[MAX_NUMBER_POINT_LIGHTS];
 uniform int numberOfLights;
 
+#define MAX_NUMBER_SPOT_LIGHTS 10
+uniform vec3 spotLightPositions[MAX_NUMBER_SPOT_LIGHTS];
+uniform vec3 spotLightColours[MAX_NUMBER_SPOT_LIGHTS];
+uniform vec3 spotLightAttenuationConstaints[MAX_NUMBER_SPOT_LIGHTS];
+uniform vec3 spotLightDirections[MAX_NUMBER_SPOT_LIGHTS];
+uniform float spotLightRadius[MAX_NUMBER_SPOT_LIGHTS];
+uniform float spotLightCosInnerAngles[MAX_NUMBER_SPOT_LIGHTS];
+uniform float spotLightCosOuterAngles[MAX_NUMBER_SPOT_LIGHTS];
+uniform int numberOfSpotLight;
+
 uniform vec3 directionalLightDirection;
 uniform vec3 directionalLightColour;
 uniform int useShadowMap;
@@ -26,7 +36,10 @@ uniform vec3 ambientLight;
 uniform vec4 uniformPhongConstaints;//  (K-Diff, K-Spec, Alpha, K-Amb)
 uniform vec3 renderCameraPosition;
 
-out vec4 color;
+layout (location = 0) out vec4 color;
+layout (location = 1) out vec4 color_unshaded;
+
+
 
 #define CELL_LAYER_COUNT_DIFFUSE 0
 #define CELL_LAYER_COUNT_SPECULAR CELL_LAYER_COUNT_DIFFUSE + 0
@@ -44,6 +57,10 @@ vec3 specular(vec3 col, vec3 lightDir, vec3 normal, vec3 vDir, float k, float a)
 	if(a < 0.00001) return k * col; 
 	vec3 halfwayDir = normalize(lightDir + vDir);  
 	return k * pow(max(dot(normal, halfwayDir), 0.0), a) * col;
+}
+
+vec3 spotLightEdgeFactor(float outer, float inner, float value ){
+	return max(min( (value - outer)/(inner - outer), 1.0), 0.0);
 }
 
 float directionalLightShadow(vec3 fragPositionInLight, float bias){
@@ -78,6 +95,8 @@ void main() {
 	if(useColour != 0){ baseColour = vec4(fragColour, 1.0);}
 	//else{ baseColour = sampleTexture();}
 
+	color_unshaded = baseColour;//FOr rendering edge detection
+
 	vec3 normal = normalize(fragNormal);
 	vec3 vDir = normalize(renderCameraPosition - fragPos);
 
@@ -93,6 +112,20 @@ void main() {
 			phonglight = cellShader(attenuateFactor * diffuse(lightColours[i], lightDir, normal, uniformPhongConstaints[0]), CELL_LAYER_COUNT_DIFFUSE);
 			phonglight += cellShader(attenuateFactor * specular(lightColours[i], lightDir, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]), CELL_LAYER_COUNT_SPECULAR);
 			phonglightAccumulator += phonglight;
+		}
+	}
+	float cosAngle;
+	//Spot Light, specular and diffuse
+	for(int i = 0; i < min(numberOfSpotLight, MAX_NUMBER_SPOT_LIGHTS); i++){
+		lightDir = spotLightPositions[i] - fragPos;
+		distanceToLight = length(lightDir);
+		lightDir = normalize(lightDir);
+		cosAngle = dot(-lightDir,spotLightDirections[i]);
+		if( (distanceToLight < spotLightRadius[i]) && (cosAngle > spotLightCosOuterAngles[i])){
+			attenuateFactor = attenuate(spotLightAttenuationConstaints[i], distanceToLight);
+			phonglight = cellShader(attenuateFactor * diffuse(spotLightColours[i], lightDir, normal, uniformPhongConstaints[0]), CELL_LAYER_COUNT_DIFFUSE);
+			phonglight += cellShader(attenuateFactor * specular(spotLightColours[i], lightDir, normal, vDir, uniformPhongConstaints[1], uniformPhongConstaints[2]), CELL_LAYER_COUNT_SPECULAR);
+			phonglightAccumulator += spotLightEdgeFactor(spotLightCosOuterAngles[i], spotLightCosInnerAngles[i], cosAngle) * phonglight;
 		}
 	}
 	//Directional Light, specular and diffuse + shadow mapping
