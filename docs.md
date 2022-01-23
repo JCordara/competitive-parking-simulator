@@ -13,11 +13,9 @@ doing
 <a name="events"/>
 
 ## The event system
-Don't worry too much about the template classes in Event.h, I'll probably move
-those to another file later to declutter. The `Events` class (in Event.h) holds 
-a list of globally accessible events that will probably be frequently added to 
-and modified as we build out the engine. (probably things like GameStart, 
-GameUpdate, collision events, ...)
+The `Events` namespace in Event.h holds a list of globally accessible events 
+that will probably be frequently added to and modified as we build out the 
+engine. (probably things like GameStart, GameUpdate, collision events, ...)
 
 The event system is built on the observer pattern, where each event is a subject
 and observers are functions rather than objects. This means that we don't need
@@ -85,14 +83,15 @@ And you get a class function pointer with this syntax:
 &Class::function
 ```
 ##### Creating new events
-To create a new event, go to the `Events` class in Event.h and add it to the 
-list. Events are public and static, and they have a template parameter to 
-indicate what type of data is associated with them. (e.g. "DamageEnemy" could 
-take an int for how much damage was done). Some events don't have data 
-associated, like `GameStart`, so they recieve the `<void>` template parameter.
+To create a new event, add it to the `Events` namespace in Event.h. Events are 
+declared as extern and with a template parameter to indicate what type of data
+is associated with them. (e.g. "DamageEnemy" could take an int for how much 
+damage was done). Some events don't have data associated, like `GameStart`, so 
+they recieve the `<void>` template parameter.
 
 After adding the event to the list, you also need to define it in a source file
-(Event.cpp) since it's a static attribute. Ex:
+(Event.cpp) since it's extern. Otherwise the linker complains about the events 
+being defined multiple times. Ex:
 ```cpp
 // Event.h
 class Events {

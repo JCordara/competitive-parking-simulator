@@ -1,4 +1,3 @@
-#cmake_policy(SET CMP0091 NEW)
 
 # Create a library called "AudioSystem" from the source files
 add_library (AudioSystem STATIC
@@ -25,6 +24,3 @@ target_include_directories (AudioSystem PUBLIC
     "${CMAKE_SOURCE_DIR}/src"
 )
 
-# Link to C runtime libraries
-#set_property(TARGET AudioSystem PROPERTY MSVC_RUNTIME_LIBRARY 
-    #"MultiThreaded$<$<CONFIG:Debug>:Debug>")
