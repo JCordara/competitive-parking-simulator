@@ -32,6 +32,9 @@ AudioSource::AudioSource(const glm::vec3 position_init, bool staticSource)
 
 void AudioSource::playAudio(const Audio& audio) {
 
+    if (isPlaying()) 
+        alSourceStop(sourceID);
+
     // Dont switch buffers if unnecessary
     if (audio != *currAudio) {
         currAudio = &audio;

@@ -59,7 +59,7 @@ vec3 specular(vec3 col, vec3 lightDir, vec3 normal, vec3 vDir, float k, float a)
 	return k * pow(max(dot(normal, halfwayDir), 0.0), a) * col;
 }
 
-vec3 spotLightEdgeFactor(float outer, float inner, float value ){
+float spotLightEdgeFactor(float outer, float inner, float value ){
 	return max(min( (value - outer)/(inner - outer), 1.0), 0.0);
 }
 

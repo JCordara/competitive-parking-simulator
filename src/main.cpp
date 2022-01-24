@@ -66,9 +66,11 @@ public:
 		Events::TestAudioParameter.registerHandler<PlayCarSound, &PlayCarSound::playSound>(this);
 	}
 	void playSound(Audio& buf) {
+		car.setGain(0.5f);
 		car.playAudio(buf);
 	}
 	void playVROOOOOOM() {
+		car.setGain(1.0f);
 		car.playAudio(sound);
 	}
 };
