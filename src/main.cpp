@@ -192,7 +192,8 @@ int main() {
 	std::vector<Model> sceneRenderModels = {
 		Model(generateCubeGeometry(glm::vec3(1.0f, 1.0f, 1.0f)), glm::vec4(0.7f, 1.0f, 100.0f, 0.01f), true),
 		Model(generatePlaneGeometry(glm::vec3(0.2f, 0.5f, 0.1f)), glm::vec4(1.0f, 1.0f, 50.0f, 0.01f), true),
-		Model(generateSphereGeometry(glm::vec3(1.0f, 1.0f, 1.0f), 8, 8), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), true)
+		Model(generateSphereGeometry(glm::vec3(1.0f, 1.0f, 1.0f), 8, 8), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), true),
+		Model(loadModelFromOBJ_TEST("models/Test1.obj", glm::vec3(1.0f, 1.0f, 1.0f)),glm::vec4(0.7f, 1.0f, 100.0f, 0.01f), true)
 	};
 
 	//------Objects
@@ -211,6 +212,10 @@ int main() {
 		GameObject(2, -1, glm::scale(glm::translate(identity, sceneSpotLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f))),
 		GameObject(2, -1, glm::scale(glm::translate(identity, sceneSpotLights[1].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)))
 	};
+	std::vector<GameObject> testModelGameObjects = {
+		GameObject(3, -1, glm::scale(glm::translate(identity, glm::vec3(2.0f, 0.0f, -3.0f)), glm::vec3(1.f, 1.f, 1.f)))
+	};
+
 
 	// ---------------------------- Time stuff ---------------------------------
 	Time::init();
@@ -259,6 +264,7 @@ int main() {
 		depthRenderer.render(sceneCubeGameObjects, sceneRenderModels[0]);
 		depthRenderer.render(scenePlaneGameObjects, sceneRenderModels[1]);
 		depthRenderer.render(sceneSphereGameObjects, sceneRenderModels[2]);
+		depthRenderer.render(testModelGameObjects, sceneRenderModels[3]);
 		depthRenderer.endUse();
 		//---Render Frame -----------------------------
 		window.resetViewport();
@@ -281,6 +287,7 @@ int main() {
 		mainRenderer.render(sceneCubeGameObjects, sceneRenderModels[0]);
 		mainRenderer.render(scenePlaneGameObjects, sceneRenderModels[1]);
 		mainRenderer.render(sceneSphereGameObjects, sceneRenderModels[2]);
+		mainRenderer.render(testModelGameObjects, sceneRenderModels[3]);
 		depthRenderer.unbindTextureForUse();
 		mainRenderer.endUse();
 

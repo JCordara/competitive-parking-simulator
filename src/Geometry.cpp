@@ -1,4 +1,11 @@
 #include "Geometry.h"
+#include <assimp/Importer.hpp>
+#include <assimp/cimport.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <assimp/material.h>
+#include <iostream>
+
 
 
 GPU_Geometry::GPU_Geometry()
@@ -165,5 +172,33 @@ CPU_Geometry screenQuad() {
 		0,2,3,
 	};
 	return plane;
+}
+
+CPU_Geometry loadModelFromOBJ_TEST(const std::string filepath, glm::vec3 col) {
+	CPU_Geometry ret;
+	const aiScene* scene = aiImportFile(filepath.c_str(), aiProcessPreset_TargetRealtime_MaxQuality);
+	if (!scene) {
+		std::cerr << "Could not load file: " << filepath << ": " << aiGetErrorString() << std::endl;
+		return ret;
+	}
+	aiMesh* mesh;
+	aiVector3D vec;
+	for (int meshId = 0; meshId < scene->mNumMeshes; meshId++) {
+		mesh = scene->mMeshes[meshId];
+		for (int vertId = 0; vertId < mesh->mNumVertices; vertId++) {
+			vec = mesh->mVertices[vertId];
+			ret.verts.push_back(glm::vec3(vec.x, vec.y, vec.z));
+			vec = mesh->mNormals[vertId];
+			ret.normals.push_back(glm::vec3(vec.x, vec.y, vec.z));
+			ret.cols.push_back(col);
+		}
+		for (int faceId = 0; faceId < mesh->mNumFaces; faceId++) {
+			ret.ind.push_back(mesh->mFaces[faceId].mIndices[0]);
+			ret.ind.push_back(mesh->mFaces[faceId].mIndices[1]);
+			ret.ind.push_back(mesh->mFaces[faceId].mIndices[2]);
+		}
+	}
+	aiReleaseImport(scene);
+	return ret;
 }
 

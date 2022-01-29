@@ -12,6 +12,8 @@
 #include <math.h>
 #include <utility>
 #include <vector>
+#include <string>
+
 
 // List of vertices and texture coordinates using std::vector and glm::vec3
 struct CPU_Geometry {
@@ -52,5 +54,7 @@ CPU_Geometry generatePlaneGeometry(glm::vec3 colour);
 CPU_Geometry generateCubeGeometry(glm::vec3 colour);
 CPU_Geometry generateSphereGeometry(glm::vec3 colour, unsigned int xFactor, unsigned int yFactor);
 CPU_Geometry screenQuad();
+
+CPU_Geometry loadModelFromOBJ_TEST(const std::string filepath, glm::vec3 col);
 
 #endif
