@@ -43,6 +43,8 @@
 #include "GUI.h"
 #include "Renderers.h"
 #include "Event.h"
+#include "Entity.h"
+#include "Component.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -113,6 +115,24 @@ int main() {
 	);
 	// -------------------------------------------------------------------------
 	
+
+	// ------------------ Example Entity and Component Usage --------------------
+	Entity frank;
+	frank.addComponent<TransformComponent>();
+	std::shared_ptr<TransformComponent> transform;
+	transform = frank.getComponent<TransformComponent>();
+	transform->x = 420.0f;
+	std::cout << "Frank's red hot transform component:\nPosition: ("
+		<< transform->x << ", "
+		<< transform->y << ", "
+		<< transform->z << ")\n";
+	frank.removeComponent<TransformComponent>();
+	
+	// Outputs error message and returns nullptr
+	transform = frank.getComponent<TransformComponent>();
+	// -------------------------------------------------------------------------
+
+
 	
 	// screw gldebug
 	//GLDebug::enable();
