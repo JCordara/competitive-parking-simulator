@@ -13,6 +13,8 @@ We need a cool name for the game engine
 <a name="entities-and-components"/>
 
 ## Entities and Components
+`#include "Entity.h"`
+
 The `Entity` class is a base class that stores components and provides accessor
 methods for them. Components are stored in a map structure, so each Entity can
 have only one component of each type. If classes are derived from `Entity`, the
@@ -55,6 +57,8 @@ car.getComponent<TransformComponent>(); // Outputs error message
 <a name="events"/>
 
 ## The event system
+`#include "Event.h"`
+
 The `Events` namespace in Event.h holds a list of globally accessible events 
 that will probably be frequently added to and modified as we build out the 
 engine. (probably things like GameStart, GameUpdate, collision events, ...)
@@ -154,4 +158,38 @@ Stub
 <a name="audio"/>
 
 ## The audio system
-Stub
+`#include "AudioSystem.h"`
+
+There are 3 main objects in the audio system API: Audio, AudioSource, and 
+AudioSystem. The relationship is that AudioSources play Audio, and the
+AudioSystem is in charge of creating and deleting everything.
+
+To play audio, an instance of the AudioSystem class must be created. This should
+be done using a shared pointer, like other systems. Then create an AudioSource 
+and an Audio object through the AudioSystem using the following syntax:
+```cpp
+auto audioSystem = std::make_shared<AudioSystem>();
+
+Audio& sound = audioSystem->loadAudio("audio/filenmae.wav");
+AudioSource& source = audioSystem->createSource();
+```
+The `createSource()` function can optionally take a `vec3` as a parameter for
+the initial position of the audio source. Always use Audio and AudioSource 
+objects as references to ensure propermemory management. Without references the 
+destructor gets called improperly and causes warnings and/or memory leaks.
+
+AudioSources are positioned in 3D space and sounds are interpreted from the 
+perspective of the "Listener," which is accessible through the AudioSystem 
+interface using the following syntax:
+```cpp
+audioSystem->setListenerPosition(position);
+audioSystem->setListenerOrientation(frontDir, upDir);
+```
+Both position and orientation must be set in order to properly render 3D sound.
+Listener position/orientation as well as AudioSource positions are expected to 
+be updated every frame in order to properly calculate the doppler effect. For 
+AudioSources that won't be updated every frame, use the
+`audioSystem->createStaticSource()` function. Static sources do not dynamically 
+calculate their velocity and can have their position updated on demand.
+
+And then theres AudioDevices, but we don't talk about those.

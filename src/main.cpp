@@ -11,11 +11,13 @@
 // For math functions
 #define _USE_MATH_DEFINES
 
+// External library includes
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include <PhysX/PxPhysicsAPI.h>
 
+// C++ standard library includes
 #include <iostream>
 #include <string>
 #include <list>
@@ -23,31 +25,34 @@
 #include <limits>
 #include <functional>
 #include <math.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
+// Engine sub-system includes
+#include "Entity.h"
+#include "Event.h"
+#include "AudioSystem.h"
+#include "TimeInfo.h"
+
+// Rendering system (can we get this all into one include?)
+#include "Window.h"
+#include "Camera.h"
+#include "EditorCamera.h"
+#include "Renderers.h"
 #include "Geometry.h"
-#include "GLDebug.h"
-#include "Log.h"
+#include "GameObject.h"
 #include "ShaderProgram.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "Window.h"
-
-#include "Camera.h"
-#include "EditorCamera.h"
 #include "Lighting.h"
-#include "GameObject.h"
 #include "Model.h"
-#include "GameCallback.h"
-#include "AudioSystem.h"
-#include "TimeInfo.h"
 #include "GUI.h"
-#include "Renderers.h"
-#include "Event.h"
-#include "Entity.h"
-#include "Component.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
+// Other stuff
+#include "GameCallback.h"
+#include "Log.h"
+#include "GLDebug.h"
+
 
 #define TRACKBALL_CAM	1	// Use a trackball dev cam
 #define PHYSX_TEST		0	// Run PhysX test function
@@ -87,8 +92,8 @@ int main() {
 #endif
 
 	// Create and initialize game systems
-	std::shared_ptr<GameEventManager> eventManager = std::make_shared<GameEventManager>();
-	std::shared_ptr<AudioSystem> audioSystem = std::make_shared<AudioSystem>();
+	auto eventManager = std::make_shared<GameEventManager>();
+	auto audioSystem  = std::make_shared<AudioSystem>();
 
 	// WINDOW
 	glfwInit();
