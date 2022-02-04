@@ -23,7 +23,7 @@ hierarchy should be limited to single-level.
 Components inherit from the `BaseComponent` interface, which only implements a 
 virtual destructor. Components must also implement a static `getType` method
 that returns the appropriate `ComponentEnum` value. The `ComponentEnum` enum has
-a value for each component type.
+a value for each component type, which you are free to add to.
 
 Components and entities should be able to communicate through the event system
 (see below). If needed, we can look into adding other methods of communication.
@@ -136,19 +136,47 @@ damage was done). Some events don't have data associated, like `GameStart`, so
 they recieve the `<void>` template parameter.
 
 After adding the event to the list, you also need to define it in a source file
-(Event.cpp) since it's extern. Otherwise the linker complains about the events 
-being defined multiple times. Ex:
+(Event.cpp) since it's declared extern. Otherwise the linker complains about the 
+events being defined multiple times. 
 ```cpp
 // Event.h
-class Events {
-public:
+namespace Events {
   ...
-  static Event<int> DamageEnemy;
+  extern Event<int> DamageEnemy;
   ...
 };
 // Event.cpp
 Event<int> Events::DamageEnemy;
 ```
+##### Broadcasting/Triggering events
+An event can be broadcast from anywhere and at any time, which is why we love
+event systems. Though this can cause a "cyclical event" problem, where two
+separate event handlers broadcast each other's events causing a game-crashing
+loop. A really good general rule is to **never broadcast an event from an
+event handler**. Not only will this protect the system from cyclical event
+loops, but it will keep the code base cleaner and make debugging event issues
+much easier.
+
+You can broadcast an event using the following syntax:
+```cpp
+Events::<event_name>.broadcast(<event_arguments>);
+
+/* More examples */
+// Broadcast the "GameStart" event
+Events::GameStart.broadcast();
+	
+// Broadcast "soundEffect" to observers of the "PlayAudio" event
+Events::PlayAudio.broadcast(soundEffect);
+/* In this case, all observers of the PlayAudio event receive a reference
+ * to the "soundEffect" Audio object and they can do whatever they want with
+ * it. Presumably they are going to play it
+ */
+```
+
+Currently events can only take 1 or 0 arguments, but that will have to change
+pretty soon I think.
+
+
 
 <a name="rendering"/>
 
@@ -185,11 +213,11 @@ interface using the following syntax:
 audioSystem->setListenerPosition(position);
 audioSystem->setListenerOrientation(frontDir, upDir);
 ```
-Both position and orientation must be set in order to properly render 3D sound.
-Listener position/orientation as well as AudioSource positions are expected to 
-be updated every frame in order to properly calculate the doppler effect. For 
-AudioSources that won't be updated every frame, use the
+Both position and orientation must be set in order to properly render 3D sound
+(think left vs right). Listener position/orientation as well as AudioSource
+positions are expected to be updated every frame in order to properly calculate
+the doppler effect. For AudioSources that won't be updated every frame, use the
 `audioSystem->createStaticSource()` function. Static sources do not dynamically 
 calculate their velocity and can have their position updated on demand.
 
-And then theres AudioDevices, but we don't talk about those.
+And then there are AudioDevices, but we don't talk about those.

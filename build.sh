@@ -2,16 +2,17 @@
 
 ################################################################################
 #                              Usage:                                          #
-#  No flags .. Generate CMake files and build                                  #
-#  -c ........ Clean reconfigure (empty build directory before configuration)  #
+#  No flags .. Configure CMake and build                                       #
+#  -c ........ Clean configure and build (empty build directory first)         #
 #  -b ........ Build only                                                      #
 #  -r ........ Build and run (Equivalent to Visual Studio play button)         #
-#  -b-rel .... Build in release mode (Not working yet)                         #
-#  -r-rel .... Build and run in release mode (Also not working)                #
+#  -c-rel .... Clean configure and build in release mode                       #
+#  -b-rel .... Build in release mode                                           #
+#  -r-rel .... Build and run in release mode                                   #
 #  -v ........ Verbose flag                                                    #
 ################################################################################
 
-USAGE="Usage: $(basename $0) [ -c | -b | -r | -b-rel | -r-rel ]"
+USAGE="Usage: $(basename $0) [ -c | -b | -r | -c-rel | -b-rel | -r-rel ]"
 VERBOSE=""
 
 # Empty the build directory
@@ -55,9 +56,10 @@ run_release () {
 
 for arg; do
   case $arg in
-    -c) clean && generate ; exit 0 ;;
+    -c) clean && generate && build ; exit 0 ;;
     -b) build ; exit 0 ;;
     -r) build && run ; exit 0 ;;
+    -c-rel) clean && generate_release && build_release ; exit 0 ;;
     -b-rel) build_release ; exit 0 ;;
     -r-rel) build_release && run_release ; exit 0 ;;
     -v) VERBOSE="-v" ;;
