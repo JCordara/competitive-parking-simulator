@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <type_traits>
 
-#include "Component.h"
+#include "Components.h"
 
 // To make some lines of code shorter
 using std::unordered_map, std::pair;         // Mapping

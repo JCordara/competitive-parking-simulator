@@ -19,12 +19,12 @@
 
 // C++ standard library includes
 #include <iostream>
-#include <string>
 #include <list>
+#include <string>
 #include <vector>
 #include <limits>
-#include <functional>
 #include <math.h>
+#include <functional>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -33,25 +33,16 @@
 #include "Event.h"
 #include "AudioSystem.h"
 #include "TimeInfo.h"
-
-// Rendering system (can we get this all into one include?)
-#include "Window.h"
-#include "Camera.h"
-#include "EditorCamera.h"
 #include "Renderers.h"
-#include "Geometry.h"
-#include "GameObject.h"
-#include "ShaderProgram.h"
-#include "Shader.h"
-#include "Texture.h"
-#include "Lighting.h"
-#include "Model.h"
-#include "GUI.h"
 
 // Other stuff
 #include "GameCallback.h"
 #include "Log.h"
 #include "GLDebug.h"
+#include "GUI.h"
+#include "Window.h"
+#include "Shader.h"
+#include "EditorCamera.h"
 
 
 #define TRACKBALL_CAM	1	// Use a trackball dev cam
@@ -85,12 +76,12 @@ public:
 
 //-------------------------------
 int main() {
+
 	Log::debug("Starting main");
 
 #if PHYSX_TEST
 	physX_test(); // blocks main thread
 #endif
-
 	// Create and initialize game systems
 	auto eventManager = std::make_shared<GameEventManager>();
 	auto audioSystem  = std::make_shared<AudioSystem>();
@@ -134,7 +125,7 @@ int main() {
 	frank.removeComponent<TransformComponent>();
 	
 	// Outputs error message and returns nullptr
-	transform = frank.getComponent<TransformComponent>();
+	// transform = frank.getComponent<TransformComponent>();
 	// -------------------------------------------------------------------------
 
 
@@ -251,7 +242,7 @@ int main() {
 
 	//---Game Loop----
 	while (!window.shouldClose()) {
-		
+
 		// Get current input events
 		glfwPollEvents();
 
@@ -308,6 +299,7 @@ int main() {
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 		gui->draw();
 		window.swapBuffers();
+
 	}
 	glfwTerminate();
 	return 0;

@@ -29,6 +29,13 @@ add_subdirectory(src/audio)
 list(APPEND LIBRARIES AudioSystem)
 
 
+#------------------------- Entities and Components -----------------------------
+# Build Entity/Component system as a separate library
+
+add_subdirectory(src/components)
+list(APPEND LIBRARIES EntityComponent)
+
+
 #--------------------------------- PhysX ---------------------------------------
 # Physics library
 # https://github.com/NVIDIAGameWorks/PhysX
