@@ -211,7 +211,7 @@ int main() {
 	Camera directionalLightCamera = Camera(glm::vec3(0.0f, 15.0f, -15.0f), glm::radians(180.0f), glm::radians(-45.0f), 100.0f, 50.f, 5.f, 50.f, true);
 	OrthographicDepthRenderer depthRenderer(4906, 4096);
 
-	glm::vec3 ambientLight = 0.05f*glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 ambientLight = 0.05f * glm::vec3(1.0f, 1.0f, 1.0f);
 
 	//-----Models
 	std::vector<Model> sceneRenderModels = {
@@ -228,18 +228,6 @@ int main() {
 	std::vector<GameObject> scenePlaneGameObjects = {
 		GameObject(1, -1, glm::scale(glm::translate(identity, glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(1.f, 1.f, 1.f)))
 	};
-
-	std::vector<GameObject> sceneSphereGameObjects = {
-		GameObject(2, -1, glm::scale(glm::translate(identity, scenePointLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f))),
-		GameObject(2, -1, glm::scale(glm::translate(identity, scenePointLights[1].getPos()), glm::vec3(0.1f, 0.1f, 0.1f))),
-		GameObject(2, -1, glm::scale(glm::translate(identity, sceneSpotLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f))),
-		GameObject(2, -1, glm::scale(glm::translate(identity, sceneSpotLights[1].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)))
-	};
-	std::vector<GameObject> testModelGameObjects = {
-		GameObject(3, -1, glm::scale(glm::translate(identity, glm::vec3(2.0f, 0.0f, -3.0f)), glm::vec3(1.f, 1.f, 1.f)))
-	};
-
-
 	// ---------------------------- Time stuff ---------------------------------
 	Time::init();
 	double timeAccumulator = 0.0;
@@ -261,7 +249,6 @@ int main() {
 	Events::TestAudioParameter.broadcast(defaultSound);
 	// -------------------------------------------------------------------------
 
-
 	//---Game Loop----
 	while (!window.shouldClose()) {
 		
@@ -278,9 +265,7 @@ int main() {
 		//----Physics loop---(Unsure how physX works with this so it might change) -------//
 		for (; timeAccumulator >= timeStepTaken; timeAccumulator -= timeStepTaken) {//Do per iteration
 			scenePointLights[0].setPos(2.f*glm::vec3(cosf(0.5f * ((float)(currentTime - initialTime))) , glm::abs(2.f * sinf(0.5f * ((float)(currentTime - initialTime)))) - 0.4f, 5.0f));
-			sceneSphereGameObjects[0].setTransformation(glm::scale(glm::translate(identity, scenePointLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)));
 			sceneSpotLights[0].setPos( glm::vec3(10.f * cosf(0.25f * ((float)(currentTime - initialTime))), 2.0f, 2.0f));
-			sceneSphereGameObjects[2].setTransformation(glm::scale(glm::translate(identity, sceneSpotLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)));
 		}
 		//----Render Directional Light DepthTexture -----
 		directionalLightCamera.setPos(mainCamera.getPosition() + glm::vec3(0.0f, 15.0f, -15.0f));
@@ -288,12 +273,12 @@ int main() {
 		depthRenderer.use(directionalLightCamera);
 		depthRenderer.render(sceneCubeGameObjects, sceneRenderModels[0]);
 		depthRenderer.render(scenePlaneGameObjects, sceneRenderModels[1]);
-		//depthRenderer.render(sceneSphereGameObjects, sceneRenderModels[2]);
-		//depthRenderer.render(testModelGameObjects, sceneRenderModels[3]);
 		depthRenderer.endUse();
+
 		//---Render Frame -----------------------------
 		window.resetViewport();
 		mainRenderer.use(window.getWidth(),window.getHeight());
+
 #if TRACKBALL_CAM
 		if (window.getHeight() != 0) viewportAspectRatio = static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight());
 		else viewportAspectRatio = 0.0;
@@ -311,11 +296,10 @@ int main() {
 		depthRenderer.bindTextureForUse();
 		mainRenderer.render(sceneCubeGameObjects, sceneRenderModels[0]);
 		mainRenderer.render(scenePlaneGameObjects, sceneRenderModels[1]);
-		//mainRenderer.render(sceneSphereGameObjects, sceneRenderModels[2]);
-		//mainRenderer.render(testModelGameObjects, sceneRenderModels[3]);
 		depthRenderer.unbindTextureForUse();
 		mainRenderer.endUse();
 
+		//---Post processing-----------------------------
 		postProcessingRenderer.use(window.getWidth(), window.getHeight());
 		mainRenderer.bindTextureForUse();
 		postProcessingRenderer.render();
