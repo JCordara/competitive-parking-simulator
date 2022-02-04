@@ -9,30 +9,21 @@
 class VertexArray {
 
 public:
-
 	VertexArray();
 
-	// Disallow copying
-	VertexArray(const VertexArray&) = delete;
-	VertexArray operator=(const VertexArray&) = delete;
-
-	// Allow moving
-	VertexArray(VertexArray&& other) noexcept;
-	VertexArray& operator=(VertexArray&& other) noexcept;
-
-	// Clean up after ourselves.
-	~VertexArray();
+	// Because we're using the VertexArrayHandle to do RAII for the shader for us
+	// and our other types are trivial or provide their own RAII
+	// we don't have to provide any specialized functions here. Rule of zero
+	//
+	// https://en.cppreference.com/w/cpp/language/rule_of_three
+	// https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Rc-zero
 
 	// Public interface
-	void bind() const { glBindVertexArray(vaoID); }
-
-	// Allow casting from this type into a GLuint
-	// This allows usage in situations where a function expects a GLuint
-	operator GLuint() const { return vaoID; }
-	GLuint value() const { return vaoID; }
+	void bind() const { glBindVertexArray(arrayID); }
+	void unbind() const { glBindVertexArray(arrayID); }
 
 private:
-	GLuint vaoID;
+	VertexArrayHandle arrayID;
 };
 
 #endif

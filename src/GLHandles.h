@@ -100,34 +100,61 @@ private:
 };
 
 
-// An RAII class for managing Buffer GLuints for OpenGL.
-class BufferHandle {
+// An RAII class for managing a VertexArray GLuint for OpenGL.
+class VertexArrayHandle {
 
 public:
-	BufferHandle();
+	VertexArrayHandle();
 
 	// Disallow copying
-	BufferHandle(const BufferHandle&) = delete;
-	BufferHandle operator=(const BufferHandle&) = delete;
+	VertexArrayHandle(const VertexArrayHandle&) = delete;
+	VertexArrayHandle operator=(const VertexArrayHandle&) = delete;
 
 	// Allow moving
-	BufferHandle(BufferHandle&& other) noexcept;
-	BufferHandle& operator=(BufferHandle&& other) noexcept;
+	VertexArrayHandle(VertexArrayHandle&& other) noexcept;
+	VertexArrayHandle& operator=(VertexArrayHandle&& other) noexcept;
 
 	// Clean up after ourselves.
-	~BufferHandle();
+	~VertexArrayHandle();
 
 
 	// Allow casting from this type into a GLuint
 	// This allows usage in situations where a function expects a GLuint
-	operator GLuint() const { return bufferID; }
-	GLuint value() const { return bufferID; }
+	operator GLuint() const;
+	GLuint value() const;
 
 private:
-	GLuint bufferID;
+	GLuint vaoID;
 
 };
 
+// An RAII class for managing a VertexBuffer GLuint for OpenGL.
+class VertexBufferHandle {
+
+public:
+	VertexBufferHandle();
+
+	// Disallow copying
+	VertexBufferHandle(const VertexBufferHandle&) = delete;
+	VertexBufferHandle operator=(const VertexBufferHandle&) = delete;
+
+	// Allow moving
+	VertexBufferHandle(VertexBufferHandle&& other) noexcept;
+	VertexBufferHandle& operator=(VertexBufferHandle&& other) noexcept;
+
+	// Clean up after ourselves.
+	~VertexBufferHandle();
+
+
+	// Allow casting from this type into a GLuint
+	// This allows usage in situations where a function expects a GLuint
+	operator GLuint() const;
+	GLuint value() const;
+
+private:
+	GLuint vboID;
+
+};
 
 // An RAII class for managing a VertexBuffer GLuint for OpenGL.
 class TextureHandle {
@@ -163,6 +190,7 @@ class FrameBufferHandle {
 public:
 	FrameBufferHandle();
 
+
 	// Disallow copying
 	FrameBufferHandle(const FrameBufferHandle&) = delete;
 	FrameBufferHandle operator=(const FrameBufferHandle&) = delete;
@@ -180,7 +208,7 @@ public:
 	GLuint value() const;
 
 private:
-	GLuint FrameBufferID;
+	GLuint bufferID;
 
 };
 

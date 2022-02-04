@@ -115,7 +115,7 @@ int main() {
 	
 	
 	// screw gldebug
-	//GLDebug::enable();
+	GLDebug::enable();
 
 	//ShaderProgram shader("shaders/MainCamera.vert", "shaders/MainCamera.frag");
 	MainRenderer mainRenderer;
@@ -182,18 +182,16 @@ int main() {
 		SpotLight(glm::vec3(-1.5f, 1.0f, 0.0f), glm::vec3(0.f, 0.f, 1.f), glm::vec3(1.f, 0.01f, 0.00f), glm::normalize(glm::vec3(-1.f, -1.f, 0.f)), glm::radians(30.0f), glm::radians(55.0f))
 	};
 
-	DirectionalLight dirLight = DirectionalLight(0.05f * glm::vec3(1.f, 1.f, 1.f), glm::normalize(glm::vec3(0.0f, -1.0f, 1.0f)));
-	Camera directionalLightCamera = Camera(glm::vec3(0.0f, 15.0f, -15.0f), glm::radians(180.0f), glm::radians(-45.0f), 30.0f, 30.f, 0.f, 50.f, true);
-	OrthographicDepthRenderer depthRenderer(2048, 2048);
+	DirectionalLight dirLight = DirectionalLight(0.3f*glm::vec3(1.f, 1.f, 1.f), glm::normalize(glm::vec3(0.0f, -1.0f, 1.0f)));
+	Camera directionalLightCamera = Camera(glm::vec3(0.0f, 15.0f, -15.0f), glm::radians(180.0f), glm::radians(-45.0f), 100.0f, 50.f, 5.f, 50.f, true);
+	OrthographicDepthRenderer depthRenderer(4906, 4096);
 
-	glm::vec3 ambientLight = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 ambientLight = 0.05f*glm::vec3(1.0f, 1.0f, 1.0f);
 
 	//-----Models
 	std::vector<Model> sceneRenderModels = {
-		Model(generateCubeGeometry(glm::vec3(1.0f, 1.0f, 1.0f)), glm::vec4(0.7f, 1.0f, 100.0f, 0.01f), true),
-		Model(generatePlaneGeometry(glm::vec3(0.2f, 0.5f, 0.1f)), glm::vec4(1.0f, 1.0f, 50.0f, 0.01f), true),
-		Model(generateSphereGeometry(glm::vec3(1.0f, 1.0f, 1.0f), 8, 8), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), true),
-		Model(loadModelFromOBJ_TEST("models/Test1.obj", glm::vec3(1.0f, 1.0f, 1.0f)),glm::vec4(0.7f, 1.0f, 100.0f, 0.01f), true)
+		Model("models/Test1.obj", glm::vec3(1.0, 1.0, 1.0)),
+		Model("models/Test2_M.obj", glm::vec3(1.0, 0.0, 1.0))
 	};
 
 	//------Objects
@@ -203,7 +201,7 @@ int main() {
 	};
 
 	std::vector<GameObject> scenePlaneGameObjects = {
-		GameObject(1, -1, glm::scale(glm::translate(identity, glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(30.f, 1.f, 30.f)))
+		GameObject(1, -1, glm::scale(glm::translate(identity, glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(1.f, 1.f, 1.f)))
 	};
 
 	std::vector<GameObject> sceneSphereGameObjects = {
@@ -260,11 +258,13 @@ int main() {
 			sceneSphereGameObjects[2].setTransformation(glm::scale(glm::translate(identity, sceneSpotLights[0].getPos()), glm::vec3(0.1f, 0.1f, 0.1f)));
 		}
 		//----Render Directional Light DepthTexture -----
+		directionalLightCamera.setPos(mainCamera.getPosition() + glm::vec3(0.0f, 15.0f, -15.0f));
+
 		depthRenderer.use(directionalLightCamera);
 		depthRenderer.render(sceneCubeGameObjects, sceneRenderModels[0]);
 		depthRenderer.render(scenePlaneGameObjects, sceneRenderModels[1]);
-		depthRenderer.render(sceneSphereGameObjects, sceneRenderModels[2]);
-		depthRenderer.render(testModelGameObjects, sceneRenderModels[3]);
+		//depthRenderer.render(sceneSphereGameObjects, sceneRenderModels[2]);
+		//depthRenderer.render(testModelGameObjects, sceneRenderModels[3]);
 		depthRenderer.endUse();
 		//---Render Frame -----------------------------
 		window.resetViewport();
@@ -286,8 +286,8 @@ int main() {
 		depthRenderer.bindTextureForUse();
 		mainRenderer.render(sceneCubeGameObjects, sceneRenderModels[0]);
 		mainRenderer.render(scenePlaneGameObjects, sceneRenderModels[1]);
-		mainRenderer.render(sceneSphereGameObjects, sceneRenderModels[2]);
-		mainRenderer.render(testModelGameObjects, sceneRenderModels[3]);
+		//mainRenderer.render(sceneSphereGameObjects, sceneRenderModels[2]);
+		//mainRenderer.render(testModelGameObjects, sceneRenderModels[3]);
 		depthRenderer.unbindTextureForUse();
 		mainRenderer.endUse();
 
@@ -295,7 +295,6 @@ int main() {
 		mainRenderer.bindTextureForUse();
 		postProcessingRenderer.render();
 		mainRenderer.unbindTextureForUse();
-
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 		gui->draw();
