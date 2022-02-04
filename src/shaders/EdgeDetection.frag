@@ -18,7 +18,7 @@ mat3 sy = mat3(
 );
 
 void main() {
-    vec3 diffuse = texture(in_tex2, fragUv2).rgb;
+   vec3 diffuse = texture(in_tex2, fragUv2).rgb;
     mat3 I;
     for (int i=0; i<3; i++) {
         for (int j=0; j<3; j++) {

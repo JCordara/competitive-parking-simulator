@@ -12,11 +12,10 @@
 class OrthographicDepthRenderer {
 public:
 	OrthographicDepthRenderer(unsigned int SHADOW_WIDTH, unsigned int SHADOW_HEIGHT);
-	void renderAll(Camera& directionalLightCamera, std::vector<std::vector<GameObject>>& GameObjects, std::vector<Model>& models);
 	void render(std::vector<GameObject>& GameObjects, Model& model);
 	void use(Camera& directionalLightCamera);
 	void endUse();
-	void bindTextureForUse() {glActiveTexture(GL_TEXTURE0);depthTexture.bind();}
+	void bindTextureForUse() {glActiveTexture(GL_TEXTURE0 + 1);depthTexture.bind();}
 	void unbindTextureForUse() {depthTexture.unbind();}
 private:
 	FrameBuffer depthFrameBuffer;
@@ -29,7 +28,6 @@ private:
 class MainRenderer {
 public:
 	MainRenderer();
-	void renderAll(std::vector<std::vector<GameObject>>& GameObjects, std::vector<Model>& models);
 	void render(std::vector<GameObject>& GameObjects, Model& model);
 	void setCameraTransformations(glm::vec3 position, glm::mat4 V, glm::mat4 P);
 	void setPointLights(std::vector<PointLight>& lights);
@@ -69,10 +67,13 @@ private:
 
 class PostProcessingRenderer {
 public:
-	PostProcessingRenderer() : shader("shaders/EdgeDetection.vert", "shaders/EdgeDetection.frag") {
-		quad = screenQuad();
+	PostProcessingRenderer() : shader("shaders/EdgeDetection.vert", "shaders/EdgeDetection.frag"), vao(), vertBuffer(0, 3, GL_FLOAT), uvBuffer(1,2,GL_FLOAT){
 		tex2Location = glGetUniformLocation(shader, "in_tex2");
 		tex2_unshadedLocation = glGetUniformLocation(shader, "in_tex2_no_shading");
+		vao.bind();
+		vertBuffer.uploadData(sizeof(glm::vec3) * 6, quad, GL_STATIC_DRAW);
+		uvBuffer.uploadData(sizeof(glm::vec2) * 6, quadUV, GL_STATIC_DRAW);
+		vao.unbind();
 	};
 	void use(int width, int height) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -83,20 +84,31 @@ public:
 		glUniform1i(tex2Location, 0);
 		glUniform1i(tex2_unshadedLocation, 1);
 	}
-
 	void render() {
-		GPU_Geometry drawGeometry;
-		drawGeometry.setVerts(quad.verts);
-		drawGeometry.setCols(quad.cols);
-		drawGeometry.setNormals(quad.normals);
-		drawGeometry.setTexCoords(quad.texCoords);
-		drawGeometry.setInds(quad.ind);
-		drawGeometry.bind();
-		glDrawElementsInstanced(GL_TRIANGLES, quad.ind.size(), GL_UNSIGNED_INT, (void*)0, 1);
-
+		vao.bind();
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		vao.unbind();
 	}
 private:
 	ShaderProgram shader;
-	CPU_Geometry quad;
+	glm::vec3 quad[6] = {
+		glm::vec3(1.f, 1.f, 0.f),
+		glm::vec3(-1.f, 1.f, 0.f),
+		glm::vec3(-1.f, -1.f, 0.f),
+		glm::vec3(1.f, 1.f, 0.f),
+		glm::vec3(-1.f, -1.f, 0.f),
+		glm::vec3(1.f, -1.f, 0.f)
+	};
+	glm::vec2 quadUV[6] = {
+		glm::vec2(1.f, 1.f),
+		glm::vec2(0.f, 1.f),
+		glm::vec2(0.f, 0.f),
+		glm::vec2(1.f, 1.f),
+		glm::vec2(0.f, 0.f),
+		glm::vec2(1.f, 0.f)
+	};
+	VertexArray vao;
+	VertexBuffer vertBuffer;
+	VertexBuffer uvBuffer;
 	GLint tex2Location, tex2_unshadedLocation;
 };

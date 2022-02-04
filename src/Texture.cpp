@@ -4,9 +4,11 @@
 
 #include <iostream>
 
-Texture::Texture(std::string path, GLint interpolation)
-	: textureID(), path(path), interpolation(interpolation)
-{
+
+
+
+void Texture::load(std::string path, GLint interpolation){
+	this->interpolation = interpolation;
 	int numComponents;
 	stbi_set_flip_vertically_on_load(true);
 	const char* pathData = path.c_str();
@@ -56,7 +58,8 @@ Texture::Texture(std::string path, GLint interpolation)
 	}
 }
 
-Texture::Texture(int width, int height, GLint interpolation, GLuint format, GLenum type) : textureID(), path(""), interpolation(interpolation) {
+void Texture::setUpInternal(int width, int height, GLint interpolation, GLuint format, GLenum type) {
+	this->interpolation = interpolation;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);		//Set alignment to be 1
 	bind();
 
@@ -70,4 +73,10 @@ Texture::Texture(int width, int height, GLint interpolation, GLuint format, GLen
 	// Clean up
 	unbind();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);	//Return to default alignment
+}
+
+void Texture::setBorderColour(glm::vec4 col) {
+	bind();
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &col[0]);
+	unbind();
 }
