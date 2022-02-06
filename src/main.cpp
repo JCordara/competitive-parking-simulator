@@ -94,6 +94,7 @@ int main() {
 	// Create and initialize game systems
 	auto eventManager = std::make_shared<GameEventManager>();
 	auto audioSystem  = std::make_shared<AudioSystem>();
+	
 
 	// WINDOW
 	glfwInit();
@@ -137,14 +138,8 @@ int main() {
 	transform = frank.getComponent<TransformComponent>();
 	// -------------------------------------------------------------------------
 
-
-	
 	// screw gldebug
 	GLDebug::enable();
-
-	//ShaderProgram shader("shaders/MainCamera.vert", "shaders/MainCamera.frag");
-	MainRenderer mainRenderer;
-	PostProcessingRenderer postProcessingRenderer;
 	glm::mat4 identity(1.0f);
 
 	// ------------------------------ Cameras ----------------------------------
@@ -195,34 +190,37 @@ int main() {
 	eventManager->registerKey(bindMethodFunction_0_Variables(&SizeTogglerTest::disableWindowUpdate, &toggleSize), GLFW_KEY_T, GLFW_PRESS, 0);
 #endif
 	// -------------------------------------------------------------------------
-
+	auto renderPipeline = std::make_shared<GameRenderPipeline>();
 	//-----Lights
-	std::vector<PointLight> scenePointLights = {
-		PointLight(glm::vec3(0.5f, 1.0f, 1.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.5f, 0.01f)),
-		PointLight(glm::vec3(1.0f, 2.0f, -0.5f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(1.f, 0.1f, 0.5f))
+	std::vector<std::shared_ptr<PointLight>> scenePointLights = {
+		std::make_shared<PointLight>(glm::vec3(0.5f, 1.0f, 1.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.5f, 0.01f)),
+		std::make_shared<PointLight>(glm::vec3(1.0f, 2.0f, -0.5f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(1.f, 0.1f, 0.5f))
 	};
 
-	std::vector<SpotLight> sceneSpotLights = {
-		SpotLight(glm::vec3(0.0f, 2.0f, 2.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.01f, 0.00f), glm::normalize(glm::vec3(0.0f, -1.f, 0.0f)), glm::radians(12.0f), glm::radians(40.0f)),
-		SpotLight(glm::vec3(-1.5f, 1.0f, 0.0f), glm::vec3(0.f, 0.f, 1.f), glm::vec3(1.f, 0.01f, 0.00f), glm::normalize(glm::vec3(-1.f, -1.f, 0.f)), glm::radians(30.0f), glm::radians(55.0f))
+	std::vector< std::shared_ptr<SpotLight>> sceneSpotLights = {
+		std::make_shared<SpotLight>(glm::vec3(0.0f, 2.0f, 2.0f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 0.01f, 0.00f), glm::normalize(glm::vec3(0.0f, -1.f, 0.0f)), glm::radians(12.0f), glm::radians(40.0f)),
+		std::make_shared<SpotLight>(glm::vec3(-1.5f, 1.0f, 0.0f), glm::vec3(0.f, 0.f, 1.f), glm::vec3(1.f, 0.01f, 0.00f), glm::normalize(glm::vec3(-1.f, -1.f, 0.f)), glm::radians(30.0f), glm::radians(55.0f))
 	};
-
-	DirectionalLight dirLight = DirectionalLight(0.3f*glm::vec3(1.f, 1.f, 1.f), glm::normalize(glm::vec3(0.0f, -1.0f, 1.0f)));
+	std::shared_ptr<DirectionalLight> dirLight = std::make_shared<DirectionalLight>(0.3f*glm::vec3(1.f, 1.f, 1.f), glm::normalize(glm::vec3(0.0f, -1.0f, 1.0f)));
 	Camera directionalLightCamera = Camera(glm::vec3(0.0f, 15.0f, -15.0f), glm::radians(180.0f), glm::radians(-45.0f), 100.0f, 50.f, 5.f, 50.f, true);
-	OrthographicDepthRenderer depthRenderer(4906, 4096);
+	std::shared_ptr<AmbientLight> ambientLight = std::make_shared<AmbientLight>(0.05f * glm::vec3(1.0f, 1.0f, 1.0f));
 
-	glm::vec3 ambientLight = 0.05f * glm::vec3(1.0f, 1.0f, 1.0f);
+	for (auto light : scenePointLights) renderPipeline->addPointLight(light);
+	for (auto light : sceneSpotLights) renderPipeline->addSpotLight(light);
+	renderPipeline->setDirectionalLight(dirLight);
+	renderPipeline->setAmbientLight(ambientLight);
 
 	//-----Models
-	std::vector<Model> sceneRenderModels = {
-		Model("models/Test1.obj", glm::vec3(1.0, 1.0, 1.0)),
-		Model("models/Test2_M.obj", glm::vec3(1.0, 0.0, 1.0))
+	std::vector<std::shared_ptr<Model>> sceneRenderModels = {
+		std::make_shared<Model>("models/Test1.obj", glm::vec3(1.0, 1.0, 1.0)),
+		std::make_shared<Model>("models/Test2_M.obj", glm::vec3(1.0, 0.0, 1.0))
 	};
 
 	//------Objects
 	std::vector<GameObject> sceneCubeGameObjects = {
 		GameObject(0,-1, glm::translate(identity, glm::vec3(0.0f, 0.0f, 0.0f))),
-		GameObject(0,-1, glm::scale(glm::translate(identity, glm::vec3(0.0f, 0.0f, 6.0f)), glm::vec3(1.0f, 2.0f, 0.5f)))
+		GameObject(0,-1, glm::scale(glm::translate(identity, glm::vec3(0.0f, 0.0f, 6.0f)), glm::vec3(1.0f, 2.0f, 0.5f))),
+		GameObject(0,-1, (glm::scale(glm::rotate(glm::translate(identity, glm::vec3(6.0f, 1.0f, 6.0f)),glm::radians(30.f),glm::vec3(0.f,1.f,0.f)), glm::vec3(1.0f, 1.0f, 1.0f))))
 	};
 
 	std::vector<GameObject> scenePlaneGameObjects = {
@@ -232,7 +230,7 @@ int main() {
 	Time::init();
 	double timeAccumulator = 0.0;
 	double initialTime = Time::now();
-	double timeStepTaken = 0.01;
+	double timeStepTaken = 0.05;
 	double currentTime = initialTime;
 	float viewportAspectRatio;
 	// -------------------------------------------------------------------------
@@ -264,46 +262,34 @@ int main() {
 
 		//----Physics loop---(Unsure how physX works with this so it might change) -------//
 		for (; timeAccumulator >= timeStepTaken; timeAccumulator -= timeStepTaken) {//Do per iteration
-			scenePointLights[0].setPos(2.f*glm::vec3(cosf(0.5f * ((float)(currentTime - initialTime))) , glm::abs(2.f * sinf(0.5f * ((float)(currentTime - initialTime)))) - 0.4f, 5.0f));
-			sceneSpotLights[0].setPos( glm::vec3(10.f * cosf(0.25f * ((float)(currentTime - initialTime))), 2.0f, 2.0f));
+			scenePointLights[0]->setPos(2.f*glm::vec3(cosf(0.5f * ((float)(currentTime - initialTime))) , glm::abs(2.f * sinf(0.5f * ((float)(currentTime - initialTime)))) - 0.4f, 5.0f));
+			sceneSpotLights[0]->setPos( glm::vec3(10.f * cosf(0.25f * ((float)(currentTime - initialTime))), 2.0f, 2.0f));
 		}
-		//----Render Directional Light DepthTexture -----
-		directionalLightCamera.setPos(mainCamera.getPosition() + glm::vec3(0.0f, 15.0f, -15.0f));
-
-		depthRenderer.use(directionalLightCamera);
-		depthRenderer.render(sceneCubeGameObjects, sceneRenderModels[0]);
-		depthRenderer.render(scenePlaneGameObjects, sceneRenderModels[1]);
-		depthRenderer.endUse();
-
+		directionalLightCamera.setPos(glm::vec3(0.0f, 15.0f, -15.0f) + mainCamera.getPosition());
 		//---Render Frame -----------------------------
-		window.resetViewport();
-		mainRenderer.use(window.getWidth(),window.getHeight());
+
+		//Set the lighting properties of the scene
+		renderPipeline->setDirectionalLightShadowMapProperties(directionalLightCamera.getView(), directionalLightCamera.getOrthographicProjection(), 4096, 4096);
+		//Set render properties
+		renderPipeline->setWindowDimentions(window.getWidth(), window.getHeight());
 
 #if TRACKBALL_CAM
 		if (window.getHeight() != 0) viewportAspectRatio = static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight());
 		else viewportAspectRatio = 0.0;
-		mainRenderer.setCameraTransformations(mainCamera.getPosition(), mainCamera.getViewMatrix(), glm::perspective(glm::radians(60.f), viewportAspectRatio, 0.01f, 1000.0f));
+		renderPipeline->setCamera(mainCamera.getPosition(), mainCamera.getViewMatrix(), glm::perspective(glm::radians(60.f), viewportAspectRatio, 0.01f, 1000.0f) );
 		audioSystem->setListenerPosition(mainCamera.getPosition());
 		audioSystem->setListenerOrientation(mainCamera.getViewDirection(), mainCamera.getUpDirection());
 #else
 		mainRenderer.setCameraTransformations(mainCamera.getPosition(), mainCamera.getView(), mainCamera.getPerspectiveProjection);
 #endif
-		mainRenderer.setPointLights(scenePointLights);
-		mainRenderer.setSpotLights(sceneSpotLights);
-		mainRenderer.setDirectionalLight(dirLight);
-		mainRenderer.setAmbientLight(ambientLight);
-		mainRenderer.useShadowMappingOnDirectionalLight(directionalLightCamera);
-		depthRenderer.bindTextureForUse();
-		mainRenderer.render(sceneCubeGameObjects, sceneRenderModels[0]);
-		mainRenderer.render(scenePlaneGameObjects, sceneRenderModels[1]);
-		depthRenderer.unbindTextureForUse();
-		mainRenderer.endUse();
-
-		//---Post processing-----------------------------
-		postProcessingRenderer.use(window.getWidth(), window.getHeight());
-		mainRenderer.bindTextureForUse();
-		postProcessingRenderer.render();
-		mainRenderer.unbindTextureForUse();
+		
+		//Attach Objects to render
+		for (auto object : sceneCubeGameObjects)	renderPipeline->attachRender(sceneRenderModels[0], object.getTransformation());
+		for (auto object : scenePlaneGameObjects)	renderPipeline->attachRender(sceneRenderModels[1], object.getTransformation());
+		
+		//Render the output
+		renderPipeline->executeRender();
+		renderPipeline->clearRenderQueue();
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
 		gui->draw();

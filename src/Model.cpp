@@ -27,17 +27,13 @@ void Mesh::uploadData() {
 }
 
 //Texture Binding will be handled by the model
-void Mesh::draw(ShaderProgram& sp, unsigned int instances = 1) {
+void Mesh::draw(ShaderProgram& sp, GLint diffuseLocation, GLint specularLocation, GLint alphaLocation, GLint ambientLocation, unsigned int instances = 1) {
 	//Material Constants
 	vao->bind();
-	GLint matLoc = glGetUniformLocation(sp, "uniformPhongDiffuse");
-	if (matLoc != -1) glUniform3fv(matLoc, 1, &material.diff[0]);
-	matLoc = glGetUniformLocation(sp, "uniformPhongSpecular");
-	if (matLoc != -1) glUniform3fv(matLoc, 1, &material.spec[0]);
-	matLoc = glGetUniformLocation(sp, "uniformPhongAmbient");
-	if (matLoc != -1) glUniform3fv(matLoc, 1, &material.amb[0]);
-	matLoc = glGetUniformLocation(sp, "uniformPhongAlpha");
-	if (matLoc != -1) glUniform1f(matLoc, material.alpha);
+	if (diffuseLocation > -1) glUniform3fv(diffuseLocation, 1, &material.diff[0]);
+	if (specularLocation > -1) glUniform3fv(specularLocation, 1, &material.spec[0]);
+	if (ambientLocation > -1) glUniform3fv(ambientLocation, 1, &material.amb[0]);
+	if (alphaLocation > -1) glUniform1f(alphaLocation, material.alpha);
 	//Render Mesh
 	if (instances == 1) glDrawElements(GL_TRIANGLES, indicies.size(), GL_UNSIGNED_INT, 0);
 	else if (instances > 1) glDrawElementsInstanced(GL_TRIANGLES, indicies.size(), GL_UNSIGNED_INT, 0, instances);
@@ -55,15 +51,14 @@ void Model::loadModel(filepath path) {
 	}
 	processNode(scene->mRootNode, scene);
 }
-void Model::draw(ShaderProgram& sp, unsigned int instances = 1) {
+void Model::draw(ShaderProgram& sp, GLenum textureLocation, GLint modelColourLocation, GLint diffuseLocation, GLint specularLocation, GLint alphaLocation, GLint ambientLocation, unsigned int instances = 1) {
+	if(modelColourLocation > -1) glUniform3fv(modelColourLocation, 1, &modelColour[0]);
 	for (unsigned int i = 0, textureid; i < meshes.size(); i++) {
 		textureid = meshes[i].textureIndex;
 		if (textureid >= 0) {
-			glActiveTexture(GL_TEXTURE0 + 0);
+			glActiveTexture(textureLocation);
 			textures[i]->bind();
-			GLint matLoc = glGetUniformLocation(sp, "modelColour");
-			if (matLoc != -1) glUniform3fv(matLoc, 1, &modelColour[0]);
-			meshes[i].draw(sp, instances);
+			meshes[i].draw(sp, diffuseLocation, specularLocation, alphaLocation, ambientLocation, instances);
 			textures[i]->unbind();
 		}
 	}

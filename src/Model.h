@@ -35,7 +35,7 @@ public:
 	//Reupload the data
 	void uploadData();
 	//Texture Binding will be handled by the model
-	void draw(ShaderProgram& sp, unsigned int instances);
+	void draw(ShaderProgram& sp, GLint diffuseLocation, GLint specularLocation, GLint alphaLocation, GLint ambientLocation, unsigned int instances);
 	vector<vec3f> vertsPos;
 	vector<vec3f> vertsNorms;
 	vector<vec2f> vertsUVs;
@@ -55,7 +55,7 @@ public:
 	Model() = default;
 	Model(filepath path, vec3f col) : modelColour(col) { loadModel(path); }
 	void loadModel(filepath path);
-	void draw(ShaderProgram& sp, unsigned int instances);
+	void draw(ShaderProgram& sp, GLenum textureLocation, GLint modelColourLocation, GLint diffuseLocation, GLint specularLocation, GLint alphaLocation, GLint ambientLocation, unsigned int instances);
 private:
 	void processNode(aiNode* node, const aiScene* scene);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);

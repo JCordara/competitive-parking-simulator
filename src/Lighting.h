@@ -75,4 +75,13 @@ private:
 	float innerAngle, cosInnerAngle, outerAngle, cosOuterAngle;
 };
 
-void preparePointLightsForRendering(GLint lightPositionsLocation, GLint lightColoursLocation, GLint lightAttenuationConstaintsLocation, GLint radiusLocation, GLint numberOfLightsLocation, std::vector<PointLight>& pointLights);
+class AmbientLight {
+public:
+	AmbientLight(glm::vec3 col) : col(col) {}
+	void setCol(glm::vec3 col) { this->col = col; }
+	glm::vec3 getCol() { return col; }
+private:
+	glm::vec3 col;
+};
+
+

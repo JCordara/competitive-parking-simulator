@@ -9,88 +9,90 @@
 #include "Geometry.h"
 #include "Lighting.h"
 
-class OrthographicDepthRenderer {
-public:
-	OrthographicDepthRenderer(unsigned int SHADOW_WIDTH, unsigned int SHADOW_HEIGHT);
-	void render(std::vector<GameObject>& GameObjects, Model& model);
-	void use(Camera& directionalLightCamera);
-	void endUse();
-	void bindTextureForUse() {glActiveTexture(GL_TEXTURE0 + 1);depthTexture.bind();}
-	void unbindTextureForUse() {depthTexture.unbind();}
-private:
-	FrameBuffer depthFrameBuffer;
-	Texture depthTexture;
-	ShaderProgram depthTextureShader;
-	unsigned int SHADOW_WIDTH, SHADOW_HEIGHT;
-	GLint modelsLocation, viewLocation, projectionLocation;
+
+struct instancedPair {
+	std::shared_ptr<Model> model;
+	std::vector<glm::mat4> modelTransformations;
 };
 
-class MainRenderer {
+class DepthRenderer {
 public:
-	MainRenderer();
-	void render(std::vector<GameObject>& GameObjects, Model& model);
-	void setCameraTransformations(glm::vec3 position, glm::mat4 V, glm::mat4 P);
-	void setPointLights(std::vector<PointLight>& lights);
-	void setSpotLights(std::vector<SpotLight>& lights);
-	void setDirectionalLight(DirectionalLight& light);
-	void setAmbientLight(glm::vec3& light);
-	void useShadowMappingOnDirectionalLight(Camera& orthographicCamera);
-	void disableShadowMappingOnDirectionalLight();
+	DepthRenderer();
 	void use(int width, int height);
-	void endUse() { renderFrameBuffer.unbind(); }
-
-
-	void bindTextureForUse() {
-		glActiveTexture(GL_TEXTURE0);
-		renderTexture.bind();
-		glActiveTexture(GL_TEXTURE0 + 1);
-		renderTexture_unshaded.bind();
-	}
-	void unbindTextureForUse() { renderTexture.unbind(); renderTexture_unshaded.unbind();
-	}
+	void setCameraTransformations(glm::mat4 V, glm::mat4 P);
+	void attachFrameBufferTexture(GLuint depthTextureID);
+	void render(instancedPair& instancedRender);
+	void endUse();
 
 private:
 	ShaderProgram shader;
-	GLint modelsLocation, modelsInverLocation, viewLocation, projectionLocation;
-	GLint useColourLocation, colourTextLocation;
-	GLint lightPositionsLocation, lightColoursLocation, lightAttenuationConstaintsLocation, lightRadiusLocation, numberOfLightsLocation;
-	GLint spotLightPositionsLocation, spotLightColoursLocation, spotLightAttenuationConstaintsLocation, spotLightRadiusLocation, spotLightDirectionsLocation, spotLightCosInnerAngleLocation, spotLightCosOuterAngleLocation, numberOfSpotLightsLocation;
-	GLint directionalLightDirectionLocation, directionalLightColourLocation, shadowMapLocation, useShadowMapLocation, lightSpaceMatrixLocation;
-	GLint ambientLightLocation;
-	GLint uniformPhongConstaintsLocation;
-	GLint renderCameraPositionLocation;
+	FrameBuffer frameBuffer;
+	GLint modelsLocation;
+	GLint viewLocation;
+	GLint projectionLocation;
+};
 
-	FrameBuffer renderFrameBuffer;
-	Texture renderTexture, renderTexture_unshaded, depthTexture;
+class DeferredRenderer {
+public:
+	DeferredRenderer();
 
+	void use(int width, int height);
+	void setCameraTransformations(glm::mat4 V, glm::mat4 P);
+	void setDirectionalLightCameraTransformations(glm::mat4 V, glm::mat4 P);
+	void attachFrameBufferTextures(GLuint textureColourID, GLint textureClassificationID,
+		GLint texturePositionID, GLint textureNormalID, GLint textureDiffuseConstantID,
+		GLint textureSpecularAndShinnyConstantID, GLint textureAmbientConstantID,
+		GLint textureDirectionalLightPositionID,GLint depthTextureID);
+	void render(instancedPair& instancedRender);
+	void endUse();
+private:
+	ShaderProgram shader;
+	FrameBuffer frameBuffer;
+	//Model Properties
+	GLint modelTextureLocation;
+	GLint modelClassificationColourLocation;
+	GLint modelDiffuseConstantLocation;
+	GLint modelSpecularConstantLocation;
+	GLint modelAlphaConstantLocation;
+	GLint modelAmbientConstantLocation;
+	//Transformations
+	GLint modelTransformationsLocation;
+	GLint modelTransformationsInverseLocation;
+	GLint cameraViewTransformationLocation;
+	GLint cameraProjectionTransformationLocation;
+	GLint directionalLightCameraViewTransformationLocation;
+	GLint directionalLightCameraProjectionTransformationLocation;
+	//Texture output locations
+	GLint textureColourLocation;
+	GLint textureClassificationLocation;
+	GLint texturePositionLocation;
+	GLint textureNormalLocation;
+	GLint textureDiffuseConstantLocation;
+	GLint textureSpecularAndShinnyConstantLocation;
+	GLint textureAmbientConstantLocation;
+	GLint textureDirectionalLightPositionLocation;
 };
 
 class PostProcessingRenderer {
 public:
-	PostProcessingRenderer() : shader("shaders/EdgeDetection.vert", "shaders/EdgeDetection.frag"), vao(), vertBuffer(0, 3, GL_FLOAT), uvBuffer(1,2,GL_FLOAT){
-		tex2Location = glGetUniformLocation(shader, "in_tex2");
-		tex2_unshadedLocation = glGetUniformLocation(shader, "in_tex2_no_shading");
-		vao.bind();
-		vertBuffer.uploadData(sizeof(glm::vec3) * 6, quad, GL_STATIC_DRAW);
-		uvBuffer.uploadData(sizeof(glm::vec2) * 6, quadUV, GL_STATIC_DRAW);
-		vao.unbind();
-	};
-	void use(int width, int height) {
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, width, height);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glDisable(GL_DEPTH_TEST);
-		shader.use();
-		glUniform1i(tex2Location, 0);
-		glUniform1i(tex2_unshadedLocation, 1);
-	}
-	void render() {
-		vao.bind();
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		vao.unbind();
-	}
+	PostProcessingRenderer();
+
+	void use(int width, int height);
+	void setTextureLocations(int textureColourActiveLocation, int textureClassificationActiveLocation,
+		int texturePositionActiveLocation, int textureNormalActiveLocation,
+		int textureDiffuseConstantActiveLocation, int textureSpecularAndShinnyConstantActiveLocation,
+		int textureAmbientConstantActiveLocation, int textureDirectionalLightDepthActiveLocation,
+		int textureDirectionalLightPositionActiveLocation);
+	void setPointLights(std::vector<std::shared_ptr<PointLight>>& pointLights);
+	void setSpotLights(std::vector<std::shared_ptr<SpotLight>>& spotLights);
+	void setDirectionalLight(std::shared_ptr<DirectionalLight> light);
+	void setAmbientLight(std::shared_ptr<AmbientLight> light);
+	void setRenderedCameraPosition(glm::vec3& pos);
+	void render();
 private:
+	//Program to run Shader
 	ShaderProgram shader;
+	//Simple draw geom
 	glm::vec3 quad[6] = {
 		glm::vec3(1.f, 1.f, 0.f),
 		glm::vec3(-1.f, 1.f, 0.f),
@@ -107,8 +109,107 @@ private:
 		glm::vec2(0.f, 0.f),
 		glm::vec2(1.f, 0.f)
 	};
+	//Vertex Array with the vertBuffer and textureUVBuffer
 	VertexArray vao;
 	VertexBuffer vertBuffer;
 	VertexBuffer uvBuffer;
-	GLint tex2Location, tex2_unshadedLocation;
+	// All textures to read from for defered shading
+	GLint textureColourLocation;
+	GLint textureClassificationLocation;
+	GLint texturePositionLocation;
+	GLint textureNormalLocation;
+	GLint textureDiffuseConstantLocation;
+	GLint textureSpecularAndShinnyConstantLocation;
+	GLint textureAmbientConstantLocation;
+	//Depth test texture of directional light Shading
+	GLint textureDirectionalLightDepthLocation;
+	GLint textureDirectionalLightPositionLocation;
+	//Point Lighting Uniforms
+	GLint pointLightPositionsLocation;
+	GLint pointLightColoursLocation;
+	GLint pointLightAttenuationConstaintsLocation;
+	GLint pointLightRadiusLocation;
+	GLint numberOfPointLightsLocation;
+	//Spot Lighting Uniforms
+	GLint spotLightPositionsLocation;
+	GLint spotLightColoursLocation;
+	GLint spotLightAttenuationConstaintsLocation;
+	GLint spotLightRadiusLocation;
+	GLint spotLightDirectionsLocation;
+	GLint spotLightCosAnglesLocation;
+	GLint numberOfSpotLightsLocation;
+	//Directional Lighting Uniforms
+	GLint directionalLightDirectionLocation;
+	GLint directionalLightColourLocation;
+	//Ambient Lighting Uniforms
+	GLint ambientLightColourLocation;
+	//Camera Uniforms
+	GLint cameraPositionLocation;
+};
+
+class GameRenderPipeline {
+public:
+
+	GameRenderPipeline();
+
+	//Set the lighting properties of the scene
+	void addPointLight(std::shared_ptr<PointLight> pointLight);
+	void addSpotLight(std::shared_ptr<SpotLight> spotLight);
+	void setDirectionalLight(std::shared_ptr<DirectionalLight> directionalLight);
+	void setAmbientLight(std::shared_ptr<AmbientLight> ambientLight);
+	
+	//Set render properties
+	void setDirectionalLightShadowMapProperties(glm::mat4 V, glm::mat4 P, int width, int height);
+	void setCamera(glm::vec3 pos, glm::mat4 V, glm::mat4 P);
+	void setWindowDimentions(int width, int height);
+	//Attach Objects to render
+	void attachRender(std::shared_ptr<Model> model, glm::mat4 modelTransformation);
+	//Render the output
+	void executeRender();
+	//Clear functions
+	void clearPointLights() { pointLights.clear(); }
+	void clearSpotLights() { spotLights.clear(); }
+	void clearRenderQueue() { renderQueue.clear(); }
+	void flushLists() {
+		clearPointLights();
+		clearSpotLights();
+		clearRenderQueue();
+	}
+
+
+private:
+	//All of our renderers we will use
+	DepthRenderer depthRenderer;
+	DeferredRenderer deferredRenderer;
+	PostProcessingRenderer postProcessingRenderer;
+	//Render textures (framebuffers)
+	Texture directionalLightDepthTexture;
+	Texture textureColour;
+	Texture textureClassification;
+	Texture texturePosition;
+	Texture textureNormal;
+	Texture textureDiffuseConstant;
+	Texture textureSpecularAndShinnyConstant;
+	Texture textureAmbientConstant;
+	Texture textureDirectionalLightPosition;
+	Texture renderdDepthTexture;
+	//Lighting
+	std::vector<std::shared_ptr<PointLight>> pointLights;
+	std::vector<std::shared_ptr<SpotLight>> spotLights;
+	std::shared_ptr<DirectionalLight> directionalLight;
+	std::shared_ptr<AmbientLight> ambientLight;
+	//Directional Light render properties
+	glm::mat4 directionalLightViewTransformation;
+	glm::mat4 directionalLightProjectionTransformation;
+	int directionalLightCameraWidth;
+	int directionalLightCameraHeight;
+	// RenderProperties
+	glm::vec3 cameraPosition;
+	glm::mat4 cameraViewTransformation;
+	glm::mat4 cameraProjectionTransformation;
+	int cameraWidth;
+	int cameraHeight;
+	//Object Queue
+	std::map<Model*, instancedPair> renderQueue;
+
 };
