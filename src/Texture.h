@@ -12,7 +12,7 @@ class Texture {
 public:
 
 	void load(std::string path, GLint interpolation);
-	void setUpInternal(int width, int height, GLint interpolation, GLuint format, GLenum type);
+	void setUpInternal(int width, int height, GLint interpolation, GLuint internalformat, GLuint format, GLenum type);
 	void setBorderColour(glm::vec4 col);
 
 	// Although uint (i.e. uvec2) might make more sense here, went with int (i.e. ivec2) under

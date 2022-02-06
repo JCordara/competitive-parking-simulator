@@ -1,107 +1,364 @@
 #include "Renderers.h"
 
 
-OrthographicDepthRenderer::OrthographicDepthRenderer(unsigned int SHADOW_WIDTH, unsigned int SHADOW_HEIGHT) :
-	SHADOW_WIDTH(SHADOW_WIDTH), SHADOW_HEIGHT(SHADOW_HEIGHT) {
-	depthTextureShader = ShaderProgram("shaders/DepthTexture.vert", "shaders/DepthTexture.frag");
-	depthTexture.setUpInternal(SHADOW_WIDTH, SHADOW_HEIGHT, GL_NEAREST, GL_DEPTH_COMPONENT, GL_FLOAT);
-	depthTexture.bind();
-	depthFrameBuffer.attachTexture(GL_DEPTH_ATTACHMENT, depthTexture.getTextureHandleID());
-	depthTexture.unbind();
-	std::vector<GLenum> drawBuffer = { GL_NONE };
-	depthFrameBuffer.drawBuffers(drawBuffer);
-	modelsLocation = glGetUniformLocation(depthTextureShader, "Ms");
-	viewLocation = glGetUniformLocation(depthTextureShader, "V");
-	projectionLocation = glGetUniformLocation(depthTextureShader, "P");
+GameRenderPipeline::GameRenderPipeline() :
+	depthRenderer(),
+	deferredRenderer(),
+	postProcessingRenderer(),
+	directionalLightDepthTexture(),
+	textureColour(),
+	textureClassification(),
+	texturePosition(),
+	textureNormal(),
+	textureDiffuseConstant(),
+	textureSpecularAndShinnyConstant(),
+	textureAmbientConstant(),
+	textureDirectionalLightPosition()
+{
+	depthRenderer.attachFrameBufferTexture(directionalLightDepthTexture.getTextureHandleID());
+	deferredRenderer.attachFrameBufferTextures(
+		textureColour.getTextureHandleID(),
+		textureClassification.getTextureHandleID(),
+		texturePosition.getTextureHandleID(),
+		textureNormal.getTextureHandleID(),
+		textureDiffuseConstant.getTextureHandleID(),
+		textureSpecularAndShinnyConstant.getTextureHandleID(),
+		textureAmbientConstant.getTextureHandleID(),
+		textureDirectionalLightPosition.getTextureHandleID(),
+		renderdDepthTexture.getTextureHandleID()
+	);
 }
-void OrthographicDepthRenderer::use(Camera& directionalLightCamera) {
-	depthFrameBuffer.bind();
 
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-	//glCullFace(GL_FRONT);
-	glClearDepth(1.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	depthTextureShader.use();
-	directionalLightCamera.useOrthographic(viewLocation, projectionLocation);
+
+void GameRenderPipeline::addPointLight(std::shared_ptr<PointLight> pointLight) {
+	pointLights.push_back(pointLight);
 }
 
-void OrthographicDepthRenderer::render(std::vector<GameObject>& GameObjects, Model& model) {
-	std::vector<GLfloat> ret1;
-	glm::mat4 temp;
-	ret1.clear();
-	if (GameObjects.size() > 0) {
-		for (int j = 0; j < GameObjects.size(); j++) {
-			temp = GameObjects[j].getTransformation();
-			copy(glm::value_ptr(temp), glm::value_ptr(temp) + 16, back_inserter(ret1));
-		}
-		glUniformMatrix4fv(modelsLocation, GameObjects.size(), GL_FALSE, ret1.data());
-		model.draw(depthTextureShader, GameObjects.size());
+void GameRenderPipeline::addSpotLight(std::shared_ptr<SpotLight> spotLight) {
+	spotLights.push_back(spotLight);
+}
+
+void GameRenderPipeline::setDirectionalLight(std::shared_ptr<DirectionalLight> directionalLight) {
+	this->directionalLight = directionalLight;
+}
+void GameRenderPipeline::setAmbientLight(std::shared_ptr<AmbientLight> ambientLight) {
+	this->ambientLight = ambientLight;
+}
+
+//Set render properties
+void GameRenderPipeline::setDirectionalLightShadowMapProperties(glm::mat4 V, glm::mat4 P, int width, int height) {
+	directionalLightViewTransformation = V;
+	directionalLightProjectionTransformation = P;
+	if (directionalLightCameraWidth != width || directionalLightCameraHeight != height) {
+		directionalLightCameraWidth = width;
+		directionalLightCameraHeight = height;
+		directionalLightDepthTexture.setUpInternal(directionalLightCameraWidth, directionalLightCameraHeight, GL_NEAREST, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
 	}
 }
 
-
-void OrthographicDepthRenderer::endUse() {
-	depthFrameBuffer.unbind();
+void GameRenderPipeline::setCamera(glm::vec3 pos, glm::mat4 V, glm::mat4 P) {
+	cameraPosition = pos;
+	cameraViewTransformation = V;
+	cameraProjectionTransformation = P;
+}
+void GameRenderPipeline::setWindowDimentions(int width, int height) {
+	if (cameraWidth != width || cameraHeight != height) {
+		cameraWidth = width;
+		cameraHeight = height;
+		textureColour.setUpInternal(cameraWidth, cameraHeight, GL_LINEAR, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+		textureClassification.setUpInternal(cameraWidth, cameraHeight, GL_LINEAR, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+		texturePosition.setUpInternal(cameraWidth, cameraHeight, GL_LINEAR, GL_RGB16F, GL_RGB, GL_FLOAT);
+		textureNormal.setUpInternal(cameraWidth, cameraHeight, GL_LINEAR, GL_RGB16F, GL_RGB, GL_FLOAT);
+		textureDiffuseConstant.setUpInternal(cameraWidth, cameraHeight, GL_LINEAR, GL_RGB16F, GL_RGB, GL_FLOAT);
+		textureSpecularAndShinnyConstant.setUpInternal(cameraWidth, cameraHeight, GL_LINEAR, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+		textureAmbientConstant.setUpInternal(cameraWidth, cameraHeight, GL_LINEAR, GL_RGB16F, GL_RGB, GL_FLOAT);
+		textureDirectionalLightPosition.setUpInternal(cameraWidth, cameraHeight, GL_LINEAR, GL_RGB16F, GL_RGB, GL_FLOAT);
+		renderdDepthTexture.setUpInternal(cameraWidth, cameraHeight, GL_NEAREST, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+	}
 }
 
-MainRenderer::MainRenderer(): shader("shaders/MainCamera.vert", "shaders/MainCamera.frag") {
+void GameRenderPipeline::attachRender(std::shared_ptr<Model> model, glm::mat4 modelTransformation) {
+	auto it = renderQueue.find(model.get());
+	if (it != renderQueue.end())//Already exists
+		it->second.modelTransformations.push_back(modelTransformation);
+	else {
+		instancedPair newPair;
+		newPair.model = model;
+		newPair.modelTransformations.push_back(modelTransformation);
+		renderQueue.insert(std::pair<Model*, instancedPair>(model.get(), newPair));
+	}
+}
+
+void GameRenderPipeline::executeRender() {
+	//Depth Pass
+	depthRenderer.use(directionalLightCameraWidth, directionalLightCameraHeight);
+	depthRenderer.setCameraTransformations(directionalLightViewTransformation, directionalLightProjectionTransformation);
+	for (auto it = renderQueue.begin(); it != renderQueue.end(); it++) depthRenderer.render(it->second);
+	//depthRenderer.endUse();
+	//Deferred Pass
+	deferredRenderer.use(cameraWidth, cameraHeight);
+	deferredRenderer.setCameraTransformations(cameraViewTransformation, cameraProjectionTransformation);
+	deferredRenderer.setDirectionalLightCameraTransformations(directionalLightViewTransformation, directionalLightProjectionTransformation);
+	for (auto it = renderQueue.begin(); it != renderQueue.end(); it++) deferredRenderer.render(it->second);
+	deferredRenderer.endUse();
+	//Post Processing Pass
+	postProcessingRenderer.use(cameraWidth, cameraHeight);
+	glActiveTexture(GL_TEXTURE0);
+	textureColour.bind();
+	glActiveTexture(GL_TEXTURE1);
+	textureClassification.bind();
+	glActiveTexture(GL_TEXTURE2);
+	texturePosition.bind();
+	glActiveTexture(GL_TEXTURE3);
+	textureNormal.bind();
+	glActiveTexture(GL_TEXTURE4);
+	textureDiffuseConstant.bind();
+	glActiveTexture(GL_TEXTURE5);
+	textureSpecularAndShinnyConstant.bind();
+	glActiveTexture(GL_TEXTURE6);
+	textureAmbientConstant.bind();
+	glActiveTexture(GL_TEXTURE7);
+	directionalLightDepthTexture.bind();
+	glActiveTexture(GL_TEXTURE8);
+	textureDirectionalLightPosition.bind();
+
+	postProcessingRenderer.setTextureLocations(0, 1, 2, 3, 4, 5, 6, 7, 8);
+	postProcessingRenderer.setPointLights(pointLights);
+	postProcessingRenderer.setSpotLights(spotLights);
+	postProcessingRenderer.setDirectionalLight(directionalLight);
+	postProcessingRenderer.setAmbientLight(ambientLight);
+	postProcessingRenderer.setRenderedCameraPosition(cameraPosition);
+	postProcessingRenderer.render();
+	//postProcessingRenderer.endUse();
+}
+
+DepthRenderer::DepthRenderer() : shader("shaders/DepthTexture.vert", "shaders/DepthTexture.frag"), frameBuffer() {
+	std::vector<GLenum> drawBuffer = { GL_NONE };
+	frameBuffer.drawBuffers(drawBuffer);
 	modelsLocation = glGetUniformLocation(shader, "Ms");
-	modelsInverLocation = glGetUniformLocation(shader, "MsInverseTransposed");
 	viewLocation = glGetUniformLocation(shader, "V");
 	projectionLocation = glGetUniformLocation(shader, "P");
-	useColourLocation = glGetUniformLocation(shader, "useColour");
-	colourTextLocation = glGetUniformLocation(shader, "colourText");
-	lightPositionsLocation = glGetUniformLocation(shader, "lightPositions");
-	lightColoursLocation = glGetUniformLocation(shader, "lightColours");
-	lightAttenuationConstaintsLocation = glGetUniformLocation(shader, "lightAttenuationConstaints");
-	lightRadiusLocation = glGetUniformLocation(shader, "lightRadius");
-	numberOfLightsLocation = glGetUniformLocation(shader, "numberOfLights");
+}
+void DepthRenderer::use(int width, int height) {
+	shader.use();
+	frameBuffer.bind();
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	glCullFace(GL_BACK);
+	glClearDepth(1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, width, height);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
 
+void DepthRenderer::setCameraTransformations(glm::mat4 V, glm::mat4 P) {
+	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &V[0][0]);
+	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &P[0][0]);
+
+}
+
+void DepthRenderer::attachFrameBufferTexture(GLuint depthTextureID) {
+	glBindTexture(GL_TEXTURE_2D, depthTextureID);
+	frameBuffer.attachTexture(GL_DEPTH_ATTACHMENT, depthTextureID);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void DepthRenderer::render(instancedPair& instancedRender) {
+	std::vector<GLfloat> ret1;
+	glm::mat4 temp;
+	if (instancedRender.modelTransformations.size() > 0) {
+		for (int j = 0; j < instancedRender.modelTransformations.size(); j++) {
+			temp = instancedRender.modelTransformations[j];
+			copy(glm::value_ptr(temp), glm::value_ptr(temp) + 16, back_inserter(ret1));
+		}
+		glUniformMatrix4fv(modelsLocation, instancedRender.modelTransformations.size(), GL_FALSE, ret1.data());
+		instancedRender.model->draw(shader, GL_TEXTURE0, -1, -1, -1, -1, -1, instancedRender.modelTransformations.size());
+	}
+}
+
+void DepthRenderer::endUse() {
+	frameBuffer.unbind();
+}
+
+DeferredRenderer::DeferredRenderer() : shader("shaders/DeferredShading.vert", "shaders/DeferredShading.frag"), frameBuffer() {
+	//Model Properties
+	modelTextureLocation = glGetUniformLocation(shader, "colourTexture");
+	modelClassificationColourLocation = glGetUniformLocation(shader, "modelColour");
+	modelDiffuseConstantLocation = glGetUniformLocation(shader, "uniformPhongDiffuse");
+	modelSpecularConstantLocation = glGetUniformLocation(shader, "uniformPhongSpecular");
+	modelAlphaConstantLocation = glGetUniformLocation(shader, "uniformPhongAlpha");
+	modelAmbientConstantLocation = glGetUniformLocation(shader, "uniformPhongAmbient");
+	//Transformations
+	modelTransformationsLocation = glGetUniformLocation(shader, "Ms");
+	modelTransformationsInverseLocation = glGetUniformLocation(shader, "MsInverseTransposed");
+	cameraViewTransformationLocation = glGetUniformLocation(shader, "cameraV");
+	cameraProjectionTransformationLocation = glGetUniformLocation(shader, "cameraP");
+	directionalLightCameraViewTransformationLocation = glGetUniformLocation(shader, "directionalLightCameraV");
+	directionalLightCameraProjectionTransformationLocation = glGetUniformLocation(shader, "directionalLightCameraP");
+	//Texture output locations
+	textureColourLocation = glGetUniformLocation(shader, "textureColour");
+	textureClassificationLocation = glGetUniformLocation(shader, "textureClassification");
+	texturePositionLocation = glGetUniformLocation(shader, "texturePosition");
+	textureNormalLocation = glGetUniformLocation(shader, "textureNormal");
+	textureDiffuseConstantLocation = glGetUniformLocation(shader, "textureDiffuseConstant");
+	textureSpecularAndShinnyConstantLocation = glGetUniformLocation(shader, "textureSpecularAndShinnyConstant");
+	textureAmbientConstantLocation = glGetUniformLocation(shader, "textureAmbientConstant");
+	textureDirectionalLightPositionLocation = glGetUniformLocation(shader, "textureDirectionalLightPosition");
+	std::vector<GLenum> drawBuffer = {
+		GL_COLOR_ATTACHMENT0,
+		GL_COLOR_ATTACHMENT1,
+		GL_COLOR_ATTACHMENT2,
+		GL_COLOR_ATTACHMENT3,
+		GL_COLOR_ATTACHMENT4,
+		GL_COLOR_ATTACHMENT5,
+		GL_COLOR_ATTACHMENT6,
+		GL_COLOR_ATTACHMENT7
+	};
+	frameBuffer.drawBuffers(drawBuffer);
+}
+
+void DeferredRenderer::use(int width, int height) {
+	shader.use();
+	frameBuffer.bind();
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_FRAMEBUFFER_SRGB);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glViewport(0, 0, width, height);
+	glClearColor(0.0f, 0.1f, 0.1f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_DEPTH_TEST);
+	glUniform1i(modelTextureLocation, 0);
+}
+
+void DeferredRenderer::setCameraTransformations(glm::mat4 V, glm::mat4 P) {
+	glUniformMatrix4fv(cameraViewTransformationLocation, 1, GL_FALSE, &V[0][0]);
+	glUniformMatrix4fv(cameraProjectionTransformationLocation, 1, GL_FALSE, &P[0][0]);
+}
+
+void DeferredRenderer::setDirectionalLightCameraTransformations(glm::mat4 V, glm::mat4 P) {
+	glUniformMatrix4fv(directionalLightCameraViewTransformationLocation, 1, GL_FALSE, &V[0][0]);
+	glUniformMatrix4fv(directionalLightCameraProjectionTransformationLocation, 1, GL_FALSE, &P[0][0]);
+}
+void DeferredRenderer::attachFrameBufferTextures(GLuint textureColourID, GLint textureClassificationID,
+	GLint texturePositionID, GLint textureNormalID, GLint textureDiffuseConstantID,
+	GLint textureSpecularAndShinnyConstantID, GLint textureAmbientConstantID,
+	GLint textureDirectionalLightPositionID, GLint depthTextureID) {
+	glBindTexture(GL_TEXTURE_2D, textureColourID);
+	frameBuffer.attachTexture(GL_COLOR_ATTACHMENT0, textureColourID);
+	glBindTexture(GL_TEXTURE_2D, textureClassificationID);
+	frameBuffer.attachTexture(GL_COLOR_ATTACHMENT1, textureClassificationID);
+	glBindTexture(GL_TEXTURE_2D, texturePositionID);
+	frameBuffer.attachTexture(GL_COLOR_ATTACHMENT2, texturePositionID);
+	glBindTexture(GL_TEXTURE_2D, textureNormalID);
+	frameBuffer.attachTexture(GL_COLOR_ATTACHMENT3, textureNormalID);
+	glBindTexture(GL_TEXTURE_2D, textureDiffuseConstantID);
+	frameBuffer.attachTexture(GL_COLOR_ATTACHMENT4, textureDiffuseConstantID);
+	glBindTexture(GL_TEXTURE_2D, textureSpecularAndShinnyConstantID);
+	frameBuffer.attachTexture(GL_COLOR_ATTACHMENT5, textureSpecularAndShinnyConstantID);
+	glBindTexture(GL_TEXTURE_2D, textureAmbientConstantID);
+	frameBuffer.attachTexture(GL_COLOR_ATTACHMENT6, textureAmbientConstantID);
+	glBindTexture(GL_TEXTURE_2D, textureDirectionalLightPositionID);
+	frameBuffer.attachTexture(GL_COLOR_ATTACHMENT7, textureDirectionalLightPositionID);
+	glBindTexture(GL_TEXTURE_2D, depthTextureID);
+	frameBuffer.attachTexture(GL_DEPTH_ATTACHMENT, depthTextureID);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void DeferredRenderer::render(instancedPair& instancedRender) {
+	std::vector<GLfloat> ret1, ret2;
+	glm::mat4 temp;
+	if (instancedRender.modelTransformations.size() > 0) {
+		for (int j = 0; j < instancedRender.modelTransformations.size(); j++) {
+			temp = instancedRender.modelTransformations[j];
+			copy(glm::value_ptr(temp), glm::value_ptr(temp) + 16, back_inserter(ret1));
+			temp = glm::inverse(temp);
+			copy(glm::value_ptr(temp), glm::value_ptr(temp) + 16, back_inserter(ret2));
+		}
+		glUniformMatrix4fv(modelTransformationsLocation, instancedRender.modelTransformations.size(), GL_FALSE, ret1.data());
+		glUniformMatrix4fv(modelTransformationsInverseLocation, instancedRender.modelTransformations.size(), GL_TRUE, ret2.data());
+		instancedRender.model->draw(shader, GL_TEXTURE0, modelClassificationColourLocation,
+			modelDiffuseConstantLocation, modelSpecularConstantLocation, modelAlphaConstantLocation, modelAmbientConstantLocation, instancedRender.modelTransformations.size());
+	}
+}
+void DeferredRenderer::endUse() {
+	frameBuffer.unbind();
+}
+
+
+PostProcessingRenderer::PostProcessingRenderer() :
+	shader("shaders/PostProcessingDeferredShading.vert", "shaders/PostProcessingDeferredShading.frag"),
+	vao(),
+	vertBuffer(0, 3, GL_FLOAT),
+	uvBuffer(1, 2, GL_FLOAT) {
+	// All textures to read from for defered shading
+	textureColourLocation = glGetUniformLocation(shader, "textureColour");
+	textureClassificationLocation = glGetUniformLocation(shader, "textureClassification");
+	texturePositionLocation = glGetUniformLocation(shader, "texturePosition");
+	textureNormalLocation = glGetUniformLocation(shader, "textureNormal");
+	textureDiffuseConstantLocation = glGetUniformLocation(shader, "textureDiffuseConstant");
+	textureSpecularAndShinnyConstantLocation = glGetUniformLocation(shader, "textureSpecularAndShinnyConstant");
+	textureAmbientConstantLocation = glGetUniformLocation(shader, "textureAmbientConstant");
+	//Depth test texture of directional light Shading
+	textureDirectionalLightDepthLocation = glGetUniformLocation(shader, "textureDirectionalLightDepth");
+	textureDirectionalLightPositionLocation = glGetUniformLocation(shader, "textureDirectionalLightPosition");
+	//Point Lighting Uniforms
+	pointLightPositionsLocation = glGetUniformLocation(shader, "pointLightPositions");
+	pointLightColoursLocation = glGetUniformLocation(shader, "pointLightColours");
+	pointLightAttenuationConstaintsLocation = glGetUniformLocation(shader, "pointLightAttenuationConstaints");
+	pointLightRadiusLocation = glGetUniformLocation(shader, "pointLightRadius");
+	numberOfPointLightsLocation = glGetUniformLocation(shader, "numberOfPointLights");
+	//Spot Lighting Uniforms
 	spotLightPositionsLocation = glGetUniformLocation(shader, "spotLightPositions");
 	spotLightColoursLocation = glGetUniformLocation(shader, "spotLightColours");
 	spotLightAttenuationConstaintsLocation = glGetUniformLocation(shader, "spotLightAttenuationConstaints");
 	spotLightRadiusLocation = glGetUniformLocation(shader, "spotLightRadius");
 	spotLightDirectionsLocation = glGetUniformLocation(shader, "spotLightDirections");
-	spotLightCosInnerAngleLocation = glGetUniformLocation(shader, "spotLightCosInnerAngles");
-	spotLightCosOuterAngleLocation = glGetUniformLocation(shader, "spotLightCosOuterAngles");
-	numberOfSpotLightsLocation = glGetUniformLocation(shader, "numberOfSpotLight");
-
+	spotLightCosAnglesLocation = glGetUniformLocation(shader, "spotLightCosAngles");
+	numberOfSpotLightsLocation = glGetUniformLocation(shader, "numberOfSpotLights");
+	//Directional Lighting Uniforms
 	directionalLightDirectionLocation = glGetUniformLocation(shader, "directionalLightDirection");
 	directionalLightColourLocation = glGetUniformLocation(shader, "directionalLightColour");
-	shadowMapLocation = glGetUniformLocation(shader, "shadowMap");
-	useShadowMapLocation = glGetUniformLocation(shader, "useShadowMap");
-	lightSpaceMatrixLocation = glGetUniformLocation(shader, "lightSpaceMatrix");
-	ambientLightLocation = glGetUniformLocation(shader, "ambientLight");
-	uniformPhongConstaintsLocation = glGetUniformLocation(shader, "uniformPhongConstaints");
-	renderCameraPositionLocation = glGetUniformLocation(shader, "renderCameraPosition");
-}
-void MainRenderer::render(std::vector<GameObject>& GameObjects, Model& model) {
-	std::vector<GLfloat> ret1, ret2;
-	glm::mat4 temp;
-	//GPU_Geometry drawGeometry;
-	if (GameObjects.size() > 0) {
-		for (int j = 0; j < GameObjects.size(); j++) {
-				temp = GameObjects[j].getTransformation();
-				copy(glm::value_ptr(temp), glm::value_ptr(temp) + 16, back_inserter(ret1));
-				temp = glm::inverse(temp);
-				copy(glm::value_ptr(temp), glm::value_ptr(temp) + 16, back_inserter(ret2));
-		}
-		glUniformMatrix4fv(modelsLocation, GameObjects.size(), GL_FALSE, ret1.data());
-		glUniformMatrix4fv(modelsInverLocation, GameObjects.size(), GL_TRUE, ret2.data());
-		model.draw(shader, GameObjects.size());
-	}
+	//Ambient Lighting Uniforms
+	ambientLightColourLocation = glGetUniformLocation(shader, "ambientLightColour");
+	//Camera Uniforms
+	cameraPositionLocation = glGetUniformLocation(shader, "cameraPosition");
+	//Geom being set
+	vao.bind();
+	vertBuffer.uploadData(sizeof(glm::vec3) * 6, quad, GL_STATIC_DRAW);
+	uvBuffer.uploadData(sizeof(glm::vec2) * 6, quadUV, GL_STATIC_DRAW);
+	vao.unbind();
+};
+
+void PostProcessingRenderer::use(int width, int height) {
+	//Setup render call settings
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, width, height);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glDisable(GL_DEPTH_TEST);
+	//Load the shader for use
+	shader.use();
 }
 
-
-void MainRenderer::setCameraTransformations(glm::vec3 position, glm::mat4 V, glm::mat4 P) {
-	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(P));
-	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(V));
-	glUniform3fv(renderCameraPositionLocation, 1, glm::value_ptr(position));
+void PostProcessingRenderer::setTextureLocations(int textureColourActiveLocation, int textureClassificationActiveLocation,
+	int texturePositionActiveLocation, int textureNormalActiveLocation,
+	int textureDiffuseConstantActiveLocation, int textureSpecularAndShinnyConstantActiveLocation,
+	int textureAmbientConstantActiveLocation, int textureDirectionalLightDepthActiveLocation,
+	int textureDirectionalLightPositionActiveLocation) {
+	//Set the texture locations in the Active API
+	glUniform1i(textureColourLocation, textureColourActiveLocation);
+	glUniform1i(textureClassificationLocation, textureClassificationActiveLocation);
+	glUniform1i(texturePositionLocation, texturePositionActiveLocation);
+	glUniform1i(textureNormalLocation, textureNormalActiveLocation);
+	glUniform1i(textureDiffuseConstantLocation, textureDiffuseConstantActiveLocation);
+	glUniform1i(textureSpecularAndShinnyConstantLocation, textureSpecularAndShinnyConstantActiveLocation);
+	glUniform1i(textureAmbientConstantLocation, textureAmbientConstantActiveLocation);
+	glUniform1i(textureDirectionalLightDepthLocation, textureDirectionalLightDepthActiveLocation);
+	glUniform1i(textureDirectionalLightPositionLocation, textureDirectionalLightPositionActiveLocation);
 }
-void MainRenderer::setPointLights(std::vector<PointLight>& pointLights) {
+
+void PostProcessingRenderer::setPointLights(std::vector<std::shared_ptr<PointLight>>& pointLights) {
 	std::vector<std::vector<GLfloat>> ret = std::vector<std::vector<GLfloat>>(4);
 	ret[0] = std::vector<GLfloat>(3 * pointLights.size());
 	ret[1] = std::vector<GLfloat>(3 * pointLights.size());
@@ -109,113 +366,82 @@ void MainRenderer::setPointLights(std::vector<PointLight>& pointLights) {
 	ret[3] = std::vector<GLfloat>(pointLights.size());
 	glm::vec3 temp;
 	for (int i = 0; i < pointLights.size(); i++) {
-		temp = pointLights[i].getPos();
+		temp = pointLights[i]->getPos();
 		ret[0][3 * i + 0] = temp[0];
 		ret[0][3 * i + 1] = temp[1];
 		ret[0][3 * i + 2] = temp[2];
-		temp = pointLights[i].getCol();
+		temp = pointLights[i]->getCol();
 		ret[1][3 * i + 0] = temp[0];
 		ret[1][3 * i + 1] = temp[1];
 		ret[1][3 * i + 2] = temp[2];
-		temp = pointLights[i].getAttenuationConsts();
+		temp = pointLights[i]->getAttenuationConsts();
 		ret[2][3 * i + 0] = temp[0];
 		ret[2][3 * i + 1] = temp[1];
 		ret[2][3 * i + 2] = temp[2];
-		ret[3][i] = pointLights[i].geRadius();
+		ret[3][i] = pointLights[i]->geRadius();
 	}
-	glUniform3fv(lightPositionsLocation, pointLights.size(), ret[0].data());
-	glUniform3fv(lightColoursLocation, pointLights.size(), ret[1].data());
-	glUniform3fv(lightAttenuationConstaintsLocation, pointLights.size(), ret[2].data());
-	glUniform1fv(lightRadiusLocation, pointLights.size(), ret[3].data());
-	glUniform1i(numberOfLightsLocation, pointLights.size());
+	glUniform3fv(pointLightPositionsLocation, pointLights.size(), ret[0].data());
+	glUniform3fv(pointLightColoursLocation, pointLights.size(), ret[1].data());
+	glUniform3fv(pointLightAttenuationConstaintsLocation, pointLights.size(), ret[2].data());
+	glUniform1fv(pointLightRadiusLocation, pointLights.size(), ret[3].data());
+	glUniform1i(numberOfPointLightsLocation, pointLights.size());
 }
 
-void MainRenderer::setSpotLights(std::vector<SpotLight>& spotLights){
+void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight>>& spotLights) {
 	std::vector<std::vector<GLfloat>> ret = std::vector<std::vector<GLfloat>>(7);
 	ret[0] = std::vector<GLfloat>(3 * spotLights.size());
 	ret[1] = std::vector<GLfloat>(3 * spotLights.size());
 	ret[2] = std::vector<GLfloat>(3 * spotLights.size());
 	ret[3] = std::vector<GLfloat>(3 * spotLights.size());
-	ret[4] = std::vector<GLfloat>(spotLights.size());
-	ret[5] = std::vector<GLfloat>(spotLights.size());
-	ret[6] = std::vector<GLfloat>(spotLights.size());
+	ret[4] = std::vector<GLfloat>(	  spotLights.size());
+	ret[5] = std::vector<GLfloat>(2 * spotLights.size());
 	glm::vec3 temp;
 	for (int i = 0; i < spotLights.size(); i++) {
-		temp = spotLights[i].getPos();
+		temp = spotLights[i]->getPos();
 		ret[0][3 * i + 0] = temp[0];
 		ret[0][3 * i + 1] = temp[1];
 		ret[0][3 * i + 2] = temp[2];
-		temp = spotLights[i].getCol();
+		temp = spotLights[i]->getCol();
 		ret[1][3 * i + 0] = temp[0];
 		ret[1][3 * i + 1] = temp[1];
 		ret[1][3 * i + 2] = temp[2];
-		temp = spotLights[i].getAttenuationConsts();
+		temp = spotLights[i]->getAttenuationConsts();
 		ret[2][3 * i + 0] = temp[0];
 		ret[2][3 * i + 1] = temp[1];
 		ret[2][3 * i + 2] = temp[2];
-		temp = spotLights[i].getDirection();
+		temp = spotLights[i]->getDirection();
 		ret[3][3 * i + 0] = temp[0];
 		ret[3][3 * i + 1] = temp[1];
 		ret[3][3 * i + 2] = temp[2];
-		ret[4][i] = spotLights[i].geRadius();
-		ret[5][i] = spotLights[i].getCosInnerAngle();
-		ret[6][i] = spotLights[i].getCosOuterAngle();
+		ret[4][i] = spotLights[i]->geRadius();
+		ret[5][2 * i + 0] = spotLights[i]->getCosInnerAngle();
+		ret[5][2 * i + 1] = spotLights[i]->getCosOuterAngle();
 	}
 	glUniform3fv(spotLightPositionsLocation, spotLights.size(), ret[0].data());
 	glUniform3fv(spotLightColoursLocation, spotLights.size(), ret[1].data());
 	glUniform3fv(spotLightAttenuationConstaintsLocation, spotLights.size(), ret[2].data());
 	glUniform3fv(spotLightDirectionsLocation, spotLights.size(), ret[3].data());
 	glUniform1fv(spotLightRadiusLocation, spotLights.size(), ret[4].data());
-	glUniform1fv(spotLightCosInnerAngleLocation, spotLights.size(), ret[5].data());
-	glUniform1fv(spotLightCosOuterAngleLocation, spotLights.size(), ret[6].data());
+	glUniform2fv(spotLightCosAnglesLocation, spotLights.size(), ret[5].data());
 	glUniform1i(numberOfSpotLightsLocation, spotLights.size());
 }
 
-void MainRenderer::setDirectionalLight(DirectionalLight& light) {
-	glUniform3fv(directionalLightColourLocation, 1, &light.getCol()[0]);
-	glUniform3fv(directionalLightDirectionLocation, 1, &light.getDirection()[0]);
-}
-void MainRenderer::setAmbientLight(glm::vec3& light) {
-	glUniform3fv(ambientLightLocation, 1, &light[0]);
-}
-void MainRenderer::useShadowMappingOnDirectionalLight(Camera& orthographicCamera) {
-	glm::mat4 lightSpace = orthographicCamera.getOrthographicProjection() * orthographicCamera.getView();
-	glUniformMatrix4fv(lightSpaceMatrixLocation, 1, GL_FALSE, &lightSpace[0][0]);
-	glUniform1i(useShadowMapLocation, 1);
-	
-}
-void MainRenderer::disableShadowMappingOnDirectionalLight() {
-	glUniform1i(useShadowMapLocation, 0);
+void PostProcessingRenderer::setDirectionalLight(std::shared_ptr<DirectionalLight> light) {
+	glUniform3fv(directionalLightColourLocation, 1, &light->getCol()[0]);
+	glUniform3fv(directionalLightDirectionLocation, 1, &light->getDirection()[0]);
 }
 
-void MainRenderer::use(int width, int height) {
-	renderTexture.setUpInternal(width, height, GL_NEAREST, GL_RGB, GL_UNSIGNED_BYTE);
-	renderTexture.setBorderColour(glm::vec4(1.f, 1.f, 1.f, 1.f));
-	renderTexture.bind();
-	renderFrameBuffer.attachTexture(GL_COLOR_ATTACHMENT0, renderTexture.getTextureHandleID());
-	renderTexture.unbind();
-	renderTexture_unshaded.setUpInternal(width, height, GL_NEAREST, GL_RGB, GL_UNSIGNED_BYTE);
-	renderTexture_unshaded.setBorderColour(glm::vec4(1.f, 1.f, 1.f, 1.f));
-	renderTexture_unshaded.bind();
-	renderFrameBuffer.attachTexture(GL_COLOR_ATTACHMENT1, renderTexture_unshaded.getTextureHandleID());
-	renderTexture_unshaded.unbind();
-	depthTexture.setUpInternal(width, height, GL_NEAREST, GL_DEPTH_COMPONENT, GL_FLOAT);
-	depthTexture.setBorderColour(glm::vec4(1.f, 1.f, 1.f, 1.f));
-	depthTexture.bind();
-	renderFrameBuffer.attachTexture(GL_DEPTH_ATTACHMENT, depthTexture.getTextureHandleID());
-	renderTexture_unshaded.unbind();
-	std::vector<GLenum> drawBuffer = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-	renderFrameBuffer.drawBuffers(drawBuffer);
-	renderFrameBuffer.bind();
-	glEnable(GL_LINE_SMOOTH);
-	glEnable(GL_FRAMEBUFFER_SRGB);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glClearColor(0.0f, 0.1f, 0.1f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	shader.use();
-	glUniform1i(colourTextLocation, 0);
-	glUniform1i(shadowMapLocation, 1);
+void PostProcessingRenderer::setAmbientLight(std::shared_ptr<AmbientLight> light) {
+	glUniform3fv(ambientLightColourLocation, 1, &light->getCol()[0]);
+}
+
+void PostProcessingRenderer::setRenderedCameraPosition(glm::vec3& pos) {
+	glUniform3fv(cameraPositionLocation, 1, &pos[0]);
+}
+
+void PostProcessingRenderer::render() {
+	//Draw quad
+	vao.bind();
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	vao.unbind();
 }
