@@ -1,5 +1,9 @@
 #include "Entity.h"
 
+// Initialize instance counter to 0
+unsigned int Entity::instanceCounter = 0;
+
+
 Entity::Entity() {
-    // Nothing to do here yet
+    entityID = Entity::instanceCounter++;
 }

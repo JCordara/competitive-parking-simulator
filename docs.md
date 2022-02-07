@@ -13,7 +13,7 @@ We need a cool name for the game engine
 <a name="entities-and-components"/>
 
 ## Entities and Components
-`#include "Entity.h"`
+`#include "Scene.h"`
 
 The `Entity` class is a base class that stores components and provides accessor
 methods for them. Components are stored in a map structure, so each Entity can
@@ -45,15 +45,45 @@ car.addComponent<TransformComponent>();
 // Get a shared_ptr to the component (always use smart pointers pls&ty)
 auto transform = car.getComponent<TransformComponent>();
 
+printf("%d\n", frank.hasComponent<TransformComponent>()); // Outputs 1
+printf("%d\n", frank.hasComponent<PhysicsComponent>());   // Outputs 0
+
 // Modify component attributes
 transform.x = 15.0f;
-std::cout << transform.x; // Outputs '15.0000'
+printf("(%.1f, %.1f, %.1f)", transform.x, transform.y, transform.x); // Outputs '(15.0, 0.0, 0.0)'
 
 // Remove a component
 car.removeComponent<TransformComponent>();
 car.getComponent<TransformComponent>(); // Outputs error message
 ```
+The above example shows how entities work, but you'll never want to instantiate
+an entity like this. Using the `Scene` class as an interface, you can create and
+destroy entites as well as iterate through them.
+```cpp
+// Initialize scene as a smart pointer just like everything else
+auto scene = std::make_shared<Scene>();
 
+// Creation of an entity
+std::shared_ptr<Entity> car = scene->createEntity();
+unsigned int carID = car->id();
+
+// Entity access
+std::vector<std::shared_ptr<Entity>>& entities = scene->entities();
+auto sameCar = scene->getEntityByID(carID);
+
+// Deletion of an entity
+scene->destroyEntityByID(carID);
+// OR
+scene->destroyEntity(car); // Compares internal ptr addresses
+```
+Common usage of the scene class will probably look like this:
+```cpp
+for (auto entity : scene->entities()) {
+    if (entity.hasComponent<PhysicsComponent>()){
+        /* Do physics operations on all entities with physics components */
+    }
+}
+```
 <a name="events"/>
 
 ## The event system

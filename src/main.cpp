@@ -29,7 +29,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Engine sub-system includes
-#include "Entity.h"
+#include "Scene.h"
 #include "Event.h"
 #include "AudioSystem.h"
 #include "TimeInfo.h"
@@ -46,9 +46,7 @@
 
 
 #define TRACKBALL_CAM	1	// Use a trackball dev cam
-#define PHYSX_TEST		0	// Run PhysX test function
 
-void physX_test();
 
 class PlayCarSound {
 public:
@@ -79,13 +77,10 @@ int main() {
 
 	Log::debug("Starting main");
 
-#if PHYSX_TEST
-	physX_test(); // blocks main thread
-#endif
 	// Create and initialize game systems
 	auto eventManager = std::make_shared<GameEventManager>();
 	auto audioSystem  = std::make_shared<AudioSystem>();
-	
+	auto scene = std::make_shared<Scene>();
 
 	// WINDOW
 	glfwInit();
@@ -98,12 +93,12 @@ int main() {
 	Audio& defaultSound = audioSystem->loadAudio("audio/null.wav");
 	// Can also create a non-static source
 	// Non-static sources will need their positions updated each frame
-	AudioSource& car = audioSystem->createStaticSource(glm::vec3(0.0f, 0.0f, 0.0f));
+	AudioSource& carAudio = audioSystem->createStaticSource(glm::vec3(0.0f, 0.0f, 0.0f));
 	// -------------------------------------------------------------------------
 
 	// ---------------- Example Keyboard Event Registration --------------------
 	// Command to play vroom sound encapsulated in an object
-	PlayCarSound testPlayer = PlayCarSound(car, sound);
+	PlayCarSound testPlayer = PlayCarSound(carAudio, sound);
 	
 	// Register S key to broadcast a TestAudio event
 	eventManager->registerKey(
@@ -123,6 +118,9 @@ int main() {
 		<< transform->x << ", "
 		<< transform->y << ", "
 		<< transform->z << ")\n";
+
+	printf("%d\n", frank.hasComponent<TransformComponent>());
+	printf("%d\n", frank.hasComponent<PhysicsComponent>());
 	frank.removeComponent<TransformComponent>();
 	
 	// Outputs error message and returns nullptr
@@ -130,7 +128,7 @@ int main() {
 	// -------------------------------------------------------------------------
 
 	// screw gldebug
-	GLDebug::enable();
+	// GLDebug::enable();
 	glm::mat4 identity(1.0f);
 
 	// ------------------------------ Cameras ----------------------------------
@@ -289,80 +287,4 @@ int main() {
 	}
 	glfwTerminate();
 	return 0;
-}
-
-
-
-void physX_test() {
-
-    // declare variables
-    physx::PxDefaultAllocator      mDefaultAllocatorCallback;
-    physx::PxDefaultErrorCallback  mDefaultErrorCallback;
-    physx::PxDefaultCpuDispatcher* mDispatcher = NULL;
-    physx::PxTolerancesScale       mToleranceScale;
-
-    physx::PxFoundation* mFoundation = NULL;
-    physx::PxPhysics* mPhysics = NULL;
-
-    physx::PxScene* mScene = NULL;
-    physx::PxMaterial* mMaterial = NULL;
-
-    physx::PxPvd* mPvd = NULL;
-
-
-    // init physx
-    mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, mDefaultAllocatorCallback, mDefaultErrorCallback);
-    if (!mFoundation) throw("PxCreateFoundation failed!");
-    mPvd = PxCreatePvd(*mFoundation);
-    physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-    mPvd->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
-    //mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, PxTolerancesScale(),true, mPvd);
-    mToleranceScale.length = 100;        // typical length of an object
-    mToleranceScale.speed = 981;         // typical speed of an object, gravity*1s is a reasonable choice
-    mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, mToleranceScale, true, mPvd);
-    //mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, mToleranceScale);
-
-    physx::PxSceneDesc sceneDesc(mPhysics->getTolerancesScale());
-    sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
-    mDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
-    sceneDesc.cpuDispatcher = mDispatcher;
-    sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
-    mScene = mPhysics->createScene(sceneDesc);
-
-    physx::PxPvdSceneClient* pvdClient = mScene->getScenePvdClient();
-    if (pvdClient)
-    {
-        pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-        pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-        pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
-    }
-
-
-    // create simulation
-    mMaterial = mPhysics->createMaterial(0.5f, 0.5f, 0.6f);
-    physx::PxRigidStatic* groundPlane = PxCreatePlane(*mPhysics, physx::PxPlane(0, 1, 0, 50), *mMaterial);
-    mScene->addActor(*groundPlane);
-
-    float halfExtent = .5f;
-    physx::PxShape* shape = mPhysics->createShape(physx::PxBoxGeometry(halfExtent, halfExtent, halfExtent), *mMaterial);
-    physx::PxU32 size = 30;
-    physx::PxTransform t(physx::PxVec3(0));
-    for (physx::PxU32 i = 0; i < size; i++) {
-        for (physx::PxU32 j = 0; j < size - i; j++) {
-            physx::PxTransform localTm(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 + 1), 0) * halfExtent);
-            physx::PxRigidDynamic* body = mPhysics->createRigidDynamic(t.transform(localTm));
-            body->attachShape(*shape);
-            physx::PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-            mScene->addActor(*body);
-        }
-    }
-    shape->release();
-    
-
-    while (1)
-    {
-        mScene->simulate(1.0f / 60.0f);
-        mScene->fetchResults(true);
-    }
-
 }
