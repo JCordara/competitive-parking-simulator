@@ -29,6 +29,11 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Engine sub-system includes
+#include "Application.h"
+#include "Scene.h"
+#include "Application.h"
+
+#include "Entity.h"
 #include "Scene.h"
 #include "Event.h"
 #include "AudioSystem.h"
@@ -73,6 +78,35 @@ public:
 
 
 //-------------------------------
+int main(int argc, char* argv[]) {
+	appSettings settings;
+	switch (argc) {
+	case 0:
+		Log::debug("No settings file provided, will load default settings");
+		settings = defaultSettings();
+		break;
+	case 1:
+		Log::debug("Settings file provided");
+		settings = loadSettings(std::string(argv[0]));
+		break;
+	default:
+		Log::error("Number of command line arguments (" + std::to_string(argc) + ") is not recognized ");
+		return -1;
+	}
+	Log::debug("Settings successfully loaded, initializing application...");
+	Application application(settings);
+	Log::debug("Application successfully initialized, running application...");
+	int ret = application.play();
+	if(ret){
+		Log::error("Application unsuccessfully terminated");
+		return -1;
+	}
+	Log::debug("Application successfully terminated");
+	return 0;
+	/*
+#if PHYSX_TEST
+	physX_test(); // blocks main thread
+#endif
 int main() {
 
 	Log::debug("Starting main");
@@ -287,4 +321,5 @@ int main() {
 	}
 	glfwTerminate();
 	return 0;
+	*/
 }
