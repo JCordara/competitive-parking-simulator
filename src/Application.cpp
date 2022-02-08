@@ -13,7 +13,7 @@ Application::Application(appSettings& settings) : settings(settings) {
 	/* Game systems - update() every frame */
 	gameplay = std::make_shared<GameplaySystem>(scene, eventManager, audioManager);
 	physics  = std::make_shared<PhysicsSystem>(scene, eventManager, audioManager);
-	// render   = std::make_shared<RenderSystem>();
+	render   = std::make_shared<RenderSystem>(scene, eventManager, audioManager, window);
 }
 
 int Application::play() {
@@ -27,7 +27,7 @@ int Application::play() {
 
 		gameplay->update();
 		physics->update();
-		// render.update();
+		render->update();
 
 	}
 

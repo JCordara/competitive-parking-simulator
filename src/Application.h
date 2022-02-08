@@ -22,7 +22,7 @@
 #include "Framework.h"
 #include "GameplaySystem.h"
 #include "PhysicsSystem.h"
-// #include "RenderSystem.h"
+#include "RenderSystem.h"
 
 // Other stuff
 #include "Renderers.h"
@@ -49,6 +49,7 @@ public:
 	Application& operator= (Application&&) = delete;
 
 private:
+
 	appSettings settings;
 
 	/* Framework (Managers) - used by systems*/
@@ -60,7 +61,7 @@ private:
 	/* Game systems - update() every frame */
 	std::shared_ptr<GameplaySystem>    gameplay;
 	std::shared_ptr<PhysicsSystem>     physics;
-	// std::shared_ptr<RenderSystem>      render;
+	std::shared_ptr<RenderSystem>      render;
 
 };
 
