@@ -29,6 +29,8 @@
 #include <functional>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include "glm/gtc/quaternion.hpp"
 
 // Engine sub-system includes
 #include "Entity.h"
@@ -47,8 +49,10 @@
 #include "EditorCamera.h"
 
 
+
+
 #define TRACKBALL_CAM	1	// Use a trackball dev cam
-#define PHYSX_TEST		1	// Run PhysX test function
+#define PHYSX_TEST		0	// Run PhysX test function
 
 void physX_test();
 
@@ -75,6 +79,34 @@ public:
 	}
 };
 
+/** Convert PhysX::PxMat44 to glm::mat4
+ @param[in] mat4 The PhysX::PxMat44
+ @param[ou] Converted glm::mat4
+ */
+void PhysXMat4ToglmMat4(const PxMat44& mat4, glm::mat4& newMat)
+{
+
+	newMat[0][0] = mat4[0][0];
+	newMat[0][1] = mat4[0][1];
+	newMat[0][2] = mat4[0][2];
+	newMat[0][3] = mat4[0][3];
+
+	newMat[1][0] = mat4[1][0];
+	newMat[1][1] = mat4[1][1];
+	newMat[1][2] = mat4[1][2];
+	newMat[1][3] = mat4[1][3];
+
+	newMat[2][0] = mat4[2][0];
+	newMat[2][1] = mat4[2][1];
+	newMat[2][2] = mat4[2][2];
+	newMat[2][3] = mat4[2][3];
+
+	newMat[3][0] = mat4[3][0];
+	newMat[3][1] = mat4[3][1];
+	newMat[3][2] = mat4[3][2];
+	newMat[3][3] = mat4[3][3];
+
+}
 
 //-------------------------------
 int main() {
@@ -241,7 +273,11 @@ int main() {
 	// -------------------------------------------------------------------------
 
 	//---Game Loop----
+
+	initPhysics();
+	
 	while (!window.shouldClose()) {
+		
 
 		// Get current input events
 		glfwPollEvents();
@@ -252,6 +288,9 @@ int main() {
 		//Update the Time values for this frame
 		timeAccumulator += Time::delta();
 		currentTime = Time::now();
+
+		stepPhysics();
+
 
 		//----Physics loop---(Unsure how physX works with this so it might change) -------//
 		for (; timeAccumulator >= timeStepTaken; timeAccumulator -= timeStepTaken) {//Do per iteration
@@ -275,9 +314,12 @@ int main() {
 #else
 		mainRenderer.setCameraTransformations(mainCamera.getPosition(), mainCamera.getView(), mainCamera.getPerspectiveProjection);
 #endif
-		
+
+		glm::mat4 transformationPhysX;
+		PhysXMat4ToglmMat4(physx::PxMat44(gVehicle4W->getRigidDynamicActor()->getGlobalPose()),transformationPhysX);
+
 		//Attach Objects to render
-		for (auto object : sceneCubeGameObjects)	renderPipeline->attachRender(sceneRenderModels[0], object.getTransformation());
+		for (auto object : sceneCubeGameObjects)	renderPipeline->attachRender(sceneRenderModels[0], transformationPhysX);
 		for (auto object : scenePlaneGameObjects)	renderPipeline->attachRender(sceneRenderModels[1], object.getTransformation());
 		
 		//Render the output
@@ -289,6 +331,7 @@ int main() {
 		window.swapBuffers();
 
 	}
+	
 	glfwTerminate();
 	return 0;
 }

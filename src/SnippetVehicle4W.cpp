@@ -358,6 +358,20 @@ void initPhysics()
 
 void incrementDrivingMode(const PxF32 timestep)
 {
+	releaseAllControls();
+	//gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+	//startAccelerateForwardsMode();
+	gVehicleInputData.setAnalogAccel(1.0f);
+	//gVehicleInputData.setAnalogBrake(-1.0f);
+	startTurnHardLeftMode();
+	//gVehicleInputData.setDigitalSteerLeft(true);
+	//gVehicleInputData.setDigitalHandbrake(true);
+
+	//gVehicleInputData.setDigitalAccel(true);
+
+
+
+	/*
 	gVehicleModeTimer += timestep;
 	if (gVehicleModeTimer > gVehicleModeLifetime)
 	{
@@ -378,7 +392,8 @@ void incrementDrivingMode(const PxF32 timestep)
 			gVehicleOrderProgress = 0;
 			gVehicleOrderComplete = true;
 		}
-
+		
+		
 		//Start driving in the selected mode.
 		DriveMode eDriveMode = gDriveModeOrder[gVehicleOrderProgress];
 		switch (eDriveMode)
@@ -413,7 +428,7 @@ void incrementDrivingMode(const PxF32 timestep)
 		{
 			gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
 		}
-	}
+	}*/
 }
 
 void stepPhysics()
