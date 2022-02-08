@@ -16,6 +16,7 @@ public:
 
     void update();
     ~PhysicsSystem();
+    
 private:
     std::shared_ptr<Scene>             scene;
 	std::shared_ptr<GameEventManager>  eventManager;

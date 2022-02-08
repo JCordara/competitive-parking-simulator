@@ -11,11 +11,13 @@ class Scene {
 public:
 
     std::shared_ptr<Entity> createEntity();
-    bool destroyEntityByID(unsigned int entityID);
     bool destroyEntity(std::shared_ptr<Entity> doomedEntity);
-    std::shared_ptr<Entity> getEntityByID(unsigned int entityID);
 
     std::vector<std::shared_ptr<Entity>>& entities();
+    
+    bool destroyEntityByID(unsigned int entityID);
+    std::shared_ptr<Entity> getEntityByID(unsigned int entityID);
+
 
 private:
     std::vector<std::shared_ptr<Entity>> _entities;

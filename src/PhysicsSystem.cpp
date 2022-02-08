@@ -6,10 +6,13 @@ PhysicsSystem::PhysicsSystem(
     std::shared_ptr<AudioManager> audio)
     : scene(scene)
     , eventManager(event)
-    , audioManager(audio) 
-{}
+    , audioManager(audio)
+{
+    /* PhysX initialization */
+}
 
 void PhysicsSystem::update() {
+    /* PhysX per-frame updates */
     Log::debug("Physics update!");
 }
 
