@@ -10,6 +10,7 @@ We need a cool name for the game engine
      * [Audio](#audio)
    * [Game Systems](#systems)
      * [Rendering](#rendering)
+     * [Physics](#physics)
      * [Input](#input)
 <!--te-->
 
@@ -256,6 +257,11 @@ And then there are AudioDevices, but we don't talk about those.
 <a name="rendering"/>
 
 ## Rendering system
+Stub
+
+<a name="physics"/>
+
+## Physics system
 Stub
 
 <a name="input"/>
