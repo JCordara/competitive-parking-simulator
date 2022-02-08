@@ -15,7 +15,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <PhysX/PxPhysicsAPI.h>
+//PhysX Includes
+//#include <PhysX/PxPhysicsAPI.h>
+#include <SnippetVehicle4W.h>
 
 // C++ standard library includes
 #include <iostream>
@@ -46,7 +48,7 @@
 
 
 #define TRACKBALL_CAM	1	// Use a trackball dev cam
-#define PHYSX_TEST		0	// Run PhysX test function
+#define PHYSX_TEST		1	// Run PhysX test function
 
 void physX_test();
 
@@ -294,7 +296,7 @@ int main() {
 
 
 void physX_test() {
-
+	/*
     // declare variables
     physx::PxDefaultAllocator      mDefaultAllocatorCallback;
     physx::PxDefaultErrorCallback  mDefaultErrorCallback;
@@ -313,9 +315,11 @@ void physX_test() {
     // init physx
     mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, mDefaultAllocatorCallback, mDefaultErrorCallback);
     if (!mFoundation) throw("PxCreateFoundation failed!");
+
     mPvd = PxCreatePvd(*mFoundation);
     physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
     mPvd->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
+
     //mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, PxTolerancesScale(),true, mPvd);
     mToleranceScale.length = 100;        // typical length of an object
     mToleranceScale.speed = 981;         // typical speed of an object, gravity*1s is a reasonable choice
@@ -358,11 +362,22 @@ void physX_test() {
     }
     shape->release();
     
-
+	
     while (1)
     {
         mScene->simulate(1.0f / 60.0f);
         mScene->fetchResults(true);
     }
+	*/
+
+	initPhysics();
+	while (1)
+	{
+		stepPhysics();
+	}
+
+
 
 }
+
+

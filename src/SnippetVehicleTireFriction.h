@@ -25,68 +25,35 @@
 //
 // Copyright (c) 2008-2021 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
-#ifndef PXFOUNDATION_PX_H
-#define PXFOUNDATION_PX_H
+#ifndef SNIPPET_VEHICLE_TIREFRICTION_H
+#define SNIPPET_VEHICLE_TIREFRICTION_H
 
-/** \addtogroup foundation
-@{
-*/
+#include <PhysX/PxPhysicsAPI.h>
 
-#include "Physx/foundation/PxSimpleTypes.h"
-
-/** files to always include */
-#include <string.h>
-#include <stdlib.h>
-
-#if !PX_DOXYGEN
-namespace physx
+namespace snippetvehicle
 {
-#endif
 
-typedef uint32_t PxU32;
+	using namespace physx;
 
-class PxAllocatorCallback;
-class PxErrorCallback;
-struct PxErrorCode;
-class PxAssertHandler;
+	//Drivable surface types.
+	enum
+	{
+		SURFACE_TYPE_TARMAC,
+		MAX_NUM_SURFACE_TYPES
+	};
 
-class PxInputStream;
-class PxInputData;
-class PxOutputStream;
+	//Tire types.
+	enum
+	{
+		TIRE_TYPE_NORMAL = 0,
+		TIRE_TYPE_WORN,
+		MAX_NUM_TIRE_TYPES
+	};
 
-class PxVec2;
-class PxVec3;
-class PxVec4;
-class PxMat33;
-class PxMat44;
-class PxPlane;
-class PxQuat;
-class PxTransform;
-class PxBounds3;
+	PxVehicleDrivableSurfaceToTireFrictionPairs* createFrictionPairs(const PxMaterial* defaultMaterial);
 
-/** enum for empty constructor tag*/
-enum PxEMPTY
-{
-	PxEmpty
-};
+} // namespace snippetvehicle
 
-/** enum for zero constructor tag for vectors and matrices */
-enum PxZERO
-{
-	PxZero
-};
-
-/** enum for identity constructor flag for quaternions, transforms, and matrices */
-enum PxIDENTITY
-{
-	PxIdentity
-};
-
-#if !PX_DOXYGEN
-} // namespace physx
-#endif
-
-/** @} */
-#endif // #ifndef PXFOUNDATION_PX_H
+#endif //SNIPPET_VEHICLE_TIREFRICTION_H

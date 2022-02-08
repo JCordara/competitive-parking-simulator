@@ -123,7 +123,7 @@ file(GLOB SOURCES "src/*")
 
 # Create main application and link libraries
 set(APP_NAME "CompetitiveParkingSimulator")
-add_executable(${APP_NAME} "${SOURCES}")
+add_executable(${APP_NAME} "${SOURCES}" "src/SnippetVehicle4WCreate.cpp" "src/SnippetVehicle4W.h")
 
 
 # Set the "inc" directory as a system include directory (angle brackets)
