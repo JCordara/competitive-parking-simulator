@@ -19,7 +19,7 @@
 #include "Entity.h"
 #include "Scene.h"
 #include "Event.h"
-#include "AudioSystem.h"
+#include "AudioManager.h"
 #include "TimeInfo.h"
 #include "Renderers.h"
 
@@ -52,13 +52,16 @@ public:
 private:
 	appSettings settings;
 
-	std::shared_ptr<Window> window;
-	std::shared_ptr<Scene> scene;
-	std::shared_ptr<GameLogicSystem> gameLogicSystem;
-	std::shared_ptr<PhysicsSystem> physicsSystem;
-	std::shared_ptr<RenderSystem> renderSystem;
-	std::shared_ptr<AudioSystem> audioSystem;
-	std::shared_ptr<GameEventManager> eventManager;
+	/* Framework (Managers) - used by systems*/
+	std::shared_ptr<Window>            window;
+	std::shared_ptr<Scene>             scene;
+	std::shared_ptr<GameEventManager>  eventManager;
+	std::shared_ptr<AudioManager>      audioManager;
+
+	/* Game systems - update() every frame */
+	std::shared_ptr<GameplaySystem>    gameplay;
+	std::shared_ptr<PhysicsSystem>     physics;
+	std::shared_ptr<RenderSystem>      render;
 	//Any collections and/or managers need to be here
 
 };

@@ -14,9 +14,9 @@ int Application::play() {
 		// Update time-related values (fps, frame delta, etc.)
 		Time::update();
 
-		gameLogicSystem.update();
-		physicsSystem.update();
-		renderSystem.update();
+		gameplay.update();
+		physics.update();
+		render.update();
 
 	}
 	*/
