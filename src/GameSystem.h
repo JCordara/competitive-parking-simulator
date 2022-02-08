@@ -1,6 +1,8 @@
 #ifndef GAME_SYSTEM_H
 #define GAME_SYSTEM_H
 
+#include "Framework.h"
+
 class GameSystem {
 public:
     virtual void update() = 0;

@@ -1,34 +1,33 @@
 #pragma once
-#include <string>
-// C++ standard library includes
-#include <iostream>
-#include <list>
-#include <string>
-#include <vector>
-#include <limits>
-#include <math.h>
-#include <functional>
+
+// Build glew library statically
+#define GLEW_STATIC
+
+// Use header only FMT library to avoid unnecessary shared libraries
+#define FMT_HEADER_ONLY
+
+// For math functions
+#define _USE_MATH_DEFINES
+
+// External library includes
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// Engine sub-system includes
-#include "Application.h"
-#include "Scene.h"
-#include "Application.h"
+// C++ standard library includes
+#include "stdafx.h"
 
-#include "Entity.h"
-#include "Scene.h"
-#include "Event.h"
-#include "AudioManager.h"
-#include "TimeInfo.h"
-#include "Renderers.h"
+// Engine sub-system includes
+#include "Framework.h"
+#include "GameplaySystem.h"
+#include "PhysicsSystem.h"
+// #include "RenderSystem.h"
 
 // Other stuff
-#include "GameCallback.h"
-#include "Log.h"
+#include "Renderers.h"
 #include "GLDebug.h"
 #include "GUI.h"
-#include "Window.h"
 #include "Shader.h"
 #include "EditorCamera.h"
 
@@ -53,16 +52,15 @@ private:
 	appSettings settings;
 
 	/* Framework (Managers) - used by systems*/
-	std::shared_ptr<Window>            window;
 	std::shared_ptr<Scene>             scene;
 	std::shared_ptr<GameEventManager>  eventManager;
 	std::shared_ptr<AudioManager>      audioManager;
+	std::shared_ptr<Window>            window;
 
 	/* Game systems - update() every frame */
 	std::shared_ptr<GameplaySystem>    gameplay;
 	std::shared_ptr<PhysicsSystem>     physics;
-	std::shared_ptr<RenderSystem>      render;
-	//Any collections and/or managers need to be here
+	// std::shared_ptr<RenderSystem>      render;
 
 };
 

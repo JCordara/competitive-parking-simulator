@@ -16,7 +16,7 @@
 
 // Dependencies are linked through this class
 // Event.h knows all
-#include "AudioSystem.h"
+#include "AudioManager.h"
 
 namespace Events {
     extern Event<void> GameStart;
