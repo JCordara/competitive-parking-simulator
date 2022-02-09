@@ -180,32 +180,39 @@ VehicleDesc initVehicleDesc()
 
 void startAccelerateForwardsMode()
 {
-	gVehicleInputData.setDigitalBrake(false);
+	if (gVehicleInputData.getDigitalBrake() == false) {
+		printf("yes");
+		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 
-	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+		if (gMimicKeyInputs)
+		{
+			gVehicleInputData.setDigitalBrake(false);
+			gVehicleInputData.setDigitalAccel(true);
+		}
+		else
+		{
+			gVehicleInputData.setAnalogAccel(1.0f);
+		}
+
+	}
 	
-	if (gMimicKeyInputs)
-	{
-		gVehicleInputData.setDigitalAccel(true);
-	}
-	else
-	{
-		gVehicleInputData.setAnalogAccel(1.0f);
-	}
 }
 
 void startAccelerateReverseMode()
 {
-	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+	if (gVehicleInputData.getDigitalHandbrake() == false) {
+		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
 
-	if (gMimicKeyInputs)
-	{
-		gVehicleInputData.setDigitalAccel(true);
+		if (gMimicKeyInputs)
+		{
+			gVehicleInputData.setDigitalAccel(true);
+		}
+		else
+		{
+			gVehicleInputData.setAnalogAccel(1.0f);
+		}
 	}
-	else
-	{
-		gVehicleInputData.setAnalogAccel(1.0f);
-	}
+	
 }
 
 void startBrakeMode()
@@ -220,37 +227,89 @@ void startBrakeMode()
 	}
 }
 
-void startTurnHardLeftMode()
+void releaseBrakeMode()
 {
 	if (gMimicKeyInputs)
 	{
-		//gVehicleInputData.setDigitalAccel(true);
-		gVehicleInputData.setDigitalSteerLeft(true);
+		gVehicleInputData.setDigitalAccel(false);
+		gVehicleInputData.setDigitalBrake(false);
 	}
 	else
 	{
-		gVehicleInputData.setAnalogSteer(-1.0f);
+		gVehicleInputData.setAnalogBrake(-1.0f);
 	}
+}
+
+void startTurnHardLeftMode()
+{
+	if (gVehicleInputData.getDigitalHandbrake() == false) {
+		if (gMimicKeyInputs)
+		{
+			//gVehicleInputData.setDigitalAccel(true);
+			gVehicleInputData.setDigitalSteerLeft(true);
+		}
+		else
+		{
+			gVehicleInputData.setAnalogSteer(-1.0f);
+		}
+	}
+	
 }
 
 void startTurnHardRightMode()
 {
+	if (gVehicleInputData.getDigitalHandbrake() == false) {
+		if (gMimicKeyInputs)
+		{
+			//gVehicleInputData.setDigitalAccel(true);
+			gVehicleInputData.setDigitalSteerRight(true);
+		}
+		else
+		{
+			gVehicleInputData.setAnalogSteer(1.0f);
+		}
+	}
+	
+}
+
+void startHandbrake()
+{
+	if (gVehicleInputData.getDigitalHandbrake() == false) {
+		if (gMimicKeyInputs)
+		{
+			//gVehicleInputData.setDigitalSteerLeft(true);
+			gVehicleInputData.setDigitalHandbrake(true);
+		}
+		else
+		{
+			//gVehicleInputData.setAnalogSteer(-1.0f);
+			gVehicleInputData.setAnalogHandbrake(1.0f);
+		}
+	}
+	
+}
+
+void releaseHandbrake()
+{
 	if (gMimicKeyInputs)
 	{
-		//gVehicleInputData.setDigitalAccel(true);
-		gVehicleInputData.setDigitalSteerRight(true);
+		//gVehicleInputData.setDigitalSteerLeft(true);
+		gVehicleInputData.setDigitalHandbrake(false);
 	}
 	else
 	{
-		gVehicleInputData.setAnalogSteer(1.0f);
+		//gVehicleInputData.setAnalogSteer(-1.0f);
+		gVehicleInputData.setAnalogHandbrake(-11.0f);
 	}
 }
 
+
+/*
 void startHandbrakeTurnLeftMode()
 {
 	if (gMimicKeyInputs)
 	{
-		gVehicleInputData.setDigitalSteerLeft(true);
+		//gVehicleInputData.setDigitalSteerLeft(true);
 		gVehicleInputData.setDigitalHandbrake(true);
 	}
 	else
@@ -272,21 +331,21 @@ void startHandbrakeTurnRightMode()
 		gVehicleInputData.setAnalogSteer(1.0f);
 		gVehicleInputData.setAnalogHandbrake(1.0f);
 	}
-}
+}*/
 
 void releaseDriveControls()
 {
 	if (gMimicKeyInputs)
 	{
 		gVehicleInputData.setDigitalAccel(false);
-		gVehicleInputData.setDigitalBrake(false);
-		gVehicleInputData.setDigitalHandbrake(false);
+		//gVehicleInputData.setDigitalBrake(false);
+		//gVehicleInputData.setDigitalHandbrake(false);
 	}
 	else
 	{
 		gVehicleInputData.setAnalogAccel(0.0f);
-		gVehicleInputData.setAnalogBrake(0.0f);
-		gVehicleInputData.setAnalogHandbrake(0.0f);
+		//gVehicleInputData.setAnalogBrake(0.0f);
+		//gVehicleInputData.setAnalogHandbrake(0.0f);
 	}
 }
 

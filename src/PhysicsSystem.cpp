@@ -10,6 +10,7 @@ PhysicsSystem::PhysicsSystem(
 {
     /* PhysX initialization */
     initPhysics();
+	gVehicleInputData.setDigitalBrake(false);
 }
 
 void PhysicsSystem::update() {
