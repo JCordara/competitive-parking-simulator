@@ -24,10 +24,10 @@ const double default_cam_init_yaw         = 0.0;
 const double default_cam_init_pitch       = 0.0;
 
 // Camera move speed multiplier
-const double default_cam_init_speed       = 0.05;
+const double default_cam_init_speed       = 0.5;
 
 // Mouse sensitivity multiplier
-const double default_cam_init_sensitivity = 4.5;
+const double default_cam_init_sensitivity = 8.0;
 
 // Initial zoom amount (clamped from 1 - 10)
 const double default_cam_init_zoom        = 5.0;

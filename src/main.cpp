@@ -140,10 +140,10 @@ int main() {
 	PlayCarSound testPlayer = PlayCarSound(car, sound);
 	
 	// Register S key to broadcast a TestAudio event
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::TestAudio), 
-		GLFW_KEY_S, GLFW_PRESS, 0
-	);
+	// eventManager->registerKey(
+	// 	bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::TestAudio), 
+	// 	GLFW_KEY_S, GLFW_PRESS, 0
+	// );
 	// -------------------------------------------------------------------------
 	
 
@@ -164,7 +164,7 @@ int main() {
 	// -------------------------------------------------------------------------
 
 	// screw gldebug
-	GLDebug::enable();
+	// GLDebug::enable();
 	glm::mat4 identity(1.0f);
 
 	// ------------------------------ Cameras ----------------------------------
@@ -272,7 +272,60 @@ int main() {
 	Events::TestAudioParameter.broadcast(defaultSound);
 	// -------------------------------------------------------------------------
 
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::MoveForward),
+		GLFW_KEY_W, GLFW_PRESS, 0
+	);
+
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::MoveBackward),
+		GLFW_KEY_S, GLFW_PRESS, 0
+	);
+
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::MoveLeft),
+		GLFW_KEY_A, GLFW_PRESS, 0
+	);
+
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::MoveRight),
+		GLFW_KEY_D, GLFW_PRESS, 0
+	);
+
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseControls),
+		GLFW_KEY_W, GLFW_RELEASE, 0
+	);
+
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseControls),
+		GLFW_KEY_S, GLFW_RELEASE, 0
+	);
+
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseControls),
+		GLFW_KEY_A, GLFW_RELEASE, 0
+	);
+
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseControls),
+		GLFW_KEY_D, GLFW_RELEASE, 0
+	);
+	
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::Brake),
+		GLFW_KEY_SPACE, GLFW_PRESS, 0
+	);
+
+	Events::MoveForward.registerHandler<startAccelerateForwardsMode>();
+	Events::MoveBackward.registerHandler<startAccelerateReverseMode>();
+	Events::MoveLeft.registerHandler<startTurnHardLeftMode>();
+	Events::MoveRight.registerHandler<startTurnHardRightMode>();
+	Events::Brake.registerHandler<startBrakeMode>();
+	Events::ReleaseControls.registerHandler<releaseAllControls>();
+
 	//---Game Loop----
+
 
 	initPhysics();
 	
@@ -412,6 +465,7 @@ void physX_test() {
         mScene->fetchResults(true);
     }
 	*/
+
 
 	initPhysics();
 	while (1)
