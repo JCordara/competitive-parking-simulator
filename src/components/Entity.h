@@ -22,7 +22,11 @@ using std::dynamic_pointer_cast;             // Downcast smart pointers
  */
 class Entity {
 public:
+
     Entity();
+
+    // Return this entity's unique ID
+    unsigned int id() { return entityID; }
     
     template<class C, class... Args>    // Variable argument length
     enable_if_t<is_base_of_v<BaseComponent, C>, bool> // Return bool
@@ -39,14 +43,15 @@ public:
     }
     
     template<class C>   // Same deal as above but no variable arguments
-    enable_if_t<is_base_of_v<BaseComponent, C>, bool> removeComponent() {
+    enable_if_t<is_base_of_v<BaseComponent, C>, bool> 
+    removeComponent() {
         // Remove component from map
         size_t numErased = components.erase(C::getType());
         return static_cast<bool>(numErased);
     }
 
     template<class C>
-    enable_if_t<is_base_of_v<BaseComponent, C>, shared_ptr<C>>
+    enable_if_t<is_base_of_v<BaseComponent, C>, shared_ptr<C>> // Return a ptr to the component
     getComponent() {
         try {
             return dynamic_pointer_cast<C>(components.at(C::getType()));
@@ -60,10 +65,22 @@ public:
         }
     }
 
+    template<class C>
+    enable_if_t<is_base_of_v<BaseComponent, C>, bool>
+    hasComponent() {
+        return static_cast<bool>(components.count(C::getType()));
+    }
+
 
 private:
     // Structure containing an entities components
     unordered_map<ComponentEnum, shared_ptr<BaseComponent>> components;
+
+    // Unique ID
+    unsigned int entityID;
+
+    // Instance counter used for unique IDs
+    static unsigned int instanceCounter;
 };
 
 #endif // ENTITY_H

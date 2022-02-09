@@ -22,11 +22,11 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 
-#------------------------------- AudioSystem -----------------------------------
-# Build AudioSystem as a separate library
+#------------------------------- AudioManager -----------------------------------
+# Build AudioManager as a separate library
 
 add_subdirectory(src/audio)
-list(APPEND LIBRARIES AudioSystem)
+list(APPEND LIBRARIES AudioManager)
 
 
 #------------------------- Entities and Components -----------------------------
@@ -123,7 +123,7 @@ file(GLOB SOURCES "src/*")
 
 # Create main application and link libraries
 set(APP_NAME "CompetitiveParkingSimulator")
-add_executable(${APP_NAME} "${SOURCES}" "src/SnippetVehicle4WCreate.cpp" "src/SnippetVehicle4W.h")
+add_executable(${APP_NAME} "${SOURCES}")
 
 
 # Set the "inc" directory as a system include directory (angle brackets)
