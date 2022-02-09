@@ -33,6 +33,8 @@ namespace Events {
     extern Event<void> ReleaseD;
     extern Event<void> PressSpace;
     extern Event<void> ReleaseSpace;
+	extern Event<void> ReleaseLeftShift;
+	extern Event<void> PressLeftShift;
 };
 
 #endif // EVENT_H

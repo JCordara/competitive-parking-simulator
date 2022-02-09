@@ -14,3 +14,5 @@ Event<void> Events::ReleaseS;
 Event<void> Events::ReleaseD;
 Event<void> Events::PressSpace;
 Event<void> Events::ReleaseSpace;
+Event<void> Events::ReleaseLeftShift;
+Event<void> Events::PressLeftShift;

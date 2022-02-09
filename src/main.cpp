@@ -321,6 +321,16 @@ int main() {
 		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseSpace),
 		GLFW_KEY_SPACE, GLFW_RELEASE, 0
 	);
+	
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::PressLeftShift),
+		GLFW_KEY_LEFT_SHIFT, GLFW_PRESS, 0
+	);
+	
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseLeftShift),
+		GLFW_KEY_LEFT_SHIFT, GLFW_RELEASE, 0
+	);
 
 	/* Bind functions here */
 	Events::PressW.registerHandler<startAccelerateForwardsMode>();
@@ -336,13 +346,16 @@ int main() {
 	Events::ReleaseD.registerHandler<releaseRightTurnControls>();
 
 	Events::PressSpace.registerHandler<startBrakeMode>();
-	Events::ReleaseSpace.registerHandler<startBrakeMode>();
+	Events::ReleaseSpace.registerHandler<releaseBrakeMode>();
+
+	Events::PressLeftShift.registerHandler<startHandbrake>();
+	Events::ReleaseLeftShift.registerHandler<releaseHandbrake>();
 
 	//---Game Loop----
 
 
 	initPhysics();
-	
+	gVehicleInputData.setDigitalBrake(false);
 	while (!window.shouldClose()) {
 		
 
