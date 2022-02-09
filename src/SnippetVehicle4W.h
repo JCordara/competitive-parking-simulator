@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <stdlib>
 
 #include <PhysX/PxPhysicsAPI.h>
 
