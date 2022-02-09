@@ -301,13 +301,14 @@ void releaseHandbrake()
 {
 	if (gMimicKeyInputs)
 	{
+		gVehicleInputData.setDigitalAccel(false);
 		//gVehicleInputData.setDigitalSteerLeft(true);
 		gVehicleInputData.setDigitalHandbrake(false);
 	}
 	else
 	{
 		//gVehicleInputData.setAnalogSteer(-1.0f);
-		gVehicleInputData.setAnalogHandbrake(-11.0f);
+		gVehicleInputData.setAnalogHandbrake(-1.0f);
 	}
 }
 
@@ -515,6 +516,9 @@ void initPhysics()
 	gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
 	gScene->addActor(*gVehicle4W->getRigidDynamicActor());
 
+	//Create Box
+	PxRigidDynamic* box1 = NULL; //actor
+	
 	//Set the vehicle to rest in first gear.
 	//Set the vehicle to use auto-gears.
 	gVehicle4W->setToRestState();

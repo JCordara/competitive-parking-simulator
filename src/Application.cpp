@@ -193,6 +193,18 @@ Application::Application(appSettings& settings)
 		)
 	);
 
+
+
+	CarObjects.push_back(
+		GameObject(
+			0,
+			-1,
+			glm::translate(
+				identity,
+				glm::vec3(0.0f, 0.0f, 0.0f)
+			)
+		)
+	);
 	// ---------------------------- Time stuff ---------------------------------
 	Time::init();
 	timeAccumulator = 0.0;
@@ -333,7 +345,8 @@ int Application::play() {
 		physics->PhysXMat4ToglmMat4(physx::PxMat44(gVehicle4W->getRigidDynamicActor()->getGlobalPose()),transformationPhysX);
 
 		//Attach Objects to render
-		for (auto object : sceneCubeGameObjects)	renderPipeline->attachRender(sceneRenderModels[0], transformationPhysX);
+		for (auto object : sceneCubeGameObjects)	renderPipeline->attachRender(sceneRenderModels[0], object.getTransformation());
+		renderPipeline->attachRender(sceneRenderModels[0], CarObjects[0].getTransformation() * transformationPhysX);
 		for (auto object : scenePlaneGameObjects)	renderPipeline->attachRender(sceneRenderModels[1], object.getTransformation());
 		
 		//Render the output

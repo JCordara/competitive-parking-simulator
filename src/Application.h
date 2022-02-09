@@ -74,6 +74,7 @@ private:
 	std::shared_ptr<AmbientLight> ambientLight;
 	std::vector<std::shared_ptr<Model>> sceneRenderModels;
 	std::vector<GameObject> sceneCubeGameObjects;
+	std::vector<GameObject> CarObjects;
 	std::vector<GameObject> scenePlaneGameObjects;
 	std::shared_ptr<GUI> gui;
 
