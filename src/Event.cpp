@@ -9,4 +9,5 @@ Event<void> Events::MoveBackward;
 Event<void> Events::MoveLeft;
 Event<void> Events::MoveRight;
 Event<void> Events::Brake;
-Event<void> Events::ReleaseControls;
+Event<void> Events::ReleaseDriveControls;
+Event<void> Events::ReleaseTurnControls;

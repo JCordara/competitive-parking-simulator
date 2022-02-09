@@ -28,7 +28,8 @@ namespace Events {
     extern Event<void> MoveLeft;
     extern Event<void> MoveRight;
     extern Event<void> Brake;
-    extern Event<void> ReleaseControls;
+    extern Event<void> ReleaseDriveControls;
+    extern Event<void> ReleaseTurnControls;
 };
 
 #endif // EVENT_H
