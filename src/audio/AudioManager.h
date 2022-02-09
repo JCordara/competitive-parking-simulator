@@ -23,11 +23,11 @@
 #include <memory>   // Smart pointers
 #include <iostream> // Degubbing
 
-class AudioSystem {
+class AudioManager {
 
 public:
 
-    AudioSystem();
+    AudioManager();
 
     Audio& loadAudio(std::string filepath);
 
@@ -50,13 +50,13 @@ public:
     AudioDevice& getDevice(int deviceID);
 
     // ----- Rule of 5 Singleton deletions -----
-    AudioSystem(const AudioSystem&) = delete;
-    AudioSystem(AudioSystem&&) = delete;
-    AudioSystem& operator=(const AudioSystem&) = delete;
-    AudioSystem& operator=(AudioSystem&&) = delete;
+    AudioManager(const AudioManager&) = delete;
+    AudioManager(AudioManager&&) = delete;
+    AudioManager& operator=(const AudioManager&) = delete;
+    AudioManager& operator=(AudioManager&&) = delete;
     
     // Public destructor
-    ~AudioSystem();
+    ~AudioManager();
 
 private:
 
