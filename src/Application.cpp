@@ -267,10 +267,10 @@ Application::Application(appSettings& settings)
 
 	/* Bind functions here */
 	Events::PressW.registerHandler<startAccelerateForwardsMode>();
-	Events::ReleaseW.registerHandler<releaseDriveControls>();
+	Events::ReleaseW.registerHandler<releaseForwardDriveControls>();
 
 	Events::PressS.registerHandler<startAccelerateReverseMode>();
-	Events::ReleaseS.registerHandler<releaseDriveControls>();
+	Events::ReleaseS.registerHandler<releaseReverseDriveControls>();
 
 	Events::PressA.registerHandler<startTurnHardLeftMode>();
 	Events::ReleaseA.registerHandler<releaseLeftTurnControls>();
