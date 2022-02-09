@@ -303,12 +303,12 @@ int main() {
 	);
 
 	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseTurnControls),
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseLeftTurnControls),
 		GLFW_KEY_A, GLFW_RELEASE, 0
 	);
 
 	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseTurnControls),
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseRightTurnControls),
 		GLFW_KEY_D, GLFW_RELEASE, 0
 	);
 	
@@ -323,7 +323,8 @@ int main() {
 	Events::MoveRight.registerHandler<startTurnHardRightMode>();
 	Events::Brake.registerHandler<startBrakeMode>();
 	Events::ReleaseDriveControls.registerHandler<releaseDriveControls>();
-	Events::ReleaseTurnControls.registerHandler<releaseTurnControls>();
+	Events::ReleaseLeftTurnControls.registerHandler<releaseLeftTurnControls>();
+	Events::ReleaseRightTurnControls.registerHandler<releaseRightTurnControls>();
 
 	//---Game Loop----
 
