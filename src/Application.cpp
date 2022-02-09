@@ -135,7 +135,7 @@ Application::Application(appSettings& settings)
 		std::make_shared<Model>("models/Test1.obj", glm::vec3(1.0, 1.0, 1.0))
 	);
 	sceneRenderModels.push_back(
-		std::make_shared<Model>("models/Test2_M.obj", glm::vec3(1.0, 0.0, 1.0))
+		std::make_shared<Model>("models/smileplane.obj", glm::vec3(1.0, 0.0, 1.0))
 	);
 
 	//------Objects
@@ -340,9 +340,11 @@ int Application::play() {
 		glm::mat4 transformationPhysX;
 		physics->PhysXMat4ToglmMat4(physx::PxMat44(gVehicle4W->getRigidDynamicActor()->getGlobalPose()),transformationPhysX);
 
+		
+
 		//Attach Objects to render
 		for (auto object : sceneCubeGameObjects)	renderPipeline->attachRender(sceneRenderModels[0], transformationPhysX);
-		for (auto object : scenePlaneGameObjects)	renderPipeline->attachRender(sceneRenderModels[1], object.getTransformation());
+		for (auto object : scenePlaneGameObjects)	renderPipeline->attachRender(sceneRenderModels[1], glm::scale(object.getTransformation(), glm::vec3(20,20,20)));
 		
 		//Render the output
 		renderPipeline->executeRender();
