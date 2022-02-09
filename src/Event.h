@@ -23,14 +23,16 @@ namespace Events {
     extern Event<void> TestAudio;
     extern Event<Audio&> TestAudioParameter;
 
-    extern Event<void> MoveForward;
-    extern Event<void> MoveBackward;
-    extern Event<void> MoveLeft;
-    extern Event<void> MoveRight;
-    extern Event<void> Brake;
-    extern Event<void> ReleaseDriveControls;
-    extern Event<void> ReleaseLeftTurnControls;
-    extern Event<void> ReleaseRightTurnControls;
+    extern Event<void> PressW;
+    extern Event<void> PressA;
+    extern Event<void> PressS;
+    extern Event<void> PressD;
+    extern Event<void> ReleaseW;
+    extern Event<void> ReleaseA;
+    extern Event<void> ReleaseS;
+    extern Event<void> ReleaseD;
+    extern Event<void> PressSpace;
+    extern Event<void> ReleaseSpace;
 };
 
 #endif // EVENT_H

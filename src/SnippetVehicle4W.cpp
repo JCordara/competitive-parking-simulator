@@ -229,7 +229,6 @@ void startTurnHardLeftMode()
 	}
 	else
 	{
-		gVehicleInputData.setAnalogAccel(true);
 		gVehicleInputData.setAnalogSteer(-1.0f);
 	}
 }
@@ -243,7 +242,6 @@ void startTurnHardRightMode()
 	}
 	else
 	{
-		gVehicleInputData.setAnalogAccel(1.0f);
 		gVehicleInputData.setAnalogSteer(1.0f);
 	}
 }
