@@ -180,7 +180,11 @@ VehicleDesc initVehicleDesc()
 
 void startAccelerateForwardsMode()
 {
-	if (gVehicleInputData.getDigitalBrake() == false) {
+	// If accel is already true, S was pushed and not released, stop moving
+	if (gVehicleInputData.getDigitalAccel() == true) {
+		gVehicleInputData.setDigitalAccel(false);
+	}
+	else if (gVehicleInputData.getDigitalBrake() == false) {
 		printf("yes");
 		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 
@@ -200,7 +204,11 @@ void startAccelerateForwardsMode()
 
 void startAccelerateReverseMode()
 {
-	if (gVehicleInputData.getDigitalHandbrake() == false) {
+	// If accel is already true, W was pushed and not released, stop moving
+	if (gVehicleInputData.getDigitalAccel() == true) {
+		gVehicleInputData.setDigitalAccel(false);
+	}
+	else if (gVehicleInputData.getDigitalHandbrake() == false) {
 		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
 
 		if (gMimicKeyInputs)
@@ -333,6 +341,53 @@ void startHandbrakeTurnRightMode()
 	}
 }*/
 
+void releaseForwardDriveControls() {
+	// If accel is already false, S was already pressed - Only way for accel to be false while W was pressed
+	// If false on a release key event that means both keys were pressed, removing W while both are pressed means go reverse
+	if (gVehicleInputData.getDigitalAccel() == false) {
+		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+		gVehicleInputData.setDigitalAccel(true);
+	}
+	else {
+		if (gMimicKeyInputs)
+		{
+			gVehicleInputData.setDigitalAccel(false);
+			//gVehicleInputData.setDigitalBrake(false);
+			//gVehicleInputData.setDigitalHandbrake(false);
+		}
+		else
+		{
+			gVehicleInputData.setAnalogAccel(0.0f);
+			//gVehicleInputData.setAnalogBrake(0.0f);
+			//gVehicleInputData.setAnalogHandbrake(0.0f);
+		}
+	}
+
+}
+void releaseReverseDriveControls() {
+	// If accel is already false, W was already pressed - Only way for accel to be false while S was pressed
+	// If false on a release key event that means both keys were pressed, removing S while both are pressed means go forwards
+	if (gVehicleInputData.getDigitalAccel() == false) {
+		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+		gVehicleInputData.setDigitalAccel(true);
+	}
+	else {
+		if (gMimicKeyInputs)
+		{
+			gVehicleInputData.setDigitalAccel(false);
+			//gVehicleInputData.setDigitalBrake(false);
+			//gVehicleInputData.setDigitalHandbrake(false);
+		}
+		else
+		{
+			gVehicleInputData.setAnalogAccel(0.0f);
+			//gVehicleInputData.setAnalogBrake(0.0f);
+			//gVehicleInputData.setAnalogHandbrake(0.0f);
+		}
+	}
+
+}
+/* DEPRECATED
 void releaseDriveControls()
 {
 	if (gMimicKeyInputs)
@@ -348,6 +403,7 @@ void releaseDriveControls()
 		//gVehicleInputData.setAnalogHandbrake(0.0f);
 	}
 }
+*/
 
 void releaseLeftTurnControls()
 {
@@ -420,6 +476,37 @@ void initPhysics()
 	PxFilterData groundPlaneSimFilterData(COLLISION_FLAG_GROUND, COLLISION_FLAG_GROUND_AGAINST, 0, 0);
 	gGroundPlane = createDrivablePlane(groundPlaneSimFilterData, gMaterial, gPhysics);
 	gScene->addActor(*gGroundPlane);
+
+	/*
+	//Section for loading a heightmap as a drivable surface
+	//some code gotten from https://gamedev.stackexchange.com/questions/86186/how-to-load-and-render-physx-3-3-heightfield
+	int numRows = 16; int numCols = 16; //Example numbers, will be height map dimensions I believe
+	// numRows & numCols are predifined
+	// Putting malloc though original example had alloc, could not find the function
+	PxHeightFieldSample* samples = (PxHeightFieldSample*)malloc(sizeof(PxHeightFieldSample) * (numRows * numCols));
+	//To tell the system the number of sampled heights in each direction, use a descriptor to instantiate a PxHeightField object:
+	PxHeightFieldDesc hfDesc;
+	hfDesc.format = PxHeightFieldFormat::eS16_TM;
+	hfDesc.nbColumns = numCols;
+	hfDesc.nbRows = numRows;
+	hfDesc.samples.data = samples;
+	hfDesc.samples.stride = sizeof(PxHeightFieldSample);
+	PxHeightField* aHeightField = gCooking->createHeightField(hfDesc, gPhysics->getPhysicsInsertionCallback());
+	//The row and column scales tell the system how far apart the sampled points lie in the associated direction
+	//The height scale scales the integer height values to a floating point range
+	PxHeightFieldGeometry hfGeom(aHeightField, PxMeshGeometryFlags(), heightScale, rowScale, colScale);
+	//The variant of createExclusiveShape() used here specifies an array of materials for the height field, which will be indexed by
+	//the material indices of each cell to resolve collisions with that cell. The single-material variant may be used instead, but
+	//the height field material indices must all be a single value or the special value eHOLE.
+	// Actor might be a PxRigidStatic*??
+	// PxRigidActor& actor, const PxGeometry& geometry, PxMaterial*const* materials, PxU16 materialCount,PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE | PxShapeFlag::eSIMULATION_SHAPE)
+	PxTransform pose(PxVec3(-((PxReal)numRows * rowScale) / 2.0f, 0.0f, -((PxReal)numCols * colScale) / 2.0f), PxQuat(PxIdentity));
+	PxRigidActor* hf = gPhysics->createRigidStatic(pose);
+	PxShape* aHeightFieldShape = PxRigidActorExt::createExclusiveShape(*hf, hfGeom, *gMaterial);
+	PxFilterData qryFilterData2;
+	setupDrivableSurface(qryFilterData2);
+	aHeightFieldShape->setQueryFilterData(qryFilterData2);
+	*/
 
 	//Create a vehicle that will drive on the plane.
 	VehicleDesc vehicleDesc = initVehicleDesc();

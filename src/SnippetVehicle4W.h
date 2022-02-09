@@ -88,3 +88,5 @@ void incrementDrivingMode(const PxF32 timestep);
 void stepPhysics();
 void cleanupPhysics();
 void keyPress(unsigned char key, const PxTransform& camera);
+void releaseForwardDriveControls();
+void releaseReverseDriveControls();
