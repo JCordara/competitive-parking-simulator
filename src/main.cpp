@@ -317,14 +317,27 @@ int main() {
 		GLFW_KEY_SPACE, GLFW_PRESS, 0
 	);
 
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::HandBrake),
+		GLFW_KEY_LEFT_SHIFT, GLFW_PRESS, 0
+	);
+
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseHandBrake),
+		GLFW_KEY_LEFT_SHIFT, GLFW_RELEASE, 0
+	);
+
 	Events::MoveForward.registerHandler<startAccelerateForwardsMode>();
 	Events::MoveBackward.registerHandler<startAccelerateReverseMode>();
 	Events::MoveLeft.registerHandler<startTurnHardLeftMode>();
 	Events::MoveRight.registerHandler<startTurnHardRightMode>();
 	Events::Brake.registerHandler<startBrakeMode>();
+	Events::HandBrake.registerHandler<startHandbrakeTurnLeftMode()>;
 	Events::ReleaseDriveControls.registerHandler<releaseDriveControls>();
 	Events::ReleaseLeftTurnControls.registerHandler<releaseLeftTurnControls>();
 	Events::ReleaseRightTurnControls.registerHandler<releaseRightTurnControls>();
+	Events::ReleaseHandBrake.registerHandler<releaseHandBrakeControls>();
+
 
 	//---Game Loop----
 

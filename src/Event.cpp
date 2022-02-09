@@ -12,3 +12,5 @@ Event<void> Events::Brake;
 Event<void> Events::ReleaseDriveControls;
 Event<void> Events::ReleaseLeftTurnControls;
 Event<void> Events::ReleaseRightTurnControls;
+Event<void> HandBrake;
+Event<void> ReleaseHandBrake;

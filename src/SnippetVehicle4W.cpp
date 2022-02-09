@@ -292,6 +292,18 @@ void releaseDriveControls()
 	}
 }
 
+void releaseHandBrakeControls()
+{
+	if (gMimicKeyInputs)
+	{
+		gVehicleInputData.setDigitalHandbrake(false);
+	}
+	else
+	{
+		gVehicleInputData.setAnalogHandbrake(0.0f);
+	}
+}
+
 void releaseLeftTurnControls()
 {
 	if (gMimicKeyInputs)
