@@ -330,10 +330,10 @@ int main() {
 	Events::ReleaseS.registerHandler<releaseDriveControls>();
 
 	Events::PressA.registerHandler<startTurnHardLeftMode>();
-	Events::ReleaseA.registerHandler<releaseRightTurnControls>();
+	Events::ReleaseA.registerHandler<releaseLeftTurnControls>();
 
 	Events::PressD.registerHandler<startTurnHardRightMode>();
-	Events::ReleaseD.registerHandler<releaseLeftTurnControls>();
+	Events::ReleaseD.registerHandler<releaseRightTurnControls>();
 
 	Events::PressSpace.registerHandler<startBrakeMode>();
 	Events::ReleaseSpace.registerHandler<startBrakeMode>();
