@@ -224,7 +224,7 @@ void startTurnHardLeftMode()
 {
 	if (gMimicKeyInputs)
 	{
-		gVehicleInputData.setDigitalAccel(true);
+		//gVehicleInputData.setDigitalAccel(true);
 		gVehicleInputData.setDigitalSteerLeft(true);
 	}
 	else
@@ -238,7 +238,7 @@ void startTurnHardRightMode()
 {
 	if (gMimicKeyInputs)
 	{
-		gVehicleInputData.setDigitalAccel(true);
+		//gVehicleInputData.setDigitalAccel(true);
 		gVehicleInputData.setDigitalSteerRight(true);
 	}
 	else
@@ -252,7 +252,7 @@ void startHandbrakeTurnLeftMode()
 {
 	if (gMimicKeyInputs)
 	{
-		gVehicleInputData.setDigitalSteerLeft(true);
+		//gVehicleInputData.setDigitalSteerLeft(true);
 		gVehicleInputData.setDigitalHandbrake(true);
 	}
 	else
