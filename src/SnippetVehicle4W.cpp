@@ -518,7 +518,17 @@ void initPhysics()
 
 	//Create Box
 	PxRigidDynamic* box1 = NULL; //actor
-	
+	/*
+	PxShape* shape = gPhysics->createShape(PxBoxGeometry(0.5, 0.5, 0.5), *gMaterial);
+	PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
+	PxRigidDynamic* body = gPhysics->createRigidDynamic(t.transform(localTm));
+	body->attachShape(*shape);
+	PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+	gScene->addActor(*body);*/
+
+
+	//shape->release();
+
 	//Set the vehicle to rest in first gear.
 	//Set the vehicle to use auto-gears.
 	gVehicle4W->setToRestState();
