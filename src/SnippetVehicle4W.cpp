@@ -135,7 +135,7 @@ PxF32					gVehicleModeLifetime = 4.0f;
 PxF32					gVehicleModeTimer = 0.0f;
 PxU32					gVehicleOrderProgress = 0;
 bool					gVehicleOrderComplete = false;
-bool					gMimicKeyInputs = false;
+bool					gMimicKeyInputs = true;
 
 VehicleDesc initVehicleDesc()
 {
@@ -180,6 +180,10 @@ VehicleDesc initVehicleDesc()
 
 void startAccelerateForwardsMode()
 {
+	gVehicleInputData.setDigitalBrake(false);
+
+	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+	
 	if (gMimicKeyInputs)
 	{
 		gVehicleInputData.setDigitalAccel(true);
@@ -272,7 +276,6 @@ void startHandbrakeTurnRightMode()
 	}
 }
 
-
 void releaseAllControls()
 {
 	if (gMimicKeyInputs)
@@ -323,7 +326,7 @@ void initPhysics()
 	/////////////////////////////////////////////
 
 	PxInitVehicleSDK(*gPhysics);
-	PxVehicleSetBasisVectors(PxVec3(0, 1, 0), PxVec3(0, 0, 1));
+	PxVehicleSetBasisVectors(PxVec3(0, 1, 0), PxVec3(0, 0, -1));
 	PxVehicleSetUpdateMode(PxVehicleUpdateMode::eVELOCITY_CHANGE);
 
 	//Create the batched scene queries for the suspension raycasts.
@@ -358,12 +361,11 @@ void initPhysics()
 
 void incrementDrivingMode(const PxF32 timestep)
 {
-	releaseAllControls();
-	//gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-	//startAccelerateForwardsMode();
-	gVehicleInputData.setAnalogAccel(1.0f);
+	// releaseAllControls();
+	// startAccelerateForwardsMode();
+	// gVehicleInputData.setAnalogAccel(1.0f);
 	//gVehicleInputData.setAnalogBrake(-1.0f);
-	startTurnHardLeftMode();
+	// startTurnHardLeftMode();
 	//gVehicleInputData.setDigitalSteerLeft(true);
 	//gVehicleInputData.setDigitalHandbrake(true);
 
