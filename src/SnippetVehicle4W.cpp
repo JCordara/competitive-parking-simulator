@@ -239,7 +239,6 @@ void releaseBrakeMode()
 {
 	if (gMimicKeyInputs)
 	{
-		gVehicleInputData.setDigitalAccel(false);
 		gVehicleInputData.setDigitalBrake(false);
 	}
 	else
@@ -253,7 +252,6 @@ void startTurnHardLeftMode()
 	if (gVehicleInputData.getDigitalHandbrake() == false) {
 		if (gMimicKeyInputs)
 		{
-			//gVehicleInputData.setDigitalAccel(true);
 			gVehicleInputData.setDigitalSteerLeft(true);
 		}
 		else
@@ -269,7 +267,6 @@ void startTurnHardRightMode()
 	if (gVehicleInputData.getDigitalHandbrake() == false) {
 		if (gMimicKeyInputs)
 		{
-			//gVehicleInputData.setDigitalAccel(true);
 			gVehicleInputData.setDigitalSteerRight(true);
 		}
 		else
@@ -285,12 +282,10 @@ void startHandbrake()
 	if (gVehicleInputData.getDigitalHandbrake() == false) {
 		if (gMimicKeyInputs)
 		{
-			//gVehicleInputData.setDigitalSteerLeft(true);
 			gVehicleInputData.setDigitalHandbrake(true);
 		}
 		else
 		{
-			//gVehicleInputData.setAnalogSteer(-1.0f);
 			gVehicleInputData.setAnalogHandbrake(1.0f);
 		}
 	}
@@ -301,12 +296,10 @@ void releaseHandbrake()
 {
 	if (gMimicKeyInputs)
 	{
-		//gVehicleInputData.setDigitalSteerLeft(true);
 		gVehicleInputData.setDigitalHandbrake(false);
 	}
 	else
 	{
-		//gVehicleInputData.setAnalogSteer(-1.0f);
 		gVehicleInputData.setAnalogHandbrake(-11.0f);
 	}
 }
@@ -352,14 +345,10 @@ void releaseForwardDriveControls() {
 		if (gMimicKeyInputs)
 		{
 			gVehicleInputData.setDigitalAccel(false);
-			//gVehicleInputData.setDigitalBrake(false);
-			//gVehicleInputData.setDigitalHandbrake(false);
 		}
 		else
 		{
 			gVehicleInputData.setAnalogAccel(0.0f);
-			//gVehicleInputData.setAnalogBrake(0.0f);
-			//gVehicleInputData.setAnalogHandbrake(0.0f);
 		}
 	}
 
@@ -375,14 +364,10 @@ void releaseReverseDriveControls() {
 		if (gMimicKeyInputs)
 		{
 			gVehicleInputData.setDigitalAccel(false);
-			//gVehicleInputData.setDigitalBrake(false);
-			//gVehicleInputData.setDigitalHandbrake(false);
 		}
 		else
 		{
 			gVehicleInputData.setAnalogAccel(0.0f);
-			//gVehicleInputData.setAnalogBrake(0.0f);
-			//gVehicleInputData.setAnalogHandbrake(0.0f);
 		}
 	}
 
@@ -410,7 +395,6 @@ void releaseLeftTurnControls()
 	if (gMimicKeyInputs)
 	{
 		gVehicleInputData.setDigitalSteerLeft(false);
-		//gVehicleInputData.setDigitalSteerRight(false);
 	}
 	else
 	{
@@ -422,7 +406,6 @@ void releaseRightTurnControls()
 {
 	if (gMimicKeyInputs)
 	{
-		//gVehicleInputData.setDigitalSteerLeft(false);
 		gVehicleInputData.setDigitalSteerRight(false);
 	}
 	else

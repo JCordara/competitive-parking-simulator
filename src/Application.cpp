@@ -323,11 +323,13 @@ int Application::play() {
 
 		//---Render Frame -----------------------------
 		// render->update();
+		glm::mat4 transformationPhysX;
+		physics->PhysXMat4ToglmMat4(physx::PxMat44(gVehicle4W->getRigidDynamicActor()->getGlobalPose()), transformationPhysX);
 
-		directionalLightCamera.setPos(glm::vec3(0.0f, 15.0f, -15.0f) + mainCamera.getPosition());
-		
+		directionalLightCamera.setPos(glm::vec3(0.0f, 15.0f, -15.0f) + glm::vec3(transformationPhysX[3]));
 		//Set the lighting properties of the scene
 		renderPipeline->setDirectionalLightShadowMapProperties(directionalLightCamera.getView(), directionalLightCamera.getOrthographicProjection(), 4096, 4096);
+		mainCamera.setLookAt(glm::vec3(transformationPhysX[3]));
 		//Set render properties
 		renderPipeline->setWindowDimentions(window->getWidth(), window->getHeight());
 
@@ -337,11 +339,7 @@ int Application::play() {
 		audioManager->setListenerPosition(mainCamera.getPosition());
 		audioManager->setListenerOrientation(mainCamera.getViewDirection(), mainCamera.getUpDirection());
 
-		glm::mat4 transformationPhysX;
-		physics->PhysXMat4ToglmMat4(physx::PxMat44(gVehicle4W->getRigidDynamicActor()->getGlobalPose()),transformationPhysX);
-
 		
-
 		//Attach Objects to render
 		for (auto object : sceneCubeGameObjects)	renderPipeline->attachRender(sceneRenderModels[0], transformationPhysX);
 		for (auto object : scenePlaneGameObjects)	renderPipeline->attachRender(sceneRenderModels[1], glm::scale(object.getTransformation(), glm::vec3(20,20,20)));
