@@ -276,22 +276,32 @@ void startHandbrakeTurnRightMode()
 	}
 }
 
-void releaseAllControls()
+void releaseDriveControls()
 {
 	if (gMimicKeyInputs)
 	{
 		gVehicleInputData.setDigitalAccel(false);
-		gVehicleInputData.setDigitalSteerLeft(false);
-		gVehicleInputData.setDigitalSteerRight(false);
 		gVehicleInputData.setDigitalBrake(false);
 		gVehicleInputData.setDigitalHandbrake(false);
 	}
 	else
 	{
 		gVehicleInputData.setAnalogAccel(0.0f);
-		gVehicleInputData.setAnalogSteer(0.0f);
 		gVehicleInputData.setAnalogBrake(0.0f);
 		gVehicleInputData.setAnalogHandbrake(0.0f);
+	}
+}
+
+void releaseTurnControls()
+{
+	if (gMimicKeyInputs)
+	{
+		gVehicleInputData.setDigitalSteerLeft(false);
+		gVehicleInputData.setDigitalSteerRight(false);
+	}
+	else
+	{
+		gVehicleInputData.setAnalogSteer(0.0f);
 	}
 }
 
