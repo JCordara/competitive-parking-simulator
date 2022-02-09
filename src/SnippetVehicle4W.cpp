@@ -517,17 +517,18 @@ void initPhysics()
 	gScene->addActor(*gVehicle4W->getRigidDynamicActor());
 
 	//Create Box
-	PxRigidDynamic* box1 = NULL; //actor
-	/*
-	PxShape* shape = gPhysics->createShape(PxBoxGeometry(0.5, 0.5, 0.5), *gMaterial);
-	PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
-	PxRigidDynamic* body = gPhysics->createRigidDynamic(t.transform(localTm));
-	body->attachShape(*shape);
-	PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-	gScene->addActor(*body);*/
+	//PxRigidDynamic* box1 = NULL; //actor
+
+	PxTransform t = PxTransform(PxVec3(0, 20.0f, 0.0f));
+	PxShape* shape = gPhysics->createShape(PxBoxGeometry(5, 5, 5), *gMaterial);
+	//PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
+	PxRigidDynamic* box1 = gPhysics->createRigidDynamic(t);
+	box1->attachShape(*shape);
+	PxRigidBodyExt::updateMassAndInertia(*box1, 10.0f);
+	gScene->addActor(*box1);
 
 
-	//shape->release();
+	shape->release();
 
 	//Set the vehicle to rest in first gear.
 	//Set the vehicle to use auto-gears.
