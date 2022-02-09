@@ -87,7 +87,7 @@ scene->destroyEntity(car); // Compares internal ptr addresses
 Common usage of the scene class will probably look like this:
 ```cpp
 for (auto entity : scene->entities()) {
-    if (entity.hasComponent<PhysicsComponent>()){
+    if (entity->hasComponent<PhysicsComponent>()){
         /* Do physics operations on all entities with physics components */
     }
 }
