@@ -303,12 +303,12 @@ int main() {
 	);
 
 	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseTurnControls),
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseA),
 		GLFW_KEY_A, GLFW_RELEASE, 0
 	);
 
 	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseTurnControls),
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseD),
 		GLFW_KEY_D, GLFW_RELEASE, 0
 	);
 	
@@ -317,13 +317,26 @@ int main() {
 		GLFW_KEY_SPACE, GLFW_PRESS, 0
 	);
 
-	Events::MoveForward.registerHandler<startAccelerateForwardsMode>();
-	Events::MoveBackward.registerHandler<startAccelerateReverseMode>();
-	Events::MoveLeft.registerHandler<startTurnHardLeftMode>();
-	Events::MoveRight.registerHandler<startTurnHardRightMode>();
-	Events::Brake.registerHandler<startBrakeMode>();
-	Events::ReleaseDriveControls.registerHandler<releaseDriveControls>();
-	Events::ReleaseTurnControls.registerHandler<releaseTurnControls>();
+	eventManager->registerKey(
+		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseSpace),
+		GLFW_KEY_SPACE, GLFW_RELEASE, 0
+	);
+
+	/* Bind functions here */
+	Events::PressW.registerHandler<startAccelerateForwardsMode>();
+	Events::ReleaseW.registerHandler<releaseDriveControls>();
+
+	Events::PressS.registerHandler<startAccelerateReverseMode>();
+	Events::ReleaseS.registerHandler<releaseDriveControls>();
+
+	Events::PressA.registerHandler<startTurnHardLeftMode>();
+	Events::ReleaseA.registerHandler<releaseLeftTurnControls>();
+
+	Events::PressD.registerHandler<startTurnHardRightMode>();
+	Events::ReleaseD.registerHandler<releaseRightTurnControls>();
+
+	Events::PressSpace.registerHandler<startBrakeMode>();
+	Events::ReleaseSpace.registerHandler<startBrakeMode>();
 
 	//---Game Loop----
 
