@@ -10,4 +10,5 @@ Event<void> Events::MoveLeft;
 Event<void> Events::MoveRight;
 Event<void> Events::Brake;
 Event<void> Events::ReleaseDriveControls;
-Event<void> Events::ReleaseTurnControls;
+Event<void> Events::ReleaseLeftTurnControls;
+Event<void> Events::ReleaseRightTurnControls;

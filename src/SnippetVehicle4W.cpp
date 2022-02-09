@@ -292,11 +292,24 @@ void releaseDriveControls()
 	}
 }
 
-void releaseTurnControls()
+void releaseLeftTurnControls()
 {
 	if (gMimicKeyInputs)
 	{
 		gVehicleInputData.setDigitalSteerLeft(false);
+		//gVehicleInputData.setDigitalSteerRight(false);
+	}
+	else
+	{
+		gVehicleInputData.setAnalogSteer(0.0f);
+	}
+}
+
+void releaseRightTurnControls()
+{
+	if (gMimicKeyInputs)
+	{
+		//gVehicleInputData.setDigitalSteerLeft(false);
 		gVehicleInputData.setDigitalSteerRight(false);
 	}
 	else
