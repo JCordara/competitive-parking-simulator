@@ -25,68 +25,45 @@
 //
 // Copyright (c) 2008-2021 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
-#ifndef PXFOUNDATION_PX_H
-#define PXFOUNDATION_PX_H
+#include <new>
+#include "SnippetVehicleTireFriction.h"
+#include <PhysX/PxPhysicsAPI.h>
 
-/** \addtogroup foundation
-@{
-*/
-
-#include "Physx/foundation/PxSimpleTypes.h"
-
-/** files to always include */
-#include <string.h>
-#include <stdlib.h>
-
-#if !PX_DOXYGEN
-namespace physx
+namespace snippetvehicle
 {
-#endif
 
-typedef uint32_t PxU32;
+	using namespace physx;
 
-class PxAllocatorCallback;
-class PxErrorCallback;
-struct PxErrorCode;
-class PxAssertHandler;
+	//Tire model friction for each combination of drivable surface type and tire type.
+	static PxF32 gTireFrictionMultipliers[MAX_NUM_SURFACE_TYPES][MAX_NUM_TIRE_TYPES] =
+	{
+		//NORMAL,	WORN
+		{1.00f,		0.1f}//TARMAC
+	};
 
-class PxInputStream;
-class PxInputData;
-class PxOutputStream;
+	PxVehicleDrivableSurfaceToTireFrictionPairs* createFrictionPairs(const PxMaterial* defaultMaterial)
+	{
+		PxVehicleDrivableSurfaceType surfaceTypes[1];
+		surfaceTypes[0].mType = SURFACE_TYPE_TARMAC;
 
-class PxVec2;
-class PxVec3;
-class PxVec4;
-class PxMat33;
-class PxMat44;
-class PxPlane;
-class PxQuat;
-class PxTransform;
-class PxBounds3;
+		const PxMaterial* surfaceMaterials[1];
+		surfaceMaterials[0] = defaultMaterial;
 
-/** enum for empty constructor tag*/
-enum PxEMPTY
-{
-	PxEmpty
-};
+		PxVehicleDrivableSurfaceToTireFrictionPairs* surfaceTirePairs =
+			PxVehicleDrivableSurfaceToTireFrictionPairs::allocate(MAX_NUM_TIRE_TYPES, MAX_NUM_SURFACE_TYPES);
 
-/** enum for zero constructor tag for vectors and matrices */
-enum PxZERO
-{
-	PxZero
-};
+		surfaceTirePairs->setup(MAX_NUM_TIRE_TYPES, MAX_NUM_SURFACE_TYPES, surfaceMaterials, surfaceTypes);
 
-/** enum for identity constructor flag for quaternions, transforms, and matrices */
-enum PxIDENTITY
-{
-	PxIdentity
-};
+		for (PxU32 i = 0; i < MAX_NUM_SURFACE_TYPES; i++)
+		{
+			for (PxU32 j = 0; j < MAX_NUM_TIRE_TYPES; j++)
+			{
+				surfaceTirePairs->setTypePairFriction(i, j, gTireFrictionMultipliers[i][j]);
+			}
+		}
+		return surfaceTirePairs;
+	}
 
-#if !PX_DOXYGEN
-} // namespace physx
-#endif
-
-/** @} */
-#endif // #ifndef PXFOUNDATION_PX_H
+} // namespace snippetvehicle

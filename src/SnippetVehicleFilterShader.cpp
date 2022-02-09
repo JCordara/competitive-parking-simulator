@@ -25,68 +25,34 @@
 //
 // Copyright (c) 2008-2021 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
-#ifndef PXFOUNDATION_PX_H
-#define PXFOUNDATION_PX_H
+#include <new>
+#include "SnippetVehicleFilterShader.h"
+#include <PhysX/PxPhysicsAPI.h>
 
-/** \addtogroup foundation
-@{
-*/
-
-#include "Physx/foundation/PxSimpleTypes.h"
-
-/** files to always include */
-#include <string.h>
-#include <stdlib.h>
-
-#if !PX_DOXYGEN
-namespace physx
+namespace snippetvehicle
 {
-#endif
 
-typedef uint32_t PxU32;
+	using namespace physx;
 
-class PxAllocatorCallback;
-class PxErrorCallback;
-struct PxErrorCode;
-class PxAssertHandler;
+	PxFilterFlags VehicleFilterShader
+	(PxFilterObjectAttributes attributes0, PxFilterData filterData0,
+		PxFilterObjectAttributes attributes1, PxFilterData filterData1,
+		PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
+	{
+		PX_UNUSED(attributes0);
+		PX_UNUSED(attributes1);
+		PX_UNUSED(constantBlock);
+		PX_UNUSED(constantBlockSize);
 
-class PxInputStream;
-class PxInputData;
-class PxOutputStream;
+		if ((0 == (filterData0.word0 & filterData1.word1)) && (0 == (filterData1.word0 & filterData0.word1)))
+			return PxFilterFlag::eSUPPRESS;
 
-class PxVec2;
-class PxVec3;
-class PxVec4;
-class PxMat33;
-class PxMat44;
-class PxPlane;
-class PxQuat;
-class PxTransform;
-class PxBounds3;
+		pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+		pairFlags |= PxPairFlags(PxU16(filterData0.word2 | filterData1.word2));
 
-/** enum for empty constructor tag*/
-enum PxEMPTY
-{
-	PxEmpty
-};
+		return PxFilterFlags();
+	}
 
-/** enum for zero constructor tag for vectors and matrices */
-enum PxZERO
-{
-	PxZero
-};
-
-/** enum for identity constructor flag for quaternions, transforms, and matrices */
-enum PxIDENTITY
-{
-	PxIdentity
-};
-
-#if !PX_DOXYGEN
-} // namespace physx
-#endif
-
-/** @} */
-#endif // #ifndef PXFOUNDATION_PX_H
+} // namespace snippetvehicle

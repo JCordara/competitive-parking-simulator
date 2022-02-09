@@ -25,68 +25,21 @@
 //
 // Copyright (c) 2008-2021 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
-#ifndef PXFOUNDATION_PX_H
-#define PXFOUNDATION_PX_H
+#ifndef PHYSX_SNIPPET_PRINT_H
+#define PHYSX_SNIPPET_PRINT_H
 
-/** \addtogroup foundation
-@{
-*/
+#include "PhysX/foundation/PxPreprocessor.h"
 
-#include "Physx/foundation/PxSimpleTypes.h"
-
-/** files to always include */
-#include <string.h>
-#include <stdlib.h>
-
-#if !PX_DOXYGEN
-namespace physx
-{
+#if PX_XBOXONE
+void OutputDebugPrint(const char*, ...);
+#define printf OutputDebugPrint
+#elif PX_XBOX_SERIES_X
+#include "PsString.h"
+#define printf shdfnd::printFormatted
+#elif PX_SWITCH
+#include "../SnippetCommon/Switch/SwitchSnippetPrint.h"
 #endif
 
-typedef uint32_t PxU32;
-
-class PxAllocatorCallback;
-class PxErrorCallback;
-struct PxErrorCode;
-class PxAssertHandler;
-
-class PxInputStream;
-class PxInputData;
-class PxOutputStream;
-
-class PxVec2;
-class PxVec3;
-class PxVec4;
-class PxMat33;
-class PxMat44;
-class PxPlane;
-class PxQuat;
-class PxTransform;
-class PxBounds3;
-
-/** enum for empty constructor tag*/
-enum PxEMPTY
-{
-	PxEmpty
-};
-
-/** enum for zero constructor tag for vectors and matrices */
-enum PxZERO
-{
-	PxZero
-};
-
-/** enum for identity constructor flag for quaternions, transforms, and matrices */
-enum PxIDENTITY
-{
-	PxIdentity
-};
-
-#if !PX_DOXYGEN
-} // namespace physx
-#endif
-
-/** @} */
-#endif // #ifndef PXFOUNDATION_PX_H
+#endif // PHYSX_SNIPPET_PRINT_H

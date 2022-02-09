@@ -53,9 +53,9 @@ private:
 	appSettings settings;
 
 	/* Framework (Managers) - used by systems*/
-	std::shared_ptr<Scene>             scene;
 	std::shared_ptr<GameEventManager>  eventManager;
 	std::shared_ptr<AudioManager>      audioManager;
+	std::shared_ptr<Scene>             scene;
 	std::shared_ptr<Window>            window;
 
 	/* Game systems - update() every frame */
@@ -63,6 +63,25 @@ private:
 	std::shared_ptr<PhysicsSystem>     physics;
 	std::shared_ptr<RenderSystem>      render;
 
+	// Rendering stuff (temporary location until rendering system is done)
+	glm::mat4 identity;
+	EditorCamera mainCamera;
+	std::shared_ptr<GameRenderPipeline> renderPipeline;
+	std::vector<std::shared_ptr<PointLight>> scenePointLights;
+	std::vector< std::shared_ptr<SpotLight>> sceneSpotLights;
+	std::shared_ptr<DirectionalLight> dirLight;
+	Camera directionalLightCamera;
+	std::shared_ptr<AmbientLight> ambientLight;
+	std::vector<std::shared_ptr<Model>> sceneRenderModels;
+	std::vector<GameObject> sceneCubeGameObjects;
+	std::vector<GameObject> scenePlaneGameObjects;
+	std::shared_ptr<GUI> gui;
+
+	double timeAccumulator;
+	double initialTime;
+	double timeStepTaken;
+	double currentTime;
+	float viewportAspectRatio;
 };
 
 //Functions to load settings

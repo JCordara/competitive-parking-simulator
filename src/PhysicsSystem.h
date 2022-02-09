@@ -3,6 +3,11 @@
 
 #include "GameSystem.h"
 
+#include "PhysX/PxPhysicsAPI.h"
+#include "SnippetVehicle4W.h"
+
+
+using namespace physx;
 
 class PhysicsSystem : public GameSystem {
 public:
@@ -15,6 +20,8 @@ public:
     );
 
     void update();
+    void PhysXMat4ToglmMat4(const PxMat44& mat4, glm::mat4& newMat);
+
     ~PhysicsSystem();
     
 private:

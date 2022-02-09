@@ -25,68 +25,38 @@
 //
 // Copyright (c) 2008-2021 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
-#ifndef PXFOUNDATION_PX_H
-#define PXFOUNDATION_PX_H
+#ifndef SNIPPET_VEHICLE_FILTERSHADER_H
+#define SNIPPET_VEHICLE_FILTERSHADER_H
 
-/** \addtogroup foundation
-@{
-*/
+#include <PhysX/PxPhysicsAPI.h>
 
-#include "Physx/foundation/PxSimpleTypes.h"
-
-/** files to always include */
-#include <string.h>
-#include <stdlib.h>
-
-#if !PX_DOXYGEN
-namespace physx
+namespace snippetvehicle
 {
-#endif
 
-typedef uint32_t PxU32;
+	using namespace physx;
 
-class PxAllocatorCallback;
-class PxErrorCallback;
-struct PxErrorCode;
-class PxAssertHandler;
+	enum
+	{
+		COLLISION_FLAG_GROUND = 1 << 0,
+		COLLISION_FLAG_WHEEL = 1 << 1,
+		COLLISION_FLAG_CHASSIS = 1 << 2,
+		COLLISION_FLAG_OBSTACLE = 1 << 3,
+		COLLISION_FLAG_DRIVABLE_OBSTACLE = 1 << 4,
 
-class PxInputStream;
-class PxInputData;
-class PxOutputStream;
+		COLLISION_FLAG_GROUND_AGAINST = COLLISION_FLAG_CHASSIS | COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_DRIVABLE_OBSTACLE,
+		COLLISION_FLAG_WHEEL_AGAINST = COLLISION_FLAG_WHEEL | COLLISION_FLAG_CHASSIS | COLLISION_FLAG_OBSTACLE,
+		COLLISION_FLAG_CHASSIS_AGAINST = COLLISION_FLAG_GROUND | COLLISION_FLAG_WHEEL | COLLISION_FLAG_CHASSIS | COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_DRIVABLE_OBSTACLE,
+		COLLISION_FLAG_OBSTACLE_AGAINST = COLLISION_FLAG_GROUND | COLLISION_FLAG_WHEEL | COLLISION_FLAG_CHASSIS | COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_DRIVABLE_OBSTACLE,
+		COLLISION_FLAG_DRIVABLE_OBSTACLE_AGAINST = COLLISION_FLAG_GROUND | COLLISION_FLAG_CHASSIS | COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_DRIVABLE_OBSTACLE
+	};
 
-class PxVec2;
-class PxVec3;
-class PxVec4;
-class PxMat33;
-class PxMat44;
-class PxPlane;
-class PxQuat;
-class PxTransform;
-class PxBounds3;
+	PxFilterFlags VehicleFilterShader
+	(PxFilterObjectAttributes attributes0, PxFilterData filterData0,
+		PxFilterObjectAttributes attributes1, PxFilterData filterData1,
+		PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize);
 
-/** enum for empty constructor tag*/
-enum PxEMPTY
-{
-	PxEmpty
-};
+} // namespace snippetvehicle
 
-/** enum for zero constructor tag for vectors and matrices */
-enum PxZERO
-{
-	PxZero
-};
-
-/** enum for identity constructor flag for quaternions, transforms, and matrices */
-enum PxIDENTITY
-{
-	PxIdentity
-};
-
-#if !PX_DOXYGEN
-} // namespace physx
-#endif
-
-/** @} */
-#endif // #ifndef PXFOUNDATION_PX_H
+#endif //SNIPPET_VEHICLE_FILTERSHADER_H

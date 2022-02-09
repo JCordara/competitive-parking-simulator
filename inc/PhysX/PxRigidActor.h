@@ -36,6 +36,8 @@
 
 #include "PxActor.h"
 #include "PxShape.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #if !PX_DOXYGEN
 namespace physx

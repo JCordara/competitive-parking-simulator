@@ -15,7 +15,6 @@ RenderSystem::RenderSystem(
 
 void RenderSystem::update() {
     /* Rendering per-frame updates */
-    Log::debug("Render update!");
 }
 
 RenderSystem::~RenderSystem() {

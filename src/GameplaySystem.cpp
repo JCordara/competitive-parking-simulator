@@ -10,7 +10,7 @@ GameplaySystem::GameplaySystem(
 {}
     
 void GameplaySystem::update() {
-    Log::debug("Gameplay update!");
+
 }
 
 GameplaySystem::~GameplaySystem() {
