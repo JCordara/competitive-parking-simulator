@@ -180,7 +180,11 @@ VehicleDesc initVehicleDesc()
 
 void startAccelerateForwardsMode()
 {
-	if (gVehicleInputData.getDigitalBrake() == false) {
+	// If accel is already true, S was pushed and not released, stop moving
+	if (gVehicleInputData.getDigitalAccel() == true) {
+		gVehicleInputData.setDigitalAccel(false);
+	}
+	else if (gVehicleInputData.getDigitalBrake() == false) {
 		printf("yes");
 		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 
@@ -200,7 +204,11 @@ void startAccelerateForwardsMode()
 
 void startAccelerateReverseMode()
 {
-	if (gVehicleInputData.getDigitalHandbrake() == false) {
+	// If accel is already true, W was pushed and not released, stop moving
+	if (gVehicleInputData.getDigitalAccel() == true) {
+		gVehicleInputData.setDigitalAccel(false);
+	}
+	else if (gVehicleInputData.getDigitalHandbrake() == false) {
 		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
 
 		if (gMimicKeyInputs)
@@ -333,6 +341,53 @@ void startHandbrakeTurnRightMode()
 	}
 }*/
 
+void releaseForwardDriveControls() {
+	// If accel is already false, S was already pressed - Only way for accel to be false while W was pressed
+	// If false on a release key event that means both keys were pressed, removing W while both are pressed means go reverse
+	if (gVehicleInputData.getDigitalAccel() == false) {
+		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+		gVehicleInputData.setDigitalAccel(true);
+	}
+	else {
+		if (gMimicKeyInputs)
+		{
+			gVehicleInputData.setDigitalAccel(false);
+			//gVehicleInputData.setDigitalBrake(false);
+			//gVehicleInputData.setDigitalHandbrake(false);
+		}
+		else
+		{
+			gVehicleInputData.setAnalogAccel(0.0f);
+			//gVehicleInputData.setAnalogBrake(0.0f);
+			//gVehicleInputData.setAnalogHandbrake(0.0f);
+		}
+	}
+
+}
+void releaseReverseDriveControls() {
+	// If accel is already false, W was already pressed - Only way for accel to be false while S was pressed
+	// If false on a release key event that means both keys were pressed, removing S while both are pressed means go forwards
+	if (gVehicleInputData.getDigitalAccel() == false) {
+		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+		gVehicleInputData.setDigitalAccel(true);
+	}
+	else {
+		if (gMimicKeyInputs)
+		{
+			gVehicleInputData.setDigitalAccel(false);
+			//gVehicleInputData.setDigitalBrake(false);
+			//gVehicleInputData.setDigitalHandbrake(false);
+		}
+		else
+		{
+			gVehicleInputData.setAnalogAccel(0.0f);
+			//gVehicleInputData.setAnalogBrake(0.0f);
+			//gVehicleInputData.setAnalogHandbrake(0.0f);
+		}
+	}
+
+}
+/* DEPRECATED
 void releaseDriveControls()
 {
 	if (gMimicKeyInputs)
@@ -348,6 +403,7 @@ void releaseDriveControls()
 		//gVehicleInputData.setAnalogHandbrake(0.0f);
 	}
 }
+*/
 
 void releaseLeftTurnControls()
 {
