@@ -229,7 +229,6 @@ void startTurnHardLeftMode()
 	}
 	else
 	{
-		gVehicleInputData.setAnalogAccel(true);
 		gVehicleInputData.setAnalogSteer(-1.0f);
 	}
 }
@@ -243,7 +242,6 @@ void startTurnHardRightMode()
 	}
 	else
 	{
-		gVehicleInputData.setAnalogAccel(1.0f);
 		gVehicleInputData.setAnalogSteer(1.0f);
 	}
 }
@@ -288,18 +286,6 @@ void releaseDriveControls()
 	{
 		gVehicleInputData.setAnalogAccel(0.0f);
 		gVehicleInputData.setAnalogBrake(0.0f);
-		gVehicleInputData.setAnalogHandbrake(0.0f);
-	}
-}
-
-void releaseHandBrakeControls()
-{
-	if (gMimicKeyInputs)
-	{
-		gVehicleInputData.setDigitalHandbrake(false);
-	}
-	else
-	{
 		gVehicleInputData.setAnalogHandbrake(0.0f);
 	}
 }
