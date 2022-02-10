@@ -47,6 +47,15 @@ void PhysicsSystem::PhysXMat4ToglmMat4(const PxMat44& mat4, glm::mat4& newMat)
 
 }
 
+/** Convert Physx::PxVec3 to glm::vec3
+ @param[in] vec3 The Physx::PxVec3
+ @param[ou] Converted glm::mat4
+ */
+void PhysicsSystem::PhysXVec3ToglmVec3(const PxVec3& vec3, glm::vec3& newVec)
+{
+	newVec = glm::vec3(vec3.x, vec3.y, vec3.z);
+}
+
 PhysicsSystem::~PhysicsSystem() {
     
 }
