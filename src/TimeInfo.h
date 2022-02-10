@@ -21,23 +21,32 @@ public:
 	static void init();
 
 	// Updates the current time and the time since last call
-	// Call every frame
 	static void update();
+
+	// Returns true if another step needs to be taken
+	static bool takeNextStep();
 
 	// Accessor functions
 	static double now() { return glfwGetTime(); }
-	static double delta() { return Time::delta_; }
+	static double delta() { return Time::updateDelta_; }
 	static double fps() { return fps_; }
+	static double timeStep() { return timeStep_; }
+	
+	static double lastUpdateTime() { return lastUpdateTime_; }
+	static double programStartTime() { return programStartTime_; }
 
 private:
 	Time();	// Hide the default constructor to discourage instantiation
 
-	static double lastFrameTime_;			 // Time last frame was renedered
-	static double delta_;					 // Time taken to render last frame
+	static double lastUpdateTime_;			 // Time last frame was renedered
+	static double updateDelta_;		         // Time between last two update()s
 	static double fps_;						 // Current frames per second
 	static double deltas_[FPS_FRAMES_COUNT]; // Buffer of previous deltas
 	static double deltaSum_;				 // Sum of buffer entries
 	static unsigned int deltaIndex_;		 // Current buffer insertion index
+	static double timeStep_;
+	static double lag_;
+	static double programStartTime_;
 };
 
 #endif // TIME_H

@@ -15,6 +15,7 @@ Application::Application(appSettings& settings)
 {
 	//App initialization
 	glfwInit();
+	Time::init();
 
 	/* Framework (Managers) - used by systems*/
 	eventManager = std::make_shared<GameEventManager>();
@@ -134,7 +135,7 @@ Application::Application(appSettings& settings)
 		std::make_shared<Model>("models/Test1.obj", glm::vec3(1.0, 1.0, 1.0))
 	);
 	sceneRenderModels.push_back(
-		std::make_shared<Model>("models/Test2_M.obj", glm::vec3(1.0, 0.0, 1.0))
+		std::make_shared<Model>("models/smileplane.obj", glm::vec3(1.0, 0.0, 1.0))
 	);
 
 	//------Objects
@@ -310,31 +311,46 @@ int Application::play() {
 		// Get current input events
 		glfwPollEvents();
 
-		// Update time-related values (fps, frame delta, etc.)
+		// Update time-related values
 		Time::update();
 
-		gameplay->update();
-		physics->update();
-		render->update();
+		// Fixed time step loop
+		while (Time::takeNextStep()) {
+
+			gameplay->update();
+			physics->update();
 
 
-		// And then a whole bunch of crap -----------------
+			// Move lights
+			float elapsedTime = (float)(Time::lastUpdateTime() - Time::programStartTime());
 
-		//Update the Time values for this frame
-		timeAccumulator += Time::delta();
-		currentTime = Time::now();
+			scenePointLights[0]->setPos(
+				2.f * glm::vec3(
+					cosf(0.5f * elapsedTime), 
+					glm::abs(2.f * sinf(0.5f * elapsedTime)) - 0.4f, 
+					5.0f
+				)
+			);
 
-
-		//----Physics loop---(Unsure how physX works with this so it might change) -------//
-		for (; timeAccumulator >= timeStepTaken; timeAccumulator -= timeStepTaken) {//Do per iteration
-			scenePointLights[0]->setPos(2.f*glm::vec3(cosf(0.5f * ((float)(currentTime - initialTime))) , glm::abs(2.f * sinf(0.5f * ((float)(currentTime - initialTime)))) - 0.4f, 5.0f));
-			sceneSpotLights[0]->setPos( glm::vec3(10.f * cosf(0.25f * ((float)(currentTime - initialTime))), 2.0f, 2.0f));
+			sceneSpotLights[0]->setPos(
+				glm::vec3(
+					10.f * cosf(0.25f * elapsedTime),
+					2.0f, 
+					2.0f
+				)
+			);
 		}
-		directionalLightCamera.setPos(glm::vec3(0.0f, 15.0f, -15.0f) + mainCamera.getPosition());
-		//---Render Frame -----------------------------
 
+
+		//---Render Frame -----------------------------
+		// render->update();
+		glm::mat4 transformationPhysX;
+		physics->PhysXMat4ToglmMat4(physx::PxMat44(gVehicle4W->getRigidDynamicActor()->getGlobalPose()), transformationPhysX);
+
+		directionalLightCamera.setPos(glm::vec3(0.0f, 15.0f, -15.0f) + glm::vec3(transformationPhysX[3]));
 		//Set the lighting properties of the scene
 		renderPipeline->setDirectionalLightShadowMapProperties(directionalLightCamera.getView(), directionalLightCamera.getOrthographicProjection(), 4096, 4096);
+		mainCamera.setLookAt(glm::vec3(transformationPhysX[3]));
 		//Set render properties
 		renderPipeline->setWindowDimentions(window->getWidth(), window->getHeight());
 

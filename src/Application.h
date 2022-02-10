@@ -78,10 +78,6 @@ private:
 	std::vector<GameObject> scenePlaneGameObjects;
 	std::shared_ptr<GUI> gui;
 
-	double timeAccumulator;
-	double initialTime;
-	double timeStepTaken;
-	double currentTime;
 	float viewportAspectRatio;
 };
 
