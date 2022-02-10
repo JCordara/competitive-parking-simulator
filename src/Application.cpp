@@ -210,11 +210,7 @@ Application::Application(appSettings& settings)
 		)
 	);
 	// ---------------------------- Time stuff ---------------------------------
-	Time::init();
-	timeAccumulator = 0.0;
-	initialTime = Time::now();
-	timeStepTaken = 0.05;
-	currentTime = initialTime;
+
 
 	// ---------------------------- Simple GUI ---------------------------------
 	// Currently only displays fps using ImGui
