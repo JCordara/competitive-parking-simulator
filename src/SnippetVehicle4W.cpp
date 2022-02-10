@@ -185,13 +185,13 @@ void startAccelerateForwardsMode()
 	if (gVehicleInputData.getDigitalAccel() == true) {
 		gVehicleInputData.setDigitalAccel(false);
 	}
-	else if (gVehicleInputData.getDigitalBrake() == false) {
+	else  {
 		printf("yes");
 		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 
 		if (gMimicKeyInputs)
 		{
-			gVehicleInputData.setDigitalBrake(false);
+			//gVehicleInputData.setDigitalBrake(false);
 			gVehicleInputData.setDigitalAccel(true);
 		}
 		else
@@ -209,7 +209,7 @@ void startAccelerateReverseMode()
 	if (gVehicleInputData.getDigitalAccel() == true) {
 		gVehicleInputData.setDigitalAccel(false);
 	}
-	else if (gVehicleInputData.getDigitalHandbrake() == false) {
+	else {
 		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
 
 		if (gMimicKeyInputs)
@@ -303,7 +303,6 @@ void releaseHandbrake()
 	}
 	else
 	{
-		//gVehicleInputData.setAnalogSteer(-1.0f);
 		gVehicleInputData.setAnalogHandbrake(-1.0f);
 	}
 }
