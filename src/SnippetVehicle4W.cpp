@@ -297,7 +297,7 @@ void releaseHandbrake()
 {
 	if (gMimicKeyInputs)
 	{
-		gVehicleInputData.setDigitalAccel(false);
+		//gVehicleInputData.setDigitalAccel(false);
 		//gVehicleInputData.setDigitalSteerLeft(true);
 		gVehicleInputData.setDigitalHandbrake(false);
 	}
