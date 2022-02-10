@@ -58,6 +58,7 @@ PxBatchQuery* gBatchQuery = NULL;
 PxVehicleDrivableSurfaceToTireFrictionPairs* gFrictionPairs = NULL;
 
 PxRigidStatic* gGroundPlane = NULL;
+PxRigidDynamic* box1 = NULL;
 PxVehicleDrive4W* gVehicle4W = NULL;
 
 PxVehicleDrive4WRawInputData gVehicleInputData;
@@ -520,15 +521,16 @@ void initPhysics()
 	//PxRigidDynamic* box1 = NULL; //actor
 
 	PxTransform t = PxTransform(PxVec3(0, 20.0f, 0.0f));
-	PxShape* shape = gPhysics->createShape(PxBoxGeometry(5, 5, 5), *gMaterial);
-	//PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
-	PxRigidDynamic* box1 = gPhysics->createRigidDynamic(t);
-	box1->attachShape(*shape);
+	PxShape* boxShape = gPhysics->createShape(PxBoxGeometry(1, 1, 1), *gMaterial);
+	PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
+	box1 = gPhysics->createRigidDynamic(t);
+	PxFilterData boxFilterData(COLLISION_FLAG_GROUND_AGAINST,0 , 0, 0);
+	boxShape->setSimulationFilterData(boxFilterData);
+	box1->attachShape(*boxShape);
 	PxRigidBodyExt::updateMassAndInertia(*box1, 10.0f);
 	gScene->addActor(*box1);
 
-
-	shape->release();
+	boxShape->release();
 
 	//Set the vehicle to rest in first gear.
 	//Set the vehicle to use auto-gears.

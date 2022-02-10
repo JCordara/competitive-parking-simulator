@@ -138,13 +138,16 @@ Application::Application(appSettings& settings)
 	);
 
 	//------Objects
+	glm::vec3 box1Pos;
+	physics->PhysXVec3ToglmVec3(box1->getGlobalPose().p,box1Pos);
+
 	sceneCubeGameObjects.push_back(
 		GameObject(
 			0,
 			-1, 
 			glm::translate(
-				identity, 
-				glm::vec3(0.0f, 0.0f, 0.0f)
+				identity,
+				box1Pos
 			)
 		)
 	);
@@ -342,7 +345,12 @@ int Application::play() {
 		audioManager->setListenerOrientation(mainCamera.getViewDirection(), mainCamera.getUpDirection());
 
 		glm::mat4 transformationPhysX;
+		glm::mat4 box1PhysX;
 		physics->PhysXMat4ToglmMat4(physx::PxMat44(gVehicle4W->getRigidDynamicActor()->getGlobalPose()),transformationPhysX);
+
+		physics->PhysXMat4ToglmMat4(physx::PxMat44(box1->getGlobalPose()), box1PhysX);
+		sceneCubeGameObjects[0].setTransformation(box1PhysX);
+
 
 		//Attach Objects to render
 		for (auto object : sceneCubeGameObjects)	renderPipeline->attachRender(sceneRenderModels[0], object.getTransformation());
