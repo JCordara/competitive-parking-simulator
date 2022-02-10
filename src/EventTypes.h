@@ -12,9 +12,7 @@
 #ifndef EVENT_TYPES_H
 #define EVENT_TYPES_H
 
-#include <vector>   // List of observers
-#include <utility>  // std::pair
-#include <iostream> // Error output
+#include "stdafx.h"
 
 // Function pointer object with any single argument type
 // https://blog.molecular-matters.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/

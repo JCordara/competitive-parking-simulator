@@ -1,10 +1,10 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <vector>
-#include <memory>
+#include "stdafx.h"
 
-#include "Entity.h"
+/* Forward declaration of Entity class */
+class Entity;
 
 
 class Scene {

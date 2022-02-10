@@ -1,7 +1,7 @@
 #ifndef PHYSICS_COMPONENT_H
 #define PHYSICS_COMPONENT_H
 
-#include "BaseComponent.h"
+#include "Components.h"
 
 class PhysicsComponent : public BaseComponent {
 public:

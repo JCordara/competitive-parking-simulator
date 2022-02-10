@@ -11,6 +11,7 @@
 // Use the last FPS_FRAMES_COUNT frames to calculate current fps
 #define FPS_FRAMES_COUNT 25
 
+#include <GL/glew.h>
 #include <GLFW/glfw3.h> // glfwGetTime()
 #include <cstring> 		// memset()
 

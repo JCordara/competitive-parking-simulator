@@ -1,7 +1,8 @@
 #ifndef AI_COMPONENT_H
 #define AI_COMPONENT_H
 
-#include "BaseComponent.h"
+#include "Components.h"
+
 
 class AiComponent : public BaseComponent {
 public:

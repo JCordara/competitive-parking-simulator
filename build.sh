@@ -12,7 +12,7 @@
 #  -v ........ Verbose flag                                                    #
 ################################################################################
 
-USAGE="Usage: $(basename $0) [ -c | -b | -r | -c-rel | -b-rel | -r-rel ]"
+USAGE="Usage: $(basename $0) [ -c | -b | -r | -c-rel | -b-rel | -r-rel ] [ -v ]"
 VERBOSE=""
 
 # Empty the build directory

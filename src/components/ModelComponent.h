@@ -1,7 +1,8 @@
 #ifndef MODEL_COMPONENT_H
 #define MODEL_COMPONENT_H
 
-#include "BaseComponent.h"
+#include "Components.h"
+
 
 class ModelComponent : public BaseComponent {
 public:

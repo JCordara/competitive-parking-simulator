@@ -1,6 +1,7 @@
 #pragma once
 #include <GL/glew.h>
-#include <glm/glm.hpp>
+
+#include "stdafx.h"
 
 class Camera {
 public:

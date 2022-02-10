@@ -1,11 +1,9 @@
 #ifndef TRANSFORM_COMPONENT_H
 #define TRANSFORM_COMPONENT_H
 
-#include "BaseComponent.h"
+#include "Components.h"
 
-/**
- * @brief Example component that implements the BaseComponent interface.
- */
+
 class TransformComponent : public BaseComponent {
 public:
     

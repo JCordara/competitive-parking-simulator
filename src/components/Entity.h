@@ -1,19 +1,17 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
-#include <iostream>
-#include <unordered_map>
-#include <memory>
-#include <stdexcept>
-#include <type_traits>
+#include "stdafx.h"
 
-#include "Components.h"
+class BaseComponent;
+enum class ComponentEnum;
+
 
 // To make some lines of code shorter
 using std::unordered_map, std::pair;         // Mapping
 using std::shared_ptr,    std::make_shared;  // Shared pointers
 using std::unique_ptr,    std::make_unique;  // Unique pointers
-using std::enable_if_t,   std::is_base_of_v; // Template parame type assertion
+using std::enable_if_t,   std::is_base_of_v; // Template param type assertion
 using std::dynamic_pointer_cast;             // Downcast smart pointers
 
 /**

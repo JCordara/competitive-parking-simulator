@@ -1,7 +1,7 @@
 #include "ModelComponent.h"
 
 ComponentEnum ModelComponent::getType() {
-    return Component::model;
+    return ComponentEnum::model;
 }
 
 ModelComponent::~ModelComponent() {

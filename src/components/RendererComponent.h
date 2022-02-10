@@ -1,7 +1,8 @@
 #ifndef RENDERER_COMPONENT_H
 #define RENDERER_COMPONENT_H
 
-#include "BaseComponent.h"
+#include "Components.h"
+
 
 class RendererComponent : public BaseComponent {
 public:

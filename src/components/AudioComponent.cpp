@@ -1,7 +1,7 @@
 #include "AudioComponent.h"
 
 ComponentEnum AudioComponent::getType() {
-    return Component::audio;
+    return ComponentEnum::audio;
 }
 
 AudioComponent::~AudioComponent() {

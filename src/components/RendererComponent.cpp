@@ -1,7 +1,7 @@
 #include "RendererComponent.h"
 
 ComponentEnum RendererComponent::getType() {
-    return Component::renderer;
+    return ComponentEnum::renderer;
 }
 
 RendererComponent::~RendererComponent() {

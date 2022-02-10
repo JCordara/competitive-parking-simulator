@@ -1,10 +1,5 @@
 #include "Camera.h"
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
-#include <iostream>
-#include "glm/gtc/matrix_transform.hpp"
 
 Camera::Camera(glm::vec3 pos, float theta, float phi, float fov_width, float aspectRatio_height, float nearPlane, float farPlane, bool orthographic):
 	pos(pos), theta(theta), phi(phi), nearPlane(nearPlane), farPlane(farPlane){

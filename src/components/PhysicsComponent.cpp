@@ -1,7 +1,7 @@
 #include "PhysicsComponent.h"
 
 ComponentEnum PhysicsComponent::getType() {
-    return Component::physics;
+    return ComponentEnum::physics;
 }
 
 PhysicsComponent::~PhysicsComponent() {

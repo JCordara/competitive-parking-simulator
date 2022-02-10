@@ -7,7 +7,7 @@ TransformComponent::TransformComponent()
 {}
 
 ComponentEnum TransformComponent::getType() {
-    return Component::transform;
+    return ComponentEnum::transform;
 }
 
 TransformComponent::~TransformComponent() {

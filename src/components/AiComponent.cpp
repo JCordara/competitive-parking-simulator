@@ -2,7 +2,7 @@
 
 
 ComponentEnum AiComponent::getType() {
-    return Component::ai;
+    return ComponentEnum::ai;
 }
 
 AiComponent::~AiComponent() {
