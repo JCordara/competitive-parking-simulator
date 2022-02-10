@@ -366,7 +366,7 @@ int Application::play() {
 		//Attach Objects to render
 		for (auto object : sceneCubeGameObjects)	renderPipeline->attachRender(sceneRenderModels[0], object.getTransformation());
 		renderPipeline->attachRender(sceneRenderModels[0], CarObjects[0].getTransformation() * transformationPhysX);
-		for (auto object : scenePlaneGameObjects)	renderPipeline->attachRender(sceneRenderModels[1], object.getTransformation());
+		for (auto object : scenePlaneGameObjects)	renderPipeline->attachRender(sceneRenderModels[1], glm::scale(object.getTransformation(), glm::vec3(20,20,20)));
 		
 		//Render the output
 		renderPipeline->executeRender();
