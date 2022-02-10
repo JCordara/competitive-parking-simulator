@@ -356,7 +356,6 @@ int Application::play() {
 		audioManager->setListenerPosition(mainCamera.getPosition());
 		audioManager->setListenerOrientation(mainCamera.getViewDirection(), mainCamera.getUpDirection());
 
-		glm::mat4 transformationPhysX;
 		glm::mat4 box1PhysX;
 		physics->PhysXMat4ToglmMat4(physx::PxMat44(gVehicle4W->getRigidDynamicActor()->getGlobalPose()),transformationPhysX);
 
