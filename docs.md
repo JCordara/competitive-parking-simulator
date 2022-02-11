@@ -95,7 +95,7 @@ for (auto entity : scene->entities()) {
 <a name="events"/>
 
 ## Events
-`#include "Event.h"`
+`#include "Framework.h"`
 
 The `Events` namespace in Event.h holds a list of globally accessible events 
 that will probably be frequently added to and modified as we build out the 
@@ -214,7 +214,7 @@ Events::PlayAudio.broadcast(soundEffect);
 <a name="audio"/>
 
 ## Audio
-`#include "AudioManager.h"`
+`#include "Framework.h"`
 
 There are 3 main objects in the audio system API: Audio, AudioSource, and 
 AudioManager. The relationship is that AudioSources play Audio, and the

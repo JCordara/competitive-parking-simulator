@@ -189,7 +189,7 @@ void startAccelerateForwardsMode()
 		gVehicleInputData.setDigitalAccel(false);
 	}
 	else  {
-		printf("yes");
+		
 		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 
 		if (gMimicKeyInputs)
@@ -451,7 +451,7 @@ void initPhysics()
 	/////////////////////////////////////////////
 
 	PxInitVehicleSDK(*gPhysics);
-	PxVehicleSetBasisVectors(PxVec3(0, 1, 0), PxVec3(0, 0, -1));
+	PxVehicleSetBasisVectors(PxVec3(0, 1, 0), PxVec3(0, 0, 1));
 	PxVehicleSetUpdateMode(PxVehicleUpdateMode::eVELOCITY_CHANGE);
 
 	//Create the batched scene queries for the suspension raycasts.
