@@ -394,14 +394,14 @@ int Application::play() {
 
 
 		sceneCubeGameObjects[0].setTransformation(box1PhysX);
-		sceneCubeGameObjects[1].setTransformation(box2PhysX);
+		sceneCubeGameObjects[1].setTransformation(box2PhysX * glm::scale(identity, glm::vec3(1.0f, 2.0f, 0.5f)));
 		sceneCubeGameObjects[2].setTransformation(box3PhysX);
 
 		
 		//Attach Objects to render
 		for (auto object : sceneCubeGameObjects)	renderPipeline->attachRender(sceneRenderModels[0], object.getTransformation());
-		CarObjects[0].setTransformation(transformationPhysX);
-		renderPipeline->attachRender(sceneRenderModels[0], CarObjects[0].getTransformation() * glm::scale(identity, glm::vec3(1.25f, 1.0f, 2.5f)));
+		CarObjects[0].setTransformation(transformationPhysX * glm::scale(identity, glm::vec3(1.25f, 1.0f, 2.5f)));
+		renderPipeline->attachRender(sceneRenderModels[0], CarObjects[0].getTransformation() );
 		
 		renderPipeline->attachRender(sceneRenderModels[1], glm::scale(scenePlaneGameObjects[0].getTransformation(), glm::vec3(20,20,20)));
 		renderPipeline->attachRender(sceneRenderModels[2], glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, -0.9f, 0.0f)));
