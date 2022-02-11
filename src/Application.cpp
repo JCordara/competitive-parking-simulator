@@ -347,7 +347,6 @@ int Application::play() {
 			gameplay->update();
 			physics->update();
 
-
 			// Move lights
 			float elapsedTime = (float)(Time::lastUpdateTime() - Time::programStartTime());
 
