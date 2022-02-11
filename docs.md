@@ -21,7 +21,7 @@ We need a cool name for the game engine
 <a name="entities-and-components"/>
 
 ## Entities and components
-`#include "Scene.h"`
+`#include "Framework.h"`
 
 The `Entity` class is a base class that stores components and provides accessor
 methods for them. Components are stored in a map structure, so each Entity can
