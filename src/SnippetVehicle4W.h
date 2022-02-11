@@ -38,6 +38,7 @@ extern PxVehicleDrivableSurfaceToTireFrictionPairs* gFrictionPairs;
 extern PxRigidStatic* gGroundPlane;
 extern PxVehicleDrive4W* gVehicle4W;
 extern PxRigidDynamic* box1;
+extern PxRigidStatic* box2;
 
 extern bool	gIsVehicleInAir;
 
