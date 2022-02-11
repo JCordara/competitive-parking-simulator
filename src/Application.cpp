@@ -156,6 +156,9 @@ Application::Application(appSettings& settings)
 	glm::vec3 box2Pos;
 	physics->PhysXVec3ToglmVec3(box2->getGlobalPose().p, box2Pos);
 
+	glm::vec3 box3Pos;
+	physics->PhysXVec3ToglmVec3(box3->getGlobalPose().p, box3Pos);
+
 	sceneCubeGameObjects.push_back(
 		GameObject(
 			0,
@@ -179,17 +182,10 @@ Application::Application(appSettings& settings)
 	sceneCubeGameObjects.push_back(
 		GameObject(
 			0,
-			-1, 
-			glm::scale(
-				glm::rotate(
-					glm::translate(
-						identity, 
-						glm::vec3(6.0f, 1.0f, 6.0f)
-					),
-					glm::radians(30.f),
-					glm::vec3(0.f,1.f,0.f)
-				), 
-				glm::vec3(1.0f, 1.0f, 1.0f)
+			-1,
+			glm::translate(
+				identity,
+				box3Pos
 			)
 		)
 	);
@@ -392,8 +388,14 @@ int Application::play() {
 		physics->PhysXMat4ToglmMat4(physx::PxMat44(box1->getGlobalPose()), box1PhysX);
 		glm::mat4 box2PhysX;
 		physics->PhysXMat4ToglmMat4(physx::PxMat44(box2->getGlobalPose()), box2PhysX);
+
+		glm::mat4 box3PhysX;
+		physics->PhysXMat4ToglmMat4(physx::PxMat44(box3->getGlobalPose()), box3PhysX);
+
+
 		sceneCubeGameObjects[0].setTransformation(box1PhysX);
 		sceneCubeGameObjects[1].setTransformation(box2PhysX);
+		sceneCubeGameObjects[2].setTransformation(box3PhysX);
 
 		
 		//Attach Objects to render
