@@ -1,8 +1,8 @@
 #include "Event.h"
 
 Event<void> Events::GameStart;
-Event<void> Events::TestAudio;
-Event<Audio&> Events::TestAudioParameter;
+Event<void> Events::CarParked;
+Event<void> Events::CarUnParked;
 
 Event<void> Events::PressW;
 Event<void> Events::PressA;

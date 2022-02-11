@@ -14,14 +14,11 @@
 
 #include "EventTypes.h" // Defines event framework
 
-// Dependencies are linked through this class
-// Event.h knows all
-#include "AudioManager.h"
 
 namespace Events {
     extern Event<void> GameStart;
-    extern Event<void> TestAudio;
-    extern Event<Audio&> TestAudioParameter;
+    extern Event<void> CarParked;
+    extern Event<void> CarUnParked;
 
     extern Event<void> PressW;
     extern Event<void> PressA;

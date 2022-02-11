@@ -6,8 +6,9 @@
 
 class RendererComponent : public BaseComponent {
 public:
-    static  ComponentEnum getType();
+    RendererComponent(Entity& parent);
     ~RendererComponent();
+    static  ComponentEnum getType();
 };
 
 #endif // RENDERER_COMPONENT_H

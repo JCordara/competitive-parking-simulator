@@ -14,7 +14,7 @@
 #include <GLFW/glfw3.h>
 
 // C++ standard library includes
-#include "stdafx.h"
+#include "Common.h"
 
 // Engine sub-system includes
 #include "Framework.h"

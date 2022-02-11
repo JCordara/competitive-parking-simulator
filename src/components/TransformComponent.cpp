@@ -1,7 +1,8 @@
 #include "TransformComponent.h"
 
-TransformComponent::TransformComponent() 
-    : x(0)
+TransformComponent::TransformComponent(Entity& parent) 
+    : BaseComponent(parent)
+    , x(0)
     , y(0)
     , z(0)
 {}

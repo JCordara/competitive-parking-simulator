@@ -6,8 +6,9 @@
 
 class AudioComponent : public BaseComponent {
 public:
-    static ComponentEnum getType();
+    AudioComponent(Entity& parent);
     ~AudioComponent();
+    static ComponentEnum getType();
 };
 
 #endif // AUDIO_COMPONENT_H

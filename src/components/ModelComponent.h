@@ -6,8 +6,9 @@
 
 class ModelComponent : public BaseComponent {
 public:
-    static ComponentEnum getType();
+    ModelComponent(Entity& parent);
     ~ModelComponent();
+    static ComponentEnum getType();
 };
 
 #endif // MODEL_COMPONENT_H

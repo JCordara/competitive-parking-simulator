@@ -1,7 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "stdafx.h"
+#include "Common.h"
 
 /* Forward declaration of Entity class */
 class Entity;

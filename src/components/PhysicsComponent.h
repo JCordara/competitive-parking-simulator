@@ -5,8 +5,9 @@
 
 class PhysicsComponent : public BaseComponent {
 public:
-    static ComponentEnum getType();
+    PhysicsComponent(Entity& parent);
     ~PhysicsComponent();
+    static ComponentEnum getType();
 };
 
 #endif // PHYSICS_COMPONENT_H

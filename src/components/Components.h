@@ -1,15 +1,19 @@
 #ifndef COMPONENTS_H
 #define COMPONENTS_H
 
+#include "Entity.h"
+#include "Event.h"
+
 
 enum class ComponentEnum {
     ai,
     audio,
-    controller,     // Haven't created a controller class yet, needed?
+    controller,
     model,
     physics,        // Is Rigidbody a better name?
     renderer,
-    transform
+    transform,
+    volumeTrigger
 };
 
 /**
@@ -19,7 +23,12 @@ enum class ComponentEnum {
  */
 class BaseComponent {
 public:
-    virtual ~BaseComponent() = 0;
+    BaseComponent(Entity& p) : parent(p) {}
+
+    virtual ~BaseComponent() {};
+
+protected:
+    Entity& parent;
 };
 
 
@@ -29,5 +38,6 @@ public:
 #include "TransformComponent.h"
 #include "PhysicsComponent.h"
 #include "RendererComponent.h"
+#include "VolumeTriggerComponent.h"
 
 #endif // COMPONENTS_H

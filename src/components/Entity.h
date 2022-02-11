@@ -1,7 +1,7 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
-#include "stdafx.h"
+#include "../Common.h"
 
 class BaseComponent;
 enum class ComponentEnum;
@@ -31,7 +31,7 @@ public:
     // ^ Assert that C is derived from BaseComponent
     addComponent(Args&&... args) {
         // Construct the component
-        shared_ptr<BaseComponent> component = make_shared<C>(args...);
+        shared_ptr<BaseComponent> component = make_shared<C>(*this, args...);
         // Get the components type enum (used as map key)
         ComponentEnum ctype = C::getType();
         // Insert component into map

@@ -1,6 +1,10 @@
 #include "AiComponent.h"
 
 
+AiComponent::AiComponent(Entity& parent) 
+    : BaseComponent(parent)
+{}
+
 ComponentEnum AiComponent::getType() {
     return ComponentEnum::ai;
 }

@@ -7,7 +7,7 @@
 class TransformComponent : public BaseComponent {
 public:
     
-    TransformComponent();
+    TransformComponent(Entity& parent);
 
     static  ComponentEnum getType();
     ~TransformComponent();
@@ -15,12 +15,6 @@ public:
 
     // Test attributes
     float x, y, z;
-
-    TransformComponent(float _x, float _y, float _z) {
-        x = _x;
-        y = _y;
-        z = _z;
-    }
 };
 
 #endif // TRANSFORM_COMPONENT_H

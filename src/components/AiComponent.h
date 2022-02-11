@@ -6,8 +6,9 @@
 
 class AiComponent : public BaseComponent {
 public:
-    static  ComponentEnum getType();
+    AiComponent(Entity& parent);
     ~AiComponent();
+    static  ComponentEnum getType();
 };
 
 #endif // AI_COMPONENT_H
