@@ -12,11 +12,9 @@
 // External library includes
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 // C++ standard library includes
-#include "stdafx.h"
+#include "Common.h"
 
 // Engine sub-system includes
 #include "Framework.h"

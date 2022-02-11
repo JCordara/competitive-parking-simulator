@@ -1,5 +1,13 @@
 #include "Application.h"
 
+int g_carsParked = 0;
+void carParked() {
+	g_carsParked++;
+}
+void carUnParked() {
+	g_carsParked--;
+}
+
 Application::Application(appSettings& settings) 
 	: settings(settings)
 	, mainCamera()
@@ -24,7 +32,7 @@ Application::Application(appSettings& settings)
 	window 		 = std::make_shared<Window>(eventManager, 1200, 800, "Test Window");
 
 	/* Game systems - update() every frame */
-	gameplay = std::make_shared<GameplaySystem>(scene, eventManager, audioManager);
+	// gameplay = std::make_shared<GameplaySystem>(scene, eventManager, audioManager);
 	physics  = std::make_shared<PhysicsSystem>(scene, eventManager, audioManager);
 	render   = std::make_shared<RenderSystem>(scene, eventManager, audioManager, window);
 
@@ -137,6 +145,9 @@ Application::Application(appSettings& settings)
 	sceneRenderModels.push_back(
 		std::make_shared<Model>("models/smileplane.obj", glm::vec3(1.0, 0.0, 1.0))
 	);
+	sceneRenderModels.push_back(
+		std::make_shared<Model>("models/parkingstall.obj", glm::vec3(1.0, 0.0, 1.0))
+	);
 
 	//------Objects
 	glm::vec3 box1Pos;
@@ -193,6 +204,16 @@ Application::Application(appSettings& settings)
 					glm::vec3(0.0f, -1.0f, 0.0f)
 				), 
 				glm::vec3(1.f, 1.f, 1.f)
+			)
+		)
+	);
+	scenePlaneGameObjects.push_back(
+		GameObject(
+			2, 
+			-1, 
+			glm::translate(
+				identity, 
+				glm::vec3(5.0f, -0.9f, 0.0f)
 			)
 		)
 	);
@@ -296,6 +317,16 @@ Application::Application(appSettings& settings)
 	Events::PressLeftShift.registerHandler<startHandbrake>();
 	Events::ReleaseLeftShift.registerHandler<releaseHandbrake>();
 
+
+	gameplay = std::make_shared<GameplaySystem>(scene, eventManager, audioManager, CarObjects[0]);
+	auto parkingStall = scene->createEntity();
+	parkingStall->addComponent<TransformComponent>();
+	auto transform = parkingStall->getComponent<TransformComponent>();
+	transform->x = 5.0f;
+	parkingStall->addComponent<VolumeTriggerComponent>();
+	Events::CarParked.registerHandler<carParked>();
+	Events::CarUnParked.registerHandler<carUnParked>();
+
 }
 
 int Application::play() {
@@ -365,8 +396,11 @@ int Application::play() {
 
 		//Attach Objects to render
 		for (auto object : sceneCubeGameObjects)	renderPipeline->attachRender(sceneRenderModels[0], object.getTransformation());
-		renderPipeline->attachRender(sceneRenderModels[0], CarObjects[0].getTransformation() * transformationPhysX);
-		for (auto object : scenePlaneGameObjects)	renderPipeline->attachRender(sceneRenderModels[1], glm::scale(object.getTransformation(), glm::vec3(20,20,20)));
+		CarObjects[0].setTransformation(transformationPhysX);
+		renderPipeline->attachRender(sceneRenderModels[0], CarObjects[0].getTransformation());
+		
+		renderPipeline->attachRender(sceneRenderModels[1], glm::scale(scenePlaneGameObjects[0].getTransformation(), glm::vec3(20,20,20)));
+		renderPipeline->attachRender(sceneRenderModels[2], glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, -0.9f, 0.0f)));
 		
 		//Render the output
 		renderPipeline->executeRender();

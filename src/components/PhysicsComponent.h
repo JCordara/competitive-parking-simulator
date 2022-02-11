@@ -1,12 +1,13 @@
 #ifndef PHYSICS_COMPONENT_H
 #define PHYSICS_COMPONENT_H
 
-#include "BaseComponent.h"
+#include "Components.h"
 
 class PhysicsComponent : public BaseComponent {
 public:
-    static ComponentEnum getType();
+    PhysicsComponent(Entity& parent);
     ~PhysicsComponent();
+    static ComponentEnum getType();
 };
 
 #endif // PHYSICS_COMPONENT_H

@@ -25,6 +25,7 @@ void GUI::draw() {
 	ImGui::SetWindowSize(ImVec2(80, 25));
 
 	ImGui::Text("FPS: %.2f", Time::fps());
+	ImGui::Text("Cars in parking stalls: %d", g_carsParked);
 
 	ImGui::End();
 

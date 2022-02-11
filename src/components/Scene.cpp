@@ -1,5 +1,7 @@
 #include "Scene.h"
 
+#include "Entity.h"
+
 std::shared_ptr<Entity> Scene::createEntity() {
     _entities.emplace_back(std::make_shared<Entity>());
     return _entities.back();

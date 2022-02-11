@@ -1,7 +1,12 @@
 #include "RendererComponent.h"
 
+
+RendererComponent::RendererComponent(Entity& parent) 
+    : BaseComponent(parent)
+{}
+
 ComponentEnum RendererComponent::getType() {
-    return Component::renderer;
+    return ComponentEnum::renderer;
 }
 
 RendererComponent::~RendererComponent() {

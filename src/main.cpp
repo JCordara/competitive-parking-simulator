@@ -4,7 +4,7 @@
 
 #include "Application.h"
 #include "Framework.h"
-#include "stdafx.h"
+#include "Common.h"
 
 
 // -----------------------------------------------------------------------------

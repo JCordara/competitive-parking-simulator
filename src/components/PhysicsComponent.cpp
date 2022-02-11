@@ -1,7 +1,12 @@
 #include "PhysicsComponent.h"
 
+
+PhysicsComponent::PhysicsComponent(Entity& parent) 
+    : BaseComponent(parent)
+{}
+
 ComponentEnum PhysicsComponent::getType() {
-    return Component::physics;
+    return ComponentEnum::physics;
 }
 
 PhysicsComponent::~PhysicsComponent() {

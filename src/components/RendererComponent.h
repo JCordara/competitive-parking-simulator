@@ -1,12 +1,14 @@
 #ifndef RENDERER_COMPONENT_H
 #define RENDERER_COMPONENT_H
 
-#include "BaseComponent.h"
+#include "Components.h"
+
 
 class RendererComponent : public BaseComponent {
 public:
-    static  ComponentEnum getType();
+    RendererComponent(Entity& parent);
     ~RendererComponent();
+    static  ComponentEnum getType();
 };
 
 #endif // RENDERER_COMPONENT_H

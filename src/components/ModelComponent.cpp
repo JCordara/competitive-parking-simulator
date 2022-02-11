@@ -1,7 +1,12 @@
 #include "ModelComponent.h"
 
+
+ModelComponent::ModelComponent(Entity& parent) 
+    : BaseComponent(parent)
+{}
+
 ComponentEnum ModelComponent::getType() {
-    return Component::model;
+    return ComponentEnum::model;
 }
 
 ModelComponent::~ModelComponent() {

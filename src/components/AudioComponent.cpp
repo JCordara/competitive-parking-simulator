@@ -1,7 +1,12 @@
 #include "AudioComponent.h"
 
+
+AudioComponent::AudioComponent(Entity& parent) 
+    : BaseComponent(parent)
+{}
+
 ComponentEnum AudioComponent::getType() {
-    return Component::audio;
+    return ComponentEnum::audio;
 }
 
 AudioComponent::~AudioComponent() {
