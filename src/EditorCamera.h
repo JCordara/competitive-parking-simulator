@@ -5,14 +5,8 @@
 #ifndef EDITOR_CAMERA_H
 #define EDITOR_CAMERA_H
 
-#include <glm/matrix.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <math.h>
-#include <iostream>
-#include <memory>
-
-// Needed to get delta time
-#include "Time.h"
+#include "Common.h"
+#include "Framework.h"
 
 
 /* --- Default intial values --- */
@@ -24,13 +18,19 @@ const double default_cam_init_yaw         = 0.0;
 const double default_cam_init_pitch       = 0.0;
 
 // Camera move speed multiplier
-const double default_cam_init_speed       = 0.05;
+const double default_cam_init_speed       = 0.5;
 
 // Mouse sensitivity multiplier
-const double default_cam_init_sensitivity = 4.5;
+const double default_cam_init_sensitivity = 1.0;
 
-// Initial zoom amount (clamped from 1 - 10)
-const double default_cam_init_zoom        = 5.0;
+// Initial zoom scale
+const double default_cam_init_zoom_scale = 2.0;
+
+// Initial value for max_zoom
+const double default_cam_init_max_zoom = 15.0;
+
+// Initial zoom amount (clamped from 0 - max_zoom)
+const double default_cam_init_zoom        = 1.0;
 
 
 class EditorCamera {
@@ -78,16 +78,17 @@ public:
 	void setLookAt(glm::vec3 newLookAt);
 	void setSensitivity(double);
 	void setZoom(double v);
+	void setZoomScale(double s);
 	void setPitch(double v);
 	void setYaw(double v);
 
 	// Simple debug method to print out all camera-relative values
 	void printDebugInfo() {
-		printf("\nradius: %f\n", radius);
-		printf("pitch:  %f\n", pitch);
-		printf("yaw:    %f\n", yaw);
-		printf("position: (%.2f, %.2f, %.2f)\n", position.x, position.y, position.z);
-		printf("target:   (%.2f, %.2f, %.2f)\n", target.x, target.y, target.z);
+		printf("\nradius: %f\n", radius_);
+		printf("pitch:  %f\n", pitch_);
+		printf("yaw:    %f\n", yaw_);
+		printf("position: (%.2f, %.2f, %.2f)\n", position_.x, position_.y, position_.z);
+		printf("target:   (%.2f, %.2f, %.2f)\n", target_.x, target_.y, target_.z);
 	};
 
 	/* Embedded controller functions */
@@ -104,24 +105,25 @@ private:
 	double c_mouseLastX_;	// Mouse X coordinate from last frame
 	double c_mouseLastY_;	// Mouse Y coordinate from last frame
 
-	double radius; 		// Distance of camera from target
-	double zoomAmount; 	// Current zoom of the camera
-	double pitch; 		// Up/down angle of camera
-	double yaw;			// Left/right angle of camera
-	double moveSpeed; 	// Sensitivity of camera translation movements
+	double radius_; 		// Distance of camera from target
+	double zoomAmount_; 	// Current zoom of the camera
+	double zoomScale_; 	// Current zoom of the camera
+	double pitch_; 		// Up/down angle of camera
+	double yaw_;			// Left/right angle of camera
+	double moveSpeed_; 	// Sensitivity of camera translation movements
 
 	// Scaling factors for mouse sensitivity
-	double mouseSensitivity;
-	double scrollSensitivity;
+	double mouseSensitivity_;
+	double scrollSensitivity_;
 
-	glm::vec3 position; // Current position of camera
-	glm::vec3 worldUp;	// Up direction vector relative to world (used for finding raltive vectors)
-	glm::vec3 up; 		// Up direction vector relative to camera
-	glm::vec3 right; 	// Right direction vector relative to camera
-	glm::vec3 target; 	// Where the camera is looking
+	glm::vec3 position_; // Current position of camera
+	glm::vec3 worldUp_;	// Up direction vector relative to world (used for finding raltive vectors)
+	glm::vec3 up_; 		// Up direction vector relative to camera
+	glm::vec3 right_; 	// Right direction vector relative to camera
+	glm::vec3 target_; 	// Where the camera is looking
 
 	// Updated only when getViewMatrix() is called
-	glm::mat4 viewMatrix;
+	glm::mat4 viewMatrix_;
 
 	// Calculate up/right/forward vectors from pitch/yaw
 	void updateVectors();
@@ -135,6 +137,7 @@ private:
 	// Calculate look at view matrix given necessary variables
 	// (I just wrote this to see if I could; I still use it because it's cool)
 	glm::mat4 lookAt(glm::vec3 camPosition, glm::vec3 lookDirection, glm::vec3 up);
+
 };
 
 #endif

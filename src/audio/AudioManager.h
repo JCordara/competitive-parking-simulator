@@ -1,28 +1,33 @@
 #ifndef AUDIO_MANAGER_H
 #define AUDIO_MANAGER_H
 
+// Includes global settings for audio like doppler intensity, debug logs, etc
 #include "AudioSettings.h"
 
+// Necessary OpenAL includes
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
 #include <AL/efx.h>
 
+// For managing 3D space and time
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "../Time.h"
+#include "TimeInfo.h"
 
+// Audio system includes
 #include "AudioDevice.h"
 #include "AudioSource.h"
 #include "Audio.h"
 
-#include <memory>
+#include <memory>   // Smart pointers
+#include <iostream> // Degubbing
 
 class AudioManager {
 
 public:
-    // Static reference singleton implementation
-    static AudioManager& instance();
+
+    AudioManager();
 
     Audio& loadAudio(std::string filepath);
 
@@ -63,8 +68,6 @@ private:
     ALCcontext* p_alcContext;
 
     std::vector<std::string> filepaths;
-
-    AudioManager(); // Private ctor to disallow multiple instantiation
 
 };
 

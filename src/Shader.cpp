@@ -42,8 +42,8 @@ bool Shader::compile() {
 		// convert stream into string
 		sourceString = sourceStream.str();
 	}
-	catch (std::ifstream::failure &e) {
-		Log::error("SHADER reading {}:\n{}", path, strerror(errno));
+	catch (std::ifstream::failure) {
+		Log::error("SHADER reading {}:\n", path);
 		return false;
 	}
 	const GLchar* sourceCode = sourceString.c_str();

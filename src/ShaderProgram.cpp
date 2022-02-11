@@ -1,63 +1,86 @@
 #include "ShaderProgram.h"
 
-#include <iostream>
-#include <stdexcept>
-#include <vector>
 
-#include "Log.h"
+/* Constructor */
 
-
-ShaderProgram::ShaderProgram(const std::string& vertexPath, const std::string& fragmentPath)
+ShaderProgram::ShaderProgram() 
 	: programID()
-	, vertex(vertexPath, GL_VERTEX_SHADER)
-	, fragment(fragmentPath, GL_FRAGMENT_SHADER)
-{
-	attach(*this, vertex);
-	attach(*this, fragment);
-	glLinkProgram(programID);
+{}
 
-	if (!checkAndLogLinkSuccess()) {
-		glDeleteProgram(programID);
-		throw std::runtime_error("Shaders did not link.");
-	}
+ShaderProgram::ShaderProgram(const std::string& vertexPath, 
+							 const std::string& fragmentPath)
+	: ShaderProgram()
+{
+	addShader(GL_VERTEX_SHADER, vertexPath);
+	addShader(GL_FRAGMENT_SHADER, fragmentPath);
 }
 
-bool ShaderProgram::recompile() {
 
+/* Public interface */
+
+void ShaderProgram::addShader(GLenum type, const std::string& vertexPath) {
+	// Create shader in place and attach it by id
+	glAttachShader(programID, shaders.emplace_back(vertexPath, type));
+	link(); // Link each shader as its attached
+}
+
+
+bool ShaderProgram::recompile() {
 	try {
-		// Try to create a new program
-		ShaderProgram newProgram(vertex.getPath(), fragment.getPath());
+		// Try to create a new program using the current shaders
+		ShaderProgram newProgram;
+		for (auto it = shaders.begin(); it != shaders.end(); it++) {
+			newProgram.addShader(it->getType(), it->getPath());
+		}
+
+		// Attempt to replace this program with the newly created one
 		*this = std::move(newProgram);
 		return true;
 	}
-	catch (std::runtime_error &e) {
+	catch (std::runtime_error) {
 		Log::warn("SHADER_PROGRAM falling back to previous version of shaders");
 		return false;
 	}
 }
 
 
-void attach(ShaderProgram& sp, Shader& s) {
-	glAttachShader(sp.programID, s.shaderID);
-}
+/* Private methods */
 
-
-bool ShaderProgram::checkAndLogLinkSuccess() const {
+bool ShaderProgram::link() const {
 
 	GLint success;
-
+	glLinkProgram(programID);
 	glGetProgramiv(programID, GL_LINK_STATUS, &success);
+
 	if (!success) {
 		GLint logLength;
 		glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &logLength);
 		std::vector<char> log(logLength);
 		glGetProgramInfoLog(programID, logLength, NULL, log.data());
 
-		Log::error("SHADER_PROGRAM linking {} + {}:\n{}", vertex.getPath(), fragment.getPath(), log.data());
+		// Get a list of shader paths with '\n's between
+		std::string shaderPaths = "";
+		for (auto it = shaders.begin(); it != shaders.end(); it++) {
+			shaderPaths.append(it->getPath());
+			shaderPaths.append("\n");
+		}
+
+		// Display which shaders weren't linking
+		Log::error(
+			"SHADER_PROGRAM linking {}\n{}", 
+			shaderPaths.c_str(), 
+			log.data()
+		);
+
+		// Delete The program and throw an error
+		glDeleteProgram(programID);
+		throw std::runtime_error("Shaders did not link.");
 		return false;
 	}
 	else {
-		Log::info("SHADER_PROGRAM successfully compiled and linked {} + {}", vertex.getPath(), fragment.getPath());
+		// I hate this
+		//Log::info("SHADER_PROGRAM successfully compiled and linked {} + {}"
+		//		   , vertex.getPath(), fragment.getPath());
 		return true;
 	}
 }

@@ -1,10 +1,6 @@
 
 #include "AudioManager.h"
 
-AudioManager& AudioManager::instance() {
-    static AudioManager instance_;
-    return instance_;
-}
 
 /** Open default audio device and initialize OpenAL context */
 AudioManager::AudioManager() {

@@ -4,9 +4,11 @@
 
 #include <iostream>
 
-Texture::Texture(std::string path, GLint interpolation)
-	: textureID(), path(path), interpolation(interpolation)
-{
+
+
+
+void Texture::load(std::string path, GLint interpolation){
+	this->interpolation = interpolation;
 	int numComponents;
 	stbi_set_flip_vertically_on_load(true);
 	const char* pathData = path.c_str();
@@ -54,4 +56,27 @@ Texture::Texture(std::string path, GLint interpolation)
 	else {
 		throw std::runtime_error("Failed to read texture data from file!");
 	}
+}
+
+void Texture::setUpInternal(int width, int height, GLint interpolation, GLuint internalFormat, GLuint format, GLenum type) {
+	this->interpolation = interpolation;
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);		//Set alignment to be 1
+	bind();
+
+	//Loads texture data into bound texture
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpolation);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpolation);
+
+	// Clean up
+	unbind();
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);	//Return to default alignment
+}
+
+void Texture::setBorderColour(glm::vec4 col) {
+	bind();
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &col[0]);
+	unbind();
 }

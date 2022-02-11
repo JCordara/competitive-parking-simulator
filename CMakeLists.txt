@@ -22,11 +22,18 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 
-#------------------------------- AudioSystem -----------------------------------
-# Build AudioSystem as a separate library
+#------------------------------- AudioManager -----------------------------------
+# Build AudioManager as a separate library
 
 add_subdirectory(src/audio)
-list(APPEND LIBRARIES AudioSystem)
+list(APPEND LIBRARIES AudioManager)
+
+
+#------------------------- Entities and Components -----------------------------
+# Build Entity/Component system as a separate library
+
+add_subdirectory(src/components)
+list(APPEND LIBRARIES EntityComponent)
 
 
 #--------------------------------- PhysX ---------------------------------------
@@ -88,7 +95,11 @@ list(APPEND LIBRARIES
 	"${CMAKE_SOURCE_DIR}/lib/vivid-3.0.1/$<CONFIG>/vivid.lib")
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------- Assimp -------------------------------------
+# Open Asset Import Library 
+
+list(APPEND LIBRARIES
+	"${CMAKE_SOURCE_DIR}/lib/assimp/$<CONFIG>/assimp-vc142-mt.lib")
 
 
 # Some CMake magic
@@ -137,6 +148,9 @@ to_binary_dir("res/audio" "/audio")
 
 # Copy all the textures to binary output dir on build
 to_binary_dir("res/textures" "/textures")
+
+# Copy all the models to binary output dir on build
+to_binary_dir("res/models" "/models")
 
 # Copy all the shared libraries to binary output dir on build
 to_binary_dir("lib/shared/$<CONFIG>" "")

@@ -78,6 +78,7 @@ VertexArrayHandle::VertexArrayHandle()
 	: vaoID(0) // Due to OpenGL syntax, we can't initial directly here, like we want.
 {
 	glGenVertexArrays(1, &vaoID);
+	;
 }
 
 
@@ -115,6 +116,7 @@ VertexBufferHandle::VertexBufferHandle()
 	: vboID(0) // Due to OpenGL syntax, we can't initial directly here, like we want.
 {
 	glGenBuffers(1, &vboID);
+	;
 }
 
 
@@ -179,4 +181,39 @@ TextureHandle::operator GLuint() const {
 
 GLuint TextureHandle::value() const {
 	return textureID;
+}
+
+//------------------------------------------------------------------------------
+
+FrameBufferHandle::FrameBufferHandle()
+	: bufferID(0) // Due to OpenGL syntax, we can't initial directly here, like we want.
+{
+	glGenFramebuffers(1, &bufferID);
+}
+
+
+FrameBufferHandle::FrameBufferHandle(FrameBufferHandle&& other) noexcept
+	: bufferID(std::move(other.bufferID))
+{
+	other.bufferID = 0;
+}
+
+FrameBufferHandle& FrameBufferHandle::operator=(FrameBufferHandle&& other) noexcept {
+	std::swap(bufferID, other.bufferID);
+	return *this;
+}
+
+
+FrameBufferHandle::~FrameBufferHandle() {
+	glDeleteFramebuffers(1, &bufferID);
+}
+
+
+FrameBufferHandle::operator GLuint() const {
+	return bufferID;
+}
+
+
+GLuint FrameBufferHandle::value() const {
+	return bufferID;
 }

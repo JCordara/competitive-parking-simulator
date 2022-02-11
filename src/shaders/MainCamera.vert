@@ -1,11 +1,11 @@
 #version 330 core
 layout (location = 0) in vec3 vertexPos;
-layout (location = 1) in vec3 vertexColour;
-layout (location = 2) in vec3 vertexNormal;
-layout (location = 3) in vec2 vertexTextureCoordinate;
+layout (location = 1) in vec3 vertexNormal;
+layout (location = 2) in vec2 vertexTextureCoordinate;
 
-uniform mat4 Ms[10]; //Array so we can send instanced versions, use M[0] for a single value
-uniform mat4 MsInverseTransposed[10]; //Array so we can send instanced versions, use M[0] for a single value
+#define MAX_NUMBER_INSTANCES 10
+uniform mat4 Ms[MAX_NUMBER_INSTANCES]; //Array so we can send instanced versions, use M[0] for a single value
+uniform mat4 MsInverseTransposed[MAX_NUMBER_INSTANCES]; //Array so we can send instanced versions, use M[0] for a single value
 uniform mat4 V;
 uniform mat4 P;
 uniform mat4 lightSpaceMatrix;
@@ -18,7 +18,6 @@ out vec3 FragPosLightSpace;
 
 void main() {
 	fragPos = vec3( Ms[gl_InstanceID] * vec4(vertexPos,1.0) );
-	fragColour = vertexColour;
 	fragNormal = mat3(MsInverseTransposed[gl_InstanceID])*vertexNormal;
 	fragTextureCoordinate = vertexTextureCoordinate;
 	vec4 FragPosLightSpace1 = lightSpaceMatrix * vec4(fragPos, 1.0);

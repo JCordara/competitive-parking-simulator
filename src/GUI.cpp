@@ -21,10 +21,21 @@ void GUI::draw() {
 		ImGuiWindowFlags_AlwaysAutoResize |		// window should auto-resize to fit the text
 		ImGuiWindowFlags_NoTitleBar;			// no title; only the text should be visible
 
+<<<<<<< HEAD
+
+	ImGui::Begin("FPS counter", (bool*)0, textWindowFlags);
+
+	ImGui::SetWindowFontScale(1.8);
+	ImGui::SetWindowSize(ImVec2(80, 25));
+
+	ImGui::Text("FPS: %.2f", Time::fps());
+	ImGui::Text("CarParked event triggered %d times", g_carsParked);
+=======
 	ImGui::Begin("FPS counter", (bool*)0, textWindowFlags);
 	ImGui::SetWindowSize(ImVec2(80, 25));
 
 	ImGui::Text("FPS: %.2f", Time::fps());
+>>>>>>> main
 
 	ImGui::End();
 
