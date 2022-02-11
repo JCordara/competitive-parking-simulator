@@ -5,7 +5,7 @@ void carParked() {
 	g_carsParked++;
 }
 void carUnParked() {
-	g_carsParked--;
+	//g_carsParked--;
 }
 
 Application::Application(appSettings& settings) 
