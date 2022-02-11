@@ -153,6 +153,9 @@ Application::Application(appSettings& settings)
 	glm::vec3 box1Pos;
 	physics->PhysXVec3ToglmVec3(box1->getGlobalPose().p,box1Pos);
 
+	glm::vec3 box2Pos;
+	physics->PhysXVec3ToglmVec3(box2->getGlobalPose().p, box2Pos);
+
 	sceneCubeGameObjects.push_back(
 		GameObject(
 			0,
@@ -167,12 +170,9 @@ Application::Application(appSettings& settings)
 		GameObject(
 			0,
 			-1, 
-			glm::scale(
-				glm::translate(
-					identity, 
-					glm::vec3(0.0f, 0.0f, 6.0f)
-				), 
-				glm::vec3(1.0f, 2.0f, 0.5f)
+			glm::translate(
+				identity, 
+				box2Pos
 			)
 		)
 	);
@@ -390,13 +390,16 @@ int Application::play() {
 		physics->PhysXMat4ToglmMat4(physx::PxMat44(gVehicle4W->getRigidDynamicActor()->getGlobalPose()),transformationPhysX);
 
 		physics->PhysXMat4ToglmMat4(physx::PxMat44(box1->getGlobalPose()), box1PhysX);
+		glm::mat4 box2PhysX;
+		physics->PhysXMat4ToglmMat4(physx::PxMat44(box2->getGlobalPose()), box2PhysX);
 		sceneCubeGameObjects[0].setTransformation(box1PhysX);
+		sceneCubeGameObjects[1].setTransformation(box2PhysX);
 
-
+		
 		//Attach Objects to render
 		for (auto object : sceneCubeGameObjects)	renderPipeline->attachRender(sceneRenderModels[0], object.getTransformation());
 		CarObjects[0].setTransformation(transformationPhysX);
-		renderPipeline->attachRender(sceneRenderModels[0], CarObjects[0].getTransformation() * glm::scale(identity,glm::vec3(1.25f, 1.0f, 2.5f)));
+		renderPipeline->attachRender(sceneRenderModels[0], CarObjects[0].getTransformation());
 		
 		renderPipeline->attachRender(sceneRenderModels[1], glm::scale(scenePlaneGameObjects[0].getTransformation(), glm::vec3(20,20,20)));
 		renderPipeline->attachRender(sceneRenderModels[2], glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, -0.9f, 0.0f)));
