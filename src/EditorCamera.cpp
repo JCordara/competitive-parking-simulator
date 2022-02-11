@@ -4,20 +4,22 @@
 // TODO: Get rid of magic numbers
 EditorCamera::EditorCamera()
 
-	: zoomAmount(default_cam_init_zoom)
-	, pitch(default_cam_init_pitch)
-	, yaw(default_cam_init_yaw)
-	, mouseSensitivity(default_cam_init_sensitivity)
-	, scrollSensitivity(0.3f) // Magic number - makes for natural scrolling
-	, moveSpeed(default_cam_init_speed)
+	: zoomAmount_(default_cam_init_zoom)
+	, zoomScale_(default_cam_init_zoom_scale)
+	, pitch_(default_cam_init_pitch)
+	, yaw_(default_cam_init_yaw)
+	, mouseSensitivity_(default_cam_init_sensitivity)
+	, scrollSensitivity_(0.3f) // Magic number - makes for natural scrolling
+	, moveSpeed_(default_cam_init_speed)
 
-	, viewMatrix(glm::mat4(1.0f)) // Default view matrix (identity)
+	// Default view matrix (identity)
+	, viewMatrix_(glm::mat4(1.0f))
 
 	// Initialize important reference vectors
-	, worldUp(glm::vec3(0.0f, 1.0f, 0.0f))
-	, up(worldUp)
-	, right(glm::vec3(1.0f, 0.0f, 0.0f))
-	, target(glm::vec3(0.0f, 0.0f, 0.0f))
+	, worldUp_(glm::vec3(0.0f, 1.0f, 0.0f))
+	, up_(worldUp_)
+	, right_(glm::vec3(1.0f, 0.0f, 0.0f))
+	, target_(glm::vec3(0.0f, 0.0f, 0.0f))
 
 	// Embedded controller variables
 	, c_MB1Down_(false)
@@ -27,19 +29,12 @@ EditorCamera::EditorCamera()
 	updateRadius();
 	updatePosition();
 	updateVectors();
-
-	// Register handler for GameStart event
-	Events::GameStart.registerHandler<EditorCamera, &EditorCamera::onGameStart>(this);
-}
-
-void EditorCamera::onGameStart() {
-	setZoom(7.0);
 }
 
 
 // Initialize camera with a point to look at
 EditorCamera::EditorCamera(glm::vec3 initLookAt) : EditorCamera() {
-	target = initLookAt;
+	target_ = initLookAt;
 	updateRadius();
 	updatePosition();
 	updateVectors();
@@ -53,8 +48,7 @@ void EditorCamera::rotateAroundTarget(double xOffset, double yOffset) {
 	// Only when right mouse button is down
 	if (c_MB2Down_)
 	{
-		// TODO: fix this - it's screen dependent (window size, resolution)
-		double sensitivityFactor = mouseSensitivity * 2.0;
+		double sensitivityFactor = mouseSensitivity_ * 0.25;
 
 		double deltaX = xOffset - c_mouseLastX_;
 		double deltaY = yOffset - c_mouseLastY_;
@@ -62,12 +56,12 @@ void EditorCamera::rotateAroundTarget(double xOffset, double yOffset) {
 		deltaX *= sensitivityFactor;
 		deltaY *= sensitivityFactor;
 
-		yaw   += deltaX * Time::delta();
-		pitch -= deltaY * Time::delta();
+		yaw_   += deltaX;
+		pitch_ -= deltaY;
 
 		// Clamp pitch between looking straight up and straight down
-		if (pitch >  89.99f) pitch =  89.99f;
-		if (pitch < -89.99f) pitch = -89.99f;
+		if (pitch_ >  89.99f) pitch_ =  89.99f;
+		if (pitch_ < -89.99f) pitch_ = -89.99f;
 
 		updatePosition();
 		updateVectors();
@@ -90,24 +84,26 @@ void EditorCamera::move(double xOffset, double yOffset) {
 	// Move both the target (being looked at) and position (camera position)
 	// by the same amount
 	float xAmount = static_cast<float>(
-		deltaX * mouseSensitivity * moveSpeed * Time::delta());
+		deltaX * mouseSensitivity_ * moveSpeed_);
 	float yAmount = static_cast<float>(
-		deltaY * mouseSensitivity * moveSpeed * Time::delta());
+		deltaY * mouseSensitivity_ * moveSpeed_);
 
 	// Move lookat target by specified amount
-	target   += right * xAmount;
-	target   += up    * yAmount;
+	target_   += right_ * xAmount;
+	target_   += up_    * yAmount;
 
 	updatePosition();
 
 }
 
 void EditorCamera::zoom(double, double yOffset) {
-	zoomAmount += yOffset * scrollSensitivity;
+	zoomAmount_ += yOffset * scrollSensitivity_;
 
 	// Clamp zoom min and max
-	if (zoomAmount > 10.0f) zoomAmount = 10.0f;
-	if (zoomAmount < 1.0f) zoomAmount = 1.0f;
+	if (zoomAmount_ > default_cam_init_max_zoom) 
+		zoomAmount_ = default_cam_init_max_zoom;
+	if (zoomAmount_ < 0.0f) 
+		zoomAmount_ = 0.0f;
 
 	updateRadius();
 	updatePosition();
@@ -115,9 +111,9 @@ void EditorCamera::zoom(double, double yOffset) {
 
 // Move look target back to origin
 void EditorCamera::resetTarget() {
-	target.x = 0.0f;
-	target.y = 0.0f;
-	target.z = 0.0f;
+	target_.x = 0.0f;
+	target_.y = 0.0f;
+	target_.z = 0.0f;
 
 	updateRadius();
 	updatePosition();
@@ -129,31 +125,39 @@ void EditorCamera::resetTarget() {
 
 glm::mat4 EditorCamera::getViewMatrix() {
 	//viewMatrix = glm::lookAt(position, target, up);
-	viewMatrix = lookAt(position, target, up);
-	return viewMatrix;
+	viewMatrix_ = lookAt(position_, target_, up_);
+	return viewMatrix_;
 }
 
 glm::vec3 EditorCamera::getPosition() const {
-	return position;
+	return position_;
 }
 
 glm::vec3 EditorCamera::getViewDirection() const {
-	return glm::normalize(position - target);
+	return glm::normalize(position_ - target_);
 }
 
 glm::vec3 EditorCamera::getUpDirection() const {
-	return glm::normalize(up);
+	return glm::normalize(up_);
 }
 
 void EditorCamera::setLookAt(glm::vec3 newLookAt) {
-	target = newLookAt;
+	target_ = newLookAt;
 	updateRadius();
 	updatePosition();
 	updateVectors();
 }
 
+void EditorCamera::setZoomScale(double s) {
+	// Add a little bit so max zoom doesnt clip
+	zoomScale_ = s + 0.001;
+	updateVectors();
+	updatePosition();
+	updateRadius();
+}
+
 void EditorCamera::setSensitivity(double newSensitivity) {
-	mouseSensitivity = newSensitivity;
+	mouseSensitivity_ = newSensitivity * 60.0;
 }
 
 
@@ -162,41 +166,43 @@ void EditorCamera::setSensitivity(double newSensitivity) {
 // Recalculate up and right vectors relative to camera
 void EditorCamera::updateVectors() {
 	glm::vec3 frontDirection = getViewDirection();
-	right = glm::normalize(glm::cross(frontDirection, worldUp));
-	up = glm::normalize(glm::cross(right, frontDirection));
+
+	right_ = glm::normalize(glm::cross(frontDirection, worldUp_));
+	up_    = glm::normalize(glm::cross(right_, frontDirection));
 
 }
 
 // Given radius, pitch, yaw, and target, recalculate camera position
 void EditorCamera::updatePosition() {
 	// Factor out common values
-	double d_pitch = glm::radians(pitch);
-	double d_yaw = glm::radians(yaw);
+	double d_pitch = glm::radians(pitch_);
+	double d_yaw = glm::radians(yaw_);
 	double cosPitch = cos(d_pitch);
 
 	// Calculate relative position
-	position.x = static_cast<float>(-radius * sin(d_yaw) * cosPitch);
-	position.y = static_cast<float>(-radius * sin(d_pitch));
-	position.z = static_cast<float>( radius * cos(d_yaw) * cosPitch);
+	position_.x = static_cast<float>(-radius_ * sin(d_yaw) * cosPitch);
+	position_.y = static_cast<float>(-radius_ * sin(d_pitch));
+	position_.z = static_cast<float>( radius_ * cos(d_yaw) * cosPitch);
 
 	// Calculate world position
-	position += target;
+	position_ += target_;
 }
 
-// Calculate distance of camera from target based on zoom amount
-// TODO: replace magic numbers with meaningful values
+// Update distance of camera from target based on zoom amount and zoom scale
 void EditorCamera::updateRadius() {
-	
-	// zoomAmount is clamped to range [1.0, 10.0]
-	// Coefficient is a value in range [81.0, 0.0] on a gradually flattened curve
-	double coefficient = pow((zoomAmount - 10.0), 2);
+	// Note: zoomAmount_ ranges from 0 to default_cam_init_max_zoom
+	double coef = default_cam_init_max_zoom - zoomAmount_; // 0 = zoomed in
 
-	// Lowers max radius and sets minimum camera distance from target
-	radius = 0.25 * coefficient + 1;
-
+	radius_ = pow((coef), 3); // Zoom increments are larger on the large scale
+	radius_ *= 0.025; // Scale down to good size
+	radius_ += zoomScale_; // Minimum distance from zoom target
 }
 
-glm::mat4 EditorCamera::lookAt(glm::vec3 camPosition, glm::vec3 camTarget, glm::vec3 camUp) {
+glm::mat4 EditorCamera::lookAt(
+	glm::vec3 camPosition, 
+	glm::vec3 camTarget, 
+	glm::vec3 camUp) 
+{
 	glm::vec3 camDirection = glm::normalize(camPosition - camTarget);
 	glm::vec3 camRight = glm::normalize(glm::cross(camUp, camDirection));
 	
@@ -220,20 +226,20 @@ glm::mat4 EditorCamera::lookAt(glm::vec3 camPosition, glm::vec3 camTarget, glm::
 }
 
 void EditorCamera::setZoom(double v) {
-	zoomAmount = v;
+	zoomAmount_ = v;
 	updateRadius();
 	updatePosition();
 }
 
 void EditorCamera::setPitch(double v) {
-	pitch = v;
+	pitch_ = v;
 	updateRadius();
 	updatePosition();
 	updateVectors();
 }
 
 void EditorCamera::setYaw(double v) {
-	yaw = v;
+	yaw_ = v;
 	updateRadius();
 	updatePosition();
 	updateVectors();
