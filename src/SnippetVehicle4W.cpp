@@ -510,7 +510,7 @@ void initPhysics()
 	PxShape* boxShape = gPhysics->createShape(PxBoxGeometry(1, 1, 1), *gMaterial);
 	//PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
 	box1 = gPhysics->createRigidDynamic(t);
-	PxFilterData boxFilterData(COLLISION_FLAG_GROUND_AGAINST,0 , 0, 0);
+	PxFilterData boxFilterData(COLLISION_FLAG_GROUND_AGAINST,COLLISION_FLAG_OBSTACLE , 0, 0);
 	boxShape->setSimulationFilterData(boxFilterData);
 	box1->attachShape(*boxShape);
 	PxRigidBodyExt::updateMassAndInertia(*box1, 10.0f);
@@ -520,8 +520,8 @@ void initPhysics()
 	PxShape* boxShape2 = gPhysics->createShape(PxBoxGeometry(1.0f, 2.0f, 0.5f), *gMaterial);
 	//PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
 	box2 = gPhysics->createRigidStatic(t2);
-	//PxFilterData boxFilterData(COLLISION_FLAG_GROUND_AGAINST, 0, 0, 0);
-	boxShape2->setSimulationFilterData(boxFilterData);
+	PxFilterData boxFilterData2(COLLISION_FLAG_GROUND_AGAINST, COLLISION_FLAG_OBSTACLE, 0, 0);
+	boxShape2->setSimulationFilterData(boxFilterData2);
 	box2->attachShape(*boxShape);
 	//PxRigidBodyExt::setMassAndUpdateInertia(*box2, 10.0f);
 	gScene->addActor(*box2);
