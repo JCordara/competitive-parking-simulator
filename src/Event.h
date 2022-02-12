@@ -20,18 +20,21 @@ namespace Events {
     extern Event<void> CarParked;
     extern Event<void> CarUnParked;
 
-    extern Event<void> PressW;
-    extern Event<void> PressA;
-    extern Event<void> PressS;
-    extern Event<void> PressD;
-    extern Event<void> ReleaseW;
-    extern Event<void> ReleaseA;
-    extern Event<void> ReleaseS;
-    extern Event<void> ReleaseD;
-    extern Event<void> PressSpace;
-    extern Event<void> ReleaseSpace;
-	extern Event<void> ReleaseLeftShift;
-	extern Event<void> PressLeftShift;
+    extern Event<void> PlayerAccelerate;
+    extern Event<void> PlayerAccelerateRelease;
+    extern Event<void> PlayerReverse;
+    extern Event<void> PlayerReverseRelease;
+    extern Event<void> PlayerTurnLeft;
+    extern Event<void> PlayerTurnLeftRelease;
+    extern Event<void> PlayerTurnRight;
+    extern Event<void> PlayerTurnRightRelease;
+    extern Event<void> PlayerBrake;
+    extern Event<void> PlayerBrakeRelease;
+	extern Event<void> PlayerHandbrake;
+	extern Event<void> PlayerHandbrakeRelease;
+
+    extern Event<double, double> CameraRotate;
+    extern Event<double, double> CameraZoom;
 };
 
 #endif // EVENT_H

@@ -14,10 +14,15 @@
 
 #include "Common.h"
 
-// Function pointer object with any single argument type
+// Based on this article
 // https://blog.molecular-matters.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
+
+// Base Delegate template class
+template<typename ...params>
+class Delegate {};
+
 template<typename T>
-class Delegate {
+class Delegate<T> {
 private:
 
     typedef void* InstancePtr;
@@ -58,6 +63,58 @@ public:
             return;
         }
         return m_stub.second(m_stub.first, arg);
+    }
+
+    bool operator==(Delegate& other) {
+        bool isEqual = (m_stub.first == other.m_stub.first) 
+            && (m_stub.second == other.m_stub.second);
+        return isEqual;
+    }
+};
+
+// For two arguments
+template<typename Tx, typename Ty>
+class Delegate<Tx, Ty> {
+private:
+
+    typedef void* InstancePtr;
+    typedef void (*FunctionPtr)(InstancePtr, Tx, Ty);
+    typedef std::pair<InstancePtr, FunctionPtr> Stub;
+
+    Stub m_stub;
+
+    template<void (*function)(Tx, Ty)>
+    static inline void functionStub (InstancePtr, Tx arg0, Ty arg1) {
+        return (function)(arg0, arg1);
+    }
+
+    template<class C, void (C::*function)(Tx, Ty)>
+    static inline void classMethodStub (InstancePtr instance, Tx arg0, Ty arg1) {
+        return (static_cast<C*>(instance)->*function)(arg0, arg1);
+    }
+
+public:
+
+    Delegate() : m_stub(nullptr, nullptr) {}
+
+    template<void (*function)(Tx, Ty)>
+    void bind () {
+        m_stub.first = nullptr;
+        m_stub.second = &functionStub<function>;
+    }
+
+    template<class C, void (C::*function)(Tx, Ty)>
+    void bind (C* instance) {
+        m_stub.first = instance;
+        m_stub.second = &classMethodStub<C, function>;
+    }
+
+    void invoke(Tx arg0, Ty arg1) {
+        if (m_stub.second == nullptr) {
+            std::cerr << "Cannot invoke unbound delegate\n";
+            return;
+        }
+        return m_stub.second(m_stub.first, arg0, arg1);
     }
 
     bool operator==(Delegate& other) {
@@ -121,8 +178,13 @@ public:
 
 
 // Subject class (Observer pattern)
+// Base Event template class
+template<typename ...params>
+class Event {};
+
+// One argument
 template<typename T>
-class Event {
+class Event<T> {
 public:
     template<void (*func)(T)>
     void registerHandler() {
@@ -178,7 +240,65 @@ private:
     std::vector<Delegate<T>> observers;
 };
 
-// Template specialization for zero arguments
+// 2 arguments
+template<typename Tx, typename Ty>
+class Event<Tx, Ty> {
+public:
+    template<void (*func)(Tx, Ty)>
+    void registerHandler() {
+        Delegate<Tx, Ty> delegate;
+        delegate.bind<func>();
+        observers.push_back(delegate);
+    }
+    
+    template<class C, void (C::*func)(Tx, Ty)>
+    void registerHandler(C* instance) {
+        Delegate<Tx, Ty> delegate;
+        delegate.bind<C, func>(instance);
+        observers.push_back(delegate);
+    }
+
+    template<void (*func)(Tx, Ty)>
+    void unregisterHandler() {
+        // Create a matching Delegate
+        Delegate<Tx, Ty> d;
+        d.bind<func>();
+        // Iterate through attached function delegates
+        for (auto it = observers.begin(); it != observers.end(); it++) {
+            // Find one that is equal
+            if (*it == d) {
+                observers.erase(it); // Then remove it
+                return;
+            }
+        }
+    }
+
+    template<class C, void (C::*func)(Tx, Ty)>
+    void unregisterHandler(C* instance) {
+        // Create a matching Delegate
+        Delegate<Tx, Ty> d;
+        d.bind<C, func>(instance);
+        // Iterate through attached function delegates
+        for (auto it = observers.begin(); it != observers.end(); it++) {
+            // Find one that is equal
+            if (*it == d) {
+                observers.erase(it); // Then remove it
+                return;
+            }
+        }
+    }
+
+    void broadcast(Tx arg0, Ty arg1) {
+        for (auto& f : observers) {
+            f.invoke(arg0, arg1);
+        }
+    }
+
+private:
+    std::vector<Delegate<Tx, Ty>> observers;
+};
+
+// Zero arguments
 template<>
 class Event<void> {
 public:
