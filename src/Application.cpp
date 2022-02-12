@@ -301,11 +301,11 @@ Application::Application(appSettings& settings)
 	Events::PressS.registerHandler<startAccelerateReverseMode>();
 	Events::ReleaseS.registerHandler<releaseReverseDriveControls>();
 
-	Events::PressD.registerHandler<startTurnHardLeftMode>();
-	Events::ReleaseD.registerHandler<releaseLeftTurnControls>();
+	Events::PressD.registerHandler<startTurnHardRightMode>();
+	Events::ReleaseD.registerHandler<releaseRightTurnControls>();
 
-	Events::PressA.registerHandler<startTurnHardRightMode>();
-	Events::ReleaseA.registerHandler<releaseRightTurnControls>();
+	Events::PressA.registerHandler<startTurnHardLeftMode>();
+	Events::ReleaseA.registerHandler<releaseLeftTurnControls>();
 
 	Events::PressSpace.registerHandler<startBrakeMode>();
 	Events::ReleaseSpace.registerHandler<releaseBrakeMode>();
