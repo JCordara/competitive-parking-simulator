@@ -73,23 +73,15 @@ extern bool					gVehicleOrderComplete;
 extern bool					gMimicKeyInputs;
 
 VehicleDesc initVehicleDesc();
-void startAccelerateForwardsMode();
-void startAccelerateReverseMode();
-void startBrakeMode();
-void startTurnHardLeftMode();
-void startTurnHardRightMode();
-void startHandbrakeTurnLeftMode();
-void startHandbrakeTurnRightMode();
-void startHandbrake();
-void releaseDriveControls();
-void releaseLeftTurnControls();
-void releaseRightTurnControls();
-void releaseHandbrake();
-void releaseBrakeMode();
+
+void vehicleAccelerateMode(float);
+void vehicleTurnMode(float);
+void vehicleBrakeMode(float);
+void vehicleHandbrakeMode(float);
+
 void initPhysics();
 void incrementDrivingMode(const PxF32 timestep);
 void stepPhysics();
 void cleanupPhysics();
 void keyPress(unsigned char key, const PxTransform& camera);
-void releaseForwardDriveControls();
-void releaseReverseDriveControls();
+

@@ -47,40 +47,7 @@ Application::Application(appSettings& settings)
 	mainCamera.setYaw(-45.0);
 	mainCamera.setZoom(5.5);
 	mainCamera.setLookAt(glm::vec3(0.0f, 0.0f, -1.0f));
-/*
-	// Register camera input events
-	eventManager->registerMouseButton(
-		bindMethodFunction_0_Variables(&EditorCamera::button1Down, &mainCamera), 
-		GLFW_MOUSE_BUTTON_1, GLFW_PRESS, 0
-	);
 
-	eventManager->registerMouseButton(
-		bindMethodFunction_0_Variables(&EditorCamera::button1Up, &mainCamera), 
-		GLFW_MOUSE_BUTTON_1, GLFW_RELEASE, 0
-	);
-
-	eventManager->registerMouseButton(
-		bindMethodFunction_0_Variables(&EditorCamera::button2Down, &mainCamera), 
-		GLFW_MOUSE_BUTTON_2, GLFW_PRESS, 0
-	);
-	
-	eventManager->registerMouseButton(
-		bindMethodFunction_0_Variables(&EditorCamera::button2Up, &mainCamera), 
-		GLFW_MOUSE_BUTTON_2, GLFW_RELEASE, 0
-	);
-
-	eventManager->registerMousePosition(
-		bindMethodFunction_2_Variables(&EditorCamera::move, &mainCamera)
-	);
-
-	eventManager->registerMousePosition(
-		bindMethodFunction_2_Variables(&EditorCamera::rotateAroundTarget, &mainCamera)
-	);
-
-	eventManager->registerScroll(
-		bindMethodFunction_2_Variables(&EditorCamera::zoom, &mainCamera)
-	);
-*/
 	// -------------------------------------------------------------------------
 	renderPipeline = std::make_shared<GameRenderPipeline>();
 	//-----Lights
@@ -230,24 +197,11 @@ Application::Application(appSettings& settings)
 	);
 	
 
-	/* Bind functions here */
-	Events::PlayerAccelerate.registerHandler<startAccelerateForwardsMode>();
-	Events::PlayerAccelerateRelease.registerHandler<releaseForwardDriveControls>();
-
-	Events::PlayerReverse.registerHandler<startAccelerateReverseMode>();
-	Events::PlayerReverseRelease.registerHandler<releaseReverseDriveControls>();
-
-	Events::PlayerTurnRight.registerHandler<startTurnHardLeftMode>();
-	Events::PlayerTurnRightRelease.registerHandler<releaseLeftTurnControls>();
-
-	Events::PlayerTurnLeft.registerHandler<startTurnHardRightMode>();
-	Events::PlayerTurnLeftRelease.registerHandler<releaseRightTurnControls>();
-
-	Events::PlayerBrake.registerHandler<startBrakeMode>();
-	Events::PlayerBrakeRelease.registerHandler<releaseBrakeMode>();
-
-	Events::PlayerHandbrake.registerHandler<startHandbrake>();
-	Events::PlayerHandbrakeRelease.registerHandler<releaseHandbrake>();
+	// Input binding
+	Events::PlayerAccelerate.registerHandler<vehicleAccelerateMode>();
+	Events::PlayerSteer.registerHandler<vehicleTurnMode>();
+	Events::PlayerBrake.registerHandler<vehicleBrakeMode>();
+	Events::PlayerHandbrake.registerHandler<vehicleHandbrakeMode>();
 
 	Events::CameraRotate.registerHandler<EditorCamera, &EditorCamera::rotateAroundTarget>(&mainCamera);
 	Events::CameraZoom.registerHandler<EditorCamera, &EditorCamera::zoom>(&mainCamera);
@@ -272,8 +226,8 @@ int Application::play() {
 	//Game loop
 	while (!window->shouldClose()) {
 		
-		// Process input events
-		glfwPollEvents();
+		// Process input
+		inputManager->processInput();
 
 		// Update time-related values
 		Time::update();

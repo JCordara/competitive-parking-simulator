@@ -64,18 +64,12 @@ void EditorCamera::rotateAroundTarget(double xOffset, double yOffset) {
 // Move the camera without rotating
 void EditorCamera::move(double xOffset, double yOffset) {
 
-	// Only when left mouse button is down
-	if (!c_MB1Down_) return;
-
-	double deltaX = xOffset - c_mouseLastX_;
-	double deltaY = yOffset - c_mouseLastY_;
-
 	// Move both the target (being looked at) and position (camera position)
 	// by the same amount
 	float xAmount = static_cast<float>(
-		deltaX * mouseSensitivity_ * moveSpeed_);
+		xOffset * mouseSensitivity_ * moveSpeed_);
 	float yAmount = static_cast<float>(
-		deltaY * mouseSensitivity_ * moveSpeed_);
+		yOffset * mouseSensitivity_ * moveSpeed_);
 
 	// Move lookat target by specified amount
 	target_   += right_ * xAmount;

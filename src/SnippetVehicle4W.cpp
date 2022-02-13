@@ -139,7 +139,7 @@ PxF32					gVehicleModeLifetime = 4.0f;
 PxF32					gVehicleModeTimer = 0.0f;
 PxU32					gVehicleOrderProgress = 0;
 bool					gVehicleOrderComplete = false;
-bool					gMimicKeyInputs = true;
+bool					gMimicKeyInputs = false;
 
 VehicleDesc initVehicleDesc()
 {
@@ -182,243 +182,34 @@ VehicleDesc initVehicleDesc()
 	return vehicleDesc;
 }
 
-void startAccelerateForwardsMode()
-{
-	// If accel is already true, S was pushed and not released, stop moving
-	if (gVehicleInputData.getDigitalAccel() == true) {
-		gVehicleInputData.setDigitalAccel(false);
-	}
-	else  {
-		
+
+void vehicleAccelerateMode(float v) {
+	gVehicleInputData.setAnalogBrake(0.0f);
+	
+	if (v >= 0.0f) {
 		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-
-		if (gMimicKeyInputs)
-		{
-			//gVehicleInputData.setDigitalBrake(false);
-			gVehicleInputData.setDigitalAccel(true);
-		}
-		else
-		{
-			gVehicleInputData.setAnalogAccel(1.0f);
-		}
-
 	}
-	
-}
-
-void startAccelerateReverseMode()
-{
-	// If accel is already true, W was pushed and not released, stop moving
-	if (gVehicleInputData.getDigitalAccel() == true) {
-		gVehicleInputData.setDigitalAccel(false);
-	}
-	else {
+	else if (v < 0.0f) {
 		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-
-		if (gMimicKeyInputs)
-		{
-			gVehicleInputData.setDigitalAccel(true);
-		}
-		else
-		{
-			gVehicleInputData.setAnalogAccel(1.0f);
-		}
+		v *= -1;
 	}
-	
+
+	gVehicleInputData.setAnalogAccel(v);
 }
 
-void startBrakeMode()
-{
-	if (gMimicKeyInputs)
-	{
-		gVehicleInputData.setDigitalBrake(true);
-	}
-	else
-	{
-		gVehicleInputData.setAnalogBrake(1.0f);
-	}
+void vehicleTurnMode(float v) {
+	gVehicleInputData.setAnalogSteer(-v); // Invert controls
 }
 
-void releaseBrakeMode()
-{
-	if (gMimicKeyInputs)
-	{
-		gVehicleInputData.setDigitalBrake(false);
-	}
-	else
-	{
-		gVehicleInputData.setAnalogBrake(-1.0f);
-	}
+void vehicleBrakeMode(float v) {
+	gVehicleInputData.setAnalogBrake(v);
 }
 
-void startTurnHardLeftMode()
-{
-	if (gVehicleInputData.getDigitalHandbrake() == false) {
-		if (gMimicKeyInputs)
-		{
-			gVehicleInputData.setDigitalSteerLeft(true);
-		}
-		else
-		{
-			gVehicleInputData.setAnalogSteer(-1.0f);
-		}
-	}
-	
-}
-
-void startTurnHardRightMode()
-{
-	if (gVehicleInputData.getDigitalHandbrake() == false) {
-		if (gMimicKeyInputs)
-		{
-			gVehicleInputData.setDigitalSteerRight(true);
-		}
-		else
-		{
-			gVehicleInputData.setAnalogSteer(1.0f);
-		}
-	}
-	
-}
-
-void startHandbrake()
-{
-	if (gVehicleInputData.getDigitalHandbrake() == false) {
-		if (gMimicKeyInputs)
-		{
-			gVehicleInputData.setDigitalHandbrake(true);
-		}
-		else
-		{
-			gVehicleInputData.setAnalogHandbrake(1.0f);
-		}
-	}
-	
-}
-
-void releaseHandbrake()
-{
-	if (gMimicKeyInputs)
-	{
-		//gVehicleInputData.setDigitalAccel(false);
-		//gVehicleInputData.setDigitalSteerLeft(true);
-		gVehicleInputData.setDigitalHandbrake(false);
-	}
-	else
-	{
-		gVehicleInputData.setAnalogHandbrake(-1.0f);
-	}
+void vehicleHandbrakeMode(float v) {
+	gVehicleInputData.setAnalogHandbrake(v);
 }
 
 
-/*
-void startHandbrakeTurnLeftMode()
-{
-	if (gMimicKeyInputs)
-	{
-		//gVehicleInputData.setDigitalSteerLeft(true);
-		gVehicleInputData.setDigitalHandbrake(true);
-	}
-	else
-	{
-		gVehicleInputData.setAnalogSteer(-1.0f);
-		gVehicleInputData.setAnalogHandbrake(1.0f);
-	}
-}
-
-void startHandbrakeTurnRightMode()
-{
-	if (gMimicKeyInputs)
-	{
-		gVehicleInputData.setDigitalSteerRight(true);
-		gVehicleInputData.setDigitalHandbrake(true);
-	}
-	else
-	{
-		gVehicleInputData.setAnalogSteer(1.0f);
-		gVehicleInputData.setAnalogHandbrake(1.0f);
-	}
-}*/
-
-void releaseForwardDriveControls() {
-	// If accel is already false, S was already pressed - Only way for accel to be false while W was pressed
-	// If false on a release key event that means both keys were pressed, removing W while both are pressed means go reverse
-	if (gVehicleInputData.getDigitalAccel() == false) {
-		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-		gVehicleInputData.setDigitalAccel(true);
-	}
-	else {
-		if (gMimicKeyInputs)
-		{
-			gVehicleInputData.setDigitalAccel(false);
-		}
-		else
-		{
-			gVehicleInputData.setAnalogAccel(0.0f);
-		}
-	}
-
-}
-void releaseReverseDriveControls() {
-	// If accel is already false, W was already pressed - Only way for accel to be false while S was pressed
-	// If false on a release key event that means both keys were pressed, removing S while both are pressed means go forwards
-	if (gVehicleInputData.getDigitalAccel() == false) {
-		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-		gVehicleInputData.setDigitalAccel(true);
-	}
-	else {
-		if (gMimicKeyInputs)
-		{
-			gVehicleInputData.setDigitalAccel(false);
-		}
-		else
-		{
-			gVehicleInputData.setAnalogAccel(0.0f);
-		}
-	}
-
-}
-/* DEPRECATED
-void releaseDriveControls()
-{
-	if (gMimicKeyInputs)
-	{
-		gVehicleInputData.setDigitalAccel(false);
-		//gVehicleInputData.setDigitalBrake(false);
-		//gVehicleInputData.setDigitalHandbrake(false);
-	}
-	else
-	{
-		gVehicleInputData.setAnalogAccel(0.0f);
-		//gVehicleInputData.setAnalogBrake(0.0f);
-		//gVehicleInputData.setAnalogHandbrake(0.0f);
-	}
-}
-*/
-
-void releaseLeftTurnControls()
-{
-	if (gMimicKeyInputs)
-	{
-		gVehicleInputData.setDigitalSteerLeft(false);
-	}
-	else
-	{
-		gVehicleInputData.setAnalogSteer(0.0f);
-	}
-}
-
-void releaseRightTurnControls()
-{
-	if (gMimicKeyInputs)
-	{
-		gVehicleInputData.setDigitalSteerRight(false);
-	}
-	else
-	{
-		gVehicleInputData.setAnalogSteer(0.0f);
-	}
-}
 
 void initPhysics()
 {
@@ -550,89 +341,14 @@ void initPhysics()
 
 	gVehicleModeTimer = 0.0f;
 	gVehicleOrderProgress = 0;
-	startBrakeMode();
+	vehicleBrakeMode(0.0f);
 }
 
-void incrementDrivingMode(const PxF32 timestep)
-{
-	// releaseAllControls();
-	// startAccelerateForwardsMode();
-	// gVehicleInputData.setAnalogAccel(1.0f);
-	//gVehicleInputData.setAnalogBrake(-1.0f);
-	// startTurnHardLeftMode();
-	//gVehicleInputData.setDigitalSteerLeft(true);
-	//gVehicleInputData.setDigitalHandbrake(true);
-
-	//gVehicleInputData.setDigitalAccel(true);
-
-
-
-	/*
-	gVehicleModeTimer += timestep;
-	if (gVehicleModeTimer > gVehicleModeLifetime)
-	{
-		//If the mode just completed was eDRIVE_MODE_ACCEL_REVERSE then switch back to forward gears.
-		if (eDRIVE_MODE_ACCEL_REVERSE == gDriveModeOrder[gVehicleOrderProgress])
-		{
-			gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-		}
-
-		//Increment to next driving mode.
-		gVehicleModeTimer = 0.0f;
-		gVehicleOrderProgress++;
-		releaseAllControls();
-
-		//If we are at the end of the list of driving modes then start again.
-		if (eDRIVE_MODE_NONE == gDriveModeOrder[gVehicleOrderProgress])
-		{
-			gVehicleOrderProgress = 0;
-			gVehicleOrderComplete = true;
-		}
-		
-		
-		//Start driving in the selected mode.
-		DriveMode eDriveMode = gDriveModeOrder[gVehicleOrderProgress];
-		switch (eDriveMode)
-		{
-		case eDRIVE_MODE_ACCEL_FORWARDS:
-			startAccelerateForwardsMode();
-			break;
-		case eDRIVE_MODE_ACCEL_REVERSE:
-			startAccelerateReverseMode();
-			break;
-		case eDRIVE_MODE_HARD_TURN_LEFT:
-			startTurnHardLeftMode();
-			break;
-		case eDRIVE_MODE_HANDBRAKE_TURN_LEFT:
-			startHandbrakeTurnLeftMode();
-			break;
-		case eDRIVE_MODE_HARD_TURN_RIGHT:
-			startTurnHardRightMode();
-			break;
-		case eDRIVE_MODE_HANDBRAKE_TURN_RIGHT:
-			startHandbrakeTurnRightMode();
-			break;
-		case eDRIVE_MODE_BRAKE:
-			startBrakeMode();
-			break;
-		case eDRIVE_MODE_NONE:
-			break;
-		};
-
-		//If the mode about to start is eDRIVE_MODE_ACCEL_REVERSE then switch to reverse gears.
-		if (eDRIVE_MODE_ACCEL_REVERSE == gDriveModeOrder[gVehicleOrderProgress])
-		{
-			gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-		}
-	}*/
-}
 
 void stepPhysics()
 {
 	const PxF32 timestep = 1.0f / 60.0f;
 
-	//Cycle through the driving modes to demonstrate how to accelerate/reverse/brake/turn etc.
-	incrementDrivingMode(timestep);
 
 	//Update the control inputs for the vehicle.
 	if (gMimicKeyInputs)
@@ -643,6 +359,14 @@ void stepPhysics()
 	{
 		PxVehicleDrive4WSmoothAnalogRawInputsAndSetAnalogInputs(gPadSmoothingData, gSteerVsForwardSpeedTable, gVehicleInputData, timestep, gIsVehicleInAir, *gVehicle4W);
 	}
+
+	// When reversing while car is moving forwards, brake instead
+	PxReal speed = gVehicle4W->computeForwardSpeed();
+	PxReal input = gVehicle4W->mDriveDynData.getAnalogInput(PxVehicleDrive4WControl::eANALOG_INPUT_ACCEL);
+	if (speed > 0.0 && input < 0.0) 
+		gVehicleInputData.setAnalogBrake(1.0f);
+	else
+		gVehicleInputData.setAnalogBrake(0.0f);
 
 	//Raycasts.
 	PxVehicleWheels* vehicles[1] = { gVehicle4W };

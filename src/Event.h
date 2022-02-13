@@ -20,18 +20,10 @@ namespace Events {
     extern Event<void> CarParked;
     extern Event<void> CarUnParked;
 
-    extern Event<void> PlayerAccelerate;
-    extern Event<void> PlayerAccelerateRelease;
-    extern Event<void> PlayerReverse;
-    extern Event<void> PlayerReverseRelease;
-    extern Event<void> PlayerTurnLeft;
-    extern Event<void> PlayerTurnLeftRelease;
-    extern Event<void> PlayerTurnRight;
-    extern Event<void> PlayerTurnRightRelease;
-    extern Event<void> PlayerBrake;
-    extern Event<void> PlayerBrakeRelease;
-	extern Event<void> PlayerHandbrake;
-	extern Event<void> PlayerHandbrakeRelease;
+    extern Event<float> PlayerAccelerate;
+    extern Event<float> PlayerSteer;
+    extern Event<float> PlayerBrake;
+	extern Event<float> PlayerHandbrake;
 
     extern Event<double, double> CameraRotate;
     extern Event<double, double> CameraZoom;
