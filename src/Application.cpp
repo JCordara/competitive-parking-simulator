@@ -206,7 +206,6 @@ Application::Application(appSettings& settings)
 	Events::CameraRotate.registerHandler<EditorCamera, &EditorCamera::rotateAroundTarget>(&mainCamera);
 	Events::CameraZoom.registerHandler<EditorCamera, &EditorCamera::zoom>(&mainCamera);
 
-
 	gameplay = std::make_shared<GameplaySystem>(scene, audioManager, CarObjects[0]);
 	auto parkingStall = scene->createEntity();
 	parkingStall->addComponent<TransformComponent>();
