@@ -198,7 +198,7 @@ void vehicleAccelerateMode(float v) {
 }
 
 void vehicleTurnMode(float v) {
-	gVehicleInputData.setAnalogSteer(-v); // Invert controls
+	gVehicleInputData.setAnalogSteer(v);
 }
 
 void vehicleBrakeMode(float v) {
