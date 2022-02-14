@@ -15,7 +15,6 @@ public:
     /* Prepare framework */
     PhysicsSystem(
         std::shared_ptr<Scene> scene,
-        std::shared_ptr<GameEventManager> event,
         std::shared_ptr<AudioManager> audio
     );
 
@@ -26,7 +25,6 @@ public:
     
 private:
     std::shared_ptr<Scene>             scene;
-	std::shared_ptr<GameEventManager>  eventManager;
 	std::shared_ptr<AudioManager>      audioManager;
 };
 

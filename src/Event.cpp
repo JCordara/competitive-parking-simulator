@@ -4,15 +4,11 @@ Event<void> Events::GameStart;
 Event<void> Events::CarParked;
 Event<void> Events::CarUnParked;
 
-Event<void> Events::PressW;
-Event<void> Events::PressA;
-Event<void> Events::PressS;
-Event<void> Events::PressD;
-Event<void> Events::ReleaseW;
-Event<void> Events::ReleaseA;
-Event<void> Events::ReleaseS;
-Event<void> Events::ReleaseD;
-Event<void> Events::PressSpace;
-Event<void> Events::ReleaseSpace;
-Event<void> Events::ReleaseLeftShift;
-Event<void> Events::PressLeftShift;
+Event<float> Events::PlayerAccelerate;
+Event<float> Events::PlayerSteer;
+Event<float> Events::PlayerBrake;
+Event<float> Events::PlayerHandbrake;
+
+Event<double, double> Events::CameraRotate;
+Event<double, double> Events::CameraZoom;
+

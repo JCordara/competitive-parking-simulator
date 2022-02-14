@@ -267,4 +267,9 @@ Stub
 <a name="input"/>
 
 ## Input system
-Stub
+
+the input system is cool
+
+basically you can bind events to keys and stuff
+
+im tired ill update this later

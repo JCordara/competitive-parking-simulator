@@ -21,6 +21,7 @@
 #include "GameplaySystem.h"
 #include "PhysicsSystem.h"
 #include "RenderSystem.h"
+#include "InputManager.h"
 
 // Other stuff
 #include "Renderers.h"
@@ -28,6 +29,7 @@
 #include "GUI.h"
 #include "Shader.h"
 #include "EditorCamera.h"
+#include "Window.h"
 
 struct appSettings {
 	std::string version;
@@ -51,7 +53,7 @@ private:
 	appSettings settings;
 
 	/* Framework (Managers) - used by systems*/
-	std::shared_ptr<GameEventManager>  eventManager;
+	std::shared_ptr<InputManager>  	   inputManager;
 	std::shared_ptr<AudioManager>      audioManager;
 	std::shared_ptr<Scene>             scene;
 	std::shared_ptr<Window>            window;

@@ -11,7 +11,6 @@ public:
     /* Prepare framework */
     GameplaySystem(
         std::shared_ptr<Scene> scene,
-        std::shared_ptr<GameEventManager> event,
         std::shared_ptr<AudioManager> audio,
         GameObject& c
     );
@@ -21,7 +20,6 @@ public:
 
 private:
     std::shared_ptr<Scene>             scene;
-	std::shared_ptr<GameEventManager>  eventManager;
 	std::shared_ptr<AudioManager>      audioManager;
 
     // do u smell spaghetti

@@ -2,7 +2,7 @@
 #define RENDER_SYSTEM_H
 
 #include "GameSystem.h"
-
+#include "Window.h"
 
 class RenderSystem : public GameSystem {
 public:
@@ -10,7 +10,6 @@ public:
     /* Prepare framework */
     RenderSystem(
         std::shared_ptr<Scene> scene,
-        std::shared_ptr<GameEventManager> event,
         std::shared_ptr<AudioManager> audio,
         std::shared_ptr<Window> window
     );
@@ -20,7 +19,6 @@ public:
     
 private:
     std::shared_ptr<Scene>             scene;
-	std::shared_ptr<GameEventManager>  eventManager;
 	std::shared_ptr<AudioManager>      audioManager;
     std::shared_ptr<Window>            window;
 };

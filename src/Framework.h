@@ -8,8 +8,5 @@
 #include "TimeInfo.h"
 #include "AudioManager.h"
 
-#include "GameCallback.h"
-#include "Window.h"
-#include "Log.h"
 
 #endif // FRAMEWORK_H
