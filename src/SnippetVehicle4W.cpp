@@ -201,6 +201,7 @@ void vehicleTurnMode(float v) {
 	gVehicleInputData.setAnalogSteer(v);
 }
 
+/* Not currently used */
 void vehicleBrakeMode(float v) {
 	gVehicleInputData.setAnalogBrake(v);
 }
@@ -364,7 +365,7 @@ void stepPhysics()
 	PxReal speed = gVehicle4W->computeForwardSpeed();
 	PxReal input = gVehicle4W->mDriveDynData.getAnalogInput(PxVehicleDrive4WControl::eANALOG_INPUT_ACCEL);
 	if (speed > 0.0 && input < 0.0) 
-		gVehicleInputData.setAnalogBrake(1.0f);
+		gVehicleInputData.setAnalogBrake(-input);
 	else
 		gVehicleInputData.setAnalogBrake(0.0f);
 

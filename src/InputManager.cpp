@@ -1,43 +1,30 @@
 #include "InputManager.h"
 #include "Window.h"
 
-// Called once every frame when a key is pressed
+// Called once per tick when a key is pressed
 void Callbacks::keyCallback(int key, int scancode, int action, int mods) {
-	// Broadcast corresponding event if bound
-	Event<void>* event = keyEvents[createKey(key, action)];
-	if (event != nullptr)
-		event->broadcast();
+	// Broadcast void events bound to this key
+	auto voidEvent = voidKeyEvents[createMapKey(key, action)];
+	if (voidEvent != nullptr)
+		voidEvent->broadcast();
+	 
+	// Broadcast float events bound to this key
+	auto floatEvent = floatKeyEvents[key];
+	if (floatEvent != nullptr)
+		floatEvent->broadcast(static_cast<float>(action));
 
-	if(key == GLFW_KEY_W || key == GLFW_KEY_S) {
-		float forward  = static_cast<float>(pressedKeys.count(GLFW_KEY_W));
-		float backward = static_cast<float>(pressedKeys.count(GLFW_KEY_S));
-		Events::PlayerAccelerate.broadcast(forward - backward);
-	}
-
-	if (key == GLFW_KEY_A || key == GLFW_KEY_D) {
-		float right = static_cast<float>(pressedKeys.count(GLFW_KEY_D));
-		float left  = static_cast<float>(pressedKeys.count(GLFW_KEY_A));
-		Events::PlayerSteer.broadcast(right - left);
-	}
-
-	if(key == GLFW_KEY_SPACE) {
-		float v = static_cast<float>(pressedKeys.count(GLFW_KEY_SPACE));
-		Events::PlayerBrake.broadcast(v);
-	}
-
-	if (key == GLFW_KEY_LEFT_SHIFT) {
-		float v = static_cast<float>(pressedKeys.count(GLFW_KEY_LEFT_SHIFT));
-		Events::PlayerHandbrake.broadcast(v);
-	}
+	// Update axes bound to this key
+	auto controlAxis = controlAxes[key];
+	if (controlAxis) controlAxis->setInputValue(key, static_cast<float>(action));
 
 }
 
-// Called once every frame when a mouse button is pressed
+// Called once per tick when a mouse button is pressed
 void Callbacks::mouseButtonCallback(int button, int action, int mods) {
-	// Nothing here yet
+	// Nobody's home
 }
 
-// Called once every frame when the mouse moves
+// Called once per tick when the mouse moves
 void Callbacks::cursorPosCallback(double xpos, double ypos) {
 	// Move camera with either mouse button
 	if (pressedKeys.count(GLFW_MOUSE_BUTTON_1) != 0 ||
@@ -45,33 +32,81 @@ void Callbacks::cursorPosCallback(double xpos, double ypos) {
 		Events::CameraRotate.broadcast(mouseDelta[0], mouseDelta[1]);
 }
 
-// Called once every tick when the scroll wheel scrolls
+// Called once per tick when the scroll wheel scrolls
 void Callbacks::scrollCallback(double xoffset, double yoffset) {
 	Events::CameraZoom.broadcast(xoffset, yoffset);
 }
 
+// Called once per tick when any controller button is pressed
+void Callbacks::gamepadButtonCallback(
+	unsigned char buttons[], int button, unsigned int n) {
+
+	// Broadcast void events bound to this key
+	auto voidEvent = voidKeyEvents[createMapKey(button, buttons[button])];
+	if (voidEvent != nullptr)
+		voidEvent->broadcast();
+	 
+	// Broadcast float events bound to this key
+	auto floatEvent = floatKeyEvents[button];
+	if (floatEvent != nullptr)
+		floatEvent->broadcast(static_cast<float>(buttons[button]));
+
+	// Update axes bound to this key
+	auto controlAxis = controlAxes[button];
+	if (controlAxis) {
+		float v = static_cast<float>(buttons[button]);
+		controlAxis->setInputValue(button, v);
+	}
+	
+}
+
+// Called once per tick when any controller axis is changed
+void Callbacks::gamepadAxisCallback(float axes[], int axis, unsigned int n) {
+
+	// Update axes bound to this axis
+	auto controlAxis = controlAxes[axis];
+	if (controlAxis) controlAxis->setInputValue(axis, axes[axis]);
+
+}
 
 // Assign keys to events
 Callbacks::Callbacks() {
-	//bindKey(GLFW_KEY_LEFT_SHIFT, GLFW_PRESS, &Events::PlayerHandbrake);
+	// Could set default values in here if we want, probs wont tho
 }
 
 
-void Callbacks::bindKey(int key, int action, Event<void>* event) {
-	keyEvents[createKey(key, action)] = event;
+void Callbacks::createAxis(
+	int inputPositive, 
+	int inputNegative, 
+	Event<float>* event, 
+	ControlAxis::TypeEnum type) 
+{
+	// Make a pointer to a new axis
+	std::shared_ptr<ControlAxis> axis = std::make_shared<ControlAxis>(
+		inputPositive, inputNegative, event, type);
+
+	// Map both keys to the same pointer
+	// Wish I had a multimap
+	// Trying to figure out how to use the boost library, apparently it has one
+	controlAxes.insert({inputPositive, axis});
+
+	if (type != ControlAxis::SINGLE)
+		controlAxes.insert({inputNegative, axis});
 }
 
-unsigned int Callbacks::createKey(int a, int b) {
+void Callbacks::removeAxis(int inputA, int inputB) {
+	controlAxes.erase(inputA);
+	controlAxes.erase(inputB);
+}
+
+unsigned int Callbacks::createMapKey(int a, int b) {
 	return (b << 8) + a;
 }
-
-
-
 
 void Callbacks::updatePressedKeys(int key, int action) {
 	if (action == GLFW_PRESS)
 		pressedKeys.insert(key);
-	else if (action ==GLFW_RELEASE) 
+	else if (action == GLFW_RELEASE) 
 		pressedKeys.erase(key);
 }
 
@@ -82,12 +117,36 @@ void Callbacks::updateMouseDelta(double x, double y) {
 	mousePos[1] = y;
 }
 
+void Callbacks::updateControlAxes() {
+	// The map of axes contains duplicates (both inputs mapped to same axis)
+	// Need to extract the axes from the map into a set to remove duplicates
+	// A multi-index map would be nice here
+	std::unordered_set<std::shared_ptr<ControlAxis>> axes;
+
+	// Insert axes into the set
+	for (auto& a : controlAxes) 
+		if (a.second != nullptr) axes.insert(a.second);
+
+	// Update each axis in the set
+	for (auto& a : axes)
+		a->update();
+}
+
+void Callbacks::bindInput(int input, int action, Event<void>* event) {
+	voidKeyEvents[createMapKey(input, action)] = event;
+}
+
+void Callbacks::bindInput(int input, Event<float>* event) {
+	floatKeyEvents[input] = event;
+}
+
 
 /* Other callbacks */
 void Callbacks::errorCallback(int error, const char* desc) {
 	// Log::error(desc);
 }
 
+/* Keep track of controllers as they connect and disconnect */
 void Callbacks::gamepadCallback(int gid, int event) {
 	if (event == GLFW_CONNECTED)
         InputManager::gamepads[InputManager::gamepadCount++] = gid;
@@ -113,7 +172,7 @@ int InputManager::gamepads[GLFW_JOYSTICK_LAST + 1] = {};
 int InputManager::gamepadCount = 0;
 
 
-
+/* Initialize input devices and connect callbacks */
 InputManager::InputManager(std::shared_ptr<Window> w) 
 	: callbacks(std::make_shared<Callbacks>())
 	, pWindow(w)
@@ -122,12 +181,18 @@ InputManager::InputManager(std::shared_ptr<Window> w)
 	// Initialize connected gamepad data
 	memset(gamepads, 0, sizeof(gamepads));
 
+	// Check for connected gamepads
 	for (int gid = GLFW_JOYSTICK_1;  gid <= GLFW_JOYSTICK_LAST;  gid++)
     {
-        if (glfwJoystickPresent(gid))
+        if (glfwJoystickPresent(gid)) 
             gamepads[gamepadCount++] = gid;
+		
+		// Set lastState to nonsense values
+		memset(lastState[gid].axes, 2, sizeof(lastState[gid].axes));
+		memset(lastState[gid].buttons, -1, sizeof(lastState[gid].buttons));
     }
 
+	// Setup callback for gamepad connects and disconnects at runtime
 	glfwSetJoystickCallback(&Callbacks::gamepadCallback);
 
 	// Pass the callback class through the glfw window for lambda access
@@ -144,7 +209,7 @@ InputManager::InputManager(std::shared_ptr<Window> w)
 		cb->keyCallback(k, s, a, m);
 	});
 
-	glfwSetMouseButtonCallback(*pWindow, [](GLFWwindow* w, int b, int a, int m) {
+	glfwSetMouseButtonCallback(*pWindow, [](GLFWwindow* w, int b, int a, int m){
 		Callbacks* cb = static_cast<Callbacks*>(glfwGetWindowUserPointer(w));
 		// Maintain set of pressed keys (including mouse buttons)
 		cb->updatePressedKeys(b, a);
@@ -165,75 +230,132 @@ InputManager::InputManager(std::shared_ptr<Window> w)
 		cb->scrollCallback(x, y);
 	});
 
+	// Setup error callback
 	glfwSetErrorCallback(&Callbacks::errorCallback);
+
 }
 
+/* Respond to inputs from the last frame */
 void InputManager::processInput() {
+	// Invoke all input callbacks this frame
 	glfwPollEvents();
 
+	// Update current state of active control axes
+	callbacks->updateControlAxes();
+
+	// Process controller inputs for all connected controllers
 	if (gamepadCount != 0) {
 		processGamepadInput();
 	}
 }
 
-/* This function definitely needs some work still */
+/* Preprocess controller inputs and invoke appriopriate callbacks */
 void InputManager::processGamepadInput() {
-	// Loop through connected controllers
-	for (int i = 0; i < gamepadCount; i++) {
+	
+	// Iterate through connected controllers
+	for (int g = 0; g < gamepadCount; g++) {
+		
 		// Get their current state
-		glfwGetGamepadState(gamepads[i], &state);
-		// Loop through axes
-		for (int i = 0; i < sizeof(state.axes); i++) {
-			switch(i){
-				case GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER:
-					// If state has changed
-					if (state.axes[i] != lastState.axes[i]) {
-						// Create axis from the two triggers
-						float vr = 0.5f * (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] + 1);
-						float vl = -0.5f * (state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] + 1);
-						// Broadcast the acceleration event using that axis
-						Events::PlayerAccelerate.broadcast(vr + vl);
-					}
-					break;
-				case GLFW_GAMEPAD_AXIS_LEFT_TRIGGER:
-					if (state.axes[i] != lastState.axes[i]) {
-						float vr = 0.5f * (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] + 1);
-						float vl = -0.5f * (state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] + 1);
-						Events::PlayerAccelerate.broadcast(vr + vl);
-					}
-					break;
-				// Left joystick x axis
-				case GLFW_GAMEPAD_AXIS_LEFT_X:
-					// Deadzone [-0.1, 0.1] = 0.0
-					if (state.axes[i] <= 0.1f && state.axes[i] >= -0.1f) 
-						state.axes[i] = 0.0f;
+		glfwGetGamepadState(gamepads[g], &state);
+		
+		// Iterate through axes
+		for (int i = 0; i < static_cast<int>(numAxes); i++) {
+			// Set axis deadzones
+			// Joysticks are always jittering in the range [-0.05, 0.05]
+			if (state.axes[i] <= 0.1f && state.axes[i] >= -0.1f) 
+				state.axes[i] = 0.0f;
+			
+			// If an axis' state has changed, invoke the callback
+			if (state.axes[i] != lastState[g].axes[i]) {
+				callbacks->gamepadAxisCallback(state.axes, i, numAxes);
+			}
+		}
 
-					// If state has changed
-					if (state.axes[i] != lastState.axes[i]) {
-						// Broadcast steer direction
-						float v = state.axes[i];
-						Events::PlayerSteer.broadcast(v);
-					}
-					break;
-			}
-		}
 		// Loop through buttons
-		for (int i = 0; i < sizeof(state.buttons); i++) {
-			switch(i) {
-				case GLFW_GAMEPAD_BUTTON_SQUARE:
-					// If button's pressed state has changed
-					if (state.buttons[i] != lastState.buttons[i]) {
-						// Broadcast handbrake event
-						Events::PlayerHandbrake.broadcast(state.buttons[i]);
-					}
-					break;
+		for (int i = 0; i < static_cast<int>(numButtons); i++) {
+			// If button's pressed state has changed, invoke the callback
+			if (state.buttons[i] != lastState[g].buttons[i]) {
+				callbacks->gamepadButtonCallback(state.buttons, i, numButtons);
 			}
 		}
-		// Update last state for next iteration
-		lastState = state;
+
+		// Update last state of this controller for next iteration
+		lastState[g] = state;
 	}
 }
 
-void InputManager::bindKey(int key, int action, Event<void>* event) {
-	callbacks->bindKey(key, action, event);
+
+void InputManager::bindInput(int input, int action, Event<void>* event) {
+	callbacks->bindInput(input, action, event);
 }
+
+void InputManager::bindInput(int input, Event<float>* event) {
+	callbacks->bindInput(input, event);
+}
+
+void InputManager::createAxis(
+	int inputPositive,
+	int inputNegative,
+	Event<float>* event,
+	ControlAxis::TypeEnum type)
+{
+	callbacks->createAxis(inputPositive, inputNegative, event, type);
+}
+
+/* Create an axis from a single axis input and binds to event */
+void InputManager::createAxis(int input, Event<float>* event) {
+	callbacks->createAxis(input, -1, event, ControlAxis::SINGLE);
+}
+
+void InputManager::removeAxis(int inputA, int inputB) {
+	callbacks->removeAxis(inputA, inputB);
+}
+
+
+/* Control Axes implementations */
+ControlAxis::ControlAxis(
+	int inputA, int inputB, Event<float>* event, TypeEnum type) 
+	: value_(0.0f)
+	, event_(event) 
+	, inputA_(inputA)
+	, inputB_(inputB)
+	, valueA_(0.0f)
+	, valueB_(0.0f)
+	, type_(type)
+{
+	if (type_ == AXIS) {
+		valueA_ = -1.0f;
+		valueB_ = -1.0f;
+	}
+}
+
+ControlAxis::ControlAxis(int inputA, int inputB, TypeEnum type)
+	: ControlAxis(inputA, inputB, nullptr, type) {}
+
+void ControlAxis::bindEvent(Event<float>* event) { event_ = event; }
+
+
+void ControlAxis::setInputValue(int input, float value) {
+	
+	// Normlize axis values
+	if (type_ == AXIS) value = (value + 1) * 0.5f;
+
+	if      (input == inputA_) valueA_ = value;
+	else if (input == inputB_) valueB_ = value;
+
+	update();
+}
+
+void ControlAxis::update() {
+	// Update the value
+	float oldValue = value_;
+	value_ = valueA_ - valueB_;
+	
+	if (type_ == SINGLE) value_ = valueA_;
+	
+	// If the value has changed, broadcast the event with new value
+	// If an event is attached
+	if (event_ != nullptr && value_ != oldValue)
+		event_->broadcast(value_);
+}
+

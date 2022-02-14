@@ -197,15 +197,38 @@ Application::Application(appSettings& settings)
 	);
 	
 
-	// Input binding
+	// --- Keyboard input binding ---
+	// Create an axis between S and W for vehicle acceleration (keyboard)
+	inputManager->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::PlayerAccelerate);
+	// Create an axis between A and D for vehicle steering (keyboard)
+	inputManager->createAxis(GLFW_KEY_D, GLFW_KEY_A, &Events::PlayerSteer);
+	// Bind the shift key to the handbrake event
+	inputManager->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::PlayerHandbrake);
+	
+	// --- Controller input binding ---
+	// Create an axis from the left and right triggers (controller)
+	inputManager->createAxis(
+		GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, 
+		GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, 
+		&Events::PlayerAccelerate, 
+		ControlAxis::AXIS
+	);
+	// Bind the X (square on playstation) to the handbrake event
+	inputManager->bindInput(GLFW_GAMEPAD_BUTTON_X, &Events::PlayerHandbrake);
+	// Bind left joystick x-axis to steering
+	inputManager->createAxis(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::PlayerSteer);
+
+	// --- Event binding ---
+	// Vehicle behavior
 	Events::PlayerAccelerate.registerHandler<vehicleAccelerateMode>();
 	Events::PlayerSteer.registerHandler<vehicleTurnMode>();
-	Events::PlayerBrake.registerHandler<vehicleBrakeMode>();
 	Events::PlayerHandbrake.registerHandler<vehicleHandbrakeMode>();
 
+	// Camera behavior
 	Events::CameraRotate.registerHandler<EditorCamera, &EditorCamera::rotateAroundTarget>(&mainCamera);
 	Events::CameraZoom.registerHandler<EditorCamera, &EditorCamera::zoom>(&mainCamera);
 
+	// Parking stall hack
 	gameplay = std::make_shared<GameplaySystem>(scene, audioManager, CarObjects[0]);
 	auto parkingStall = scene->createEntity();
 	parkingStall->addComponent<TransformComponent>();
