@@ -216,7 +216,7 @@ Application::Application(appSettings& settings)
 	// Bind the X (square on playstation) to the handbrake event
 	inputManager->bindInput(GLFW_GAMEPAD_BUTTON_X, &Events::PlayerHandbrake);
 	// Bind left joystick x-axis to steering
-	inputManager->createAxis(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::PlayerSteer);
+	inputManager->bindInput(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::PlayerSteer);
 
 	// --- Event binding ---
 	// Vehicle behavior
