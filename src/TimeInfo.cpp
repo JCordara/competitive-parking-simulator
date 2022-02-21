@@ -2,10 +2,10 @@
 
 double Time::updateDelta_ = -1.0;    // Initialize to non-zero value
 double Time::fps_ = 60.0;	         // Same, just in case
-double Time::lastUpdateTime_ = glfwGetTime();
+double Time::lastUpdateTime_ = Time::now();
 double Time::timeStep_ = 1.0 / 60.0;
 double Time::lag_ = Time::timeStep_; // Allows first frame to update
-double Time::programStartTime_ = glfwGetTime();
+double Time::programStartTime_ = Time::now();
 
 double Time::deltas_[FPS_FRAMES_COUNT];
 double Time::deltaSum_ = 0.0;
@@ -21,13 +21,13 @@ void Time::update() {
     // On first call to update()
     if (Time::updateDelta_ == -1.0) {
         Time::updateDelta_ = Time::timeStep_;
-        Time::lastUpdateTime_ = glfwGetTime();
+        Time::lastUpdateTime_ = Time::now();
         return;
     }
 
     // Calculate new time delta
-    Time::updateDelta_ = glfwGetTime() - Time::lastUpdateTime_;
-    Time::lastUpdateTime_ = glfwGetTime();
+    Time::updateDelta_ = Time::now() - Time::lastUpdateTime_;
+    Time::lastUpdateTime_ = Time::now();
 
     // Calculate accumulated lag
     Time::lag_ += Time::updateDelta_;
@@ -42,6 +42,12 @@ void Time::update() {
 
     // Calculate new FPS
     Time::fps_ = FPS_FRAMES_COUNT / Time::deltaSum_;
+}
+
+double Time::now() {
+    std::chrono::duration<double> duration = 
+        Clock::now().time_since_epoch();
+    return duration.count();
 }
 
 bool Time::takeNextStep() {
