@@ -1,7 +1,6 @@
 #ifndef FRAMEWORK_H
 #define FRAMEWORK_H
 
-#include "Scene.h"
 #include "Entity.h"
 #include "Components.h"
 #include "Event.h"

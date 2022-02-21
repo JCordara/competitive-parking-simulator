@@ -8,7 +8,7 @@
 class VolumeTriggerComponent : public BaseComponent {
 public:
 
-    VolumeTriggerComponent(Entity& parent);
+    VolumeTriggerComponent(Entity& e);
 
     VolumeTriggerComponent(GameObject& gameObject);
     void checkForEntity(GameObject& entity);

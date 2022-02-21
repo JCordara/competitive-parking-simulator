@@ -230,10 +230,8 @@ Application::Application(appSettings& settings)
 
 	// Parking stall hack
 	gameplay = std::make_shared<GameplaySystem>(scene, audioManager, CarObjects[0]);
-	auto parkingStall = scene->createEntity();
-	parkingStall->addComponent<TransformComponent>();
-	auto transform = parkingStall->getComponent<TransformComponent>();
-	transform->x = 5.0f;
+	auto parkingStall = scene->addEntity();
+	parkingStall->getComponent<TransformComponent>()->translate(5.0f, 0.0f, 0.0f);
 	parkingStall->addComponent<VolumeTriggerComponent>();
 	Events::CarParked.registerHandler<carParked>();
 	Events::CarUnParked.registerHandler<carUnParked>();
