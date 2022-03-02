@@ -9,23 +9,20 @@ unsigned int Entity::instanceCounter = 0;
 NullEntity nullEntity;
 
 
-Entity::Entity(Entity& parent) : _parent(parent), _siblingNumber(0) {
+Entity::Entity(sp<Entity> parent) 
+    : _parent(parent), _siblingNumber(-1), _self(nullptr) {
     _entityID = Entity::instanceCounter++;
     addComponent<TransformComponent>();
-
-    // Find which sibling this entity is
-    auto siblings = _parent._children;
-    for (unsigned int i = 0; i < siblings.size(); i++) {
-        if (siblings[i]->id() == _entityID) _siblingNumber = i;
-    }
 }
 
-std::shared_ptr<Entity> Entity::addChild() {
-    _children.emplace_back(make_shared<Entity>(*this));
+sp<Entity> Entity::addChild() {
+    _children.emplace_back(make_shared<Entity>(_self));
+    _children.back()->_self = _children.back();
+    _children.back()->_siblingNumber = _children.size() - 1;
     return _children.back();
 }
 
-bool Entity::removeChild(std::shared_ptr<Entity> doomedEntity) {
+bool Entity::removeChild(sp<Entity> doomedEntity) {
     for (auto it = _children.begin(); it != _children.end(); it++) {
         if ((*it).get() == doomedEntity.get()) {
             _children.erase(it);
@@ -37,7 +34,7 @@ bool Entity::removeChild(std::shared_ptr<Entity> doomedEntity) {
     return false;
 }
 
-std::vector<std::shared_ptr<Entity>>& Entity::directChildren() {
+std::vector<sp<Entity>>& Entity::directChildren() {
     return _children;
 }
 
@@ -53,7 +50,7 @@ bool Entity::removeChildByID(unsigned int entityID) {
     return false;
 }
 
-std::shared_ptr<Entity> Entity::getChildByID(unsigned int entityID) {
+sp<Entity> Entity::getChildByID(unsigned int entityID) {
     for (auto it = _children.begin(); it != _children.end(); it++) {
         if ((*it)->id() == entityID) {
             return *it;
@@ -62,7 +59,7 @@ std::shared_ptr<Entity> Entity::getChildByID(unsigned int entityID) {
     Log::error("Entity::getChildByID(%d)\nNo entity exists with ID %d", 
                 entityID, entityID);
     // Return an empty shared ptr
-    std::shared_ptr<Entity> empty(nullptr);
+    sp<Entity> empty(nullptr);
     return empty;
 }
 
@@ -71,31 +68,16 @@ std::shared_ptr<Entity> Entity::getChildByID(unsigned int entityID) {
 Entity::Iterator Entity::begin() {
     // Return an iterator pointing to the first child of traversal
     if (!_children.empty())
-        return Iterator(_children[0].get());
+        return Iterator(_children[0]);
     // Fail silently if no children to iterate through
     else
-        return Iterator(this);
+        return Iterator(nullptr);
 }
 
 Entity::Iterator Entity::end() {
-
-    // Get last child
-    shared_ptr<Entity> lastChild;
-
-    if (!_children.empty())
-        lastChild = _children.back();
-    // Fail silently if no children to iterate through
-    else
-        return Iterator(this);
-
-    // If last child has children, get last child again
-    // "Bring me that child!" - Michael Jackson
-    while (!lastChild->_children.empty()) {
-        lastChild = lastChild->_children.back();
-    }
-    
-    // Return an iterator pointing to the last child of traversal
-    return Iterator(lastChild.get());
+    // Return an iterator pointing to the last entity of traversal
+    // Which is the root of the tree to be traversed
+    return Iterator(_self);
 }
 
 /** --- Traverse to next entity in hierarchy --- **
@@ -111,35 +93,43 @@ Entity::Iterator Entity::end() {
  */
 Entity::Iterator& Entity::Iterator::operator++() {
 
-    auto siblings = _current->_parent._children;
+    std::vector<sp<Entity>> siblings;
+
+    if(_current->_parent != nullptr)
+        siblings = _current->_parent->_children;
 
     /* Case 0 */
     if (_current->_children.empty() == false) {
-        _current = _current->_children[0].get();
+        _current = _current->_children[0];
     }
 
     /* Case 1 */
-    else if (siblings.size() >= _current->_siblingNumber) {
-        _current = siblings[_current->_siblingNumber + 1].get();
+    else if (siblings.size() > (_current->_siblingNumber + 1)) {
+        _current = siblings[_current->_siblingNumber + 1];
     }
 
-    /* Case 2 */
     else {
-        
+        /* Case 2 */
         // Point _current to parent entity
-        _current = &_current->_parent;
+        _current = _current->_parent;
+
+        // Check if we're done traversing a subtree
+        if (_current.get() == _root.get()) {
+            _current = _root;
+            return *this;
+        }
 
         /* case 3 */
-        // Loop this until the null entity is found (traversal finished)
-        while (_current->id() != NULL_ID) {
+        // Loop this until the nullptr parent is found (traversal finished)
+        while (_current->_parent != nullptr) {
 
             // If parent entity has siblings following it
-            siblings = _current->_parent._children; // Update siblings vector
-            if (siblings.size() >= _current->_siblingNumber) {
-                _current = siblings[_current->_siblingNumber + 1].get();
+            siblings = _current->_parent->_children; // Update siblings vector
+            if (siblings.size() > (_current->_siblingNumber + 1)) {
+                _current = siblings[_current->_siblingNumber + 1];
                 break;
             } else {
-                _current = &_current->_parent;
+                _current = _current->_parent;
             }
         }
     }
@@ -153,8 +143,8 @@ Entity::Iterator& Entity::Iterator::operator--() {
     // If there are no previous visited entities, just fail silently :)
     if (_visited.empty()) return *this;
 
-    _current = _visited.back(); // Get last entity
     _visited.pop_back();        // Remove last entity
+    _current = _visited.back(); // Get new last entity
     return *this;
 }
 
@@ -170,37 +160,48 @@ Entity& Entity::Iterator::operator*() {
     return *_current; // Reference to entity pointed to by iterator
 }
 
-Entity* Entity::Iterator::operator->() {
+sp<Entity> Entity::Iterator::operator->() {
     return _current;
 }
 
 bool Entity::Iterator::operator!=(Entity::Iterator other) {
     // Failsafe: If comparing to null entity, always return false
-    if (other._current->id() == NULL_ID) return false;
+    if (other._current == nullptr) return false;
     // Compare underlying pointers
-    return _current != other._current;
+    return _current.get() != other._current.get();
 }
 
 // Create an iterator that points to the specified entity
-Entity::Iterator::Iterator(Entity* e) : _current(e) {
+Entity::Iterator::Iterator(sp<Entity> e) : _current(e), _root(nullptr) {
+    // Automatically visit the first node
     _visited.push_back(e);
+    // Set the root entity
+    if (_current->_parent != nullptr)
+        _root = _current->_parent;
 }
 
 
 
 // --- Top level Scene aliases ---
-Scene::Scene() : Entity(nullEntity) {}
 
-std::shared_ptr<Entity> Scene::addEntity() {
+sp<Scene> Scene::newScene() {
+    sp<Scene> s = make_shared<Scene>();
+    s->_self = s;
+    return s;
+}
+
+Scene::Scene() : Entity(nullptr) {}
+
+sp<Entity> Scene::addEntity() {
     return addChild();
 }
 
-bool Scene::removeEntity(std::shared_ptr<Entity> doomedChild) {
+bool Scene::removeEntity(sp<Entity> doomedChild) {
     return removeChild(doomedChild);
 }
 
 
-std::vector<std::shared_ptr<Entity>>& Scene::topLevelEntities() {
+std::vector<sp<Entity>>& Scene::topLevelEntities() {
     return directChildren();
 }
 
@@ -208,6 +209,6 @@ bool Scene::removeEntityByID(unsigned int entityID) {
     return removeChildByID(entityID);
 }
 
-std::shared_ptr<Entity> Scene::getEntityByID(unsigned int entityID) {
+sp<Entity> Scene::getEntityByID(unsigned int entityID) {
     return getChildByID(entityID);
 }

@@ -10,8 +10,8 @@ GameplaySystem::GameplaySystem(
 {}
     
 void GameplaySystem::update() {
-    for (auto e : scene->topLevelEntities()) {
-        auto vc = e->getComponent<VolumeTriggerComponent>();
+    for (auto it = scene->begin(); it != scene->end(); it++) {
+        auto vc = it->getComponent<VolumeTriggerComponent>();
         if (vc) {
             vc->checkForEntity(car);
         }

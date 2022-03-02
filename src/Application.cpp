@@ -1,7 +1,5 @@
 #include "Application.h"
 
-#define TEST_ITERATOR
-
 int g_carsParked = 0;
 void carParked() {
 	g_carsParked++;
@@ -24,40 +22,17 @@ Application::Application(appSettings& settings)
 	Time::init();
 
 	/* Framework (Managers) - used by systems*/
-	scene  		 = std::make_shared<Scene>();
-	// window 		= std::make_shared<Window>(1200, 800, "Test Window");
-	// inputManager = std::make_shared<InputManager>(window);
-	// audioManager = std::make_shared<AudioManager>();
+	scene        = Scene::newScene();
+	window 		 = std::make_shared<Window>(1200, 800, "Test Window");
+	inputManager = std::make_shared<InputManager>(window);
+	audioManager = std::make_shared<AudioManager>();
 
 	/* Game systems - update() every frame */
-	// gameplay = std::make_shared<GameplaySystem>(scene, eventManager, audioManager);
-	// physics  = std::make_shared<PhysicsSystem>(scene, audioManager);
-	// render   = std::make_shared<RenderSystem>(scene, audioManager, window);
-	// gui 	 = std::make_shared<GUI>();
+	// gameplay     = std::make_shared<GameplaySystem>(scene, eventManager, audioManager);
+	physics      = std::make_shared<PhysicsSystem>(scene, audioManager);
+	render       = std::make_shared<RenderSystem>(scene, audioManager, window);
+	gui 	     = std::make_shared<GUI>();
 
-
-#ifdef TEST_ITERATOR
-
-	std::cout << "----------------------------------------------\n\n";
-
-	auto e0     = scene->addEntity();	// ID = 2
-	auto e0_0   = e0->addChild();		// ID = 3
-	auto e0_1   = e0->addChild();		// ID = 4
-	auto e0_1_0 = e0_1->addChild();		// ID = 5
-	auto e0_1_1 = e0_1->addChild();		// ID = 6
-	auto e0_2   = e0->addChild();		// ID = 7
-	auto e1     = scene->addEntity();	// ID = 8
-	auto e2     = scene->addEntity();	// ID = 9
-	auto e2_0   = e2->addChild();		// ID = 10
-	auto e2_0_0 = e2_0->addChild();		// ID = 11
-
-	for (auto it = scene->begin(); it != scene->end(); it++) {
-		std::cout << it->id() << " ";
-	}
-
-	std::cout << "\n\n----------------------------------------------\n";
-
-#else
 
 	/* Temporary stuff for now */
 	// screw gldebug
@@ -256,15 +231,11 @@ Application::Application(appSettings& settings)
 	parkingStall->addComponent<VolumeTriggerComponent>();
 	Events::CarParked.registerHandler<carParked>();
 	Events::CarUnParked.registerHandler<carUnParked>();
-	
-#endif
 
 }
 
 int Application::play() {
-#ifdef TEST_ITERATOR
-	return 0;
-#else
+
 	// Invoke observers of the GameStart event
 	Events::GameStart.broadcast();
 
@@ -276,8 +247,8 @@ int Application::play() {
 
 		// Update time-related values
 		Time::update();
-
-		// Fixed time step loop
+	
+		// Fixed time step game loop
 		while (Time::takeNextStep()) {
 
 			gameplay->update();
@@ -302,7 +273,6 @@ int Application::play() {
 				)
 			);
 		}
-
 
 		//---Render Frame -----------------------------
 		// render->update();
@@ -357,7 +327,6 @@ int Application::play() {
 	}
 
 	return 0;
-#endif
 }
 
 Application::~Application() {

@@ -16,6 +16,8 @@ using std::unique_ptr,    std::make_unique;  // Unique pointers
 using std::enable_if_t,   std::is_base_of_v; // Template param type assertion
 using std::dynamic_pointer_cast;             // Downcast smart pointers
 
+template<class T> using sp = std::shared_ptr<T>;
+
 /**
  * @brief Components are stored in a map structure with keys of type 
  * ComponentEnum. Entities can only have 1 of each component type.
@@ -23,8 +25,8 @@ using std::dynamic_pointer_cast;             // Downcast smart pointers
 class Entity {
 public:
 
-    Entity(Entity& parent);
-    Entity& parent() { return _parent; }
+    Entity(sp<Entity> parent);
+    sp<Entity> parent() { return _parent; }
 
     // Return this entity's unique ID
     unsigned int id() { return _entityID; }
@@ -67,14 +69,14 @@ public:
         return static_cast<bool>(_components.count(C::getType()));
     }
 
-    shared_ptr<Entity> addChild();
-    bool removeChild(shared_ptr<Entity> doomedChild);
+    sp<Entity> addChild();
+    bool removeChild(sp<Entity> doomedChild);
 
-    std::vector<shared_ptr<Entity>>& directChildren();
+    std::vector<sp<Entity>>& directChildren();
 
     
     bool removeChildByID(unsigned int entityID);
-    shared_ptr<Entity> getChildByID(unsigned int entityID);
+    sp<Entity> getChildByID(unsigned int entityID);
 
 
     /* --- Entity iterator implementation --- */
@@ -89,22 +91,22 @@ public:
         Iterator& operator--();    // Traverse iterator to previous entity
         Iterator  operator--(int); // Same (pre/postfix current behave the same)
         Entity&   operator*();     // Access the entity at current iteration
-        Entity*   operator->();     // Overload class member access operator
+        sp<Entity> operator->();   // Overload class member access operator
         bool operator!=(Iterator); // Inequality comparison for iteration
 
 
     private:
         // Encapsulated constructor because why construct an iterator manually
-        Iterator(Entity*);
+        Iterator(sp<Entity>);
         
         // The entity currently being pointed to
-        // I could go on a long ramble about why I'm using raw pointers
-        // but you'll just have to trust me on this one
-        Entity* _current;
+        sp<Entity> _current;
 
         // A list of entities visited to allow for quick reverse traversal
-        std::vector<Entity*> _visited;
+        std::vector<sp<Entity>> _visited;
 
+        // Pointer to the root entity of the (sub-)tree being traversed
+        sp<Entity> _root;
     };
 
     // Constructs an iterator at the beginning of the children tree
@@ -119,17 +121,20 @@ protected:
     // Structure containing an entities components
     unordered_map<ComponentEnum, shared_ptr<BaseComponent>> _components;
     
+    // Reference to self
+    sp<Entity> _self;
+
     // Reference to parent entity
-    Entity& _parent;
+    sp<Entity> _parent;
 
     // List of child entities
-    std::vector<shared_ptr<Entity>> _children;
+    std::vector<sp<Entity>> _children;
 
     // Unique ID
     unsigned int _entityID;
 
     // Position in children vector of parent
-    unsigned int _siblingNumber;
+    int _siblingNumber;
 
     // Instance counter used for unique IDs
     static unsigned int instanceCounter;
@@ -141,15 +146,17 @@ protected:
 class Scene : public Entity {
 public:
 
+    static sp<Scene> newScene();
+
     Scene();
 
-    shared_ptr<Entity> addEntity();
-    bool removeEntity(shared_ptr<Entity> doomedChild);
+    sp<Entity> addEntity();
+    bool removeEntity(sp<Entity> doomedChild);
 
-    std::vector<shared_ptr<Entity>>& topLevelEntities();
+    std::vector<sp<Entity>>& topLevelEntities();
     
     bool removeEntityByID(unsigned int entityID);
-    shared_ptr<Entity> getEntityByID(unsigned int entityID);
+    sp<Entity> getEntityByID(unsigned int entityID);
 
 };
 

@@ -15,11 +15,11 @@ glm::mat4 TransformComponent::parentMatrix(int depth) {
     if (depth == 0) return _matrix;
 
     // Check that entity has parent
-    Entity& parent = entity.parent();
-    if (parent.id() == NULL_ID) return glm::mat4(1.0f);
+    shared_ptr<Entity> parent = entity.parent();
+    if (parent == nullptr) return glm::mat4(1.0f);
 
     // Check that parent has transform component
-    auto t = parent.getComponent<TransformComponent>();
+    auto t = parent->getComponent<TransformComponent>();
     if(!t) return glm::mat4(1.0f);
     
     return t->parentMatrix(depth - 1) * _matrix;
