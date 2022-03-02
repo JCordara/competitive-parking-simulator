@@ -30,12 +30,14 @@ GameRenderPipeline::GameRenderPipeline() :
 }
 
 
-void GameRenderPipeline::addPointLight(std::shared_ptr<PointLight> pointLight) {
+void GameRenderPipeline::addPointLight(std::shared_ptr<PointLight> pointLight, glm::mat4 transform) {
 	pointLights.push_back(pointLight);
+	pointLightTransforms.push_back(transform);
 }
 
-void GameRenderPipeline::addSpotLight(std::shared_ptr<SpotLight> spotLight) {
+void GameRenderPipeline::addSpotLight(std::shared_ptr<SpotLight> spotLight, glm::mat4 transform) {
 	spotLights.push_back(spotLight);
+	spotLightTransforms.push_back(transform);
 }
 
 void GameRenderPipeline::setDirectionalLight(std::shared_ptr<DirectionalLight> directionalLight) {
@@ -123,9 +125,9 @@ void GameRenderPipeline::executeRender() {
 	textureDirectionalLightPosition.bind();
 
 	postProcessingRenderer.setTextureLocations(0, 1, 2, 3, 4, 5, 6, 7, 8);
-	postProcessingRenderer.setPointLights(pointLights);
-	postProcessingRenderer.setSpotLights(spotLights);
-	postProcessingRenderer.setDirectionalLight(directionalLight);
+	postProcessingRenderer.setPointLights(pointLights, pointLightTransforms);
+	postProcessingRenderer.setSpotLights(spotLights, spotLightTransforms);
+	postProcessingRenderer.setDirectionalLight(directionalLight, directionalLightViewTransformation);
 	postProcessingRenderer.setAmbientLight(ambientLight);
 	postProcessingRenderer.setRenderedCameraPosition(cameraPosition);
 	postProcessingRenderer.render();
@@ -358,15 +360,16 @@ void PostProcessingRenderer::setTextureLocations(int textureColourActiveLocation
 	glUniform1i(textureDirectionalLightPositionLocation, textureDirectionalLightPositionActiveLocation);
 }
 
-void PostProcessingRenderer::setPointLights(std::vector<std::shared_ptr<PointLight>>& pointLights) {
+void PostProcessingRenderer::setPointLights(std::vector<std::shared_ptr<PointLight>>& pointLights, std::vector<glm::mat4> transforms) {
 	std::vector<std::vector<GLfloat>> ret = std::vector<std::vector<GLfloat>>(4);
 	ret[0] = std::vector<GLfloat>(3 * pointLights.size());
 	ret[1] = std::vector<GLfloat>(3 * pointLights.size());
 	ret[2] = std::vector<GLfloat>(3 * pointLights.size());
 	ret[3] = std::vector<GLfloat>(pointLights.size());
 	glm::vec3 temp;
+	glm::vec4 temp4 = glm::vec4(0.f,0.f,0.f,1.f);
 	for (int i = 0; i < pointLights.size(); i++) {
-		temp = pointLights[i]->getPos();
+		temp = glm::vec3(transforms[i] * temp4); //pointLights[i]->getPos();
 		ret[0][3 * i + 0] = temp[0];
 		ret[0][3 * i + 1] = temp[1];
 		ret[0][3 * i + 2] = temp[2];
@@ -387,7 +390,7 @@ void PostProcessingRenderer::setPointLights(std::vector<std::shared_ptr<PointLig
 	glUniform1i(numberOfPointLightsLocation, pointLights.size());
 }
 
-void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight>>& spotLights) {
+void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight>>& spotLights, std::vector<glm::mat4> transforms) {
 	std::vector<std::vector<GLfloat>> ret = std::vector<std::vector<GLfloat>>(7);
 	ret[0] = std::vector<GLfloat>(3 * spotLights.size());
 	ret[1] = std::vector<GLfloat>(3 * spotLights.size());
@@ -396,8 +399,9 @@ void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight
 	ret[4] = std::vector<GLfloat>(	  spotLights.size());
 	ret[5] = std::vector<GLfloat>(2 * spotLights.size());
 	glm::vec3 temp;
+	glm::vec4 temp4 = glm::vec4(0.f, 0.f, 0.f, 1.f);
 	for (int i = 0; i < spotLights.size(); i++) {
-		temp = spotLights[i]->getPos();
+		temp = glm::vec3(transforms[i] * temp4); //spotLights[i]->getPos();
 		ret[0][3 * i + 0] = temp[0];
 		ret[0][3 * i + 1] = temp[1];
 		ret[0][3 * i + 2] = temp[2];
@@ -409,7 +413,8 @@ void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight
 		ret[2][3 * i + 0] = temp[0];
 		ret[2][3 * i + 1] = temp[1];
 		ret[2][3 * i + 2] = temp[2];
-		temp = spotLights[i]->getDirection();
+		temp4 = glm::vec4(1.f, 0.f, 0.f, 0.f);
+		temp = glm::vec3(transforms[i] * temp4);
 		ret[3][3 * i + 0] = temp[0];
 		ret[3][3 * i + 1] = temp[1];
 		ret[3][3 * i + 2] = temp[2];
@@ -426,9 +431,10 @@ void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight
 	glUniform1i(numberOfSpotLightsLocation, spotLights.size());
 }
 
-void PostProcessingRenderer::setDirectionalLight(std::shared_ptr<DirectionalLight> light) {
+void PostProcessingRenderer::setDirectionalLight(std::shared_ptr<DirectionalLight> light, glm::mat4 transform) {
+	glm::vec4 temp4 = glm::vec4(1.f, 0.f, 0.f, 0.f);
 	glUniform3fv(directionalLightColourLocation, 1, &light->getCol()[0]);
-	glUniform3fv(directionalLightDirectionLocation, 1, &light->getDirection()[0]);
+	glUniform3fv(directionalLightDirectionLocation, 1, &(glm::vec3(transform * temp4))[0]);
 }
 
 void PostProcessingRenderer::setAmbientLight(std::shared_ptr<AmbientLight> light) {
