@@ -36,7 +36,7 @@ public:
     // ^ Assert that C is derived from BaseComponent
     addComponent(Args&&... args) {
         // Construct the component
-        shared_ptr<BaseComponent> component = make_shared<C>(*this, args...);
+        sp<BaseComponent> component = make_shared<C>(*this, args...);
         // Get the components type enum (used as map key)
         ComponentEnum ctype = C::getType();
         // Insert component into map
@@ -54,7 +54,7 @@ public:
     }
 
     template<class C>
-    enable_if_t<is_base_of_v<BaseComponent, C>, shared_ptr<C>>
+    enable_if_t<is_base_of_v<BaseComponent, C>, sp<C>>
     getComponent() {
         try {
             return dynamic_pointer_cast<C>(_components.at(C::getType()));
@@ -110,16 +110,16 @@ public:
     };
 
     // Constructs an iterator at the beginning of the children tree
-    Iterator begin();
+    Entity::Iterator begin();
     
     // Constructs an iterator at the end of the children tree
-    Iterator end();
+    Entity::Iterator end();
 
 
 
 protected:
     // Structure containing an entities components
-    unordered_map<ComponentEnum, shared_ptr<BaseComponent>> _components;
+    unordered_map<ComponentEnum, sp<BaseComponent>> _components;
     
     // Reference to self
     sp<Entity> _self;
