@@ -19,7 +19,7 @@ void RenderSystem::update() {
 	renderPipeline->setWindowDimentions(window->getWidth(), window->getHeight());
 
 	//Attach all entity objects to render to render
-	for (auto e = scene->begin(); e != scene->end(); e++) {//Willl change, need to do tree traversal
+	for (auto e = scene->; e != scene->end(); e++) {//Willl change, need to do tree traversal
 		auto lightingComponent = e->getComponent<LightingComponent>();
 		auto transformComponent = e->getComponent<TransformComponent>();
 		auto cameraComponent = e->getComponent<CameraComponent>();

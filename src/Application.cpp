@@ -10,12 +10,6 @@ void carUnParked() {
 
 Application::Application(appSettings& settings) 
 	: settings(settings)
-	, mainCamera()
-	, directionalLightCamera(glm::vec3(0.0f, 15.0f, -15.0f), 
-		glm::radians(180.0f), 
-		glm::radians(-45.0f), 
-		100.0f, 50.f, 5.f, 50.f, true)
-	, identity(1.0f)
 {
 	//App initialization
 	glfwInit();
@@ -28,10 +22,9 @@ Application::Application(appSettings& settings)
 	audioManager = std::make_shared<AudioManager>();
 
 	/* Game systems - update() every frame */
-	// gameplay     = std::make_shared<GameplaySystem>(scene, eventManager, audioManager);
+	//gameplay     = std::make_shared<GameplaySystem>(scene, eventManager, audioManager);
 	physics      = std::make_shared<PhysicsSystem>(scene, audioManager);
 	render       = std::make_shared<RenderSystem>(scene, audioManager, window);
-	gui 	     = std::make_shared<GUI>();
 
 
 	/* Temporary stuff for now */
@@ -253,6 +246,7 @@ int Application::play() {
 
 			gameplay->update();
 			physics->update();
+			render->update();
 
 			// Move lights
 			float elapsedTime = (float)(Time::lastUpdateTime() - Time::programStartTime());

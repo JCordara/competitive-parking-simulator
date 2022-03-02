@@ -63,22 +63,6 @@ private:
 	std::shared_ptr<PhysicsSystem>     physics;
 	std::shared_ptr<RenderSystem>      render;
 
-	// Rendering stuff (temporary location until rendering system is done)
-	glm::mat4 identity;
-	EditorCamera mainCamera;
-	std::shared_ptr<GameRenderPipeline> renderPipeline;
-	std::vector<std::shared_ptr<PointLight>> scenePointLights;
-	std::vector< std::shared_ptr<SpotLight>> sceneSpotLights;
-	std::shared_ptr<DirectionalLight> dirLight;
-	Camera directionalLightCamera;
-	std::shared_ptr<AmbientLight> ambientLight;
-	std::vector<std::shared_ptr<Model>> sceneRenderModels;
-	std::vector<GameObject> sceneCubeGameObjects;
-	std::vector<GameObject> CarObjects;
-	std::vector<GameObject> scenePlaneGameObjects;
-	std::shared_ptr<GUI> gui;
-
-	float viewportAspectRatio;
 };
 
 //Functions to load settings
