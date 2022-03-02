@@ -110,10 +110,10 @@ public:
     };
 
     // Constructs an iterator at the beginning of the children tree
-    Iterator begin();
+	Entity::Iterator begin();
     
     // Constructs an iterator at the end of the children tree
-    Iterator end();
+	Entity::Iterator end();
 
 
 

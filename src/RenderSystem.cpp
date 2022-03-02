@@ -1,5 +1,5 @@
 #include "RenderSystem.h"
-#include <GUI.h>
+
 
 RenderSystem::RenderSystem(
     std::shared_ptr<Scene> scene,
@@ -15,25 +15,23 @@ RenderSystem::RenderSystem(
 }
 
 void RenderSystem::update() {
+	/*  Render Pass   */
 	//Setting up window
 	renderPipeline->setWindowDimentions(window->getWidth(), window->getHeight());
 
 	//Attach all entity objects to render to render
-	for (auto e = scene->; e != scene->end(); e++) {//Willl change, need to do tree traversal
+	for (auto e = scene->begin(); e != scene->end(); e++) {//Willl change, need to do tree traversal
+
 		auto lightingComponent = e->getComponent<LightingComponent>();
 		auto transformComponent = e->getComponent<TransformComponent>();
 		auto cameraComponent = e->getComponent<CameraComponent>();
 		auto modelComponent = e->getComponent<ModelComponent>();
 		auto rendererComponent = e->getComponent<RendererComponent>();
-		glm::mat4 localToGlobaltransform;
-		glm::vec3 pos;
+		glm::mat4 localToGlobaltransform = glm::mat4(1.0f); //Identity
+		glm::vec3 pos = glm::vec3(0.f); //Origin
 		if (transformComponent) {
 			localToGlobaltransform = transformComponent->getMatrix();
 			pos = transformComponent->getPosition();
-		}
-		else {
-			localToGlobaltransform = glm::mat4(1.0f); //Identity
-			pos = glm::vec3(0.f); //Origin
 		}
 		if (lightingComponent) {
 			std::shared_ptr<PointLight> pointlight = lightingComponent->getPointLight();
@@ -73,14 +71,14 @@ void RenderSystem::update() {
 	}
 	//Render the output
 	renderPipeline->executeRender();
+	//Flush the render queue
 	renderPipeline->flushLists();
-
-	glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
-
+	//Draw the GUI ontop
 	gui->draw();
+	//Swap the drawbuffer
 	window->swapBuffers();
 }
 
 RenderSystem::~RenderSystem() {
-    
+    //Nothing to do here
 }

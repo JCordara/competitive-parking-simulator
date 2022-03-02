@@ -4,6 +4,8 @@
 #include "GameSystem.h"
 #include "Window.h"
 #include <Renderers.h>
+#include <Entity.h>
+#include <GUI.h>
 
 class RenderSystem : public GameSystem {
 public:

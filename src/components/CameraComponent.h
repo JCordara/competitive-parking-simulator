@@ -13,6 +13,7 @@ enum class CameraPurpose {
 class CameraComponent : public BaseComponent {
 public:
 	CameraComponent(Entity& parent);
+
 	void setOrthographicCamera(float width, float height, float nearPlane, float farPlane);
 	void setPerspectiveCamera(float fov, float aspectRatio, float nearPlane, float farPlane);
 	void updateOrthographicCamera(float width, float height, float nearPlane, float farPlane);
@@ -21,6 +22,7 @@ public:
 	CameraPurpose getPurpose() { return purpose; }
 	glm::mat4 getViewMatrix();
 	glm::mat4 getProjectionMatrix();
+
 	~CameraComponent();
 	static  ComponentEnum getType();
 private:
