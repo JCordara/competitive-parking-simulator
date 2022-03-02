@@ -10,11 +10,17 @@ GameplaySystem::GameplaySystem(
 {}
     
 void GameplaySystem::update() {
-    for (auto e : scene->entities()) {
-        auto c = e->getComponent<VolumeTriggerComponent>();
-        if (c) {
-            c->checkForEntity(car);
+    for (auto e : scene->topLevelEntities()) {
+        auto vc = e->getComponent<VolumeTriggerComponent>();
+        if (vc) {
+            vc->checkForEntity(car);
         }
+        /*
+        auto ac = e->getComponent<AiComponent>();
+        if (ac) {
+            ac->update();
+        }
+        */
     }
 }
 

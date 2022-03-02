@@ -70,10 +70,50 @@ public:
     shared_ptr<Entity> addChild();
     bool removeChild(shared_ptr<Entity> doomedChild);
 
-    std::vector<shared_ptr<Entity>>& children();
+    std::vector<shared_ptr<Entity>>& directChildren();
+
     
     bool removeChildByID(unsigned int entityID);
     shared_ptr<Entity> getChildByID(unsigned int entityID);
+
+
+    /* --- Entity iterator implementation --- */
+
+    class Iterator {
+    public:
+        
+        friend Entity;             // Give Entity access to private constructor
+
+        Iterator& operator++();    // Traverse iterator to next entity
+        Iterator  operator++(int); // Same (pre/postfix current behave the same)
+        Iterator& operator--();    // Traverse iterator to previous entity
+        Iterator  operator--(int); // Same (pre/postfix current behave the same)
+        Entity&   operator*();     // Access the entity at current iteration
+        Entity*   operator->();     // Overload class member access operator
+        bool operator!=(Iterator); // Inequality comparison for iteration
+
+
+    private:
+        // Encapsulated constructor because why construct an iterator manually
+        Iterator(Entity*);
+        
+        // The entity currently being pointed to
+        // I could go on a long ramble about why I'm using raw pointers
+        // but you'll just have to trust me on this one
+        Entity* _current;
+
+        // A list of entities visited to allow for quick reverse traversal
+        std::vector<Entity*> _visited;
+
+    };
+
+    // Constructs an iterator at the beginning of the children tree
+    Iterator begin();
+    
+    // Constructs an iterator at the end of the children tree
+    Iterator end();
+
+
 
 protected:
     // Structure containing an entities components
@@ -88,8 +128,13 @@ protected:
     // Unique ID
     unsigned int _entityID;
 
+    // Position in children vector of parent
+    unsigned int _siblingNumber;
+
     // Instance counter used for unique IDs
     static unsigned int instanceCounter;
+
+    
 };
 
 // Simplify the scene to just be another entity with function aliases
@@ -101,10 +146,11 @@ public:
     shared_ptr<Entity> addEntity();
     bool removeEntity(shared_ptr<Entity> doomedChild);
 
-    std::vector<shared_ptr<Entity>>& entities();
+    std::vector<shared_ptr<Entity>>& topLevelEntities();
     
     bool removeEntityByID(unsigned int entityID);
     shared_ptr<Entity> getEntityByID(unsigned int entityID);
+
 };
 
 // Null Entity class (used as parent of top level scene)

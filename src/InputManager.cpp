@@ -133,8 +133,7 @@ void Callbacks::updateControlAxes() {
 		if (a.second != nullptr) axes.insert(a.second);
 
 	// Update each axis in the set
-	for (auto& a : axes)
-		a->update();
+	for (auto& a : axes) a->update();
 }
 
 void Callbacks::bindInput(int input, int action, Event<void>* event) {
