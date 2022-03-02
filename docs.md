@@ -21,81 +21,68 @@ We need a cool name for the game engine
 <a name="entities-and-components"/>
 
 ## Entities and components
-`#include "Framework.h"`
 
 The `Entity` class is a base class that stores components and provides accessor
 methods for them. Components are stored in a map structure, so each Entity can
 have only one component of each type. If classes are derived from `Entity`, the
 hierarchy should be limited to single-level.
 
-Components inherit from the `BaseComponent` interface, which only implements a 
-virtual destructor. Components must also implement a static `getType` method
-that returns the appropriate `ComponentEnum` value. The `ComponentEnum` enum has
-a value for each component type, which you are free to add to.
+To create an entity, use the scene's `addEntity` function. Entities also have an
+`addChild` function which allows for a hierarchy to be built. By default, newly 
+created entities contain only a Transform component. Components can be added by 
+calling `addComponent`, accessed by calling `getComponent`, tested for by 
+calling `hasComponent`, and removed by calling `removeComponent`. Each of these 
+functions takes the component type as a template parameter.
 
-Components and entities should be able to communicate through the event system
-(see below). If needed, we can look into adding other methods of communication.
-
-To create an entity, declare an instance of the `Entity` class. By default, it
-contains no components (not even Transform at the moment). Components can be
-added by calling `addComponent`, accessed via the `getComponent` function, and
-removed by calling `removeComponent`. Each of these functions takes the 
-component type as a template parameter.
-
-Example creation and usage of an entity with a transform component:
+Example creation and usage of an entity and it's Transform component:
 ```cpp
 // Create entity
-Entity car;
+std::shared_ptr<Entity> frank = scene->createEntity();
 
-// Add a Transform component to the entity
-car.addComponent<TransformComponent>();
+// Add a component 
+frank->addComponent<ModelComponent>();
+frank->removeComponent<ModelComponent>();
 
-// Get a shared_ptr to the component (always use smart pointers pls&ty)
-auto transform = car.getComponent<TransformComponent>();
+// Get a shared_ptr to the component
+auto transform = frank->getComponent<TransformComponent>();
 
-printf("%d\n", frank.hasComponent<TransformComponent>()); // Outputs 1
-printf("%d\n", frank.hasComponent<PhysicsComponent>());   // Outputs 0
+printf("%d\n", frank->hasComponent<TransformComponent>()); // Outputs 1
+printf("%d\n", frank->hasComponent<ModelComponent>());   // Outputs 0
 
 // Modify component attributes
-transform.x = 15.0f;
-printf("(%.1f, %.1f, %.1f)", transform.x, transform.y, transform.x); // Outputs '(15.0, 0.0, 0.0)'
+transform->x = 15.0f;
 
 // Remove a component
 car.removeComponent<TransformComponent>();
 car.getComponent<TransformComponent>(); // Outputs error message
 ```
-The above example shows how entities work, but you'll never want to instantiate
-an entity like this. Using the `Scene` class as an interface, you can create and
-destroy entites as well as iterate through them.
+
+You can iterate through all the entities in the hierarchy like this:
 ```cpp
-// Initialize scene as a smart pointer just like everything else
-auto scene = std::make_shared<Scene>();
-
-// Creation of an entity
-std::shared_ptr<Entity> car = scene->createEntity();
-unsigned int carID = car->id();
-
-// Entity access
-std::vector<std::shared_ptr<Entity>>& entities = scene->entities();
-auto sameCar = scene->getEntityByID(carID);
-
-// Deletion of an entity
-scene->destroyEntityByID(carID);
-// OR
-scene->destroyEntity(car); // Compares internal ptr addresses
-```
-Common usage of the scene class will probably look like this:
-```cpp
-for (auto entity : scene->entities()) {
-    if (entity->hasComponent<PhysicsComponent>()){
-        /* Do physics operations on all entities with physics components */
+for (auto it = scene->begin(); it != scene->end(); it++) {
+    // And you can iterate through components like this:
+    auto ai = it->getComponent<AiComponent>();
+    if (ai) {
+        ai->update();
+        // Other stuff...
     }
 }
 ```
+
+#### *More details*
+
+In case you want to create a new component type: Components inherit from the 
+`BaseComponent` interface, which only implements a virtual destructor. 
+Components must also implement a static `getType` method that returns the 
+appropriate `ComponentEnum` value. The `ComponentEnum` enum has a value for each 
+component type, which you are free to add to.
+
+Components and entities should be able to communicate through the event system
+(see below). If needed, we can look into adding other methods of communication.
+
 <a name="events"/>
 
 ## Events
-`#include "Framework.h"`
 
 The `Events` namespace in Event.h holds a list of globally accessible events 
 that will probably be frequently added to and modified as we build out the 
@@ -214,7 +201,6 @@ Events::PlayAudio.broadcast(soundEffect);
 <a name="audio"/>
 
 ## Audio
-`#include "Framework.h"`
 
 There are 3 main objects in the audio system API: Audio, AudioSource, and 
 AudioManager. The relationship is that AudioSources play Audio, and the
@@ -267,4 +253,23 @@ Stub
 <a name="input"/>
 
 ## Input system
-Stub
+
+Inputs are bound to events, and there are a few ways to do that. The simplest is
+to bind an input that triggers an event, which is done like this:
+
+```cpp
+inputManager->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::PlayerHandbrake);
+```
+
+In our case, we need to use something called an input axis for a lot of our 
+inputs. An axis is just a value between -1 and 1 that represents the current
+state of an input. For instance, the x-axis of a joystick is an axis where all 
+the way left means -1 and right means +1. You can create an axis between two 
+regular inputs (like keys) like this:
+
+```cpp
+inputManager->createAxis(GLFW_KEY_D, GLFW_KEY_A, &Events::PlayerSteer);
+```
+
+Note that the PlayerSteer event needs to have a float parameter.
+

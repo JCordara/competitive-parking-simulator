@@ -14,11 +14,7 @@ Application::Application(appSettings& settings)
 	, directionalLightCamera(glm::vec3(0.0f, 15.0f, -15.0f), 
 		glm::radians(180.0f), 
 		glm::radians(-45.0f), 
-		100.0f, 
-		50.f, 
-		5.f, 
-		50.f, 
-		true)
+		100.0f, 50.f, 5.f, 50.f, true)
 	, identity(1.0f)
 {
 	//App initialization
@@ -26,15 +22,17 @@ Application::Application(appSettings& settings)
 	Time::init();
 
 	/* Framework (Managers) - used by systems*/
-	eventManager = std::make_shared<GameEventManager>();
+	scene        = Scene::newScene();
+	window 		 = std::make_shared<Window>(1200, 800, "Test Window");
+	inputManager = std::make_shared<InputManager>(window);
 	audioManager = std::make_shared<AudioManager>();
-	scene  		 = std::make_shared<Scene>();
-	window 		 = std::make_shared<Window>(eventManager, 1200, 800, "Test Window");
 
 	/* Game systems - update() every frame */
-	// gameplay = std::make_shared<GameplaySystem>(scene, eventManager, audioManager);
-	physics  = std::make_shared<PhysicsSystem>(scene, eventManager, audioManager);
-	render   = std::make_shared<RenderSystem>(scene, eventManager, audioManager, window);
+	// gameplay     = std::make_shared<GameplaySystem>(scene, eventManager, audioManager);
+	physics      = std::make_shared<PhysicsSystem>(scene, audioManager);
+	render       = std::make_shared<RenderSystem>(scene, audioManager, window);
+	gui 	     = std::make_shared<GUI>();
+
 
 	/* Temporary stuff for now */
 	// screw gldebug
@@ -45,39 +43,6 @@ Application::Application(appSettings& settings)
 	mainCamera.setYaw(-45.0);
 	mainCamera.setZoom(5.5);
 	mainCamera.setLookAt(glm::vec3(0.0f, 0.0f, -1.0f));
-
-	// Register camera input events
-	eventManager->registerMouseButton(
-		bindMethodFunction_0_Variables(&EditorCamera::button1Down, &mainCamera), 
-		GLFW_MOUSE_BUTTON_1, GLFW_PRESS, 0
-	);
-
-	eventManager->registerMouseButton(
-		bindMethodFunction_0_Variables(&EditorCamera::button1Up, &mainCamera), 
-		GLFW_MOUSE_BUTTON_1, GLFW_RELEASE, 0
-	);
-
-	eventManager->registerMouseButton(
-		bindMethodFunction_0_Variables(&EditorCamera::button2Down, &mainCamera), 
-		GLFW_MOUSE_BUTTON_2, GLFW_PRESS, 0
-	);
-	
-	eventManager->registerMouseButton(
-		bindMethodFunction_0_Variables(&EditorCamera::button2Up, &mainCamera), 
-		GLFW_MOUSE_BUTTON_2, GLFW_RELEASE, 0
-	);
-
-	eventManager->registerMousePosition(
-		bindMethodFunction_2_Variables(&EditorCamera::move, &mainCamera)
-	);
-
-	eventManager->registerMousePosition(
-		bindMethodFunction_2_Variables(&EditorCamera::rotateAroundTarget, &mainCamera)
-	);
-
-	eventManager->registerScroll(
-		bindMethodFunction_2_Variables(&EditorCamera::zoom, &mainCamera)
-	);
 
 	// -------------------------------------------------------------------------
 	renderPipeline = std::make_shared<GameRenderPipeline>();
@@ -226,99 +191,43 @@ Application::Application(appSettings& settings)
 			)
 		)
 	);
-	// ---------------------------- Time stuff ---------------------------------
-
-
-	// ---------------------------- Simple GUI ---------------------------------
-	// Currently only displays fps using ImGui
-	gui = std::make_shared<GUI>();
-	// -------------------------------------------------------------------------
-
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::PressW),
-		GLFW_KEY_W, GLFW_PRESS, 0
-	);
-
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::PressS),
-		GLFW_KEY_S, GLFW_PRESS, 0
-	);
-
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::PressA),
-		GLFW_KEY_A, GLFW_PRESS, 0
-	);
-
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::PressD),
-		GLFW_KEY_D, GLFW_PRESS, 0
-	);
-
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseW),
-		GLFW_KEY_W, GLFW_RELEASE, 0
-	);
-
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseS),
-		GLFW_KEY_S, GLFW_RELEASE, 0
-	);
-
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseA),
-		GLFW_KEY_A, GLFW_RELEASE, 0
-	);
-
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseD),
-		GLFW_KEY_D, GLFW_RELEASE, 0
-	);
 	
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::PressSpace),
-		GLFW_KEY_SPACE, GLFW_PRESS, 0
-	);
 
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseSpace),
-		GLFW_KEY_SPACE, GLFW_RELEASE, 0
-	);
+	// --- Keyboard input binding ---
+	// Create an axis between S and W for vehicle acceleration (keyboard)
+	inputManager->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::PlayerAccelerate);
+	// Create an axis between A and D for vehicle steering (keyboard)
+	inputManager->createAxis(GLFW_KEY_D, GLFW_KEY_A, &Events::PlayerSteer);
+	// Bind the shift key to the handbrake event
+	inputManager->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::PlayerHandbrake);
 	
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::PressLeftShift),
-		GLFW_KEY_LEFT_SHIFT, GLFW_PRESS, 0
+	// --- Controller input binding ---
+	// Create an axis from the left and right triggers (controller)
+	inputManager->createAxis(
+		GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, 
+		GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, 
+		&Events::PlayerAccelerate, 
+		ControlAxis::AXIS
 	);
-	
-	eventManager->registerKey(
-		bindMethodFunction_0_Variables(&Event<void>::broadcast, &Events::ReleaseLeftShift),
-		GLFW_KEY_LEFT_SHIFT, GLFW_RELEASE, 0
-	);
+	// Bind the X (square on playstation) to the handbrake event
+	inputManager->bindInput(GLFW_GAMEPAD_BUTTON_X, &Events::PlayerHandbrake);
+	// Bind left joystick x-axis to steering
+	inputManager->bindInput(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::PlayerSteer);
 
-	/* Bind functions here */
-	Events::PressW.registerHandler<startAccelerateForwardsMode>();
-	Events::ReleaseW.registerHandler<releaseForwardDriveControls>();
+	// --- Event binding ---
+	// Vehicle behavior
+	Events::PlayerAccelerate.registerHandler<vehicleAccelerateMode>();
+	Events::PlayerSteer.registerHandler<vehicleTurnMode>();
+	Events::PlayerHandbrake.registerHandler<vehicleHandbrakeMode>();
 
-	Events::PressS.registerHandler<startAccelerateReverseMode>();
-	Events::ReleaseS.registerHandler<releaseReverseDriveControls>();
+	// Camera behavior
+	Events::CameraRotate.registerHandler<EditorCamera, &EditorCamera::rotateAroundTarget>(&mainCamera);
+	Events::CameraZoom.registerHandler<EditorCamera, &EditorCamera::zoom>(&mainCamera);
 
-	Events::PressD.registerHandler<startTurnHardLeftMode>();
-	Events::ReleaseD.registerHandler<releaseLeftTurnControls>();
-
-	Events::PressA.registerHandler<startTurnHardRightMode>();
-	Events::ReleaseA.registerHandler<releaseRightTurnControls>();
-
-	Events::PressSpace.registerHandler<startBrakeMode>();
-	Events::ReleaseSpace.registerHandler<releaseBrakeMode>();
-
-	Events::PressLeftShift.registerHandler<startHandbrake>();
-	Events::ReleaseLeftShift.registerHandler<releaseHandbrake>();
-
-
-	gameplay = std::make_shared<GameplaySystem>(scene, eventManager, audioManager, CarObjects[0]);
-	auto parkingStall = scene->createEntity();
-	parkingStall->addComponent<TransformComponent>();
-	auto transform = parkingStall->getComponent<TransformComponent>();
-	transform->x = 5.0f;
+	// Parking stall hack
+	gameplay = std::make_shared<GameplaySystem>(scene, audioManager, CarObjects[0]);
+	auto parkingStall = scene->addEntity();
+	parkingStall->getComponent<TransformComponent>()->translate(5.0f, 0.0f, 0.0f);
 	parkingStall->addComponent<VolumeTriggerComponent>();
 	Events::CarParked.registerHandler<carParked>();
 	Events::CarUnParked.registerHandler<carUnParked>();
@@ -326,18 +235,20 @@ Application::Application(appSettings& settings)
 }
 
 int Application::play() {
+
 	// Invoke observers of the GameStart event
 	Events::GameStart.broadcast();
 
 	//Game loop
 	while (!window->shouldClose()) {
-		// Get current input events
-		glfwPollEvents();
+		
+		// Process input
+		inputManager->processInput();
 
 		// Update time-related values
 		Time::update();
-
-		// Fixed time step loop
+	
+		// Fixed time step game loop
 		while (Time::takeNextStep()) {
 
 			gameplay->update();
@@ -362,7 +273,6 @@ int Application::play() {
 				)
 			);
 		}
-
 
 		//---Render Frame -----------------------------
 		// render->update();
@@ -411,6 +321,7 @@ int Application::play() {
 		renderPipeline->clearRenderQueue();
 
 		glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
+		
 		gui->draw();
 		window->swapBuffers();
 	}

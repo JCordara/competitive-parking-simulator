@@ -1,19 +1,19 @@
 #include "VolumeTriggerComponent.h"
 
 
-VolumeTriggerComponent::VolumeTriggerComponent(Entity& parent) 
-    : BaseComponent(parent)
+VolumeTriggerComponent::VolumeTriggerComponent(Entity& e) 
+    : BaseComponent(e)
     , occupied(false)
 {}
 
-void VolumeTriggerComponent::checkForEntity(GameObject& entity) {
-    glm::mat4 m = entity.getTransformation();
+void VolumeTriggerComponent::checkForEntity(GameObject& object) {
+    glm::mat4 m = object.getTransformation();
     glm::vec3 entityPos = m[3];
     
-    auto transform = parent.getComponent<TransformComponent>();
+    auto transform = entity.getComponent<TransformComponent>();
     if (!transform) return;
 
-    glm::vec3 selfPos = glm::vec3(transform->x, transform->y, transform->z);
+    glm::vec3 selfPos = transform->getPosition();
 
     if (!occupied) {
         if (glm::distance(entityPos, selfPos) < 2.0f) {

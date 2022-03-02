@@ -45,48 +45,31 @@ EditorCamera::EditorCamera(glm::vec3 initLookAt) : EditorCamera() {
 
 void EditorCamera::rotateAroundTarget(double xOffset, double yOffset) {
 
-	// Only when right mouse button is down
-	if (c_MB2Down_)
-	{
-		double sensitivityFactor = mouseSensitivity_ * 0.25;
+	double sensitivityFactor = mouseSensitivity_ * 0.25;
+	
+	xOffset *= sensitivityFactor;
+	yOffset *= sensitivityFactor;
 
-		double deltaX = xOffset - c_mouseLastX_;
-		double deltaY = yOffset - c_mouseLastY_;
-		
-		deltaX *= sensitivityFactor;
-		deltaY *= sensitivityFactor;
+	yaw_   += xOffset;
+	pitch_ -= yOffset;
 
-		yaw_   += deltaX;
-		pitch_ -= deltaY;
+	// Clamp pitch between looking straight up and straight down
+	if (pitch_ >  89.99f) pitch_ =  89.99f;
+	if (pitch_ < -89.99f) pitch_ = -89.99f;
 
-		// Clamp pitch between looking straight up and straight down
-		if (pitch_ >  89.99f) pitch_ =  89.99f;
-		if (pitch_ < -89.99f) pitch_ = -89.99f;
-
-		updatePosition();
-		updateVectors();
-	}
-
-	// Update last frame's mouse positions
-	c_mouseLastX_ = xOffset;
-	c_mouseLastY_ = yOffset;
+	updatePosition();
+	updateVectors();
 }
 
 // Move the camera without rotating
 void EditorCamera::move(double xOffset, double yOffset) {
 
-	// Only when left mouse button is down
-	if (!c_MB1Down_) return;
-
-	double deltaX = xOffset - c_mouseLastX_;
-	double deltaY = yOffset - c_mouseLastY_;
-
 	// Move both the target (being looked at) and position (camera position)
 	// by the same amount
 	float xAmount = static_cast<float>(
-		deltaX * mouseSensitivity_ * moveSpeed_);
+		xOffset * mouseSensitivity_ * moveSpeed_);
 	float yAmount = static_cast<float>(
-		deltaY * mouseSensitivity_ * moveSpeed_);
+		yOffset * mouseSensitivity_ * moveSpeed_);
 
 	// Move lookat target by specified amount
 	target_   += right_ * xAmount;

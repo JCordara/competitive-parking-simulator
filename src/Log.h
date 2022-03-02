@@ -16,6 +16,7 @@
 
 #include <fmt/format.h>
 #include <vivid/vivid.h>
+#include <glm/glm.hpp>
 
 
 namespace Log {
@@ -57,4 +58,13 @@ namespace Log {
 		_log("ERROR", ansi::red, format_str, args...);
 	}
 
+	inline void printMatrix(glm::mat4&& m) {
+		printf("\n");
+		for (int i = 0; i < 4; i++) {
+			glm::vec4 r = glm::vec4(m[0][i], m[1][i], m[2][i], m[3][i]);
+			printf("| %.2f %.2f %.2f %.2f |\n", r.x, r.y, r.z, r.w);
+		}
+	}
+
 }
+

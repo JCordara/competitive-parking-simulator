@@ -23,12 +23,10 @@ enum class ComponentEnum {
  */
 class BaseComponent {
 public:
-    BaseComponent(Entity& p) : parent(p) {}
-
+    BaseComponent(Entity& e) : entity(e) {}
     virtual ~BaseComponent() {};
-
 protected:
-    Entity& parent;
+    Entity& entity;
 };
 
 

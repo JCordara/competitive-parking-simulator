@@ -24,7 +24,7 @@ void GUI::draw() {
 
 	ImGui::Begin("FPS counter", (bool*)0, textWindowFlags);
 
-	ImGui::SetWindowFontScale(1.8);
+	ImGui::SetWindowFontScale(1.8f);
 	ImGui::SetWindowSize(ImVec2(80, 25));
 
 	ImGui::Text("FPS: %.2f", Time::fps());
