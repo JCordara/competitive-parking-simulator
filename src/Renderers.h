@@ -83,9 +83,9 @@ public:
 		int textureDiffuseConstantActiveLocation, int textureSpecularAndShinnyConstantActiveLocation,
 		int textureAmbientConstantActiveLocation, int textureDirectionalLightDepthActiveLocation,
 		int textureDirectionalLightPositionActiveLocation);
-	void setPointLights(std::vector<std::shared_ptr<PointLight>>& pointLights);
-	void setSpotLights(std::vector<std::shared_ptr<SpotLight>>& spotLights);
-	void setDirectionalLight(std::shared_ptr<DirectionalLight> light);
+	void setPointLights(std::vector<std::shared_ptr<PointLight>>& pointLights, std::vector<glm::mat4> transforms);
+	void setSpotLights(std::vector<std::shared_ptr<SpotLight>>& spotLights, std::vector<glm::mat4> transforms);
+	void setDirectionalLight(std::shared_ptr<DirectionalLight> light, glm::mat4 transform);
 	void setAmbientLight(std::shared_ptr<AmbientLight> light);
 	void setRenderedCameraPosition(glm::vec3& pos);
 	void render();
@@ -153,8 +153,8 @@ public:
 	GameRenderPipeline();
 
 	//Set the lighting properties of the scene
-	void addPointLight(std::shared_ptr<PointLight> pointLight);
-	void addSpotLight(std::shared_ptr<SpotLight> spotLight);
+	void addPointLight(std::shared_ptr<PointLight> pointLight, glm::mat4 transform);
+	void addSpotLight(std::shared_ptr<SpotLight> spotLight, glm::mat4 transform);
 	void setDirectionalLight(std::shared_ptr<DirectionalLight> directionalLight);
 	void setAmbientLight(std::shared_ptr<AmbientLight> ambientLight);
 	
@@ -195,7 +195,9 @@ private:
 	Texture renderdDepthTexture;
 	//Lighting
 	std::vector<std::shared_ptr<PointLight>> pointLights;
+	std::vector<glm::mat4> pointLightTransforms;
 	std::vector<std::shared_ptr<SpotLight>> spotLights;
+	std::vector<glm::mat4> spotLightTransforms;
 	std::shared_ptr<DirectionalLight> directionalLight;
 	std::shared_ptr<AmbientLight> ambientLight;
 	//Directional Light render properties

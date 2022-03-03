@@ -11,8 +11,7 @@ public:
     /* Prepare framework */
     GameplaySystem(
         std::shared_ptr<Scene> scene,
-        std::shared_ptr<AudioManager> audio,
-        GameObject& c
+        std::shared_ptr<AudioManager> audio
     );
 
     void update();
@@ -21,9 +20,6 @@ public:
 private:
     std::shared_ptr<Scene>             scene;
 	std::shared_ptr<AudioManager>      audioManager;
-
-    // do u smell spaghetti
-    GameObject& car;
 };
 
 #endif // GAMEPLAY_SYSTEM_H

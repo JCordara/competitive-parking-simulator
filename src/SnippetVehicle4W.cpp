@@ -145,4 +145,3 @@ void vehicleBrakeMode(float v) {
 void vehicleHandbrakeMode(float v) {
 	gVehicleInputData.setAnalogHandbrake(v);
 }
-

@@ -3,6 +3,9 @@
 
 #include "GameSystem.h"
 #include "Window.h"
+#include <Renderers.h>
+#include <Entity.h>
+#include <GUI.h>
 
 class RenderSystem : public GameSystem {
 public:
@@ -21,6 +24,10 @@ private:
     std::shared_ptr<Scene>             scene;
 	std::shared_ptr<AudioManager>      audioManager;
     std::shared_ptr<Window>            window;
+
+	std::shared_ptr<GameRenderPipeline> renderPipeline;
+	std::shared_ptr<GUI> gui;
+
 };
 
 
