@@ -80,6 +80,21 @@ PxF32 gSteerVsForwardSpeedData[2 * 8] =
 	PX_MAX_F32, PX_MAX_F32
 };
 
+static PxFilterFlags filterShader(
+	PxFilterObjectAttributes attributes0,
+	PxFilterData filterData0,
+	PxFilterObjectAttributes attributes1,
+	PxFilterData filterData1,
+	PxPairFlags& pairFlags,
+	const void* constantBlock,
+	PxU32 constantBlockSize)
+{
+	pairFlags = PxPairFlag::eSOLVE_CONTACT;
+	pairFlags |= PxPairFlag::eDETECT_DISCRETE_CONTACT;
+	pairFlags |= PxPairFlag::eDETECT_CCD_CONTACT;
+	return PxFilterFlags();
+}
+
 PxFixedSizeLookupTable<8> gSteerVsForwardSpeedTable(gSteerVsForwardSpeedData, 4);
 
 PxVehicleKeySmoothingData gKeySmoothingData =
@@ -169,7 +184,7 @@ VehicleDesc initVehicleDesc()
 	vehicleDesc.chassisMOI = chassisMOI;
 	vehicleDesc.chassisCMOffset = chassisCMOffset;
 	vehicleDesc.chassisMaterial = gMaterial;
-	vehicleDesc.chassisSimFilterData = PxFilterData(COLLISION_FLAG_CHASSIS, COLLISION_FLAG_CHASSIS_AGAINST, 0, 0);
+	vehicleDesc.chassisSimFilterData = PxFilterData(COLLISION_FLAG_CHASSIS,COLLISION_FLAG_CHASSIS_AGAINST,0,0);
 
 	vehicleDesc.wheelMass = wheelMass;
 	vehicleDesc.wheelRadius = wheelRadius;
@@ -222,6 +237,7 @@ void initPhysics()
 
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	sceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
 
 	PxU32 numWorkers = 1;
 	gDispatcher = PxDefaultCpuDispatcherCreate(numWorkers);
@@ -254,7 +270,7 @@ void initPhysics()
 	gFrictionPairs = createFrictionPairs(gMaterial);
 
 	//Create a plane to drive on.
-	PxFilterData groundPlaneSimFilterData(COLLISION_FLAG_GROUND, COLLISION_FLAG_GROUND_AGAINST, 0, 0);
+	PxFilterData groundPlaneSimFilterData(COLLISION_FLAG_GROUND, COLLISION_FLAG_GROUND_AGAINST, COLLISION_FLAG_DRIVABLE_OBSTACLE, 0);
 	gGroundPlane = createDrivablePlane(groundPlaneSimFilterData, gMaterial, gPhysics);
 	gScene->addActor(*gGroundPlane);
 
@@ -293,7 +309,9 @@ void initPhysics()
 	VehicleDesc vehicleDesc = initVehicleDesc();
 	gVehicle4W = createVehicle4W(vehicleDesc, gPhysics, gCooking);
 	PxTransform startTransform(PxVec3(0, (vehicleDesc.chassisDims.y * 0.5f + vehicleDesc.wheelRadius + 1.0f), 0), PxQuat(PxIdentity));
-	gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
+	PxTransform flip = PxTransform(PxVec3(1.0f, 30.0f, 1.0f), PxQuat(3.14159f, PxVec3(1.f, 0.f, 0.f)));
+	gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform*flip);
+	gVehicle4W->getRigidDynamicActor()->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
 	gScene->addActor(*gVehicle4W->getRigidDynamicActor());
 
 	//Create Box

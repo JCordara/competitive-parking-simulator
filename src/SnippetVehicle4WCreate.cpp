@@ -234,6 +234,8 @@ namespace snippetvehicle
 			PxConvexMesh* chassisConvexMeshes[1] = { chassisConvexMesh };
 			PxMaterial* chassisMaterials[1] = { vehicle4WDesc.chassisMaterial };
 
+			
+
 			//Rigid body data.
 			PxVehicleChassisData rigidBodyData;
 			rigidBodyData.mMOI = vehicle4WDesc.chassisMOI;

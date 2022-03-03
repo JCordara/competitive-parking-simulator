@@ -146,6 +146,7 @@ namespace snippetvehicle
 		for (PxU32 i = 0; i < numChassisMeshes; i++)
 		{
 			PxShape* chassisShape = PxRigidActorExt::createExclusiveShape(*vehActor, PxConvexMeshGeometry(chassisConvexMeshes[i]), *chassisMaterials[i]);
+
 			chassisShape->setQueryFilterData(chassisQryFilterData);
 			chassisShape->setSimulationFilterData(chassisSimFilterData);
 			chassisShape->setLocalPose(PxTransform(PxIdentity));
