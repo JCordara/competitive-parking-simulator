@@ -14,11 +14,7 @@ Application::Application(appSettings& settings)
 	, directionalLightCamera(glm::vec3(0.0f, 15.0f, -15.0f), 
 		glm::radians(180.0f), 
 		glm::radians(-45.0f), 
-		100.0f, 
-		50.f, 
-		5.f, 
-		50.f, 
-		true)
+		100.0f, 50.f, 5.f, 50.f, true)
 	, identity(1.0f)
 {
 	//App initialization
@@ -26,16 +22,16 @@ Application::Application(appSettings& settings)
 	Time::init();
 
 	/* Framework (Managers) - used by systems*/
-	scene  		 = std::make_shared<Scene>();
+	scene        = Scene::newScene();
 	window 		 = std::make_shared<Window>(1200, 800, "Test Window");
 	inputManager = std::make_shared<InputManager>(window);
 	audioManager = std::make_shared<AudioManager>();
 
 	/* Game systems - update() every frame */
-	// gameplay = std::make_shared<GameplaySystem>(scene, eventManager, audioManager);
-	physics  = std::make_shared<PhysicsSystem>(scene, audioManager);
-	render   = std::make_shared<RenderSystem>(scene, audioManager, window);
-	gui 	 = std::make_shared<GUI>();
+	// gameplay     = std::make_shared<GameplaySystem>(scene, eventManager, audioManager);
+	physics      = std::make_shared<PhysicsSystem>(scene, audioManager);
+	render       = std::make_shared<RenderSystem>(scene, audioManager, window);
+	gui 	     = std::make_shared<GUI>();
 
 
 	/* Temporary stuff for now */
@@ -216,7 +212,7 @@ Application::Application(appSettings& settings)
 	// Bind the X (square on playstation) to the handbrake event
 	inputManager->bindInput(GLFW_GAMEPAD_BUTTON_X, &Events::PlayerHandbrake);
 	// Bind left joystick x-axis to steering
-	inputManager->createAxis(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::PlayerSteer);
+	inputManager->bindInput(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::PlayerSteer);
 
 	// --- Event binding ---
 	// Vehicle behavior
@@ -230,10 +226,8 @@ Application::Application(appSettings& settings)
 
 	// Parking stall hack
 	gameplay = std::make_shared<GameplaySystem>(scene, audioManager, CarObjects[0]);
-	auto parkingStall = scene->createEntity();
-	parkingStall->addComponent<TransformComponent>();
-	auto transform = parkingStall->getComponent<TransformComponent>();
-	transform->x = 5.0f;
+	auto parkingStall = scene->addEntity();
+	parkingStall->getComponent<TransformComponent>()->translate(5.0f, 0.0f, 0.0f);
 	parkingStall->addComponent<VolumeTriggerComponent>();
 	Events::CarParked.registerHandler<carParked>();
 	Events::CarUnParked.registerHandler<carUnParked>();
@@ -253,8 +247,8 @@ int Application::play() {
 
 		// Update time-related values
 		Time::update();
-
-		// Fixed time step loop
+	
+		// Fixed time step game loop
 		while (Time::takeNextStep()) {
 
 			gameplay->update();
@@ -279,7 +273,6 @@ int Application::play() {
 				)
 			);
 		}
-
 
 		//---Render Frame -----------------------------
 		// render->update();

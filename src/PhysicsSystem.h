@@ -24,8 +24,15 @@ public:
     ~PhysicsSystem();
     
 private:
+
     std::shared_ptr<Scene>             scene;
 	std::shared_ptr<AudioManager>      audioManager;
+
+    VehicleDesc initVehicleDesc();
+    void initPhysics();
+    void stepPhysics();
+    void cleanupPhysics();
+
 };
 
 

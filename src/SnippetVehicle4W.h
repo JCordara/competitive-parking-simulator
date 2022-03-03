@@ -45,6 +45,7 @@ extern bool	gIsVehicleInAir;
 
 
 extern PxF32 gSteerVsForwardSpeedData[];
+extern PxFixedSizeLookupTable<8> gSteerVsForwardSpeedTable;
 
 extern PxVehicleKeySmoothingData gKeySmoothingData;
 extern PxVehiclePadSmoothingData gPadSmoothingData;
@@ -72,16 +73,8 @@ extern PxU32					gVehicleOrderProgress;
 extern bool					gVehicleOrderComplete;
 extern bool					gMimicKeyInputs;
 
-VehicleDesc initVehicleDesc();
 
 void vehicleAccelerateMode(float);
 void vehicleTurnMode(float);
 void vehicleBrakeMode(float);
 void vehicleHandbrakeMode(float);
-
-void initPhysics();
-void incrementDrivingMode(const PxF32 timestep);
-void stepPhysics();
-void cleanupPhysics();
-void keyPress(unsigned char key, const PxTransform& camera);
-

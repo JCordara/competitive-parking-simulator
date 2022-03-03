@@ -11,9 +11,10 @@
 // Use the last FPS_FRAMES_COUNT frames to calculate current fps
 #define FPS_FRAMES_COUNT 25
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h> // glfwGetTime()
+#include <chrono>		// time stuff
 #include <cstring> 		// memset()
+
+using Clock = std::chrono::high_resolution_clock;
 
 class Time {
 public:
@@ -28,7 +29,7 @@ public:
 	static bool takeNextStep();
 
 	// Accessor functions
-	static double now() { return glfwGetTime(); }
+	static double now();
 	static double delta() { return Time::updateDelta_; }
 	static double fps() { return fps_; }
 	static double timeStep() { return timeStep_; }

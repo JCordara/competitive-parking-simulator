@@ -63,6 +63,11 @@ void Callbacks::gamepadButtonCallback(
 // Called once per tick when any controller axis is changed
 void Callbacks::gamepadAxisCallback(float axes[], int axis, unsigned int n) {
 
+	// Broadcast float events bound to this key
+	auto floatEvent = floatKeyEvents[axis];
+	if (floatEvent != nullptr)
+		floatEvent->broadcast(static_cast<float>(axes[axis]));
+
 	// Update axes bound to this axis
 	auto controlAxis = controlAxes[axis];
 	if (controlAxis) controlAxis->setInputValue(axis, axes[axis]);
@@ -128,8 +133,7 @@ void Callbacks::updateControlAxes() {
 		if (a.second != nullptr) axes.insert(a.second);
 
 	// Update each axis in the set
-	for (auto& a : axes)
-		a->update();
+	for (auto& a : axes) a->update();
 }
 
 void Callbacks::bindInput(int input, int action, Event<void>* event) {
