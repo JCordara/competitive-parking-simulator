@@ -41,18 +41,17 @@ private:
 
 class DirectionalLight {
 public:
-	DirectionalLight(glm::vec3 col, glm::vec3 direction) : col(col), direction(direction) {}
+	DirectionalLight(glm::vec3 col) : col(col) {}
 	void setCol(glm::vec3 col) { this->col = col; }
 	glm::vec3 getCol() { return col; }
 private:
 	glm::vec3 col;
-	glm::vec3 direction;
 };
 
 class SpotLight : public PointLight {
 public:
-	SpotLight(glm::vec3 col, glm::vec3 attenuationConsts, glm::vec3 direction, float innerAngle, float outerAngle) :
-		PointLight(col, attenuationConsts), direction(direction), innerAngle(innerAngle), outerAngle(outerAngle){
+	SpotLight(glm::vec3 col, glm::vec3 attenuationConsts, float innerAngle, float outerAngle) :
+		PointLight(col, attenuationConsts), innerAngle(innerAngle), outerAngle(outerAngle){
 		cosInnerAngle = cosf(innerAngle);
 		cosOuterAngle = cosf(outerAngle);
 	}
@@ -64,7 +63,6 @@ public:
 	float getCosOuterAngle() { return cosOuterAngle; }
 private:
 	float innerAngle, cosInnerAngle, outerAngle, cosOuterAngle;
-	glm::vec3 direction;
 };
 
 class AmbientLight {

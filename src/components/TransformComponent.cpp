@@ -2,90 +2,103 @@
 
 TransformComponent::TransformComponent(Entity& e) 
     : BaseComponent(e)
-    , _position(glm::vec3())
-    , _rotation(glm::quat())
-    , _scale(glm::vec3())
-    , _matrix(glm::mat4(1.0f))
+    , _position(glm::vec3(0.f))
+    , _rotation(physx::PxQuat(0.f, physx::PxVec3(1.f, 0.f, 0.f)))
+    , _scale(glm::vec3(1.f))
 {}
 
+glm::mat4 TransformComponent::getLocalTranslationMatrix() {
+	return glm::translate(glm::mat4(1.f), _position);
+}
+glm::mat4 TransformComponent::getLocalRotationMatrix() {
+	return quat_to_mat4(_rotation);
+}
+glm::mat4 TransformComponent::getLocalScaleMatrix() {
+	return glm::scale(glm::mat4(1.f), _scale);
+}
+
+glm::mat4 TransformComponent::getLocalMatrix() {
+	return	  getLocalTranslationMatrix()
+			* getLocalRotationMatrix()
+			* getLocalScaleMatrix()
+		;
+}
+
 // Returns the identity matrix if parent is null or has no transform component
-glm::mat4 TransformComponent::parentMatrix(int depth) {
+glm::mat4 TransformComponent::getNestedMatrix(int depth) {
 
     // Base case
-    if (depth == 0) return _matrix;
+    if (depth == 0) return getLocalMatrix();
 
     // Check that entity has parent
-    shared_ptr<Entity> parent = entity.parent();
-    if (parent == nullptr) return glm::mat4(1.0f);
-
-    // Check that parent has transform component
-    auto t = parent->getComponent<TransformComponent>();
-    if(!t) return glm::mat4(1.0f);
+	std::shared_ptr<TransformComponent> t;
+	do {
+		shared_ptr<Entity> parent = entity.parent();
+		if (parent == nullptr) return getLocalMatrix();
+		t = parent->getComponent<TransformComponent>();
+		// Check that parent has transform component, if not move to the next parent
+	} while (!t);
     
-    return t->parentMatrix(depth - 1) * _matrix;
+    return t->getNestedMatrix(depth - 1) * getLocalMatrix();
 }
 
-glm::vec3 TransformComponent::getPosition() { 
-    glm::mat4& p = parentMatrix(-1);
-    glm::vec3 v = glm::vec3(p[3]);
-    return v;
+glm::vec3 TransformComponent::getGlobalPosition() {
+	return glm::vec3(getGlobalMatrix() * glm::vec4(0.f, 0.f, 0.f, 1.f));
 }
 
-// glm::quat TransformComponent::getRotation() { 
-//     return glm::quat(parentMatrix(-1));
-// }
-
-glm::vec3 TransformComponent::getScale()    { 
-    glm::mat4& p = parentMatrix(-1);
-    return glm::vec3(p[0][0], p[1][1], p[2][2]);
-}
-
-
-void TransformComponent::setPosition(glm::vec3 position) {
+void TransformComponent::setLocalPosition(glm::vec3 position) {
     _position = position;
-    _matrix = glm::translate(glm::mat4(1.0f), position);
 }
 
-void TransformComponent::setPosition(float x, float y, float z) {
-    setPosition(glm::vec3(x, y, z));
+void TransformComponent::setLocalPosition(float x, float y, float z) {
+    setLocalPosition(glm::vec3(x, y, z));
 }
 
-// void TransformComponent::setRotation(glm::quat rotation) {
-//      _rotation = rotation;
-//      _matrix = glm::rotate(?);
-// }
+void TransformComponent::setLocalRotation(physx::PxQuat rotation) {
+      _rotation = rotation;
+}
 
-void TransformComponent::setScale(glm::vec3 scale) {
+void TransformComponent::setLocalRotation(float rotation, physx::PxVec3 axis) {
+	setLocalRotation(physx::PxQuat(rotation, axis));
+}
+
+void TransformComponent::setLocalRotation(float rotation, glm::vec3 axis) {
+	setLocalRotation(physx::PxQuat(rotation, physx::PxVec3(axis.x, axis.y, axis.z)));
+}
+
+void TransformComponent::setLocalScale(glm::vec3 scale) {
     _scale = scale;
-    _matrix = glm::scale(glm::mat4(1.0f), scale);
 }
 
-void TransformComponent::setScale(float x, float y, float z) {
-    setScale(glm::vec3(x, y, z));
+void TransformComponent::setLocalScale(float x, float y, float z) {
+    setLocalScale(glm::vec3(x, y, z));
 }
 
-void TransformComponent::translate(glm::vec3 translation) {
+void TransformComponent::localTranslate(glm::vec3 translation) {
     _position += translation;
-
-    _matrix = glm::translate(_matrix, translation);
 }
 
-void TransformComponent::translate(float x, float y, float z) {
-    translate(glm::vec3(x, y, z));
+void TransformComponent::localTranslate(float x, float y, float z) {
+	localTranslate(glm::vec3(x, y, z));
+}
+void TransformComponent::localRotate(physx::PxQuat rotation) {
+	_rotation = rotation *_rotation;
 }
 
-void TransformComponent::rotate(float rotation, glm::vec3 axis) {
-    // _rotation += glm::quat(?);
-    _matrix = glm::rotate(_matrix, rotation, axis);
+void TransformComponent::localRotate(float rotation, physx::PxVec3 axis) {
+	localRotate(physx::PxQuat(rotation, axis));
 }
 
-void TransformComponent::scale(glm::vec3 scale) {
-    _scale += scale;
-    _matrix = glm::scale(_matrix, scale);
+void TransformComponent::localRotate(float rotation, glm::vec3 axis) {
+	localRotate(physx::PxQuat(rotation, physx::PxVec3(axis.x, axis.y, axis.z)));
 }
 
-void TransformComponent::scale(float x, float y, float z) {
-    scale(glm::vec3(x, y, z));
+void TransformComponent::localScale(glm::vec3 scale) {
+    _scale *= scale;
+}
+
+void TransformComponent::localScale(float x, float y, float z) {
+	localScale(glm::vec3(x, y, z));
 }
 
 
@@ -96,4 +109,32 @@ ComponentEnum TransformComponent::getType() {
 
 TransformComponent::~TransformComponent() {
     // Nothing to do here yet
+}
+
+glm::mat4 quat_to_mat4(physx::PxQuat quat)
+{
+	physx::PxMat44 mat4(quat);
+	glm::mat4 newMat;
+	newMat[0][0] = mat4[0][0];
+	newMat[0][1] = mat4[0][1];
+	newMat[0][2] = mat4[0][2];
+	newMat[0][3] = mat4[0][3];
+
+	newMat[1][0] = mat4[1][0];
+	newMat[1][1] = mat4[1][1];
+	newMat[1][2] = mat4[1][2];
+	newMat[1][3] = mat4[1][3];
+
+	newMat[2][0] = mat4[2][0];
+	newMat[2][1] = mat4[2][1];
+	newMat[2][2] = mat4[2][2];
+	newMat[2][3] = mat4[2][3];
+
+	newMat[3][0] = mat4[3][0];
+	newMat[3][1] = mat4[3][1];
+	newMat[3][2] = mat4[3][2];
+	newMat[3][3] = mat4[3][3];
+
+	//newMat = glm::scale(newMat, glm::vec3(-1.f, 1.f, 1.f));
+	return newMat;//glm::transpose(newMat);
 }

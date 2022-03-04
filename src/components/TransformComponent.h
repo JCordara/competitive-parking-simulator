@@ -2,7 +2,9 @@
 #define TRANSFORM_COMPONENT_H
 
 #include "Components.h"
+#include <PhysX/PxPhysicsAPI.h>
 
+#define TO_ROOT -1
 
 class TransformComponent : public BaseComponent {
 public:
@@ -11,34 +13,43 @@ public:
     static  ComponentEnum getType();
     ~TransformComponent();
 
-    glm::vec3 getRelativePosition() { return _position; }
-    glm::quat getRelativeRotation() { return _rotation; }
-    glm::vec3 getRelativeScale()    { return _scale; }
-    
-    glm::vec3 getPosition();
-    glm::quat getRotation();
-    glm::vec3 getScale();
-    
-    void setPosition(glm::vec3 position);
-    void setPosition(float x, float y, float z);
-    // void setRotation(glm::quat rotation);
-    void setScale(glm::vec3 scale);
-    void setScale(float x, float y, float z);
+    glm::vec3 getLocalPosition() { return _position; }
+	physx::PxQuat getLocalRotation() { return _rotation; }
+    glm::vec3 getLocalScale()    { return _scale; }
 
-    void translate(glm::vec3 translation);
-    void translate(float x, float y, float z);
-    void rotate(float rotation, glm::vec3 axis);
-    void scale(glm::vec3 scale);
-    void scale(float x, float y, float z);
+	glm::mat4 getLocalTranslationMatrix();
+	glm::mat4 getLocalRotationMatrix();
+	glm::mat4 getLocalScaleMatrix();
+	glm::mat4 getLocalMatrix();
+    
+    glm::vec3 getGlobalPosition();
+	glm::mat4 getGlobalMatrix() { return getNestedMatrix(TO_ROOT); }
+	glm::mat4 getNestedMatrix(int depth);
 
-    glm::mat4 getMatrix() { return parentMatrix(-1) * _matrix; }
-    glm::mat4 parentMatrix(int depth);
+    
+    void setLocalPosition(glm::vec3 position);
+    void setLocalPosition(float x, float y, float z);
+    void setLocalRotation(physx::PxQuat rotation);
+	void setLocalRotation(float rotation, physx::PxVec3 axis);
+	void setLocalRotation(float rotation, glm::vec3 axis);
+    void setLocalScale(glm::vec3 scale);
+    void setLocalScale(float x, float y, float z);
+
+    void localTranslate(glm::vec3 translation);
+    void localTranslate(float x, float y, float z);
+	void localRotate(physx::PxQuat rotation);
+    void localRotate(float rotation, physx::PxVec3 axis);
+	void localRotate(float rotation, glm::vec3 axis);
+    void localScale(glm::vec3 scale);
+    void localScale(float x, float y, float z);
 
 private:
     glm::vec3 _position;
-    glm::quat _rotation;
+	physx::PxQuat _rotation;
     glm::vec3 _scale;
-    glm::mat4 _matrix;
 };
+
+
+glm::mat4 quat_to_mat4(physx::PxQuat x);
 
 #endif // TRANSFORM_COMPONENT_H

@@ -1,4 +1,5 @@
 #include "Application.h"
+#include <PhysX/PxPhysicsAPI.h>
 
 int g_carsParked = 0;
 void carParked() {
@@ -31,33 +32,64 @@ Application::Application(appSettings& settings)
 
 	auto camera = scene->addEntity();
 	camera->addComponent<CameraComponent>();
-	camera->getComponent<CameraComponent>()->setPurpose(CameraPurpose::render);
-	camera->getComponent<TransformComponent>()->setPosition(0.0f, 0.0f, 3.0f);
+	camera->getComponent<CameraComponent>()->setPerspectiveCamera(glm::radians(90.f), 1.f /*Will be modified to the window*/,0.01f, 300.f);
+	auto transformComponent = camera->getComponent<TransformComponent>();
+	transformComponent->setLocalPosition(0.0f, 5.0f, .0f);
+	transformComponent->setLocalRotation(-atan(5.f / 3.f), glm::vec3(1.f, 0.f, 0.f));
 
-	auto ambientLight = scene->addEntity();
-	ambientLight->addComponent<LightingComponent>();
-	ambientLight->getComponent<LightingComponent>()->getAmbient()->setCol(glm::vec3(0.1f, 0.1f, 0.1f));
+	auto environmentalLight = scene->addEntity();
+	environmentalLight->addComponent<LightingComponent>();
+	environmentalLight->getComponent<LightingComponent>()->setAmbient(glm::vec3(0.1f, 0.1f, 0.1f));
+	environmentalLight->getComponent<LightingComponent>()->setDirectionalLight(glm::vec3(0.7f, 0.7f, 0.7f));
 
-	auto directionalLight = scene->addEntity();
-	directionalLight->addComponent<LightingComponent>();
-	directionalLight->getComponent<LightingComponent>()->getDirectionalLight()->setCol(glm::vec3(0.7f, 0.7f, 0.7f));
-
-	auto cameraChild = directionalLight->addChild();
+	auto cameraChild = environmentalLight->addChild();
 	cameraChild->addComponent<CameraComponent>();
-	cameraChild->getComponent<CameraComponent>()->setPurpose(CameraPurpose::shadowMap);
-	cameraChild->getComponent<TransformComponent>()->setPosition(0.0f, 1.0f, 3.0f);
+	cameraChild->getComponent<CameraComponent>()->setOrthographicCamera(100.f, 100.f, 0.1f, 100.f);
+	transformComponent = cameraChild->getComponent<TransformComponent>();
+	transformComponent->setLocalPosition(-15.0f, 7.0f, 0.0f);
+	auto q1 = physx::PxQuat(glm::radians(-30.f), physx::PxVec3(1.f, 0.f, 0.f));
+	auto q2 = physx::PxQuat(glm::radians(-90.f), physx::PxVec3(0.f, 1.f, 0.f));
+	transformComponent->setLocalRotation(q2 * q1);
 
 	auto cube = scene->addEntity();
 	cube->addComponent<ModelComponent>();
 	cube->addComponent<RendererComponent>();
+	cube->addComponent<TransformComponent>();
 
 	auto cubeModel = std::make_shared<Model>(
-		"res/models/Test1.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/Test1.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	auto modelComponent = cube->getComponent<ModelComponent>();
 	modelComponent->setModel(cubeModel);
+	auto renderComponent = cube->getComponent<RendererComponent>();
+	renderComponent->enableRender();
+	transformComponent = cube->getComponent<TransformComponent>();
+	transformComponent->setLocalPosition(1.f, 1.f, -5.f);
+	transformComponent->setLocalScale(3.f, 1.f, 1.f);
+	transformComponent->setLocalRotation(glm::radians(15.f), glm::vec3(0.f, 0.f, 1.f));
+	
+	auto plane = scene->addEntity();
+	plane->addComponent<ModelComponent>();
+	plane->addComponent<RendererComponent>();
+	plane->addComponent<TransformComponent>();
+
+	auto planeModel = std::make_shared<Model>(
+		"models/smileplane.obj", glm::vec3(.5f, .1f, .2f));
+
+	modelComponent = plane->getComponent<ModelComponent>();
+	modelComponent->setModel(planeModel);
+	renderComponent = plane->getComponent<RendererComponent>();
+	renderComponent->enableRender();
+	transformComponent = plane->getComponent<TransformComponent>();
+	transformComponent->setLocalPosition(0.f, -2.f, 0.f);
+	transformComponent->setLocalScale(10.f, 1.f, 10.f);
+	//transformComponent->setLocalRotation(-acosf(0.4f), glm::vec3(1.f, 0.f, 0.f));
+	
+	
 
 	/* --------------------- End Game World Description --------------------- */
+
+	/* ---------------------------------------------------------------------- */
 
 }
 

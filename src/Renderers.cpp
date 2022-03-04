@@ -48,9 +48,10 @@ void GameRenderPipeline::setAmbientLight(std::shared_ptr<AmbientLight> ambientLi
 }
 
 //Set render properties
-void GameRenderPipeline::setDirectionalLightShadowMapProperties(glm::mat4 V, glm::mat4 P, int width, int height) {
+void GameRenderPipeline::setDirectionalLightShadowMapProperties(glm::vec3 direction, glm::mat4 V, glm::mat4 P, int width, int height) {
 	directionalLightViewTransformation = V;
 	directionalLightProjectionTransformation = P;
+	directionalLightDirection = direction;
 	if (directionalLightCameraWidth != width || directionalLightCameraHeight != height) {
 		directionalLightCameraWidth = width;
 		directionalLightCameraHeight = height;
@@ -127,7 +128,7 @@ void GameRenderPipeline::executeRender() {
 	postProcessingRenderer.setTextureLocations(0, 1, 2, 3, 4, 5, 6, 7, 8);
 	postProcessingRenderer.setPointLights(pointLights, pointLightTransforms);
 	postProcessingRenderer.setSpotLights(spotLights, spotLightTransforms);
-	postProcessingRenderer.setDirectionalLight(directionalLight, directionalLightViewTransformation);
+	postProcessingRenderer.setDirectionalLight(directionalLight, directionalLightDirection);
 	postProcessingRenderer.setAmbientLight(ambientLight);
 	postProcessingRenderer.setRenderedCameraPosition(cameraPosition);
 	postProcessingRenderer.render();
@@ -431,10 +432,10 @@ void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight
 	glUniform1i(numberOfSpotLightsLocation, spotLights.size());
 }
 
-void PostProcessingRenderer::setDirectionalLight(std::shared_ptr<DirectionalLight> light, glm::mat4 transform) {
-	glm::vec4 temp4 = glm::vec4(1.f, 0.f, 0.f, 0.f);
+void PostProcessingRenderer::setDirectionalLight(std::shared_ptr<DirectionalLight> light, glm::vec3 direction) {
+	glm::vec4 temp4 = glm::vec4(0.f, 0.f, 1.f, 0.f);
 	glUniform3fv(directionalLightColourLocation, 1, &light->getCol()[0]);
-	glUniform3fv(directionalLightDirectionLocation, 1, &(glm::vec3(transform * temp4))[0]);
+	glUniform3fv(directionalLightDirectionLocation, 1, &(direction)[0]);
 }
 
 void PostProcessingRenderer::setAmbientLight(std::shared_ptr<AmbientLight> light) {

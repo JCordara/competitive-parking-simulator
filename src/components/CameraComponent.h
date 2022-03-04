@@ -20,8 +20,7 @@ public:
 	void updatePerspectiveCamera(float fov, float aspectRatio, float nearPlane, float farPlane);
 	void windowSizeChanged(float width, float height) { camera->windowSizeChanged(width, height); }
 	CameraPurpose getPurpose() { return purpose; }
-	void setPurpose(CameraPurpose p) { purpose = p; }
-	glm::mat4 getViewMatrix();
+	glm::mat4 getViewMatrix(glm::mat4 cameraModelTransformation);
 	glm::mat4 getProjectionMatrix();
 
 	~CameraComponent();

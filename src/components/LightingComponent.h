@@ -9,8 +9,8 @@ public:
 	LightingComponent(Entity& parent);
 
 	void setPointLight(glm::vec3 col, glm::vec3 attenuationConsts);
-	void setSpotLight(glm::vec3 col, glm::vec3 attenuationConsts, glm::vec3 direction, float innerAngle, float outerAngle);
-	void setDirectionalLight(glm::vec3 col, glm::vec3 direction);
+	void setSpotLight(glm::vec3 col, glm::vec3 attenuationConsts, float innerAngle, float outerAngle);
+	void setDirectionalLight(glm::vec3 col);
 	void setAmbient(glm::vec3 col);
 	std::shared_ptr<PointLight> getPointLight();
 	std::shared_ptr<SpotLight> getSpotLight();
