@@ -22,6 +22,7 @@
 #include "PhysicsSystem.h"
 #include "RenderSystem.h"
 #include "InputManager.h"
+#include "AudioSystem.h"
 
 // Other stuff
 #include "Renderers.h"
@@ -54,7 +55,6 @@ private:
 
 	/* Framework (Managers) - used by systems*/
 	std::shared_ptr<InputManager>  	   inputManager;
-	std::shared_ptr<AudioManager>      audioManager;
 	std::shared_ptr<Scene>             scene;
 	std::shared_ptr<Window>            window;
 
@@ -62,6 +62,7 @@ private:
 	std::shared_ptr<GameplaySystem>    gameplay;
 	std::shared_ptr<PhysicsSystem>     physics;
 	std::shared_ptr<RenderSystem>      render;
+	std::shared_ptr<AudioSystem>       audioSystem;
 
 	// Rendering stuff (temporary location until rendering system is done)
 	glm::mat4 identity;

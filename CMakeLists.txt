@@ -22,11 +22,11 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 
-#------------------------------- AudioManager -----------------------------------
-# Build AudioManager as a separate library
+#------------------------------- AudioSystem -----------------------------------
+# Build AudioSystem as a separate library
 
 add_subdirectory(src/audio)
-list(APPEND LIBRARIES AudioManager)
+list(APPEND LIBRARIES AudioSystem)
 
 
 #------------------------- Entities and Components -----------------------------
