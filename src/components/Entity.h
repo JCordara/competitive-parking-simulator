@@ -32,7 +32,7 @@ public:
     unsigned int id() { return _entityID; }
     
     template<class C, class... Args>    // Variable argument length
-    enable_if_t<is_base_of_v<BaseComponent, C>, bool> // Return bool
+    enable_if_t<is_base_of_v<BaseComponent, C>, sp<C>>
     // ^ Assert that C is derived from BaseComponent
     addComponent(Args&&... args) {
         // Construct the component
@@ -40,9 +40,9 @@ public:
         // Get the components type enum (used as map key)
         ComponentEnum ctype = C::getType();
         // Insert component into map
-        auto results =  _components.insert( {ctype, component} );
-        // insert() returns a pair with second item indicating success
-        return results.second;
+        _components.insert( {ctype, component} );
+        // Return shared pointer to new component
+        return dynamic_pointer_cast<C>(component);
     }
     
     template<class C>   // Same deal as above but no variable arguments
