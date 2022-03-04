@@ -53,7 +53,6 @@ PxRigidStatic* gGroundPlane = NULL;
 PxRigidDynamic* box1 = NULL;
 PxRigidStatic* box2 = NULL;
 PxRigidStatic* box3 = NULL;
-PxRigidStatic* mesh1 = NULL;
 
 PxVehicleDrive4W* gVehicle4W = NULL;
 

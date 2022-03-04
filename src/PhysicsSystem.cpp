@@ -1,5 +1,9 @@
 #include "PhysicsSystem.h"
 
+#include <sstream>
+#include <fstream>
+#include <string>
+
 PhysicsSystem::PhysicsSystem(
     std::shared_ptr<Scene> scene,
     std::shared_ptr<AudioManager> audio)
@@ -138,7 +142,7 @@ VehicleDesc PhysicsSystem::initVehicleDesc()
 	vehicleDesc.wheelMOI = wheelMOI;
 	vehicleDesc.numWheels = nbWheels;
 	vehicleDesc.wheelMaterial = gMaterial;
-	vehicleDesc.chassisSimFilterData = PxFilterData(COLLISION_FLAG_WHEEL, COLLISION_FLAG_WHEEL_AGAINST, 0, 0);
+	vehicleDesc.wheelSimFilterData = PxFilterData(COLLISION_FLAG_WHEEL, COLLISION_FLAG_WHEEL_AGAINST | COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
 
 	return vehicleDesc;
 }
@@ -225,6 +229,7 @@ void PhysicsSystem::initPhysics()
 	VehicleDesc vehicleDesc = initVehicleDesc();
 	gVehicle4W = createVehicle4W(vehicleDesc, gPhysics, gCooking);
 	PxTransform startTransform(PxVec3(0, (vehicleDesc.chassisDims.y * 0.5f + vehicleDesc.wheelRadius + 1.0f), 0), PxQuat(PxIdentity));
+	PxTransform flip = PxTransform(PxVec3(1.0f, 1.0f, 1.0f), PxQuat(3.1415926536f, PxVec3(1.0f, 0.0f, 0.f)));
 	gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
 	gScene->addActor(*gVehicle4W->getRigidDynamicActor());
 
@@ -235,7 +240,7 @@ void PhysicsSystem::initPhysics()
 	PxShape* boxShape = gPhysics->createShape(PxBoxGeometry(1, 1, 1), *gMaterial);
 	//PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
 	box1 = gPhysics->createRigidDynamic(t);
-	PxFilterData boxFilterData(COLLISION_FLAG_GROUND_AGAINST,COLLISION_FLAG_OBSTACLE , 0, 0);
+	PxFilterData boxFilterData(COLLISION_FLAG_OBSTACLE,COLLISION_FLAG_OBSTACLE_AGAINST , 0, 0);
 	boxShape->setSimulationFilterData(boxFilterData);
 	box1->attachShape(*boxShape);
 	PxRigidBodyExt::updateMassAndInertia(*box1, 10.0f);
@@ -245,7 +250,7 @@ void PhysicsSystem::initPhysics()
 	PxShape* boxShape2 = gPhysics->createShape(PxBoxGeometry(1.0f, 2.0f, 0.5f), *gMaterial);
 	//PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
 	box2 = gPhysics->createRigidStatic(t2);
-	PxFilterData boxFilterData2(COLLISION_FLAG_GROUND_AGAINST, COLLISION_FLAG_OBSTACLE, 0, 0);
+	PxFilterData boxFilterData2(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
 	boxShape2->setSimulationFilterData(boxFilterData2);
 	box2->attachShape(*boxShape2);
 	//PxRigidBodyExt::setMassAndUpdateInertia(*box2, 10.0f);
@@ -267,12 +272,38 @@ void PhysicsSystem::initPhysics()
 	boxShape3->release();
 
 	//Create Mesh Object
-	PxVec3 convexVerts[] = {PxVec3(0,1,0),PxVec3(1,0,0),PxVec3(-1,0,0),PxVec3(0,0,1),
+	/*PxTransform mesht = PxTransform(PxVec3(0, 20.0f, 0.0f));
+	PxRigidDynamic* mesh1 = gPhysics->createRigidDynamic(mesht);
+	static const PxVec3 convexVerts[] = { PxVec3(0,1,0),PxVec3(1,0,0),PxVec3(-1,0,0),PxVec3(0,0,1),
 	PxVec3(0,0,-1) };
-	auto mesh = scene->addEntity();
-	mesh->getComponent<PhysicsComponent>()->addActor();
+	PxConvexMeshDesc convexDesc;
+	convexDesc.points.count = sizeof(5);
+	convexDesc.points.stride = sizeof(PxVec3);
+	convexDesc.points.data = convexVerts;
+	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
 
-	
+	PxDefaultMemoryOutputStream buf;
+	PxConvexMeshCookingResult::Enum result;
+	if (!gCooking->cookConvexMesh(convexDesc, buf, &result)) {
+		return;
+	};
+
+	PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+	PxConvexMesh* convexMesh = gPhysics->createConvexMesh(input);
+	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*mesh1, PxConvexMeshGeometry(convexMesh), *gMaterial);
+	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+	meshShape->setSimulationFilterData(meshFilterData);
+	gScene->addActor(*mesh1);
+	meshShape->release();
+	*/
+	std::vector<PxVec3> meshVerts = {PxVec3(0,1,0),PxVec3(1,0,0),PxVec3(-1,0,0),PxVec3(0,0,1),
+	PxVec3(0,0,-1) };
+
+	std::vector<PxVec3> meshVerts2 = { PxVec3(3,1,-1),PxVec3(1,2,0),PxVec3(-1,1,0),PxVec3(0,1,1),
+	PxVec3(1,0,-1),PxVec3(1,9,-1),PxVec3(1,2,-1),PxVec3(1,2,-1),PxVec3(-1,-1,-1) };
+	auto mesh = scene->addEntity();
+	mesh->getComponent<PhysicsComponent>()->addActor(meshVerts);
+	mesh->getComponent<PhysicsComponent>()->addActor(meshVerts2);
 
 	/*
 	PxTransform mesht = PxTransform(PxVec3(0, 20.0f, 0.0f));
