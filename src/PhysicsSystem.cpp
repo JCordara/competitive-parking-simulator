@@ -279,9 +279,10 @@ void PhysicsSystem::initPhysics()
 	auto mesh = scene->addEntity();
 	
 	Model newModel("models/car1.obj", glm::vec3(1.0, 1.0, 1.0));
-
-	mesh->getComponent<PhysicsComponent>()->addActorDynamic(newModel);
-	mesh->getComponent<PhysicsComponent>()->addActorStatic(newModel);
+	PxTransform position = PxTransform(PxVec3(0, 20.0f, 0.0f));
+	PxTransform position1 = PxTransform(PxVec3(10.0, 0.0f, 0.0f));
+	mesh->getComponent<PhysicsComponent>()->addActorDynamic(newModel, position);
+	mesh->getComponent<PhysicsComponent>()->addActorStatic(newModel, position1);
 
 	
 

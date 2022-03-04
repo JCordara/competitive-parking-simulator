@@ -9,9 +9,9 @@ PhysicsComponent::PhysicsComponent(Entity& parent)
 
 
 
-void PhysicsComponent::addActorStatic(Model model){
+void PhysicsComponent::addActorStatic(Model model, PxTransform startPos){
 
-	PxTransform mesht = PxTransform(PxVec3(0, 20.0f, 0.0f));
+	PxTransform mesht = startPos;
 	PxRigidActor* mesh1 = gPhysics->createRigidStatic(mesht);
 
 	PxTolerancesScale scale;
@@ -47,9 +47,9 @@ void PhysicsComponent::addActorStatic(Model model){
 	meshShape->release();
 }
 
-void PhysicsComponent::addActorDynamic(Model model) {
+void PhysicsComponent::addActorDynamic(Model model, PxTransform startPos) {
 
-	PxTransform mesht = PxTransform(PxVec3(0, 20.0f, 0.0f));
+	PxTransform mesht = startPos;//PxTransform(PxVec3(0, 20.0f, 0.0f));
 	PxRigidDynamic* mesh1 = gPhysics->createRigidDynamic(mesht);
 	PxConvexMeshDesc convexDesc;
 	vector<Mesh> arrMeshes = model.getMeshes();
