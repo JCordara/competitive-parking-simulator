@@ -12,3 +12,7 @@ ComponentEnum AiComponent::getType() {
 AiComponent::~AiComponent() {
     // Nothing to do here yet
 }
+
+void AiComponent::aStar() {
+
+}
