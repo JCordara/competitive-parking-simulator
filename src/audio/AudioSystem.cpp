@@ -1,9 +1,9 @@
 
-#include "AudioManager.h"
+#include "AudioSystem.h"
 
 
 /** Open default audio device and initialize OpenAL context */
-AudioManager::AudioManager() {
+AudioSystem::AudioSystem() {
 
     // Get devices
     std::vector<std::string> deviceNames = getDeviceNames();
@@ -31,33 +31,33 @@ AudioManager::AudioManager() {
 }
 
 
-Audio& AudioManager::loadAudio(std::string filepath) {
+Audio& AudioSystem::loadAudio(std::string filepath) {
     audioBuffers.push_back(std::make_shared<Audio>(filepath));
     filepaths.push_back(filepath);
     return *audioBuffers.back();
 }
 
-AudioSource& AudioManager::createSource() {
+AudioSource& AudioSystem::createSource() {
     audioSources.push_back(std::make_shared<AudioSource>());
     return *audioSources.back();
 }
 
-AudioSource& AudioManager::createSource(const glm::vec3 position_init) {
+AudioSource& AudioSystem::createSource(const glm::vec3 position_init) {
     audioSources.push_back(std::make_shared<AudioSource>(position_init));
     return *audioSources.back();
 }
 
-AudioSource& AudioManager::createStaticSource() {
+AudioSource& AudioSystem::createStaticSource() {
     audioSources.push_back(std::make_shared<AudioSource>(true));
     return *audioSources.back();
 }
 
-AudioSource& AudioManager::createStaticSource(const glm::vec3 position_init) {
+AudioSource& AudioSystem::createStaticSource(const glm::vec3 position_init) {
     audioSources.push_back(std::make_shared<AudioSource>(position_init, true));
     return *audioSources.back();
 }
 
-void AudioManager::setListenerPosition(const glm::vec3& _position) {
+void AudioSystem::setListenerPosition(const glm::vec3& _position) {
     // Automatically calculate listener velocity
     // This is possible when this function is called every frame
     
@@ -79,7 +79,7 @@ void AudioManager::setListenerPosition(const glm::vec3& _position) {
     alListenerfv(AL_VELOCITY, glm::value_ptr(velocity));
 }
 
-void AudioManager::setListenerOrientation(const glm::vec3& _front, const glm::vec3& _up) {
+void AudioSystem::setListenerOrientation(const glm::vec3& _front, const glm::vec3& _up) {
     // Combine into a single float array for OpenAL
     float ori[6] = {
         -_front.x, -_front.y, -_front.z,
@@ -89,7 +89,7 @@ void AudioManager::setListenerOrientation(const glm::vec3& _front, const glm::ve
     alListenerfv(AL_ORIENTATION, ori);
 }
 
-void AudioManager::setListenerOrientation(const glm::mat4& _vm) {
+void AudioSystem::setListenerOrientation(const glm::mat4& _vm) {
     this->setListenerOrientation(
         glm::vec3(_vm[0][2], _vm[1][2], _vm[2][2]), 
         glm::vec3(_vm[0][1], _vm[1][1], _vm[2][1])
@@ -97,12 +97,12 @@ void AudioManager::setListenerOrientation(const glm::mat4& _vm) {
 }
 
 
-int AudioManager::availableDevicesCount() const {
+int AudioSystem::availableDevicesCount() const {
     return static_cast<int>(audioDevices.size());
 }
 
 /** Retrieve a list of string representations of available devices */
-std::vector<std::string> AudioManager::getDeviceNames() {
+std::vector<std::string> AudioSystem::getDeviceNames() {
 
     // Get list of device names as null-terminated strings
     const ALCchar* str = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
@@ -118,7 +118,7 @@ std::vector<std::string> AudioManager::getDeviceNames() {
     return devices;
 }
 
-AudioDevice& AudioManager::getDevice(int deviceID) {
+AudioDevice& AudioSystem::getDevice(int deviceID) {
     if (deviceID == -1)
         return *audioDevices[currentDevice];
     else
@@ -126,7 +126,7 @@ AudioDevice& AudioManager::getDevice(int deviceID) {
 }
 
 /** Opening a new device requires destroying and recreating devices and contexts */
-void AudioManager::openDevice(int deviceID) {
+void AudioSystem::openDevice(int deviceID) {
     // Do nothing if the device isn't changing
     if (deviceID == currentDevice) return;
 
@@ -180,8 +180,8 @@ void AudioManager::openDevice(int deviceID) {
 
 }
 
-AudioManager::~AudioManager() {
-    debug_log("Entering AudioManager destructor");
+AudioSystem::~AudioSystem() {
+    debug_log("Entering AudioSystem destructor");
     // Delete sources and buffers
     audioSources.clear();
     audioBuffers.clear();
@@ -196,5 +196,5 @@ AudioManager::~AudioManager() {
     audioDevices.clear();
 
     
-    debug_log("Leaving AudioManager destructor");
+    debug_log("Leaving AudioSystem destructor");
 }

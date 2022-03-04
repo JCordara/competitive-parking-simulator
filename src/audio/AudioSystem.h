@@ -1,5 +1,5 @@
-#ifndef AUDIO_MANAGER_H
-#define AUDIO_MANAGER_H
+#ifndef AUDIO_SYSTEM_H
+#define AUDIO_SYSTEM_H
 
 // Includes global settings for audio like doppler intensity, debug logs, etc
 #include "AudioSettings.h"
@@ -23,11 +23,11 @@
 #include <memory>   // Smart pointers
 #include <iostream> // Degubbing
 
-class AudioManager {
+class AudioSystem {
 
 public:
 
-    AudioManager();
+    AudioSystem();
 
     Audio& loadAudio(std::string filepath);
 
@@ -50,13 +50,13 @@ public:
     AudioDevice& getDevice(int deviceID);
 
     // ----- Rule of 5 Singleton deletions -----
-    AudioManager(const AudioManager&) = delete;
-    AudioManager(AudioManager&&) = delete;
-    AudioManager& operator=(const AudioManager&) = delete;
-    AudioManager& operator=(AudioManager&&) = delete;
+    AudioSystem(const AudioSystem&) = delete;
+    AudioSystem(AudioSystem&&) = delete;
+    AudioSystem& operator=(const AudioSystem&) = delete;
+    AudioSystem& operator=(AudioSystem&&) = delete;
     
     // Public destructor
-    ~AudioManager();
+    ~AudioSystem();
 
 private:
 
@@ -72,4 +72,4 @@ private:
 };
 
 
-#endif // AUDIO_MANAGER_H
+#endif // AUDIO_SYSTEM_H
