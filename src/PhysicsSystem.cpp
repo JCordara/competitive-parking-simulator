@@ -266,6 +266,71 @@ void PhysicsSystem::initPhysics()
 	boxShape2->release();
 	boxShape3->release();
 
+	//Create Mesh Object
+	/*PxVec3 convexVerts[] = {PxVec3(0,1,0),PxVec3(1,0,0),PxVec3(-1,0,0),PxVec3(0,0,1),
+	PxVec3(0,0,-1) };
+	auto mesh = scene->addEntity();
+	mesh->getComponent<PhysicsComponent>()->addActor();*/
+
+	PxTransform mesht = PxTransform(PxVec3(0, 20.0f, 0.0f));
+	PxRigidDynamic* mesh1 = gPhysics->createRigidDynamic(mesht);
+	static const PxVec3 convexVerts[] = { PxVec3(0,1,0),PxVec3(1,0,0),PxVec3(-1,0,0),PxVec3(0,0,1),
+	PxVec3(0,0,-1) };
+	PxConvexMeshDesc convexDesc;
+	convexDesc.points.count = sizeof(convexVerts);
+	convexDesc.points.stride = sizeof(PxVec3);
+	convexDesc.points.data = convexVerts;
+	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+
+	PxDefaultMemoryOutputStream buf;
+	PxConvexMeshCookingResult::Enum result;
+	if (!gCooking->cookConvexMesh(convexDesc, buf, &result)) {
+		return;
+	};
+
+	PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+	PxConvexMesh* convexMesh = gPhysics->createConvexMesh(input);
+	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*mesh1, PxConvexMeshGeometry(convexMesh), *gMaterial);
+	PxFilterData meshFilterData(COLLISION_FLAG_GROUND_AGAINST, COLLISION_FLAG_OBSTACLE, 0, 0);
+	meshShape->setSimulationFilterData(meshFilterData);
+	gScene->addActor(*mesh1);
+	meshShape->release();
+
+	/*
+	PxTransform mesht = PxTransform(PxVec3(0, 20.0f, 0.0f));
+	PxF32 x = 3.0f;
+	PxF32 y = 3.0f;
+	PxF32 z = 3.0f;
+	PxVec3 verts[8] =
+	{
+		PxVec3(x,y,-z),
+		PxVec3(x,y,z),
+		PxVec3(x,-y,z),
+		PxVec3(x,-y,-z),
+		PxVec3(-x,y,-z),
+		PxVec3(-x,y,z),
+		PxVec3(-x,-y,z),
+		PxVec3(-x,-y,-z)
+	};
+	
+	PxConvexMesh* mesh = createConvexMesh(verts, 8, *gPhysics, *gCooking);
+	
+	PxFilterData meshQryFilterData;
+	setupNonDrivableSurface(meshQryFilterData);
+	meshShape->setQueryFilterData(meshQryFilterData);
+	meshShape->setLocalPose(PxTransform(PxIdentity));
+	//PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
+	mesh1 = gPhysics->createRigidDynamic(mesht);
+	PxFilterData meshFilterData(COLLISION_FLAG_GROUND_AGAINST, COLLISION_FLAG_OBSTACLE, 0, 0);
+	meshShape->setSimulationFilterData(meshFilterData);
+	//PxShape* chassisShape = PxRigidActorExt::createExclusiveShape(*vehActor, PxConvexMeshGeometry(chassisConvexMeshes[i]), *chassisMaterials[i]);
+	mesh1->attachShape(*meshShape);
+	PxRigidBodyExt::updateMassAndInertia(*mesh1, 10.0f);
+	gScene->addActor(*mesh1);
+
+	
+	*/
+
 	//Set the vehicle to rest in first gear.
 	//Set the vehicle to use auto-gears.
 	gVehicle4W->setToRestState();
