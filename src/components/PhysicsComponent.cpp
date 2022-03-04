@@ -1,5 +1,5 @@
 #include "PhysicsComponent.h"
-#include "PhysicsSystem.h"
+#include "physics/PhysicsSystem.h"
 
 
 PhysicsComponent::PhysicsComponent(Entity& parent) 

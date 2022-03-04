@@ -22,18 +22,25 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 
-#------------------------------- AudioSystem -----------------------------------
+#------------------------- Entities and Components -----------------------------
+# Build Entity/Component system as a separate library
+
+add_subdirectory(src/components)
+list(APPEND LIBRARIES EntityComponent)
+
+
+#------------------------------ Audio System -----------------------------------
 # Build AudioSystem as a separate library
 
 add_subdirectory(src/audio)
 list(APPEND LIBRARIES AudioSystem)
 
 
-#------------------------- Entities and Components -----------------------------
-# Build Entity/Component system as a separate library
+#----------------------------- Physics System ----------------------------------
+# Build PhysicsSystem as a separate library
 
-add_subdirectory(src/components)
-list(APPEND LIBRARIES EntityComponent)
+add_subdirectory(src/physics)
+list(APPEND LIBRARIES PhysicsSystem)
 
 
 #--------------------------------- PhysX ---------------------------------------
