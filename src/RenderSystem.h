@@ -10,7 +10,6 @@ public:
     /* Prepare framework */
     RenderSystem(
         std::shared_ptr<Scene> scene,
-        std::shared_ptr<AudioManager> audio,
         std::shared_ptr<Window> window
     );
 
@@ -19,7 +18,6 @@ public:
     
 private:
     std::shared_ptr<Scene>             scene;
-	std::shared_ptr<AudioManager>      audioManager;
     std::shared_ptr<Window>            window;
 };
 

@@ -3,7 +3,7 @@
 
 #include "GameSystem.h"
 
-#include "PhysX/PxPhysicsAPI.h"
+#include <PhysX/PxPhysicsAPI.h>
 #include "SnippetVehicle4W.h"
 
 
@@ -13,10 +13,7 @@ class PhysicsSystem : public GameSystem {
 public:
 
     /* Prepare framework */
-    PhysicsSystem(
-        std::shared_ptr<Scene> scene,
-        std::shared_ptr<AudioManager> audio
-    );
+    PhysicsSystem(std::shared_ptr<Scene> scene);
 
     void update();
     void PhysXMat4ToglmMat4(const PxMat44& mat4, glm::mat4& newMat);
@@ -25,8 +22,7 @@ public:
     
 private:
 
-    std::shared_ptr<Scene>             scene;
-	std::shared_ptr<AudioManager>      audioManager;
+    std::shared_ptr<Scene> scene;
 
     VehicleDesc initVehicleDesc();
     void initPhysics();

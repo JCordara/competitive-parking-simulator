@@ -5,10 +5,8 @@
 #include <string>
 
 PhysicsSystem::PhysicsSystem(
-    std::shared_ptr<Scene> scene,
-    std::shared_ptr<AudioManager> audio)
+    std::shared_ptr<Scene> scene)
     : scene(scene)
-    , audioManager(audio)
 {
     /* PhysX initialization */
     initPhysics();

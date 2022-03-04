@@ -25,12 +25,12 @@ Application::Application(appSettings& settings)
 	scene        = Scene::newScene();
 	window 		 = std::make_shared<Window>(1200, 800, "Test Window");
 	inputManager = std::make_shared<InputManager>(window);
-	audioManager = std::make_shared<AudioManager>();
+	audioSystem  = std::make_shared<AudioSystem>();
 
 	/* Game systems - update() every frame */
-	// gameplay     = std::make_shared<GameplaySystem>(scene, eventManager, audioManager);
-	physics      = std::make_shared<PhysicsSystem>(scene, audioManager);
-	render       = std::make_shared<RenderSystem>(scene, audioManager, window);
+	gameplay     = std::make_shared<GameplaySystem>(scene);
+	physics      = std::make_shared<PhysicsSystem>(scene);
+	render       = std::make_shared<RenderSystem>(scene, window);
 	gui 	     = std::make_shared<GUI>();
 
 
@@ -105,7 +105,7 @@ Application::Application(appSettings& settings)
 
 	//-----Models
 	sceneRenderModels.push_back(
-		std::make_shared<Model>("models/Test1.obj", glm::vec3(1.0, 1.0, 1.0))
+		std::make_shared<Model>("models/car1.obj", glm::vec3(1.0, 1.0, 1.0))
 	);
 	sceneRenderModels.push_back(
 		std::make_shared<Model>("models/smileplane.obj", glm::vec3(1.0, 0.0, 1.0))
@@ -225,7 +225,6 @@ Application::Application(appSettings& settings)
 	Events::CameraZoom.registerHandler<EditorCamera, &EditorCamera::zoom>(&mainCamera);
 
 	// Parking stall hack
-	gameplay = std::make_shared<GameplaySystem>(scene, audioManager, CarObjects[0]);
 	auto parkingStall = scene->addEntity();
 	parkingStall->getComponent<TransformComponent>()->translate(5.0f, 0.0f, 0.0f);
 	parkingStall->addComponent<VolumeTriggerComponent>();
@@ -289,8 +288,8 @@ int Application::play() {
 		if (window->getHeight() != 0) viewportAspectRatio = static_cast<float>(window->getWidth()) / static_cast<float>(window->getHeight());
 		else viewportAspectRatio = 0.0;
 		renderPipeline->setCamera(mainCamera.getPosition(), mainCamera.getViewMatrix(), glm::perspective(glm::radians(60.f), viewportAspectRatio, 0.01f, 1000.0f) );
-		audioManager->setListenerPosition(mainCamera.getPosition());
-		audioManager->setListenerOrientation(mainCamera.getViewDirection(), mainCamera.getUpDirection());
+		audioSystem->setListenerPosition(mainCamera.getPosition());
+		audioSystem->setListenerOrientation(mainCamera.getViewDirection(), mainCamera.getUpDirection());
 
 		glm::mat4 box1PhysX;
 		physics->PhysXMat4ToglmMat4(physx::PxMat44(gVehicle4W->getRigidDynamicActor()->getGlobalPose()),transformationPhysX);
