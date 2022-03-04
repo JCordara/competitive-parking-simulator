@@ -2,15 +2,16 @@
 #define PHYSICS_COMPONENT_H
 
 #include "Components.h"
-#include <PhysX/PxPhysicsAPI.h>
-using namespace physx;
+#include "Model.h"
+//using namespace physx;
 
 class PhysicsComponent : public BaseComponent {
 public:
     PhysicsComponent(Entity& parent);
     ~PhysicsComponent();
     static ComponentEnum getType();
-	void addActor(std::vector<PxVec3> convexVerts);
+	void addActorStatic(Model model);
+	void addActorDynamic(Model model);
 };
 
 #endif // PHYSICS_COMPONENT_H

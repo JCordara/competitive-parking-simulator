@@ -43,6 +43,7 @@
 #include "cooking/PxBVHStructureDesc.h"
 #include "geometry/PxTriangleMesh.h"
 #include "geometry/PxBVHStructure.h"
+#include "cooking/PxBVH33MidphaseDesc.h"
 
 #if !PX_DOXYGEN
 namespace physx
@@ -294,6 +295,9 @@ struct PxCookingParams
 	*/
 	PxU32	gaussMapLimit;
 
+
+	PxMeshCookingHint::Enum meshCookingHint;
+
 	PxCookingParams(const PxTolerancesScale& sc):
 		areaTestEpsilon					(0.06f*sc.length*sc.length),
 		planeTolerance					(0.0007f),
@@ -304,7 +308,9 @@ struct PxCookingParams
 		scale							(sc),
 		meshPreprocessParams			(0),
 		meshWeldTolerance				(0.f),
-		gaussMapLimit					(32)
+		gaussMapLimit					(32),
+		meshCookingHint					()
+
 	{
 	}
 };

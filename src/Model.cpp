@@ -16,6 +16,7 @@ Mesh::Mesh(vector<vec3f> vertsPos, vector<vec3f> vertsNorms, vector<vec2f> verts
 
 }
 
+
 void Mesh::uploadData() {
 	//Prep Mesh Data
 	vao->bind();
@@ -146,4 +147,9 @@ void Model::draw(ShaderProgram& sp, GLenum textureLocation, GLint modelColourLoc
 		}
 		//end Texture----------------------
 		return Mesh(vertsPos, vertsNorms, vertsUVs, indicies, textureIndex, material);
+	}
+
+
+	vector<Mesh> Model::getMeshes() {
+		return meshes;
 	}
