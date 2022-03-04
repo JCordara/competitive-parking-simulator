@@ -105,7 +105,7 @@ Application::Application(appSettings& settings)
 
 	//-----Models
 	sceneRenderModels.push_back(
-		std::make_shared<Model>("models/Test1.obj", glm::vec3(1.0, 1.0, 1.0))
+		std::make_shared<Model>("models/car1.obj", glm::vec3(1.0, 1.0, 1.0))
 	);
 	sceneRenderModels.push_back(
 		std::make_shared<Model>("models/smileplane.obj", glm::vec3(1.0, 0.0, 1.0))
