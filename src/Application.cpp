@@ -20,12 +20,12 @@ Application::Application(appSettings& settings)
 	scene        = Scene::newScene();
 	window 		 = std::make_shared<Window>(1200, 800, "Test Window");
 	inputManager = std::make_shared<InputManager>(window);
-	audioSystem  = std::make_shared<AudioSystem>();
 
 	/* Game systems - update() every frame */
 	gameplay     = std::make_shared<GameplaySystem>(scene);
 	physics      = std::make_shared<PhysicsSystem>(scene);
 	render       = std::make_shared<RenderSystem>(scene, window);
+	audioSystem  = std::make_shared<AudioSystem>();
 
 
 	/* --------------------- Game World Description ------------------------ */
@@ -87,6 +87,29 @@ Application::Application(appSettings& settings)
 
 	/* --------------------- End Game World Description --------------------- */
 
+
+	// Some random crap Keaton was doing
+	std::vector<PxVec3> meshVerts = {
+		PxVec3(0 ,1, 0), PxVec3(1, 0, 0), PxVec3(-1, 0, 0), 
+		PxVec3(0 ,0, 1), PxVec3(0, 0,-1) 
+	};
+
+	std::vector<PxVec3> meshVerts2 = { 
+		PxVec3(3, 1,-1), PxVec3(1, 2, 0), PxVec3(-1, 1, 0), 
+		PxVec3(0, 1, 1), PxVec3(1, 0,-1), PxVec3( 1, 9,-1), 
+		PxVec3(1, 2,-1), PxVec3(1, 2,-1), PxVec3(-1,-1,-1) 
+	};
+
+	//Create Mesh Object
+	auto mesh = scene->addEntity();
+	
+	Model newModel("models/car1.obj", glm::vec3(1.0, 1.0, 1.0));
+	PxTransform position = PxTransform(PxVec3(0, 20.0f, 0.0f));
+	PxTransform position1 = PxTransform(PxVec3(10.0, 0.0f, 0.0f));
+
+	auto physicsComponent = mesh->addComponent<PhysicsComponent>();
+	physicsComponent->addActorDynamic(newModel, position);
+	physicsComponent->addActorStatic(newModel, position1);
 
 }
 

@@ -1,18 +1,21 @@
 #include "PhysicsComponent.h"
-#include "PhysicsSystem.h"
-#include "Model.h"
+#include "physics/PhysicsSystem.h"
 
 
 PhysicsComponent::PhysicsComponent(Entity& parent) 
     : BaseComponent(parent)
-{}
+{
+	Events::PhysicsComponentInit.broadcast(*this);
+}
 
-
+void PhysicsComponent::setPhysicsSystem(shared_ptr<PhysicsSystem> physics) {
+	physicsSystem = physics;
+}
 
 void PhysicsComponent::addActorStatic(Model model, PxTransform startPos){
 
 	PxTransform mesht = startPos;
-	PxRigidActor* mesh1 = gPhysics->createRigidStatic(mesht);
+	PxRigidActor* mesh1 = physicsSystem->pxPhysics->createRigidStatic(mesht);
 
 	PxTolerancesScale scale;
 	PxCookingParams params(scale);
@@ -20,7 +23,7 @@ void PhysicsComponent::addActorStatic(Model model, PxTransform startPos){
 	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
 	params.meshCookingHint = PxMeshCookingHint::eCOOKING_PERFORMANCE;
 
-	gCooking->setParams(params);
+	physicsSystem->pxCooking->setParams(params);
 	PxTriangleMeshDesc meshDesc;
 	vector<Mesh> arrMeshes = model.getMeshes();
 	
@@ -34,23 +37,24 @@ void PhysicsComponent::addActorStatic(Model model, PxTransform startPos){
 
 #ifdef _DEBUG
 	// mesh should be validated before cooked without the mesh cleaning
-	bool res = gCooking->validateTriangleMesh(meshDesc);
+	bool res = physicsSystem->pxCooking->validateTriangleMesh(meshDesc);
 	PX_ASSERT(res);
 #endif
-	PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc,
-		gPhysics->getPhysicsInsertionCallback());
+
+	PxTriangleMesh* triMesh = physicsSystem->pxCooking->createTriangleMesh(meshDesc,
+		physicsSystem->pxPhysics->getPhysicsInsertionCallback());
 	PxTriangleMeshGeometry geom(triMesh);
 	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*mesh1, geom, *gMaterial);
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
 	meshShape->setSimulationFilterData(meshFilterData);
-	gScene->addActor(*mesh1);
+	physicsSystem->pxScene->addActor(*mesh1);
 	meshShape->release();
 }
 
 void PhysicsComponent::addActorDynamic(Model model, PxTransform startPos) {
 
 	PxTransform mesht = startPos;//PxTransform(PxVec3(0, 20.0f, 0.0f));
-	PxRigidDynamic* mesh1 = gPhysics->createRigidDynamic(mesht);
+	PxRigidDynamic* mesh1 = physicsSystem->pxPhysics->createRigidDynamic(mesht);
 	PxConvexMeshDesc convexDesc;
 	vector<Mesh> arrMeshes = model.getMeshes();
 
@@ -64,17 +68,17 @@ void PhysicsComponent::addActorDynamic(Model model, PxTransform startPos) {
 	convexDesc.indices.data = arrMeshes[0].indicies.data();
 	
 	PxDefaultMemoryOutputStream buf;
-	if (!gCooking->cookConvexMesh(convexDesc, buf)) {
+	if (!physicsSystem->pxCooking->cookConvexMesh(convexDesc, buf)) {
 		return;
 	};
 
 	PxDefaultMemoryInputData readBuffer(buf.getData(), buf.getSize());
 	PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-	PxConvexMesh* convexMesh = gPhysics->createConvexMesh(input);
+	PxConvexMesh* convexMesh = physicsSystem->pxPhysics->createConvexMesh(input);
 	PxShape* aConvexShape = PxRigidActorExt::createExclusiveShape(*mesh1,PxConvexMeshGeometry(convexMesh),*gMaterial);
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
 	aConvexShape->setSimulationFilterData(meshFilterData);
-	gScene->addActor(*mesh1);
+	physicsSystem->pxScene->addActor(*mesh1);
 	aConvexShape->release();
 }
 
