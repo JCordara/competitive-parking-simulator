@@ -5,7 +5,6 @@
 #include "Camera.h"
 #include "ShaderProgram.h"
 #include "Model.h"
-#include "GameObject.h"
 #include "Geometry.h"
 #include "Lighting.h"
 

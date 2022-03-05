@@ -2,22 +2,22 @@
 #define VOLUME_TRIGGER_COMPONENT_H
 
 #include "Components.h"
-
-#include "GameObject.h"
+#include <set>
 
 class VolumeTriggerComponent : public BaseComponent {
 public:
 
     VolumeTriggerComponent(Entity& e);
 
-    VolumeTriggerComponent(GameObject& gameObject);
-    void checkForEntity(GameObject& entity);
+	void attachEntity(std::shared_ptr<Entity> collisionEntity);
+	void removeEntity(std::shared_ptr<Entity> collisionEntity);
+	void flush();
 
     static  ComponentEnum getType();
     ~VolumeTriggerComponent();
 
 private:
-    bool occupied;
+	std::set<std::shared_ptr<Entity>> attached;
 };
 
 #endif // VOLUME_TRIGGER_COMPONENT_H

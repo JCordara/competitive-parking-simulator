@@ -3,30 +3,20 @@
 
 VolumeTriggerComponent::VolumeTriggerComponent(Entity& e) 
     : BaseComponent(e)
-    , occupied(false)
 {}
 
-void VolumeTriggerComponent::checkForEntity(GameObject& object) {
-    glm::mat4 m = object.getTransformation();
-    glm::vec3 entityPos = m[3];
-    
-    auto transform = entity.getComponent<TransformComponent>();
-    if (!transform) return;
-
-    glm::vec3 selfPos = transform->getGlobalPosition();
-
-    if (!occupied) {
-        if (glm::distance(entityPos, selfPos) < 2.0f) {
-            occupied = true;
-            Events::CarParked.broadcast();
-        }
-    }
-    else {
-        if (glm::distance(entityPos, selfPos) > 2.0f) {
-            occupied = false;
-            Events::CarUnParked.broadcast();
-        }
-    }
+void VolumeTriggerComponent::attachEntity(std::shared_ptr<Entity> collisionEntity) {
+	auto it = attached.find(collisionEntity);
+	if (it != attached.end())
+		attached.insert(collisionEntity);
+}
+void VolumeTriggerComponent::removeEntity(std::shared_ptr<Entity> collisionEntity) {
+	auto it = attached.find(collisionEntity);
+	if (it != attached.end())
+		attached.erase(it);
+}
+void VolumeTriggerComponent::flush() {
+	attached.clear();
 }
 
 ComponentEnum VolumeTriggerComponent::getType() {
