@@ -58,9 +58,9 @@ void Model::draw(ShaderProgram& sp, GLenum textureLocation, GLint modelColourLoc
 		textureid = meshes[i].textureIndex;
 		if (textureid >= 0) {
 			glActiveTexture(textureLocation);
-			textures[i]->bind();
+			textures[textureid]->bind();
 			meshes[i].draw(sp, diffuseLocation, specularLocation, alphaLocation, ambientLocation, instances);
-			textures[i]->unbind();
+			textures[textureid]->unbind();
 		}
 	}
 }
