@@ -1,6 +1,6 @@
 # CPSC 585 Project
 ## TO DO:
-- AI
+- AI (Kayton)
   - A* finished
   - Search and park state
   - Controlling vehicles
@@ -13,9 +13,9 @@
     - "Lag"
     - Camera collisions
 - Physics Components
-  - RigidbodyComponent
+  - RigidbodyComponent (Keaton)
     - Cleanup
-  - VehicleComponent
+  - VehicleComponent (Joseph)
     - PhysX 
     - Tunable parameters
       - Top speed
@@ -28,7 +28,7 @@
       - Braking strength
       - Drivetrain (FWD/RWD/AWD)
       - Tire size
-- Physics System
+- Physics System (Joseph)
   - Update physics simulation
   - Send PhysX transforms to transform component
   - Handle driving events
