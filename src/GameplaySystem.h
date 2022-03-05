@@ -15,7 +15,7 @@ public:
     ~GameplaySystem();
 
 private:
-    std::shared_ptr<Scene>             scene;
+    std::shared_ptr<Scene> scene;
 };
 
 #endif // GAMEPLAY_SYSTEM_H

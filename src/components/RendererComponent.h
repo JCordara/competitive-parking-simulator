@@ -6,9 +6,14 @@
 
 class RendererComponent : public BaseComponent {
 public:
-    RendererComponent(Entity& parent);
+	RendererComponent(Entity& parent);
+	void enableRender() { render = true; }
+	void disableRender() { render = false; }
+	bool toBeRendered() { return render; }
     ~RendererComponent();
     static  ComponentEnum getType();
+private:
+	bool render = false;
 };
 
 #endif // RENDERER_COMPONENT_H

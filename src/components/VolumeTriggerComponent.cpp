@@ -13,7 +13,7 @@ void VolumeTriggerComponent::checkForEntity(GameObject& object) {
     auto transform = entity.getComponent<TransformComponent>();
     if (!transform) return;
 
-    glm::vec3 selfPos = transform->getPosition();
+    glm::vec3 selfPos = transform->getGlobalPosition();
 
     if (!occupied) {
         if (glm::distance(entityPos, selfPos) < 2.0f) {

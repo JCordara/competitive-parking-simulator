@@ -4,6 +4,8 @@
 
 void GUI::draw() {
 
+	glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
+
 	// Starting the new ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -35,6 +37,7 @@ void GUI::draw() {
 	// Render the ImGui window
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); // Some middleware thing
+
 }
 
 GUI::~GUI() {
