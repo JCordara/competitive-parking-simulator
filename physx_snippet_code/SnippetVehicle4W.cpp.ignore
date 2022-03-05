@@ -152,7 +152,6 @@ void vehicleTurnMode(float v) {
 	gVehicleInputData.setAnalogSteer(v);
 }
 
-/* Not currently used */
 void vehicleBrakeMode(float v) {
 	gVehicleInputData.setAnalogBrake(v);
 }

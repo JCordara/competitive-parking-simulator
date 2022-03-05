@@ -14,6 +14,8 @@
 
 #include "EventTypes.h" // Defines event framework
 
+// Forward declaration of Event parameter types
+class PhysicsComponent;
 
 namespace Events {
     extern Event<void> GameStart;
@@ -27,6 +29,9 @@ namespace Events {
 
     extern Event<double, double> CameraRotate;
     extern Event<double, double> CameraZoom;
+
+    // Broadcast by physics components when they are initalized
+    extern Event<PhysicsComponent&> PhysicsComponentInit;
 };
 
 #endif // EVENT_H

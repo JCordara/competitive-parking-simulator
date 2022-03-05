@@ -1,0 +1,16 @@
+#ifndef PHYSX_SNIPPET_PRINT_H
+#define PHYSX_SNIPPET_PRINT_H
+
+#include "PhysX/foundation/PxPreprocessor.h"
+
+#if PX_XBOXONE
+void OutputDebugPrint(const char*, ...);
+#define printf OutputDebugPrint
+#elif PX_XBOX_SERIES_X
+#include "PsString.h"
+#define printf shdfnd::printFormatted
+#elif PX_SWITCH
+#include "../SnippetCommon/Switch/SwitchSnippetPrint.h"
+#endif
+
+#endif // PHYSX_SNIPPET_PRINT_H

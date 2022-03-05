@@ -25,12 +25,12 @@ Application::Application(appSettings& settings)
 	scene        = Scene::newScene();
 	window 		 = std::make_shared<Window>(1200, 800, "Test Window");
 	inputManager = std::make_shared<InputManager>(window);
-	audioSystem  = std::make_shared<AudioSystem>();
 
 	/* Game systems - update() every frame */
 	gameplay     = std::make_shared<GameplaySystem>(scene);
 	physics      = std::make_shared<PhysicsSystem>(scene);
 	render       = std::make_shared<RenderSystem>(scene, window);
+	audioSystem  = std::make_shared<AudioSystem>();
 	gui 	     = std::make_shared<GUI>();
 
 
@@ -230,6 +230,23 @@ Application::Application(appSettings& settings)
 	parkingStall->addComponent<VolumeTriggerComponent>();
 	Events::CarParked.registerHandler<carParked>();
 	Events::CarUnParked.registerHandler<carUnParked>();
+
+	// Some random crap Keaton was doing
+	std::vector<PxVec3> meshVerts = {
+		PxVec3(0 ,1, 0), PxVec3(1, 0, 0), PxVec3(-1, 0, 0), 
+		PxVec3(0 ,0, 1), PxVec3(0, 0,-1) 
+	};
+
+	std::vector<PxVec3> meshVerts2 = { 
+		PxVec3(3, 1,-1), PxVec3(1, 2, 0), PxVec3(-1, 1, 0), 
+		PxVec3(0, 1, 1), PxVec3(1, 0,-1), PxVec3( 1, 9,-1), 
+		PxVec3(1, 2,-1), PxVec3(1, 2,-1), PxVec3(-1,-1,-1) 
+	};
+
+	auto mesh = scene->addEntity();
+	auto physicsComponent = mesh->addComponent<PhysicsComponent>();
+	physicsComponent->addActor(meshVerts);
+	physicsComponent->addActor(meshVerts2);
 
 }
 

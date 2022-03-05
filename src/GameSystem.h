@@ -3,7 +3,7 @@
 
 #include "Framework.h"
 
-class GameSystem {
+class GameSystem : public std::enable_shared_from_this<GameSystem> {
 public:
     virtual void update() = 0;
     virtual ~GameSystem() {}
