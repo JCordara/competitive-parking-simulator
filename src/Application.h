@@ -19,7 +19,7 @@
 // Engine sub-system includes
 #include "Framework.h"
 #include "GameplaySystem.h"
-#include <PhysicsSystem.h>
+#include "physics/PhysicsSystem.h"
 #include "RenderSystem.h"
 #include "InputManager.h"
 #include "AudioSystem.h"

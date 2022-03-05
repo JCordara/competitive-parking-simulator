@@ -5,7 +5,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene)
 {}
     
 void GameplaySystem::update() {
-	for (auto it = scene->begin(); it != scene->end(); it++) {
+	/*for (auto it = scene->begin(); it != scene->end(); it++) {
 		auto volumeTriggerC = it->getComponent<VolumeTriggerComponent>();
 		if (volumeTriggerC) {
 			//ac->update();
@@ -18,9 +18,9 @@ void GameplaySystem::update() {
     for (auto it = scene->begin(); it != scene->end(); it++) {
         auto ac = it->getComponent<AiComponent>();
         if (ac) {
-            ac->update();
+            //ac->update();
         }
-    }
+    }*/
 }
 
 GameplaySystem::~GameplaySystem() {
