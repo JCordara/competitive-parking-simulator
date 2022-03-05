@@ -74,7 +74,7 @@ Application::Application(appSettings& settings)
 	plane->addComponent<TransformComponent>();
 
 	auto planeModel = std::make_shared<Model>(
-		"models/smileplane.obj", glm::vec3(.5f, .1f, .2f));
+		"models/gamemapGrassPlane.obj", glm::vec3(.5f, .1f, .2f));
 
 	modelComponent = plane->getComponent<ModelComponent>();
 	modelComponent->setModel(planeModel);
@@ -82,7 +82,7 @@ Application::Application(appSettings& settings)
 	renderComponent->enableRender();
 	transformComponent = plane->getComponent<TransformComponent>();
 	transformComponent->setLocalPosition(0.f, -2.f, 0.f);
-	transformComponent->setLocalScale(10.f, 1.f, 10.f);
+	transformComponent->setLocalScale(1.f, 1.f, 1.f);
 	//transformComponent->setLocalRotation(-acosf(0.4f), glm::vec3(1.f, 0.f, 0.f));
 
 	/* --------------------- End Game World Description --------------------- */
