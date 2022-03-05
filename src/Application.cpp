@@ -64,25 +64,40 @@ Application::Application(appSettings& settings)
 	auto renderComponent = cube->getComponent<RendererComponent>();
 	renderComponent->enableRender();
 	transformComponent = cube->getComponent<TransformComponent>();
-	transformComponent->setLocalPosition(1.f, 1.f, -5.f);
+	transformComponent->setLocalPosition(1.f, 1.5f, -5.f);
 	transformComponent->setLocalScale(3.f, 1.f, 1.f);
 	transformComponent->setLocalRotation(glm::radians(15.f), glm::vec3(0.f, 0.f, 1.f));
 	
-	auto plane = scene->addEntity();
+	auto mapGrass = scene->addEntity();
+	mapGrass->addComponent<ModelComponent>();
+	mapGrass->addComponent<RendererComponent>();
+	mapGrass->addComponent<TransformComponent>();
+
+	auto mapGrassModel = std::make_shared<Model>(
+		"models/gamemapGrassPlane.obj", glm::vec3(.5f, .1f, .2f));
+
+	modelComponent = mapGrass->getComponent<ModelComponent>();
+	modelComponent->setModel(mapGrassModel);
+	renderComponent = mapGrass->getComponent<RendererComponent>();
+	renderComponent->enableRender();
+	transformComponent = mapGrass->getComponent<TransformComponent>();
+
+	/*auto plane = scene->addEntity();
 	plane->addComponent<ModelComponent>();
 	plane->addComponent<RendererComponent>();
 	plane->addComponent<TransformComponent>();
 
 	auto planeModel = std::make_shared<Model>(
-		"models/gamemapGrassPlane.obj", glm::vec3(.5f, .1f, .2f));
+		"models/SmilePlane.obj", glm::vec3(.5f, .1f, .2f));
 
 	modelComponent = plane->getComponent<ModelComponent>();
 	modelComponent->setModel(planeModel);
 	renderComponent = plane->getComponent<RendererComponent>();
 	renderComponent->enableRender();
 	transformComponent = plane->getComponent<TransformComponent>();
-	transformComponent->setLocalPosition(0.f, -2.f, 0.f);
-	transformComponent->setLocalScale(1.f, 1.f, 1.f);
+	*/
+	//transformComponent->setLocalPosition(0.f, 0.f, 0.f);
+	//transformComponent->setLocalScale(10.f, 1.f, 10.f);
 	//transformComponent->setLocalRotation(-acosf(0.4f), glm::vec3(1.f, 0.f, 0.f));
 
 	/* --------------------- End Game World Description --------------------- */
