@@ -12,7 +12,7 @@ PhysicsSystem::PhysicsSystem(
     /* PhysX initialization */
     initPhysics();
 
-	Events::PhysicsComponentInit.registerHandler<PhysicsSystem, &PhysicsSystem::initializePhysicsComponent>(this);
+	Events::RigidbodyComponentInit.registerHandler<PhysicsSystem, &PhysicsSystem::initializeRigidbodyComponent>(this);
 
 	gVehicleInputData.setDigitalBrake(false);
 }
@@ -340,7 +340,7 @@ void PhysicsSystem::cleanupPhysics()
 	printf("SnippetVehicle4W done.\n");
 }
 
-void PhysicsSystem::initializePhysicsComponent(PhysicsComponent& component) {
+void PhysicsSystem::initializeRigidbodyComponent(RigidbodyComponent& component) {
 	component.setPhysicsSystem(
 		dynamic_pointer_cast<PhysicsSystem>(shared_from_this()));
 }

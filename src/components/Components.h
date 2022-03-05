@@ -10,7 +10,7 @@ enum class ComponentEnum {
 	audio,
 	controller,
 	model,
-	physics,        // Is Rigidbody a better name?
+	rigidbody,
 	renderer,
 	lighting,
 	camera,
@@ -37,7 +37,7 @@ protected:
 #include "AudioComponent.h"
 #include "ModelComponent.h"
 #include "TransformComponent.h"
-#include "PhysicsComponent.h"
+#include "RigidbodyComponent.h"
 #include "RendererComponent.h"
 #include "LightingComponent.h"
 #include "CameraComponent.h"

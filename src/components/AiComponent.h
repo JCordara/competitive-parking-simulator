@@ -3,6 +3,7 @@
 
 #include "Components.h"
 
+
 struct AiGraphNode {
 	std::vector<std::shared_ptr<AiGraphNode>> neighbours;
 	glm::vec3 position;
@@ -14,7 +15,7 @@ public:
     ~AiComponent();
     static ComponentEnum getType();
 
-    void update();
+    // void update();
 	void setMap(std::vector<std::vector<int>>);
 
 private:

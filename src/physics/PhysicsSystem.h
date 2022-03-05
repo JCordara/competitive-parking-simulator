@@ -11,7 +11,7 @@ using namespace physx;
 class PhysicsSystem : public GameSystem {
 public:
 
-    friend PhysicsComponent;
+    friend RigidbodyComponent;
 
     /* Prepare framework */
     PhysicsSystem(shared_ptr<Scene> scene);
@@ -45,7 +45,7 @@ private:
     void stepPhysics();
     void cleanupPhysics();
 
-    void initializePhysicsComponent(PhysicsComponent& component);
+    void initializeRigidbodyComponent(RigidbodyComponent& component);
 
 };
 

@@ -121,9 +121,9 @@ Application::Application(appSettings& settings)
 	PxTransform position = PxTransform(PxVec3(0, 20.0f, 0.0f));
 	PxTransform position1 = PxTransform(PxVec3(10.0, 0.0f, 0.0f));
 
-	auto physicsComponent = mesh->addComponent<PhysicsComponent>();
-	physicsComponent->addActorDynamic(newModel, position);
-	physicsComponent->addActorStatic(newModel, position1);
+	auto rigidbodyComponent = mesh->addComponent<RigidbodyComponent>();
+	rigidbodyComponent->addActorDynamic(newModel, position);
+	rigidbodyComponent->addActorStatic(newModel, position1);
 
 }
 

@@ -12,6 +12,7 @@ Event<float> Events::PlayerHandbrake;
 Event<double, double> Events::CameraRotate;
 Event<double, double> Events::CameraZoom;
 
-Event<PhysicsComponent&> Events::PhysicsComponentInit;
+Event<RigidbodyComponent&> Events::RigidbodyComponentInit;
+// Event<VehicleComponent&> Events::VehicleComponentInit;
 
 

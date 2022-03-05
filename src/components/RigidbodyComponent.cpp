@@ -1,18 +1,18 @@
-#include "PhysicsComponent.h"
+#include "RigidbodyComponent.h"
 #include "physics/PhysicsSystem.h"
 
 
-PhysicsComponent::PhysicsComponent(Entity& parent) 
-    : BaseComponent(parent)
+RigidbodyComponent::RigidbodyComponent(Entity& parent) 
+    : BaseComponent(parent) 
 {
-	Events::PhysicsComponentInit.broadcast(*this);
+	Events::RigidbodyComponentInit.broadcast(*this);
 }
 
-void PhysicsComponent::setPhysicsSystem(shared_ptr<PhysicsSystem> physics) {
+void RigidbodyComponent::setPhysicsSystem(shared_ptr<PhysicsSystem> physics) {
 	physicsSystem = physics;
 }
 
-void PhysicsComponent::addActorStatic(Model model, PxTransform startPos){
+void RigidbodyComponent::addActorStatic(Model model, PxTransform startPos){
 
 	PxTransform mesht = startPos;
 	PxRigidActor* mesh1 = physicsSystem->pxPhysics->createRigidStatic(mesht);
@@ -51,7 +51,7 @@ void PhysicsComponent::addActorStatic(Model model, PxTransform startPos){
 	meshShape->release();
 }
 
-void PhysicsComponent::addActorDynamic(Model model, PxTransform startPos) {
+void RigidbodyComponent::addActorDynamic(Model model, PxTransform startPos) {
 
 	PxTransform mesht = startPos;//PxTransform(PxVec3(0, 20.0f, 0.0f));
 	PxRigidDynamic* mesh1 = physicsSystem->pxPhysics->createRigidDynamic(mesht);
@@ -82,10 +82,10 @@ void PhysicsComponent::addActorDynamic(Model model, PxTransform startPos) {
 	aConvexShape->release();
 }
 
-ComponentEnum PhysicsComponent::getType() {
-    return ComponentEnum::physics;
+ComponentEnum RigidbodyComponent::getType() {
+    return ComponentEnum::rigidbody;
 }
 
-PhysicsComponent::~PhysicsComponent() {
+RigidbodyComponent::~RigidbodyComponent() {
     // Nothing to do here yet
 }

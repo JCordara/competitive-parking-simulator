@@ -9,12 +9,13 @@ class PhysicsSystem;
 
 using namespace physx;
 
-class PhysicsComponent : public BaseComponent {
+class RigidbodyComponent : public BaseComponent {
 public:
 
-    PhysicsComponent(Entity& parent);
-    ~PhysicsComponent();
+    RigidbodyComponent(Entity& parent);
+    ~RigidbodyComponent();
     static ComponentEnum getType();
+    
 	void addActorStatic(Model model, PxTransform startPos);
 	void addActorDynamic(Model model, PxTransform startPos);
 
