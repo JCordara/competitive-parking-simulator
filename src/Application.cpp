@@ -33,8 +33,8 @@ Application::Application(appSettings& settings)
 	camera->addComponent<CameraComponent>();
 	camera->getComponent<CameraComponent>()->setPerspectiveCamera(glm::radians(90.f), 1.f /*Will be modified to the window*/,0.01f, 300.f);
 	auto transformComponent = camera->getComponent<TransformComponent>();
-	transformComponent->setLocalPosition(0.0f, -10.0f, -10.0f);
-	transformComponent->setLocalRotation(atan(5.f / 3.f), glm::vec3(1.f, 0.f, 0.f));
+	transformComponent->setLocalPosition(0.0f, 10.0f, 0.0f);
+	transformComponent->setLocalRotation(-atan(5.f / 3.f), glm::vec3(1.f, 0.f, 0.f));
 
 	auto environmentalLight = scene->addEntity();
 	environmentalLight->addComponent<LightingComponent>();
