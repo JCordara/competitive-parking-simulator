@@ -1,5 +1,4 @@
 #include "Application.h"
-#include <PhysX/PxPhysicsAPI.h>
 
 int g_carsParked = 0;
 void carParked() {

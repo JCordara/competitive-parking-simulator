@@ -9,15 +9,6 @@ class BaseComponent;
 enum class ComponentEnum;
 
 
-// To make some lines of code shorter
-using std::unordered_map, std::pair;         // Mapping
-using std::shared_ptr,    std::make_shared;  // Shared pointers
-using std::unique_ptr,    std::make_unique;  // Unique pointers
-using std::enable_if_t,   std::is_base_of_v; // Template param type assertion
-using std::dynamic_pointer_cast;             // Downcast smart pointers
-
-template<class T> using sp = std::shared_ptr<T>;
-
 /**
  * @brief Components are stored in a map structure with keys of type 
  * ComponentEnum. Entities can only have 1 of each component type.

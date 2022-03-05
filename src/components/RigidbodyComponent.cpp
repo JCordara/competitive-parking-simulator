@@ -5,12 +5,11 @@
 RigidbodyComponent::RigidbodyComponent(Entity& parent) 
     : BaseComponent(parent) 
 {
+	// Notify Physics system that this component was created
+    // This sets the reference to the physics system
 	Events::RigidbodyComponentInit.broadcast(*this);
 }
 
-void RigidbodyComponent::setPhysicsSystem(shared_ptr<PhysicsSystem> physics) {
-	physicsSystem = physics;
-}
 
 void RigidbodyComponent::addActorStatic(Model model, PxTransform startPos){
 

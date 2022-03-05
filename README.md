@@ -16,7 +16,6 @@
   - RigidbodyComponent (Keaton)
     - Cleanup
   - VehicleComponent (Joseph)
-    - PhysX 
     - Tunable parameters
       - Top speed
       - Acceleration

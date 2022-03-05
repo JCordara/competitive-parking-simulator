@@ -19,7 +19,9 @@ public:
 	void addActorStatic(Model model, PxTransform startPos);
 	void addActorDynamic(Model model, PxTransform startPos);
 
-    void setPhysicsSystem(shared_ptr<PhysicsSystem> physics);
+    inline void setPhysicsSystem(shared_ptr<PhysicsSystem> physics) { 
+        physicsSystem = physics; 
+    }
 
 private:
     shared_ptr<PhysicsSystem> physicsSystem;

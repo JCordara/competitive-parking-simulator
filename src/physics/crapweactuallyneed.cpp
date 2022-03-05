@@ -1,6 +1,7 @@
 #pragma once
 
 #include "crapweactuallyneed.h"
+#include "VehicleDesc.h"
 
 //Data structure for quick setup of scene queries for suspension queries.
 VehicleSceneQueryData::VehicleSceneQueryData()
@@ -116,37 +117,12 @@ PxU32 VehicleSceneQueryData::getQueryResultBufferSize() const
 // -- VehicleSceneQueryData --
 
 
-PxDefaultAllocator		gAllocator;
-PxDefaultErrorCallback	gErrorCallback;
-
-PxFoundation* gFoundation = NULL;
-PxPhysics* gPhysics = NULL;
-
-PxDefaultCpuDispatcher* gDispatcher = NULL;
-PxScene* gScene = NULL;
-
-PxCooking* gCooking = NULL;
-
-PxMaterial* gMaterial = NULL;
-
-PxPvd* gPvd = NULL;
-
 VehicleSceneQueryData* gVehicleSceneQueryData = NULL;
 PxBatchQuery* gBatchQuery = NULL;
 
 PxVehicleDrivableSurfaceToTireFrictionPairs* gFrictionPairs = NULL;
 
-PxRigidStatic* gGroundPlane = NULL;
-PxRigidDynamic* box1 = NULL;
-PxRigidStatic* box2 = NULL;
-PxRigidStatic* box3 = NULL;
-
-PxVehicleDrive4W* gVehicle4W = NULL;
-
-PxVehicleDrive4WRawInputData gVehicleInputData;
-
-bool gIsVehicleInAir = true;
-
+PxMaterial* gMaterial = NULL;
 bool gMimicKeyInputs = false;
 
 PxF32 gSteerVsForwardSpeedData[2 * 8] =
@@ -512,33 +488,6 @@ PxRigidDynamic* createVehicleActor
     vehActor->setCMassLocalPose(PxTransform(chassisData.mCMOffset, PxQuat(PxIdentity)));
 
     return vehActor;
-}
-
-
-void vehicleAccelerateMode(float v) {
-	gVehicleInputData.setAnalogBrake(0.0f);
-	
-	if (v >= 0.0f) {
-		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-	}
-	else if (v < 0.0f) {
-		gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-		v *= -1;
-	}
-
-	gVehicleInputData.setAnalogAccel(v);
-}
-
-void vehicleTurnMode(float v) {
-	gVehicleInputData.setAnalogSteer(v);
-}
-
-void vehicleBrakeMode(float v) {
-	gVehicleInputData.setAnalogBrake(v);
-}
-
-void vehicleHandbrakeMode(float v) {
-	gVehicleInputData.setAnalogHandbrake(v);
 }
 
 

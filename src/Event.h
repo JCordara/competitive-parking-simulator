@@ -15,25 +15,27 @@
 #include "EventTypes.h" // Defines event framework
 
 // Forward declaration of Event parameter types
+class Entity;
 class RigidbodyComponent;
+class VehicleComponent;
 
 namespace Events {
     extern Event<void> GameStart;
     extern Event<void> CarParked;
     extern Event<void> CarUnParked;
 
-    extern Event<float> PlayerAccelerate;
-    extern Event<float> PlayerSteer;
-    extern Event<float> PlayerBrake;
-	extern Event<float> PlayerHandbrake;
+    extern Event<Entity&, float> VehicleAccelerate;
+    extern Event<Entity&, float> VehicleSteer;
+    extern Event<Entity&, float> VehicleBrake;
+	extern Event<Entity&, float> VehicleHandbrake;
 
     extern Event<double, double> CameraRotate;
     extern Event<double, double> CameraZoom;
 
     // Broadcast by rigidbody components when they are initalized
     extern Event<RigidbodyComponent&> RigidbodyComponentInit;
-    // Broadcast by rigidbody components when they are initalized
-    // extern Event<VehicleComponent&> VehicleComponentInit;
+    // Broadcast by vehicle components when they are initalized
+    extern Event<VehicleComponent&> VehicleComponentInit;
 };
 
 #endif // EVENT_H

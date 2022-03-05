@@ -4,19 +4,20 @@
 #include "Entity.h"
 #include "Event.h"
 
-
+// Fun fact this is sorted alphabetically and I have OCD
 enum class ComponentEnum {
 	ai,
 	audio,
 	controller,
+	description,
 	model,
 	rigidbody,
 	renderer,
 	lighting,
 	camera,
     transform,
-    volumeTrigger,
-	description
+	vehicle,
+    volumeTrigger
 };
 
 /**
@@ -35,13 +36,14 @@ protected:
 
 #include "AiComponent.h"
 #include "AudioComponent.h"
+#include "DescriptionComponent.h"
 #include "ModelComponent.h"
 #include "TransformComponent.h"
 #include "RigidbodyComponent.h"
 #include "RendererComponent.h"
 #include "LightingComponent.h"
 #include "CameraComponent.h"
+#include "VehicleComponent.h"
 #include "VolumeTriggerComponent.h"
-#include "DescriptionComponent.h"
 
 #endif // COMPONENTS_H
