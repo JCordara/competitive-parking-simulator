@@ -7,18 +7,18 @@ DescriptionComponent::DescriptionComponent(Entity& e)
 
 std::optional<int> DescriptionComponent::getInteger(string key) {
 	auto it = integers.find(key);
-	if (it != integers.end()) return std::optional<int>(it->second());
+	if (it != integers.end()) return std::optional<int>(it->second);
 	return std::optional<int>();
 }
 
 std::optional<double> DescriptionComponent::getRealNumber(string key) {
 	auto it = reals.find(key);
-	if (it != reals.end()) return std::optional<int>(it->second());
+	if (it != reals.end()) return std::optional<double>(it->second);
 	return std::optional<double>();
 }
 std::optional<string> DescriptionComponent::getString(string key) {
 	auto it = strings.find(key);
-	if (it != strings.end()) return std::optional<int>(it->second());
+	if (it != strings.end()) return std::optional<string>(it->second);
 	return std::optional<string>();
 }
 
