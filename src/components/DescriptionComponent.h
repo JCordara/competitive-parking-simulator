@@ -1,0 +1,37 @@
+#ifndef DESCRIPTION_COMPONENT_H
+#define DESCRIPTION_COMPONENT_H
+
+#include "Components.h"
+
+class DescriptionComponent : public BaseComponent {
+public:
+
+	DescriptionComponent(Entity& e);
+
+	std::optional<int> getInteger(string key);
+	std::optional<double> getRealNumber(string key);
+	std::optional<string> getString(string key);
+
+	void setInteger(string key, int val);
+	void setRealNumber(string key, double val);
+	void setString(string key, string val);
+
+	void removeInteger(string key);
+	void removeRealNumber(string key);
+	void removeString(string key);
+
+	void flushIntegers();
+	void flushRealNumbers();
+	void flushStrings();
+	void flush();
+
+	static  ComponentEnum getType();
+	~DescriptionComponent();
+
+private:
+	std::map< string, int > integers;
+	std::map< string, double > reals;
+	std::map< string, string > strings;
+};
+
+#endif //DESCRIPTION_COMPONENT_H

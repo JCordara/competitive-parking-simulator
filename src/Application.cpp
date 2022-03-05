@@ -27,7 +27,6 @@ Application::Application(appSettings& settings)
 	render       = std::make_shared<RenderSystem>(scene, window);
 	audioSystem  = std::make_shared<AudioSystem>();
 
-
 	/* --------------------- Game World Description ------------------------ */
 
 	auto camera = scene->addEntity();

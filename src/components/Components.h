@@ -15,7 +15,8 @@ enum class ComponentEnum {
 	lighting,
 	camera,
     transform,
-    volumeTrigger
+    volumeTrigger,
+	description
 };
 
 /**
@@ -41,5 +42,6 @@ protected:
 #include "LightingComponent.h"
 #include "CameraComponent.h"
 #include "VolumeTriggerComponent.h"
+#include "DescriptionComponent.h"
 
 #endif // COMPONENTS_H
