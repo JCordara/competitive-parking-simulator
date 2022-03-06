@@ -2,6 +2,7 @@
 #define AI_COMPONENT_H
 
 #include "Components.h"
+#include <algorithm>
 
 class AiGraphNode {
 public:
@@ -33,7 +34,7 @@ private:
     std::vector<Entity> carQueue;
     std::vector<std::shared_ptr<AiGraphNode>> nodeQueue;
 	// std::vector<GraphNode> graph;
-	std::shared_ptr<AiGraphNode> currentNode; // Node the AI car currently belings to
+	std::shared_ptr<AiGraphNode> currentNode; // Node the AI car currently belongs to
 
     float sightFrontConeWidth;
     float sightFrontConeHeight;

@@ -21,8 +21,6 @@ void AiComponent::aStar() {
 	//     can also learn to cut out the node it is going to and turn around right away
 	// When a node is reached the next node becomes the current node
 
-
-
 	std::vector<std::shared_ptr<AiGraphNode>> openList;
 	std::vector<std::shared_ptr<AiGraphNode>> closedList;
 	std::shared_ptr<AiGraphNode> goalNode;
@@ -45,8 +43,7 @@ void AiComponent::aStar() {
 		if (Q->position == goalNode->position) break; // return Q
 		closedList.push_back(Q);
 		for each (std::shared_ptr<AiGraphNode> neighbor in Q->neighbours){
-			std::shared_ptr<AiGraphNode> temp = Q;
-			neighbor->parent = temp;
+			
 			neighbor->g = Q->g + getHValue(Q, neighbor);
 			neighbor->h = getHValue(neighbor, goalNode); //hueristic
 
@@ -62,14 +59,17 @@ void AiComponent::aStar() {
 			}
 			// If this node has already been visited and has the same
 			// or a better path, ignore this node
-			for each (std::shared_ptr<AiGraphNode> openNode in closedList) {
-				if (openNode->position == neighbor->position) {
-					if (getFValue(openNode) <= getFValue(neighbor)) {
+			for each (std::shared_ptr<AiGraphNode> closedNode in closedList) {
+				if (closedNode->position == neighbor->position) {
+					if (getFValue(closedNode) <= getFValue(neighbor)) {
 						skip = true;
 					}
 				}
 			}
-			if (!skip) openList.push_back(neighbor);
+			if (!skip) {
+				neighbor->parent = Q;
+				openList.push_back(neighbor);
+			}
 			std::sort(openList.begin(), openList.end());
 		}
 	}
@@ -77,8 +77,14 @@ void AiComponent::aStar() {
 	std::shared_ptr<AiGraphNode> tempNode = Q;
 	nodeQueue.push_back(tempNode);//goal node
 	while (true) {
-		tempNode = tempNode->parent;
-		nodeQueue.push_back(tempNode);//goal node
+		if (tempNode->parent != nullptr) {
+			tempNode = tempNode->parent;
+			nodeQueue.insert(nodeQueue.begin(), tempNode);
+		}
+		else {
+			break;
+		}
+
 	}
 }
 
