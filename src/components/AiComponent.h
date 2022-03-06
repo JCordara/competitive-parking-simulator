@@ -5,9 +5,10 @@
 
 class AiGraphNode {
 public:
+	AiGraphNode() {}
 	// Sorting operator for f values
-	bool operator< (const AiGraphNode& other) const {
-		return g+h < other.g + other.h;
+	bool operator< (const std::shared_ptr<AiGraphNode>& other) const {
+		return g+h < other->g + other->h;
 	}
 	std::vector<std::shared_ptr<AiGraphNode>> neighbours;
 	glm::vec3 position;

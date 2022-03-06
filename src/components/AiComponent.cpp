@@ -74,7 +74,7 @@ void AiComponent::aStar() {
 		}
 	}
 	//exits when Q is the goal
-	std::shared_ptr<AiGraphNode> tempNode = std::make_shared<AiGraphNode>(Q);
+	std::shared_ptr<AiGraphNode> tempNode = Q;
 	nodeQueue.push_back(tempNode);//goal node
 	while (true) {
 		tempNode = tempNode->parent;
