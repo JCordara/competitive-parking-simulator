@@ -43,6 +43,13 @@ add_subdirectory(src/physics)
 list(APPEND LIBRARIES PhysicsSystem)
 
 
+#------------------------------ Input System -----------------------------------
+# Build InputSystem as a separate library
+
+add_subdirectory(src/input)
+list(APPEND LIBRARIES InputSystem)
+
+
 #--------------------------------- PhysX ---------------------------------------
 # Physics library
 # https://github.com/NVIDIAGameWorks/PhysX
