@@ -18,8 +18,8 @@ public:
     ~VehicleComponent();
     static ComponentEnum getType();
 
-    inline void setPhysicsSystem(shared_ptr<PhysicsSystem> physics) { 
-        physicsSystem = physics; 
+    inline void setPhysicsSystem(shared_ptr<PhysicsSystem> system) {
+        physicsSystem = system;
     }
 
 private:

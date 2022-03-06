@@ -14,7 +14,7 @@ RigidbodyComponent::RigidbodyComponent(Entity& parent)
 void RigidbodyComponent::addActorStatic(Model model, PxTransform startPos){
 
 	PxTransform mesht = startPos;
-	PxRigidActor* mesh1 = physicsSystem->pxPhysics->createRigidStatic(mesht);
+	PxRigidActor* actor = physicsSystem->pxPhysics->createRigidStatic(mesht);
 
 	PxTolerancesScale scale;
 	PxCookingParams params(scale);
@@ -43,17 +43,18 @@ void RigidbodyComponent::addActorStatic(Model model, PxTransform startPos){
 	PxTriangleMesh* triMesh = physicsSystem->pxCooking->createTriangleMesh(meshDesc,
 		physicsSystem->pxPhysics->getPhysicsInsertionCallback());
 	PxTriangleMeshGeometry geom(triMesh);
-	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*mesh1, geom, *gMaterial);
+	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*actor, geom, *gMaterial);
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
 	meshShape->setSimulationFilterData(meshFilterData);
-	physicsSystem->pxScene->addActor(*mesh1);
+	physicsSystem->pxScene->addActor(*actor);
 	meshShape->release();
 }
 
 void RigidbodyComponent::addActorDynamic(Model model, PxTransform startPos) {
 
 	PxTransform mesht = startPos;//PxTransform(PxVec3(0, 20.0f, 0.0f));
-	PxRigidDynamic* mesh1 = physicsSystem->pxPhysics->createRigidDynamic(mesht);
+	PxRigidDynamic* actor = physicsSystem->pxPhysics->createRigidDynamic(mesht);
+	actor->userData = &entity;
 	PxConvexMeshDesc convexDesc;
 	vector<Mesh> arrMeshes = model.getMeshes();
 
@@ -74,10 +75,10 @@ void RigidbodyComponent::addActorDynamic(Model model, PxTransform startPos) {
 	PxDefaultMemoryInputData readBuffer(buf.getData(), buf.getSize());
 	PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
 	PxConvexMesh* convexMesh = physicsSystem->pxPhysics->createConvexMesh(input);
-	PxShape* aConvexShape = PxRigidActorExt::createExclusiveShape(*mesh1,PxConvexMeshGeometry(convexMesh),*gMaterial);
+	PxShape* aConvexShape = PxRigidActorExt::createExclusiveShape(*actor,PxConvexMeshGeometry(convexMesh),*gMaterial);
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
 	aConvexShape->setSimulationFilterData(meshFilterData);
-	physicsSystem->pxScene->addActor(*mesh1);
+	physicsSystem->pxScene->addActor(*actor);
 	aConvexShape->release();
 }
 

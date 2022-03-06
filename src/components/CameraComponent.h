@@ -24,7 +24,8 @@ public:
 	glm::mat4 getProjectionMatrix();
 
 	~CameraComponent();
-	static  ComponentEnum getType();
+	static ComponentEnum getType();
+	
 private:
 	std::shared_ptr<Camera> camera;
 	CameraPurpose purpose = CameraPurpose::unknown;

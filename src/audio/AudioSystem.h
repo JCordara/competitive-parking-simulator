@@ -20,14 +20,17 @@
 #include "AudioSource.h"
 #include "Audio.h"
 
+#include "GameSystem.h"
+
 #include <memory>   // Smart pointers
 #include <iostream> // Degubbing
 
-class AudioSystem {
+class AudioSystem : public GameSystem {
 
 public:
 
     AudioSystem();
+    void update() {}
 
     Audio& loadAudio(std::string filepath);
 

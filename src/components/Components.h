@@ -36,6 +36,7 @@ protected:
 
 #include "AiComponent.h"
 #include "AudioComponent.h"
+#include "ControllerComponent.h"
 #include "DescriptionComponent.h"
 #include "ModelComponent.h"
 #include "TransformComponent.h"

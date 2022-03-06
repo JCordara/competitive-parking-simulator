@@ -3,6 +3,7 @@
 #include "crapweactuallyneed.h"
 #include "VehicleDesc.h"
 
+
 //Data structure for quick setup of scene queries for suspension queries.
 VehicleSceneQueryData::VehicleSceneQueryData()
     : mNumQueriesPerBatch(0),
@@ -534,7 +535,7 @@ PxRigidStatic* createDrivablePlane(const PxFilterData& simFilterData, PxMaterial
     return groundPlane;
 }
 
-PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc, PxPhysics* physics, PxCooking* cooking)
+PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc, PxPhysics* physics, PxCooking* cooking, Entity& e)
 {
     const PxVec3 chassisDims = vehicle4WDesc.chassisDims;
     const PxF32 wheelWidth = vehicle4WDesc.wheelWidth;
@@ -649,6 +650,8 @@ PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc, PxPhysics* p
 
     //Configure the userdata
     configureUserData(vehDrive4W, vehicle4WDesc.actorUserData, vehicle4WDesc.shapeUserDatas);
+
+    vehDrive4W->getRigidDynamicActor()->userData = &e;
 
     //Free the sim data because we don't need that any more.
     wheelsSimData->free();

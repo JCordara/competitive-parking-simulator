@@ -5,8 +5,12 @@
 
 #define NULL_ID UINT_MAX - 1
 
+template<class T> using sp = std::shared_ptr<T>; // Shorter alias for shared_ptr
+
+
 class BaseComponent;
 enum class ComponentEnum;
+
 
 
 /**

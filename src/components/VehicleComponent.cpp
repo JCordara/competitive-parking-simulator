@@ -17,7 +17,8 @@ VehicleComponent::VehicleComponent(Entity& parent)
 	vehicle = createVehicle4W(
         vehicleDesc, 
         physicsSystem->pxPhysics, 
-        physicsSystem->pxCooking
+        physicsSystem->pxCooking,
+		entity
     );
 
     PxVec3 position = PxVec3(

@@ -18,9 +18,9 @@ Application::Application(appSettings& settings)
 	/* Framework (Managers) - used by systems*/
 	scene        = Scene::newScene();
 	window 		 = std::make_shared<Window>(1200, 800, "Test Window");
-	inputManager = std::make_shared<InputManager>(window);
 
 	/* Game systems - update() every frame */
+	inputSystem  = std::make_shared<InputSystem>(window);
 	gameplay     = std::make_shared<GameplaySystem>(scene);
 	physics      = std::make_shared<PhysicsSystem>(scene);
 	render       = std::make_shared<RenderSystem>(scene, window);
@@ -50,22 +50,44 @@ Application::Application(appSettings& settings)
 	transformComponent->setLocalRotation(q2 * q1);
 
 	auto cube = scene->addEntity();
-	cube->addComponent<ModelComponent>();
-	cube->addComponent<RendererComponent>();
-	cube->addComponent<TransformComponent>();
+	auto modelComponent     = cube->addComponent<ModelComponent>();
+	auto renderComponent    = cube->addComponent<RendererComponent>();
+	auto rigidbodyComponent = cube->addComponent<RigidbodyComponent>();
+	transformComponent = cube->getComponent<TransformComponent>();
 
 	auto cubeModel = std::make_shared<Model>(
 		"models/Test1.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
-	auto modelComponent = cube->getComponent<ModelComponent>();
+	auto vehicleModel = std::make_shared<Model>(
+		"models/car1.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+
 	modelComponent->setModel(cubeModel);
-	auto renderComponent = cube->getComponent<RendererComponent>();
 	renderComponent->enableRender();
-	transformComponent = cube->getComponent<TransformComponent>();
 	transformComponent->setLocalPosition(1.f, 1.5f, -5.f);
-	transformComponent->setLocalScale(3.f, 1.f, 1.f);
 	transformComponent->setLocalRotation(glm::radians(15.f), glm::vec3(0.f, 0.f, 1.f));
 	
+	rigidbodyComponent->addActorDynamic(
+		*cubeModel, 
+		PxTransform(
+			transformComponent->getGlobalPosition().x, 
+			transformComponent->getGlobalPosition().y, 
+			transformComponent->getGlobalPosition().z, 
+			transformComponent->getLocalRotation()
+		)
+	);
+
+	auto car = scene->addEntity();
+	auto carTransform  = car->getComponent<TransformComponent>();
+	auto carModel      = car->addComponent<ModelComponent>();
+	auto carRender     = car->addComponent<RendererComponent>();
+	auto carVehicle    = car->addComponent<VehicleComponent>();
+	auto carController = car->addComponent<ControllerComponent>();
+
+	carModel->setModel(vehicleModel);
+	carRender->enableRender();
+	carController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);
+	carController->createAxis(GLFW_KEY_A, GLFW_KEY_D, &Events::VehicleSteer);
+
 	auto mapGrass = scene->addEntity();
 	mapGrass->addComponent<ModelComponent>();
 	mapGrass->addComponent<RendererComponent>();
@@ -101,7 +123,7 @@ Application::Application(appSettings& settings)
 
 	/* --------------------- End Game World Description --------------------- */
 
-
+/* 
 	// Some random crap Keaton was doing
 	std::vector<PxVec3> meshVerts = {
 		PxVec3(0 ,1, 0), PxVec3(1, 0, 0), PxVec3(-1, 0, 0), 
@@ -124,7 +146,7 @@ Application::Application(appSettings& settings)
 	auto rigidbodyComponent = mesh->addComponent<RigidbodyComponent>();
 	rigidbodyComponent->addActorDynamic(newModel, position);
 	rigidbodyComponent->addActorStatic(newModel, position1);
-
+*/
 }
 
 int Application::play() {
@@ -136,7 +158,7 @@ int Application::play() {
 	while (!window->shouldClose()) {
 		
 		// Process input
-		inputManager->processInput();
+		inputSystem->processInput();
 
 		// Update time-related values
 		Time::update();
@@ -151,6 +173,7 @@ int Application::play() {
 
 		// Render the current scene
 		render->update();
+
 	}
 
 	return 0;

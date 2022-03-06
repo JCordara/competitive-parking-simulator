@@ -39,10 +39,27 @@ void PhysicsSystem::update() {
 		// Update each vehicle given it's input values
 		if (auto vc = it->getComponent<VehicleComponent>()) {
 			vehicleUpdate(vc);
-		}	
+		}
 	}
 
     simulateScene();
+
+	// Retrieve array of actors that moved
+	PxU32 nbActiveActors;
+	PxActor** activeActors = pxScene->getActiveActors(nbActiveActors);
+
+	// Update each render object with the new transform
+	for (PxU32 i = 0; i < nbActiveActors; i++) {
+		if (PxRigidActor* actor = activeActors[i]->is<PxRigidActor>()) {
+			Entity* entity = static_cast<Entity*>(activeActors[i]->userData);
+			PxTransform pxTransform = actor->getGlobalPose();
+			if (auto tc = entity->getComponent<TransformComponent>()) {
+				tc->setLocalPosition(pxTransform.p);
+				tc->setLocalRotation(pxTransform.q);
+			}
+		}
+	}
+
 }
 
 
@@ -193,6 +210,7 @@ void PhysicsSystem::initPhysX()
 
 	PxSceneDesc sceneDesc(pxPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	sceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVE_ACTORS;
 
 	PxU32 numWorkers = 1;
 	pxDispatcher = PxDefaultCpuDispatcherCreate(numWorkers);

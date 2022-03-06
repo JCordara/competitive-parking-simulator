@@ -14,5 +14,6 @@ Event<double, double> Events::CameraZoom;
 
 Event<RigidbodyComponent&> Events::RigidbodyComponentInit;
 Event<VehicleComponent&> Events::VehicleComponentInit;
+Event<ControllerComponent&> Events::ControllerComponentInit;
 
 

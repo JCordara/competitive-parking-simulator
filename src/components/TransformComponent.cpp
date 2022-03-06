@@ -46,6 +46,10 @@ glm::vec3 TransformComponent::getGlobalPosition() {
 	return glm::vec3(getGlobalMatrix() * glm::vec4(0.f, 0.f, 0.f, 1.f));
 }
 
+void TransformComponent::setLocalPosition(physx::PxVec3 position) {
+    setLocalPosition(position.x, position.y, position.z);
+}
+
 void TransformComponent::setLocalPosition(glm::vec3 position) {
     _position = position;
 }

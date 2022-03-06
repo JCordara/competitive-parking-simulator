@@ -27,6 +27,7 @@ public:
 	glm::mat4 getNestedMatrix(int depth);
 
     
+    void setLocalPosition(physx::PxVec3 position);
     void setLocalPosition(glm::vec3 position);
     void setLocalPosition(float x, float y, float z);
     void setLocalRotation(physx::PxQuat rotation);
