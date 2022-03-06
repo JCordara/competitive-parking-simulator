@@ -1,5 +1,4 @@
 #include "Application.h"
-#include <PhysX/PxPhysicsAPI.h>
 
 int g_carsParked = 0;
 void carParked() {
@@ -33,7 +32,7 @@ Application::Application(appSettings& settings)
 	camera->addComponent<CameraComponent>();
 	camera->getComponent<CameraComponent>()->setPerspectiveCamera(glm::radians(90.f), 1.f /*Will be modified to the window*/,0.01f, 300.f);
 	auto transformComponent = camera->getComponent<TransformComponent>();
-	transformComponent->setLocalPosition(0.0f, 5.0f, .0f);
+	transformComponent->setLocalPosition(0.0f, 10.0f, 0.0f);
 	transformComponent->setLocalRotation(-atan(5.f / 3.f), glm::vec3(1.f, 0.f, 0.f));
 
 	auto environmentalLight = scene->addEntity();
@@ -73,7 +72,8 @@ Application::Application(appSettings& settings)
 	mapGrass->addComponent<TransformComponent>();
 
 	auto mapGrassModel = std::make_shared<Model>(
-		"models/gamemapGrassPlane.obj", glm::vec3(.5f, .1f, .2f));
+		"models/gamemapWholeMap.obj", glm::vec3(.5f, .1f, .2f)
+	);
 
 	modelComponent = mapGrass->getComponent<ModelComponent>();
 	modelComponent->setModel(mapGrassModel);
@@ -121,9 +121,9 @@ Application::Application(appSettings& settings)
 	PxTransform position = PxTransform(PxVec3(0, 20.0f, 0.0f));
 	PxTransform position1 = PxTransform(PxVec3(10.0, 0.0f, 0.0f));
 
-	auto physicsComponent = mesh->addComponent<PhysicsComponent>();
-	physicsComponent->addActorDynamic(newModel, position);
-	physicsComponent->addActorStatic(newModel, position1);
+	auto rigidbodyComponent = mesh->addComponent<RigidbodyComponent>();
+	rigidbodyComponent->addActorDynamic(newModel, position);
+	rigidbodyComponent->addActorStatic(newModel, position1);
 
 }
 

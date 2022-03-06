@@ -10,16 +10,287 @@ PhysicsSystem::PhysicsSystem(
     : gameScene(scene)
 {
     /* PhysX initialization */
-    initPhysics();
+    initPhysX();
 
-	Events::PhysicsComponentInit.registerHandler<PhysicsSystem, &PhysicsSystem::initializePhysicsComponent>(this);
+	// Register physics component initialization events
+	Events::RigidbodyComponentInit.registerHandler<
+		PhysicsSystem, &PhysicsSystem::registerRigidbodyComponent>(this);
 
-	gVehicleInputData.setDigitalBrake(false);
+	Events::VehicleComponentInit.registerHandler<
+		PhysicsSystem, &PhysicsSystem::registerVehicleComponent>(this);
+
+	// Register vehicle handler events
+	Events::VehicleAccelerate.registerHandler<
+		PhysicsSystem, &PhysicsSystem::vehicleAccelerateMode>(this);
+
+	Events::VehicleSteer.registerHandler<
+		PhysicsSystem, &PhysicsSystem::vehicleTurnMode>(this);
+
+	Events::VehicleBrake.registerHandler<
+		PhysicsSystem, &PhysicsSystem::vehicleBrakeMode>(this);
+
+	Events::VehicleHandbrake.registerHandler<
+		PhysicsSystem, &PhysicsSystem::vehicleHandbrakeMode>(this);
 }
 
+/* PhysX per-frame updates */
 void PhysicsSystem::update() {
-    /* PhysX per-frame updates */
-    stepPhysics();
+    for (auto it = gameScene->begin(); it != gameScene->end(); it++) {
+		// Update each vehicle given it's input values
+		if (auto vc = it->getComponent<VehicleComponent>()) {
+			vehicleUpdate(vc);
+		}	
+	}
+
+    simulateScene();
+}
+
+
+void PhysicsSystem::vehicleUpdate(shared_ptr<VehicleComponent> vc) {
+
+	// Get reference to vehicle
+	PxVehicleDrive4W* vehicle = vc->vehicle;
+
+	// Smooth inputs
+	PxVehicleDrive4WSmoothAnalogRawInputsAndSetAnalogInputs(
+		gPadSmoothingData, 
+		gSteerVsForwardSpeedTable, 
+		vc->inputData, 
+		Time::timeStep(), 
+		vc->isInAir, 
+		*vehicle
+	);
+
+
+	// When reversing while car is moving forwards, brake instead
+	PxReal speed = vehicle->computeForwardSpeed();
+	PxReal input = vehicle->mDriveDynData.getAnalogInput(
+		PxVehicleDrive4WControl::eANALOG_INPUT_ACCEL);
+
+	if (speed > 0.0 && input < 0.0) 
+		vc->inputData.setAnalogBrake(-input);
+	else
+		vc->inputData.setAnalogBrake(0.0f);
+
+
+	// Raycasts
+	PxVehicleWheels* vehicles[1] = { vehicle };
+	PxRaycastQueryResult* raycastResults = gVehicleSceneQueryData->getRaycastQueryResultBuffer(0);
+	const PxU32 raycastResultsSize = gVehicleSceneQueryData->getQueryResultBufferSize();
+	PxVehicleSuspensionRaycasts(gBatchQuery, 1, vehicles, raycastResultsSize, raycastResults);
+
+
+	// Vehicle update
+	PxWheelQueryResult wheelQueryResults[PX_MAX_NB_WHEELS];
+
+	PxVehicleWheelQueryResult vehicleQueryResults[1] = {{
+		wheelQueryResults, 
+		vehicle->mWheelsSimData.getNbWheels()
+	}};
+
+	PxVehicleUpdates(
+		Time::timeStep(), 
+		pxScene->getGravity(), 
+		*gFrictionPairs, 
+		1, 
+		vehicles, 
+		vehicleQueryResults
+	);
+
+
+	// Work out if the vehicle is in the air
+	vc->isInAir = vehicle->getRigidDynamicActor()->isSleeping() ?
+		false : PxVehicleIsInAir(vehicleQueryResults[0]);
+
+}
+
+void PhysicsSystem::simulateScene()
+{
+	// Scene update
+	pxScene->simulate(Time::timeStep());
+	pxScene->fetchResults(true);
+}
+
+
+void PhysicsSystem::vehicleAccelerateMode(Entity& entity, float v) 
+{
+	auto vc = entity.getComponent<VehicleComponent>();
+	if (!vc) return;
+
+	vc->inputData.setAnalogBrake(0.0f);
+	
+	if (v >= 0.0f) {
+		vc->vehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+	}
+	else if (v < 0.0f) {
+		vc->vehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+		v *= -1;
+	}
+
+	vc->inputData.setAnalogAccel(v);
+}
+
+void PhysicsSystem::vehicleTurnMode(Entity& entity, float v) 
+{
+	auto vc = entity.getComponent<VehicleComponent>();
+	if (!vc) return;
+
+	vc->inputData.setAnalogSteer(v);
+}
+
+void PhysicsSystem::vehicleBrakeMode(Entity& entity, float v) 
+{
+	auto vc = entity.getComponent<VehicleComponent>();
+	if (!vc) return;
+
+	vc->inputData.setAnalogBrake(v);
+}
+
+void PhysicsSystem::vehicleHandbrakeMode(Entity& entity, float v) 
+{
+	auto vc = entity.getComponent<VehicleComponent>();
+	if (!vc) return;
+
+	vc->inputData.setAnalogHandbrake(v);
+}
+
+
+void PhysicsSystem::initPhysX()
+{
+
+	/* Foundation, PVD, physics, and cooking */
+	// -------------------------------------
+
+	pxFoundation = PxCreateFoundation(
+		PX_PHYSICS_VERSION, 
+		pxAllocator, 
+		pxErrorCallback
+	);
+	
+	pxPvd = PxCreatePvd(*pxFoundation);
+	pxPvd->connect(
+		*PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10),
+		PxPvdInstrumentationFlag::eALL
+	);
+
+	pxPhysics = PxCreatePhysics(
+		PX_PHYSICS_VERSION, 
+		*pxFoundation, 
+		PxTolerancesScale(), 
+		true, 					 // Track outstanding allocations
+		pxPvd
+	);
+
+	pxCooking = PxCreateCooking(
+		PX_PHYSICS_VERSION, 
+		*pxFoundation, 
+		PxCookingParams(PxTolerancesScale())
+	);
+
+
+	/* Create scene and other stuff */
+	// ----------------------------
+
+	PxSceneDesc sceneDesc(pxPhysics->getTolerancesScale());
+	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+
+	PxU32 numWorkers = 1;
+	pxDispatcher = PxDefaultCpuDispatcherCreate(numWorkers);
+	sceneDesc.cpuDispatcher = pxDispatcher;
+	sceneDesc.filterShader = VehicleFilterShader;
+
+	// Create physics scene
+	pxScene = pxPhysics->createScene(sceneDesc);
+	PxPvdSceneClient* pvdClient = pxScene->getScenePvdClient();
+	if (pvdClient)
+	{
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS,    true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES,true);
+	}
+
+
+	/* Prepare Vehicle SDK */
+	// -------------------
+
+	// A material ???
+	gMaterial = pxPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+
+	PxInitVehicleSDK(*pxPhysics);
+	PxVehicleSetBasisVectors(PxVec3(0, 1, 0), PxVec3(0, 0, 1));
+	PxVehicleSetUpdateMode(PxVehicleUpdateMode::eVELOCITY_CHANGE);
+
+	//Create the batched scene queries for the suspension raycasts.
+	gVehicleSceneQueryData = VehicleSceneQueryData::allocate(
+		1, PX_MAX_NB_WHEELS, 1, 1, 
+		WheelSceneQueryPreFilterBlocking, 
+		NULL, pxAllocator
+	);
+
+	gBatchQuery = VehicleSceneQueryData::setUpBatchedSceneQuery(0, *gVehicleSceneQueryData, pxScene);
+
+	//Create the friction table for each combination of tire and surface type.
+	gFrictionPairs = createFrictionPairs(gMaterial);
+
+
+	//Create a plane to drive on (Should probably be moved out to higher level)
+	PxFilterData groundPlaneSimFilterData(COLLISION_FLAG_GROUND, COLLISION_FLAG_GROUND_AGAINST, 0, 0);
+	pxGroundPlane = createDrivablePlane(groundPlaneSimFilterData, gMaterial, pxPhysics);
+	pxScene->addActor(*pxGroundPlane);
+
+	
+
+}
+
+void PhysicsSystem::cleanupPhysics()
+{
+	
+	PX_RELEASE(pxGroundPlane);
+
+	PX_RELEASE(gBatchQuery);
+	gVehicleSceneQueryData->free(pxAllocator);
+	PX_RELEASE(gFrictionPairs);
+	PxCloseVehicleSDK();
+
+	PX_RELEASE(gMaterial);
+	PX_RELEASE(pxCooking);
+	PX_RELEASE(pxScene);
+	PX_RELEASE(pxDispatcher);
+	PX_RELEASE(pxPhysics);
+	
+	if (pxPvd) {
+		PxPvdTransport* transport = pxPvd->getTransport();
+		pxPvd->release();	
+		pxPvd = NULL;
+		PX_RELEASE(transport);
+	}
+
+	PX_RELEASE(pxFoundation);
+	
+}
+
+
+
+/* Called whenever a rigidbody component is created */
+void PhysicsSystem::registerRigidbodyComponent(RigidbodyComponent& component) {
+	component.setPhysicsSystem(
+		dynamic_pointer_cast<PhysicsSystem>(shared_from_this()));
+}
+
+/* Called whenever a vehicle component is created */
+void PhysicsSystem::registerVehicleComponent(VehicleComponent& component) {
+	component.setPhysicsSystem(
+		dynamic_pointer_cast<PhysicsSystem>(shared_from_this()));
+}
+
+
+/** Convert Physx::PxVec3 to glm::vec3
+ @param[in] vec3 The Physx::PxVec3
+ @param[ou] Converted glm::mat4
+ */
+void PhysicsSystem::PhysXVec3ToglmVec3(const PxVec3& vec3, glm::vec3& newVec)
+{
+	newVec = glm::vec3(-vec3.x, vec3.y, vec3.z);
 }
 
 /** Convert PhysX::PxMat44 to glm::mat4
@@ -51,181 +322,11 @@ void PhysicsSystem::PhysXMat4ToglmMat4(const PxMat44& mat4, glm::mat4& newMat)
 	newMat = glm::scale(newMat, glm::vec3(-1.f,1.f,1.f));
 }
 
-/** Convert Physx::PxVec3 to glm::vec3
- @param[in] vec3 The Physx::PxVec3
- @param[ou] Converted glm::mat4
- */
-void PhysicsSystem::PhysXVec3ToglmVec3(const PxVec3& vec3, glm::vec3& newVec)
-{
-	newVec = glm::vec3(-vec3.x, vec3.y, vec3.z);
-}
-
-PhysicsSystem::~PhysicsSystem() {
-    
-}
+PhysicsSystem::~PhysicsSystem() {}
 
 
-void PhysicsSystem::stepPhysics()
-{
-	const PxF32 timestep = Time::timeStep();
 
-	//Update the control inputs for the vehicle.
-	if (gMimicKeyInputs)
-	{
-		PxVehicleDrive4WSmoothDigitalRawInputsAndSetAnalogInputs(gKeySmoothingData, gSteerVsForwardSpeedTable, gVehicleInputData, timestep, gIsVehicleInAir, *gVehicle4W);
-	}
-	else
-	{
-		PxVehicleDrive4WSmoothAnalogRawInputsAndSetAnalogInputs(gPadSmoothingData, gSteerVsForwardSpeedTable, gVehicleInputData, timestep, gIsVehicleInAir, *gVehicle4W);
-	}
-
-	// When reversing while car is moving forwards, brake instead
-	PxReal speed = gVehicle4W->computeForwardSpeed();
-	PxReal input = gVehicle4W->mDriveDynData.getAnalogInput(PxVehicleDrive4WControl::eANALOG_INPUT_ACCEL);
-	if (speed > 0.0 && input < 0.0) 
-		gVehicleInputData.setAnalogBrake(-input);
-	else
-		gVehicleInputData.setAnalogBrake(0.0f);
-
-	//Raycasts.
-	PxVehicleWheels* vehicles[1] = { gVehicle4W };
-	PxRaycastQueryResult* raycastResults = gVehicleSceneQueryData->getRaycastQueryResultBuffer(0);
-	const PxU32 raycastResultsSize = gVehicleSceneQueryData->getQueryResultBufferSize();
-	PxVehicleSuspensionRaycasts(gBatchQuery, 1, vehicles, raycastResultsSize, raycastResults);
-
-	//Vehicle update.
-	const PxVec3 grav = pxScene->getGravity();
-	PxWheelQueryResult wheelQueryResults[PX_MAX_NB_WHEELS];
-	PxVehicleWheelQueryResult vehicleQueryResults[1] = { {wheelQueryResults, gVehicle4W->mWheelsSimData.getNbWheels()} };
-	PxVehicleUpdates(timestep, grav, *gFrictionPairs, 1, vehicles, vehicleQueryResults);
-
-	//Work out if the vehicle is in the air.
-	gIsVehicleInAir = gVehicle4W->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[0]);
-
-	//Scene update.
-	pxScene->simulate(timestep);
-	pxScene->fetchResults(true);
-}
-
-
-void PhysicsSystem::createConvexHull(std::vector<PxVec3> convexVerts){
-
-	PxTransform mesht = PxTransform(PxVec3(0, 20.0f, 0.0f));
-	PxRigidDynamic* mesh1 = pxPhysics->createRigidDynamic(mesht);
-	//static const PxVec3 convexVerts[] = { PxVec3(0,1,0),PxVec3(1,0,0),PxVec3(-1,0,0),PxVec3(0,0,1),
-	//PxVec3(0,0,-1) };
-	PxConvexMeshDesc convexDesc;
-	convexDesc.points.count = convexVerts.size();
-	convexDesc.points.stride = sizeof(PxVec3);
-	convexDesc.points.data = convexVerts.data();
-	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
-
-	PxDefaultMemoryOutputStream buf;
-	PxConvexMeshCookingResult::Enum result;
-	if (!pxCooking->cookConvexMesh(convexDesc, buf, &result)) {
-		return;
-	};
-
-	PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-	PxConvexMesh* convexMesh = pxPhysics->createConvexMesh(input);
-	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*mesh1, PxConvexMeshGeometry(convexMesh), *gMaterial);
-	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
-	meshShape->setSimulationFilterData(meshFilterData);
-	pxScene->addActor(*mesh1);
-	meshShape->release();
-}
-
-
-VehicleDesc PhysicsSystem::initVehicleDesc()
-{
-	//Set up the chassis mass, dimensions, moment of inertia, and center of mass offset.
-	//The moment of inertia is just the moment of inertia of a cuboid but modified for easier steering.
-	//Center of mass offset is 0.65m above the base of the chassis and 0.25m towards the front.
-	const PxF32 chassisMass = 1500.0f;
-	const PxVec3 chassisDims(2.5f, 2.0f, 5.0f);
-	const PxVec3 chassisMOI
-	((chassisDims.y * chassisDims.y + chassisDims.z * chassisDims.z) * chassisMass / 12.0f,
-		(chassisDims.x * chassisDims.x + chassisDims.z * chassisDims.z) * 0.8f * chassisMass / 12.0f,
-		(chassisDims.x * chassisDims.x + chassisDims.y * chassisDims.y) * chassisMass / 12.0f);
-	const PxVec3 chassisCMOffset(0.0f, -chassisDims.y * 0.5f + 0.65f, 0.25f);
-
-	//Set up the wheel mass, radius, width, moment of inertia, and number of wheels.
-	//Moment of inertia is just the moment of inertia of a cylinder.
-	const PxF32 wheelMass = 20.0f;
-	const PxF32 wheelRadius = 0.5f;
-	const PxF32 wheelWidth = 0.4f;
-	const PxF32 wheelMOI = 0.5f * wheelMass * wheelRadius * wheelRadius;
-	const PxU32 nbWheels = 4;
-
-	VehicleDesc vehicleDesc;
-
-	vehicleDesc.chassisMass = chassisMass;
-	vehicleDesc.chassisDims = chassisDims;
-	vehicleDesc.chassisMOI = chassisMOI;
-	vehicleDesc.chassisCMOffset = chassisCMOffset;
-	vehicleDesc.chassisMaterial = gMaterial;
-	vehicleDesc.chassisSimFilterData = PxFilterData(COLLISION_FLAG_CHASSIS, COLLISION_FLAG_CHASSIS_AGAINST, 0, 0);
-
-	vehicleDesc.wheelMass = wheelMass;
-	vehicleDesc.wheelRadius = wheelRadius;
-	vehicleDesc.wheelWidth = wheelWidth;
-	vehicleDesc.wheelMOI = wheelMOI;
-	vehicleDesc.numWheels = nbWheels;
-	vehicleDesc.wheelMaterial = gMaterial;
-	vehicleDesc.wheelSimFilterData = PxFilterData(COLLISION_FLAG_WHEEL, COLLISION_FLAG_WHEEL_AGAINST, 0, 0);
-
-	return vehicleDesc;
-}
-
-
-void PhysicsSystem::initPhysics()
-{
-
-	pxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, pxAllocator, pxErrorCallback);
-	pxPvd = PxCreatePvd(*pxFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
-	pxPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
-	pxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *pxFoundation, PxTolerancesScale(), true, pxPvd);
-
-	PxSceneDesc sceneDesc(pxPhysics->getTolerancesScale());
-	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-
-	PxU32 numWorkers = 1;
-	pxDispatcher = PxDefaultCpuDispatcherCreate(numWorkers);
-	sceneDesc.cpuDispatcher = pxDispatcher;
-	sceneDesc.filterShader = VehicleFilterShader;
-
-	pxScene = pxPhysics->createScene(sceneDesc);
-	PxPvdSceneClient* pvdClient = pxScene->getScenePvdClient();
-	if (pvdClient)
-	{
-		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
-	}
-	gMaterial = pxPhysics->createMaterial(0.5f, 0.5f, 0.6f);
-
-	pxCooking = PxCreateCooking(PX_PHYSICS_VERSION, *pxFoundation, PxCookingParams(PxTolerancesScale()));
-
-	/////////////////////////////////////////////
-
-	PxInitVehicleSDK(*pxPhysics);
-	PxVehicleSetBasisVectors(PxVec3(0, 1, 0), PxVec3(0, 0, 1));
-	PxVehicleSetUpdateMode(PxVehicleUpdateMode::eVELOCITY_CHANGE);
-
-	//Create the batched scene queries for the suspension raycasts.
-	gVehicleSceneQueryData = VehicleSceneQueryData::allocate(1, PX_MAX_NB_WHEELS, 1, 1, WheelSceneQueryPreFilterBlocking, NULL, pxAllocator);
-	gBatchQuery = VehicleSceneQueryData::setUpBatchedSceneQuery(0, *gVehicleSceneQueryData, pxScene);
-
-	//Create the friction table for each combination of tire and surface type.
-	gFrictionPairs = createFrictionPairs(gMaterial);
-
-	//Create a plane to drive on.
-	PxFilterData groundPlaneSimFilterData(COLLISION_FLAG_GROUND, COLLISION_FLAG_GROUND_AGAINST, 0, 0);
-	gGroundPlane = createDrivablePlane(groundPlaneSimFilterData, gMaterial, pxPhysics);
-	pxScene->addActor(*gGroundPlane);
-
-	/*
+/** KAYNENS CODE FOR HEIGHTMAPS
 	//Section for loading a heightmap as a drivable surface
 	//some code gotten from https://gamedev.stackexchange.com/questions/86186/how-to-load-and-render-physx-3-3-heightfield
 	int numRows = 16; int numCols = 16; //Example numbers, will be height map dimensions I believe
@@ -255,93 +356,3 @@ void PhysicsSystem::initPhysics()
 	setupDrivableSurface(qryFilterData2);
 	aHeightFieldShape->setQueryFilterData(qryFilterData2);
 	*/
-
-	//Create a vehicle that will drive on the plane.
-	VehicleDesc vehicleDesc = initVehicleDesc();
-	gVehicle4W = createVehicle4W(vehicleDesc, pxPhysics, pxCooking);
-	PxTransform startTransform(PxVec3(0, (vehicleDesc.chassisDims.y * 0.5f + vehicleDesc.wheelRadius + 1.0f), 0), PxQuat(PxIdentity));
-	PxTransform flip = PxTransform(PxVec3(1.0f, 1.0f, 1.0f), PxQuat(3.1415926536f, PxVec3(1.0f, 0.0f, 0.f)));
-	gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
-	pxScene->addActor(*gVehicle4W->getRigidDynamicActor());
-
-	//Create Box
-	//PxRigidDynamic* box1 = NULL; //actor
-
-	PxTransform t = PxTransform(PxVec3(0, 20.0f, 0.0f));
-	PxShape* boxShape = pxPhysics->createShape(PxBoxGeometry(1, 1, 1), *gMaterial);
-	//PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
-	box1 = pxPhysics->createRigidDynamic(t);
-	PxFilterData boxFilterData(COLLISION_FLAG_OBSTACLE,COLLISION_FLAG_OBSTACLE_AGAINST , 0, 0);
-	boxShape->setSimulationFilterData(boxFilterData);
-	box1->attachShape(*boxShape);
-	PxRigidBodyExt::updateMassAndInertia(*box1, 10.0f);
-	pxScene->addActor(*box1);
-
-	PxTransform t2 = PxTransform(PxVec3(0.0f, 0.0f, 6.0f));
-	PxShape* boxShape2 = pxPhysics->createShape(PxBoxGeometry(1.0f, 2.0f, 0.5f), *gMaterial);
-	//PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
-	box2 = pxPhysics->createRigidStatic(t2);
-	PxFilterData boxFilterData2(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
-	boxShape2->setSimulationFilterData(boxFilterData2);
-	box2->attachShape(*boxShape2);
-	//PxRigidBodyExt::setMassAndUpdateInertia(*box2, 10.0f);
-	pxScene->addActor(*box2);
-
-	PxTransform t3 = PxTransform(PxVec3(6.0f, 1.0f, 6.0f), PxQuat(0.785398f, PxVec3(0.f, 1.f, 0.f)));
-	PxShape* boxShape3 = pxPhysics->createShape(PxBoxGeometry(1.0f, 1.0f, 1.0f), *gMaterial);
-	//PxTransform localTm(PxVec3(PxReal(1 * 2) - PxReal(2 - 1), PxReal(1 * 2 + 1), 0) * 0.5);
-	box3 = pxPhysics->createRigidStatic(t3);
-	//PxFilterData boxFilterData3(COLLISION_FLAG_GROUND_AGAINST, COLLISION_FLAG_OBSTACLE, 0, 0);
-	boxShape3->setSimulationFilterData(boxFilterData2);
-	box3->attachShape(*boxShape3);
-	//PxRigidBodyExt::setMassAndUpdateInertia(*box2, 10.0f);
-	pxScene->addActor(*box3);
-
-
-	boxShape->release();
-	boxShape2->release();
-	boxShape3->release();
-
-	
-
-	//Set the vehicle to rest in first gear.
-	//Set the vehicle to use auto-gears.
-	gVehicle4W->setToRestState();
-	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-	gVehicle4W->mDriveDynData.setUseAutoGears(true);
-
-	vehicleBrakeMode(0.0f);
-}
-
-void PhysicsSystem::cleanupPhysics()
-{
-	gVehicle4W->getRigidDynamicActor()->release();
-	gVehicle4W->free();
-	PX_RELEASE(gGroundPlane);
-	PX_RELEASE(gBatchQuery);
-	gVehicleSceneQueryData->free(pxAllocator);
-	PX_RELEASE(gFrictionPairs);
-	PxCloseVehicleSDK();
-
-	PX_RELEASE(gMaterial);
-	PX_RELEASE(pxCooking);
-	PX_RELEASE(pxScene);
-	PX_RELEASE(pxDispatcher);
-	PX_RELEASE(pxPhysics);
-	if (pxPvd)
-	{
-		PxPvdTransport* transport = pxPvd->getTransport();
-		pxPvd->release();	
-		pxPvd = NULL;
-		PX_RELEASE(transport);
-	}
-	PX_RELEASE(pxFoundation);
-
-	printf("SnippetVehicle4W done.\n");
-}
-
-void PhysicsSystem::initializePhysicsComponent(PhysicsComponent& component) {
-	component.setPhysicsSystem(
-		dynamic_pointer_cast<PhysicsSystem>(shared_from_this()));
-}
-

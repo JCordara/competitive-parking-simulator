@@ -44,7 +44,7 @@ void RenderSystem::update() {
 		if (cameraComponent) {
 			CameraPurpose purpose = cameraComponent->getPurpose();
 			if (purpose == CameraPurpose::render) {
-				cameraComponent->windowSizeChanged(static_cast<float>(window->getWidth()), static_cast<float>(window->getHeight()));
+				cameraComponent->windowSizeChanged(window->getWidth(), window->getHeight());
 				renderPipeline->setCamera(
 					pos,
 					cameraComponent->getViewMatrix(localToGlobaltransform),

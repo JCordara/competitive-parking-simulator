@@ -12,6 +12,7 @@
 // External library includes
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <PhysX/PxPhysicsAPI.h>
 
 // C++ standard library includes
 #include "Common.h"
@@ -19,10 +20,10 @@
 // Engine sub-system includes
 #include "Framework.h"
 #include "GameplaySystem.h"
-#include <PhysicsSystem.h>
+#include "physics/PhysicsSystem.h"
 #include "RenderSystem.h"
 #include "InputManager.h"
-#include "AudioSystem.h"
+#include "audio/AudioSystem.h"
 
 // Other stuff
 #include "Renderers.h"

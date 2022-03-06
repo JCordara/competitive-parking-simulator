@@ -21,5 +21,13 @@
 
 #include "Log.h"
 
+using std::string;                           // Strings
+using std::unordered_map, std::pair;         // Mapping
+using std::shared_ptr,    std::make_shared;  // Shared pointers
+using std::unique_ptr,    std::make_unique;  // Unique pointers
+using std::enable_if_t,   std::is_base_of_v; // Template param type assertion
+using std::dynamic_pointer_cast;             // Downcast smart pointers
+
+template<class T> using sp = std::shared_ptr<T>; // Shorter alias for shared_ptr
 
 #endif // C_STD_H

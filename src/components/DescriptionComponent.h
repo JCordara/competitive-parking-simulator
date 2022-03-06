@@ -29,9 +29,9 @@ public:
 	~DescriptionComponent();
 
 private:
-	std::map< string, int > integers;
-	std::map< string, double > reals;
-	std::map< string, string > strings;
+	unordered_map<string, int>    integers;
+	unordered_map<string, double> reals;
+	unordered_map<string, string> strings;
 };
 
 #endif //DESCRIPTION_COMPONENT_H

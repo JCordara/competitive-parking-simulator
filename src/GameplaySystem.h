@@ -3,8 +3,6 @@
 
 #include "GameSystem.h"
 
-#include "Framework.h"
-
 class GameplaySystem : public GameSystem {
 public:
 

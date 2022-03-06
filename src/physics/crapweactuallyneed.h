@@ -2,6 +2,8 @@
 
 #include <PhysX/PxPhysicsAPI.h>
 
+class VehicleDesc;
+
 using namespace physx;
 
 #define PVD_HOST "127.0.0.1"
@@ -66,19 +68,15 @@ extern VehicleSceneQueryData* gVehicleSceneQueryData;
 extern PxBatchQuery* gBatchQuery;
 extern PxVehicleDrivableSurfaceToTireFrictionPairs* gFrictionPairs;
 
-extern PxRigidDynamic* box1;
-extern PxRigidStatic* gGroundPlane;
-extern PxRigidStatic* box2;
-extern PxRigidStatic* box3;
+// extern PxVehicleDrive4W* gVehicle4W;
+// extern PxVehicleDrive4WRawInputData gVehicleInputData;
+// extern bool gIsVehicleInAir;
 
-extern PxVehicleDrive4W* gVehicle4W;
-extern PxVehicleDrive4WRawInputData gVehicleInputData;
 extern PxVehicleKeySmoothingData gKeySmoothingData;
 extern PxVehiclePadSmoothingData gPadSmoothingData;
 extern PxF32 gSteerVsForwardSpeedData[2 * 8];
 extern PxFixedSizeLookupTable<8> gSteerVsForwardSpeedTable;
 
-extern bool gIsVehicleInAir;
 extern bool gMimicKeyInputs;
 
 enum
@@ -149,42 +147,42 @@ struct ShapeUserData
     PxU32 wheelId;
 };
 
-struct VehicleDesc
-{
-    VehicleDesc()
-        : chassisMass(0.0f),
-        chassisDims(PxVec3(0.0f, 0.0f, 0.0f)),
-        chassisMOI(PxVec3(0.0f, 0.0f, 0.0f)),
-        chassisCMOffset(PxVec3(0.0f, 0.0f, 0.0f)),
-        chassisMaterial(NULL),
-        wheelMass(0.0f),
-        wheelWidth(0.0f),
-        wheelRadius(0.0f),
-        wheelMOI(0.0f),
-        wheelMaterial(NULL),
-        actorUserData(NULL),
-        shapeUserDatas(NULL)
-    {
-    }
+// struct VehicleDesc
+// {
+//     VehicleDesc()
+//         : chassisMass(0.0f),
+//         chassisDims(PxVec3(0.0f, 0.0f, 0.0f)),
+//         chassisMOI(PxVec3(0.0f, 0.0f, 0.0f)),
+//         chassisCMOffset(PxVec3(0.0f, 0.0f, 0.0f)),
+//         chassisMaterial(NULL),
+//         wheelMass(0.0f),
+//         wheelWidth(0.0f),
+//         wheelRadius(0.0f),
+//         wheelMOI(0.0f),
+//         wheelMaterial(NULL),
+//         actorUserData(NULL),
+//         shapeUserDatas(NULL)
+//     {
+//     }
 
-    PxF32 chassisMass;
-    PxVec3 chassisDims;
-    PxVec3 chassisMOI;
-    PxVec3 chassisCMOffset;
-    PxMaterial* chassisMaterial;
-    PxFilterData chassisSimFilterData;  //word0 = collide type, word1 = collide against types, word2 = PxPairFlags
+//     PxF32 chassisMass;
+//     PxVec3 chassisDims;
+//     PxVec3 chassisMOI;
+//     PxVec3 chassisCMOffset;
+//     PxMaterial* chassisMaterial;
+//     PxFilterData chassisSimFilterData;  //word0 = collide type, word1 = collide against types, word2 = PxPairFlags
 
-    PxF32 wheelMass;
-    PxF32 wheelWidth;
-    PxF32 wheelRadius;
-    PxF32 wheelMOI;
-    PxMaterial* wheelMaterial;
-    PxU32 numWheels;
-    PxFilterData wheelSimFilterData;	//word0 = collide type, word1 = collide against types, word2 = PxPairFlags
+//     PxF32 wheelMass;
+//     PxF32 wheelWidth;
+//     PxF32 wheelRadius;
+//     PxF32 wheelMOI;
+//     PxMaterial* wheelMaterial;
+//     PxU32 numWheels;
+//     PxFilterData wheelSimFilterData;	//word0 = collide type, word1 = collide against types, word2 = PxPairFlags
 
-    ActorUserData* actorUserData;
-    ShapeUserData* shapeUserDatas;
-};
+//     ActorUserData* actorUserData;
+//     ShapeUserData* shapeUserDatas;
+// };
 
 PxFilterFlags VehicleFilterShader
 (PxFilterObjectAttributes attributes0, PxFilterData filterData0,
@@ -221,14 +219,6 @@ PxRigidDynamic* createVehicleActor
     PxMaterial** wheelMaterials, PxConvexMesh** wheelConvexMeshes, const PxU32 numWheels, const PxFilterData& wheelSimFilterData,
     PxMaterial** chassisMaterials, PxConvexMesh** chassisConvexMeshes, const PxU32 numChassisMeshes, const PxFilterData& chassisSimFilterData,
     PxPhysics& physics);
-
-
-
-void vehicleAccelerateMode(float v);
-void vehicleTurnMode(float v);
-void vehicleBrakeMode(float v);
-void vehicleHandbrakeMode(float v);
-
 
 
 PxVehicleDrivableSurfaceToTireFrictionPairs* createFrictionPairs(const PxMaterial* defaultMaterial);
