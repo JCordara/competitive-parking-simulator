@@ -1,21 +1,23 @@
 #include "Application.h"
 
-int g_carsParked = 0;
-void carParked() {
-	g_carsParked++;
-}
-void carUnParked() {
-	//g_carsParked--;
+// Milestone hacks
+void Application::vroomSound(Entity&, float) {
+	audioSystem->createSource().playAudio(audioSystem->loadAudio("audio/rev.wav"));
 }
 
-Application::Application(appSettings& settings) 
-	: settings(settings)
+void Application::collisionSound() {
+	audioSystem->createSource().playAudio(audioSystem->loadAudio("audio/oof.wav"));
+}
+
+// Actual code
+Application::Application(appSettings& settings): 
+	settings(settings)
 {
 	//App initialization
 	glfwInit();
 	Time::init();
 
-	/* Framework (Managers) - used by systems*/
+	/* Framework - used by systems*/
 	scene        = Scene::newScene();
 	window 		 = std::make_shared<Window>(1200, 800, "Test Window");
 
@@ -26,14 +28,8 @@ Application::Application(appSettings& settings)
 	render       = std::make_shared<RenderSystem>(scene, window);
 	audioSystem  = std::make_shared<AudioSystem>();
 
-	/* --------------------- Game World Description ------------------------ */
 
-	auto camera = scene->addEntity();
-	camera->addComponent<CameraComponent>();
-	camera->getComponent<CameraComponent>()->setPerspectiveCamera(glm::radians(90.f), 1.f /*Will be modified to the window*/,0.01f, 300.f);
-	auto transformComponent = camera->getComponent<TransformComponent>();
-	transformComponent->setLocalPosition(0.0f, 10.0f, 0.0f);
-	transformComponent->setLocalRotation(-atan(5.f / 3.f), glm::vec3(1.f, 0.f, 0.f));
+	/* --------------------- Game World Description ------------------------ */
 
 	auto environmentalLight = scene->addEntity();
 	environmentalLight->addComponent<LightingComponent>();
@@ -43,7 +39,7 @@ Application::Application(appSettings& settings)
 	auto cameraChild = environmentalLight->addChild();
 	cameraChild->addComponent<CameraComponent>();
 	cameraChild->getComponent<CameraComponent>()->setOrthographicCamera(100.f, 100.f, 0.1f, 100.f);
-	transformComponent = cameraChild->getComponent<TransformComponent>();
+	auto transformComponent = cameraChild->getComponent<TransformComponent>();
 	transformComponent->setLocalPosition(-15.0f, 7.0f, 0.0f);
 	auto q1 = physx::PxQuat(glm::radians(-30.f), physx::PxVec3(1.f, 0.f, 0.f));
 	auto q2 = physx::PxQuat(glm::radians(-90.f), physx::PxVec3(0.f, 1.f, 0.f));
@@ -87,11 +83,19 @@ Application::Application(appSettings& settings)
 	carRender->enableRender();
 	carController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);
 	carController->createAxis(GLFW_KEY_A, GLFW_KEY_D, &Events::VehicleSteer);
+	carController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
+
+	auto camera = car->addChild();
+	camera->addComponent<CameraComponent>();
+	camera->getComponent<CameraComponent>()->setPerspectiveCamera(glm::radians(90.f), 1.f /*Will be modified to the window*/,0.01f, 300.f);
+	auto camTransform = camera->getComponent<TransformComponent>();
+	camTransform->setLocalPosition(0.0f, 10.0f, -5.0f);
+	camTransform->setLocalRotation(glm::radians(-45.0f), glm::vec3(1.f, 0.f, 0.f));
+	camTransform->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
 
 	auto mapGrass = scene->addEntity();
 	mapGrass->addComponent<ModelComponent>();
 	mapGrass->addComponent<RendererComponent>();
-	mapGrass->addComponent<TransformComponent>();
 
 	auto mapGrassModel = std::make_shared<Model>(
 		"models/gamemapWholeMap.obj", glm::vec3(.5f, .1f, .2f)
@@ -102,6 +106,11 @@ Application::Application(appSettings& settings)
 	renderComponent = mapGrass->getComponent<RendererComponent>();
 	renderComponent->enableRender();
 	transformComponent = mapGrass->getComponent<TransformComponent>();
+	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
+	transformComponent->localScale(0.3f, 0.3f, 0.3f);
+
+	Events::CarBoxCollision.registerHandler<Application, &Application::collisionSound>(this);
+	Events::VehicleAccelerate.registerHandler<Application, &Application::vroomSound>(this);
 
 	/*auto plane = scene->addEntity();
 	plane->addComponent<ModelComponent>();

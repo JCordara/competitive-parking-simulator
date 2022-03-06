@@ -4,6 +4,8 @@
 #include "GameSystem.h"
 
 #include <PhysX/PxPhysicsAPI.h>
+#include "PhysXCallbacks.h"
+#include "VehicleDesc.h"
 #include "crapweactuallyneed.h"
 
 using namespace physx;
@@ -36,6 +38,9 @@ private:
     PxDefaultCpuDispatcher* pxDispatcher;
     PxDefaultAllocator	    pxAllocator;
     PxDefaultErrorCallback  pxErrorCallback;
+    
+    // Callback function for simulation events
+    shared_ptr<PxSimulationEventCallback> pxSimEventCallback;
 
     // Drivable plane (tmp for Milestone 3)
     PxRigidStatic* pxGroundPlane;

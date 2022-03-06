@@ -1,7 +1,6 @@
 #pragma once
 
 #include "crapweactuallyneed.h"
-#include "VehicleDesc.h"
 
 
 //Data structure for quick setup of scene queries for suspension queries.
@@ -187,10 +186,14 @@ PxFilterFlags VehicleFilterShader
     PX_UNUSED(constantBlock);
     PX_UNUSED(constantBlockSize);
 
+    pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+    
+    if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+        pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
+
     if ((0 == (filterData0.word0 & filterData1.word1)) && (0 == (filterData1.word0 & filterData0.word1)))
         return PxFilterFlag::eSUPPRESS;
 
-    pairFlags = PxPairFlag::eCONTACT_DEFAULT;
     pairFlags |= PxPairFlags(PxU16(filterData0.word2 | filterData1.word2));
 
     return PxFilterFlags();

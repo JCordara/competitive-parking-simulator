@@ -1,6 +1,6 @@
 
 # Create a library called "EntityComponent" from the source files
-file(GLOB COMPONENT_SOURCES "./*.cpp")
+file(GLOB COMPONENT_SOURCES "./*")
 add_library(EntityComponent STATIC ${COMPONENT_SOURCES} "LightingComponent.cpp")
 
 # Make sure the compiler can find include files for Entity Component library

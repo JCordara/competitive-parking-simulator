@@ -7,21 +7,20 @@ TransformComponent::TransformComponent(Entity& e)
     , _scale(glm::vec3(1.f))
 {}
 
-glm::mat4 TransformComponent::getLocalTranslationMatrix() {
-	return glm::translate(glm::mat4(1.f), _position);
-}
-glm::mat4 TransformComponent::getLocalRotationMatrix() {
-	return quat_to_mat4(_rotation);
-}
-glm::mat4 TransformComponent::getLocalScaleMatrix() {
-	return glm::scale(glm::mat4(1.f), _scale);
+ComponentEnum TransformComponent::getType() {
+    return ComponentEnum::transform;
 }
 
-glm::mat4 TransformComponent::getLocalMatrix() {
-	return	  getLocalTranslationMatrix()
-			* getLocalRotationMatrix()
-			* getLocalScaleMatrix()
-		;
+TransformComponent::~TransformComponent() {
+    // Nothing to do here yet
+}
+
+
+/* Member functions */
+// ----------------
+
+glm::vec3 TransformComponent::getGlobalPosition() {
+	return glm::vec3(getGlobalMatrix() * glm::vec4(0.f, 0.f, 0.f, 1.f));
 }
 
 // Returns the identity matrix if parent is null or has no transform component
@@ -42,9 +41,6 @@ glm::mat4 TransformComponent::getNestedMatrix(int depth) {
     return t->getNestedMatrix(depth - 1) * getLocalMatrix();
 }
 
-glm::vec3 TransformComponent::getGlobalPosition() {
-	return glm::vec3(getGlobalMatrix() * glm::vec4(0.f, 0.f, 0.f, 1.f));
-}
 
 void TransformComponent::setLocalPosition(physx::PxVec3 position) {
     setLocalPosition(position.x, position.y, position.z);
@@ -58,6 +54,7 @@ void TransformComponent::setLocalPosition(float x, float y, float z) {
     setLocalPosition(glm::vec3(x, y, z));
 }
 
+
 void TransformComponent::setLocalRotation(physx::PxQuat rotation) {
       _rotation = rotation;
 }
@@ -70,6 +67,7 @@ void TransformComponent::setLocalRotation(float rotation, glm::vec3 axis) {
 	setLocalRotation(physx::PxQuat(rotation, physx::PxVec3(axis.x, axis.y, axis.z)));
 }
 
+
 void TransformComponent::setLocalScale(glm::vec3 scale) {
     _scale = scale;
 }
@@ -78,6 +76,7 @@ void TransformComponent::setLocalScale(float x, float y, float z) {
     setLocalScale(glm::vec3(x, y, z));
 }
 
+
 void TransformComponent::localTranslate(glm::vec3 translation) {
     _position += translation;
 }
@@ -85,6 +84,8 @@ void TransformComponent::localTranslate(glm::vec3 translation) {
 void TransformComponent::localTranslate(float x, float y, float z) {
 	localTranslate(glm::vec3(x, y, z));
 }
+
+
 void TransformComponent::localRotate(physx::PxQuat rotation) {
 	_rotation = rotation *_rotation;
 }
@@ -97,6 +98,7 @@ void TransformComponent::localRotate(float rotation, glm::vec3 axis) {
 	localRotate(physx::PxQuat(rotation, physx::PxVec3(axis.x, axis.y, axis.z)));
 }
 
+
 void TransformComponent::localScale(glm::vec3 scale) {
     _scale *= scale;
 }
@@ -106,14 +108,26 @@ void TransformComponent::localScale(float x, float y, float z) {
 }
 
 
-
-ComponentEnum TransformComponent::getType() {
-    return ComponentEnum::transform;
+glm::mat4 TransformComponent::getLocalTranslationMatrix() {
+	return glm::translate(glm::mat4(1.f), _position);
 }
 
-TransformComponent::~TransformComponent() {
-    // Nothing to do here yet
+glm::mat4 TransformComponent::getLocalRotationMatrix() {
+	return quat_to_mat4(_rotation);
 }
+
+glm::mat4 TransformComponent::getLocalScaleMatrix() {
+	return glm::scale(glm::mat4(1.f), _scale);
+}
+
+glm::mat4 TransformComponent::getLocalMatrix() {
+	return	  getLocalTranslationMatrix()
+			* getLocalRotationMatrix()
+			* getLocalScaleMatrix()
+		;
+}
+
+
 
 glm::mat4 quat_to_mat4(physx::PxQuat quat)
 {

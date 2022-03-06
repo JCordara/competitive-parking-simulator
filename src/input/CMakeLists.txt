@@ -1,6 +1,6 @@
 
 # Create a library called "InputSystem" from the source files
-file(GLOB INPUT_SOURCES "./*.cpp")
+file(GLOB INPUT_SOURCES "./*")
 add_library(InputSystem STATIC ${INPUT_SOURCES})
 
 # Make sure the compiler can find include files for InputSystem library
