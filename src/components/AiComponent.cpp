@@ -14,7 +14,7 @@ AiComponent::~AiComponent() {
     // Nothing to do here yet
 }
 
-void AiComponent::aStar() {
+void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 	//Start node is the next node in the path 
 	// if the recalculated path keeps going the way the AI was going great
 	// If not, then the AI can finish heading to that node and turn around
@@ -23,7 +23,6 @@ void AiComponent::aStar() {
 
 	std::vector<std::shared_ptr<AiGraphNode>> openList;
 	std::vector<std::shared_ptr<AiGraphNode>> closedList;
-	std::shared_ptr<AiGraphNode> goalNode;
 
 	// Initialize open list with starting node
 	currentNode->parent = nullptr;
@@ -105,4 +104,46 @@ float AiComponent::getFValue(std::shared_ptr<AiGraphNode> node) {
 // Set the next node for the AI to go to
 void AiComponent::setCurrentNode(std::shared_ptr<AiGraphNode> startNode) {
 	currentNode = startNode;
+}
+
+void AiComponent::switchState(States newState) {
+	state = newState;
+}
+
+void AiComponent::searchState(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList) {
+	const float NODETHRESHOLD = 2.5; // How close to
+	float currentX = entity.getComponent<TransformComponent>()->getGlobalPosition().x;
+	float currentZ = entity.getComponent<TransformComponent>()->getGlobalPosition().z;
+	bool withinXBounds =	currentX + NODETHRESHOLD <= currentNode->position.x &&
+							currentX - NODETHRESHOLD >= currentNode->position.x;
+	bool withinZBounds =	currentZ + NODETHRESHOLD <= currentNode->position.z &&
+							currentZ - NODETHRESHOLD >= currentNode->position.z;
+	if (withinXBounds && withinZBounds) {
+		currentNode = nodeQueue[0];
+		nodeQueue.erase(nodeQueue.begin());
+	}
+	moveToNextNode();
+}
+
+void AiComponent::pickGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList) {
+	// Randomly pick a node from the entrances to parking lots
+	std::vector<std::shared_ptr<AiGraphNode>> entrances;
+	for each (std::shared_ptr<AiGraphNode> node in globalNodeList) {
+		if (node->nodeType == AiGraphNode::NodeType::LOTENTRANCE) {
+			entrances.push_back(node);
+		}
+	}
+	int randIntCeiling = entrances.size();
+	std::srand(Time::now());
+	// Should give number between 0 and vector.szie()-1
+	int pick = rand() % randIntCeiling;
+	aStar(entrances[pick]);
+}
+
+void AiComponent::parkState() {
+
+}
+
+void AiComponent::moveToNextNode() {
+
 }
