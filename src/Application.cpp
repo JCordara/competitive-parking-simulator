@@ -98,7 +98,7 @@ Application::Application(appSettings& settings):
 	camera->addComponent<CameraComponent>();
 	camera->getComponent<CameraComponent>()->setPerspectiveCamera(glm::radians(90.f), 1.f /*Will be modified to the window*/,0.01f, 300.f);
 	auto camTransform = camera->getComponent<TransformComponent>();
-	camTransform->setLocalPosition(0.0f, 10.0f, -5.0f);
+	camTransform->setLocalPosition(0.0f, 9.0f, -5.5f);
 	camTransform->setLocalRotation(glm::radians(-45.0f), glm::vec3(1.f, 0.f, 0.f));
 	camTransform->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
 
@@ -115,7 +115,7 @@ Application::Application(appSettings& settings):
 	renderComponent = mapGrass->getComponent<RendererComponent>();
 	renderComponent->enableRender();
 	transformComponent = mapGrass->getComponent<TransformComponent>();
-	//transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
+	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
 
 	auto mapRoad = scene->addEntity();
 	mapRoad->addComponent<ModelComponent>();
@@ -130,6 +130,7 @@ Application::Application(appSettings& settings):
 	renderComponent = mapRoad->getComponent<RendererComponent>();
 	renderComponent->enableRender();
 	transformComponent = mapRoad->getComponent<TransformComponent>();
+	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
 
 	auto mapPLines = scene->addEntity();
 	mapPLines->addComponent<ModelComponent>();
@@ -144,6 +145,7 @@ Application::Application(appSettings& settings):
 	renderComponent = mapPLines->getComponent<RendererComponent>();
 	renderComponent->enableRender();
 	transformComponent = mapPLines->getComponent<TransformComponent>();
+	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
 
 	auto mapFence = scene->addEntity();
 	mapFence->addComponent<ModelComponent>();
@@ -158,6 +160,7 @@ Application::Application(appSettings& settings):
 	renderComponent = mapFence->getComponent<RendererComponent>();
 	renderComponent->enableRender();
 	transformComponent = mapFence->getComponent<TransformComponent>();
+	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
 
 	Events::CarBoxCollision.registerHandler<Application, &Application::collisionSound>(this);
 	Events::VehicleAccelerate.registerHandler<Application, &Application::vroomSound>(this);
