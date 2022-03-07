@@ -1,6 +1,6 @@
 
 # Create a library called "PhysicsSystem" from the source files
-file(GLOB PHYSICS_SOURCES "./*.cpp")
+file(GLOB PHYSICS_SOURCES "./*")
 add_library(PhysicsSystem STATIC ${PHYSICS_SOURCES})
 
 # Make sure the compiler can find include files for PhysicsSystem library

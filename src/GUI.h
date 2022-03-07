@@ -7,7 +7,6 @@
 
 #include "Framework.h"
 
-extern int g_carsParked;
 
 class GUI {
 public:

@@ -51,7 +51,7 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 				Q = openNode;
 			}
 		}
-		std::remove(openList.begin(), openList.end(), Q);
+		auto _ = std::remove(openList.begin(), openList.end(), Q);
 		if (Q->position == goalNode->position) break; // return Q
 		closedList.push_back(Q);
 		for each (std::shared_ptr<AiGraphNode> neighbor in Q->neighbours){

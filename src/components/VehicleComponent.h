@@ -5,7 +5,7 @@
 #include <PhysX/PxPhysicsAPI.h>
 
 class PhysicsSystem;
-class VehicleDesc;
+struct VehicleDesc;
 
 using namespace physx;
 

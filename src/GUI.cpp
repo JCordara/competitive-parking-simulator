@@ -30,7 +30,7 @@ void GUI::draw() {
 	ImGui::SetWindowSize(ImVec2(80, 25));
 
 	ImGui::Text("FPS: %.2f", Time::fps());
-	ImGui::Text("CarParked event triggered %d times", g_carsParked);
+	// ImGui::Text("CarParked event triggered %d times", g_carsParked);
 
 	ImGui::End();
 

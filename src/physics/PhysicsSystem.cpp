@@ -227,6 +227,9 @@ void PhysicsSystem::initPhysX()
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES,true);
 	}
 
+	pxSimEventCallback = make_shared<PhysXSimCallback>();
+	pxScene->setSimulationEventCallback(pxSimEventCallback.get());
+
 
 	/* Prepare Vehicle SDK */
 	// -------------------

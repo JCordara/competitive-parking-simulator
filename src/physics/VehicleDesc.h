@@ -3,6 +3,33 @@
 
 #include <PhysX/PxPhysicsAPI.h>
 
+using namespace physx;
+
+
+struct ActorUserData
+{
+    ActorUserData()
+        : vehicle(NULL),
+        actor(NULL)
+    {
+    }
+
+    const PxVehicleWheels* vehicle;
+    const PxActor* actor;
+};
+
+struct ShapeUserData
+{
+    ShapeUserData()
+        : isWheel(false),
+        wheelId(0xffffffff)
+    {
+    }
+
+    bool isWheel;
+    PxU32 wheelId;
+};
+
 struct VehicleDesc
 {
     VehicleDesc()
