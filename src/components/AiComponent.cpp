@@ -225,7 +225,7 @@ void AiComponent::parkState() {
 							currentZ - NODETHRESHOLD >= currentNode->position.z;
 	if (withinXBounds && withinZBounds) {
 		if (nodeQueue.size() == 1) {
-			//Events::CarParked(entity);
+			Events::VehicleBrake.broadcast(entity, 0.5);
 		}
 		else {
 			currentNode = nodeQueue[0];

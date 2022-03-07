@@ -32,76 +32,99 @@ GameplaySystem::~GameplaySystem() {
 
 void GameplaySystem::setupAiNodes() {
 
-	// Spawn Node Collection
+	
 	std::shared_ptr<AiGraphNode> aiNode1 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode2 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode3 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode4 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode5 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode6 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode7 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode8 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode9 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode10 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode11 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode12 = std::make_shared<AiGraphNode>();
+
+	// Spawn Node Collection
 	aiNode1->nodeType = AiGraphNode::NodeType::SPAWN;
 	aiNode1->position = glm::vec3(-6,1,2.5);
+	aiNode1->neighbours.push_back(aiNode2);
+	aiNode1->neighbours.push_back(aiNode3);
 	aiGlobalNodes.push_back(aiNode1);
 	//
 
 	// Outer Roads Node Collection
-	std::shared_ptr<AiGraphNode> aiNode2 = std::make_shared<AiGraphNode>();
 	aiNode2->nodeType = AiGraphNode::NodeType::OUTERROAD;
 	aiNode2->position = glm::vec3(1.5, 1, 13);
+	aiNode2->neighbours.push_back(aiNode1);
+	aiNode2->neighbours.push_back(aiNode10);
 	aiGlobalNodes.push_back(aiNode2);
 
-	std::shared_ptr<AiGraphNode> aiNode3 = std::make_shared<AiGraphNode>();
 	aiNode3->nodeType = AiGraphNode::NodeType::OUTERROAD;
 	aiNode3->position = glm::vec3(1.5, 1, -8);
+	aiNode3->neighbours.push_back(aiNode1);
+	aiNode3->neighbours.push_back(aiNode11);
 	aiGlobalNodes.push_back(aiNode3);
-
 	//
 
 	// Entrances Node Collection
-	std::shared_ptr<AiGraphNode> aiNode4 = std::make_shared<AiGraphNode>();
 	aiNode4->nodeType = AiGraphNode::NodeType::LOTENTRANCE;
 	aiNode4->position = glm::vec3(-19, 1, 35);
+	aiNode4->neighbours.push_back(aiNode10);
+	aiNode4->neighbours.push_back(aiNode6);
 	aiGlobalNodes.push_back(aiNode4);
-
-	std::shared_ptr<AiGraphNode> aiNode5 = std::make_shared<AiGraphNode>();
+	
 	aiNode5->nodeType = AiGraphNode::NodeType::LOTENTRANCE;
 	aiNode5->position = glm::vec3(23, 1, -32);
+	aiNode5->neighbours.push_back(aiNode11);
+	aiNode5->neighbours.push_back(aiNode7);
 	aiGlobalNodes.push_back(aiNode5);
 	//
 
 	// Inner Parking Lot Node Collection
-	std::shared_ptr<AiGraphNode> aiNode6 = std::make_shared<AiGraphNode>();
 	aiNode6->nodeType = AiGraphNode::NodeType::INNERLOT;
 	aiNode6->position = glm::vec3(-38, 1, 35);
+	aiNode6->neighbours.push_back(aiNode4);
+	aiNode6->neighbours.push_back(aiNode8);
 	aiGlobalNodes.push_back(aiNode6);
-
-	std::shared_ptr<AiGraphNode> aiNode7 = std::make_shared<AiGraphNode>();
+	
 	aiNode7->nodeType = AiGraphNode::NodeType::INNERLOT;
 	aiNode7->position = glm::vec3(43, 1, -32);
+	aiNode7->neighbours.push_back(aiNode5);
+	aiNode7->neighbours.push_back(aiNode9);
 	aiGlobalNodes.push_back(aiNode7);
 	//
 
 	// Open Parking Stall Node Colelction
-	std::shared_ptr<AiGraphNode> aiNode8 = std::make_shared<AiGraphNode>();
 	aiNode8->nodeType = AiGraphNode::NodeType::PARKINGSTALL;
 	aiNode8->position = glm::vec3(-45, 1, 53);
+	aiNode8->neighbours.push_back(aiNode6);
 	aiGlobalNodes.push_back(aiNode8);
-
-	std::shared_ptr<AiGraphNode> aiNode9 = std::make_shared<AiGraphNode>();
+	
 	aiNode9->nodeType = AiGraphNode::NodeType::PARKINGSTALL;
 	aiNode9->position = glm::vec3(43, 1, -53);
+	aiNode9->neighbours.push_back(aiNode7);
 	aiGlobalNodes.push_back(aiNode9);
 	//
 
 	// Intersection Node Collection
-	std::shared_ptr<AiGraphNode> aiNode10 = std::make_shared<AiGraphNode>();
 	aiNode10->nodeType = AiGraphNode::NodeType::INTERSECTION;
-	aiNode10->position = glm::vec3(-1.5, 1, 35);
+	aiNode10->position = glm::vec3(1.5, 1, 30);
+	aiNode10->neighbours.push_back(aiNode2);
+	aiNode10->neighbours.push_back(aiNode12);
+	aiNode10->neighbours.push_back(aiNode4);
 	aiGlobalNodes.push_back(aiNode10);
-
-	std::shared_ptr<AiGraphNode> aiNode11 = std::make_shared<AiGraphNode>();
+	
 	aiNode11->nodeType = AiGraphNode::NodeType::INTERSECTION;
-	aiNode11->position = glm::vec3(1.5, 1, -32);
+	aiNode11->position = glm::vec3(1.5, 1, -30);
+	aiNode11->neighbours.push_back(aiNode3);
+	aiNode11->neighbours.push_back(aiNode5);
 	aiGlobalNodes.push_back(aiNode11);
-
-	std::shared_ptr<AiGraphNode> aiNode12 = std::make_shared<AiGraphNode>();
+	
 	aiNode12->nodeType = AiGraphNode::NodeType::INTERSECTION;
 	aiNode12->position = glm::vec3(1.5, 1, 69);
+	aiNode12->neighbours.push_back(aiNode10);
 	aiGlobalNodes.push_back(aiNode12);
 	//
 }
