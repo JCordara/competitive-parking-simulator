@@ -1,5 +1,5 @@
 #include "Application.h"
-
+#include <Random.h>
 unsigned int g_boxID;
 unsigned int g_carID;
 unsigned int g_aiID;
@@ -10,7 +10,7 @@ Application::Application(appSettings& settings):
 	//App initialization
 	glfwInit();
 	Time::init();
-
+	Random::init();
 	/* Framework - used by systems*/
 	scene        = Scene::newScene();
 	window 		 = std::make_shared<Window>(1200, 800, "Test Window");
@@ -162,6 +162,20 @@ Application::Application(appSettings& settings):
 	transformComponent = mapPLines->getComponent<TransformComponent>();
 	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
 
+	auto rockModel = std::make_shared<Model>(
+		"models/Rock1.obj", glm::vec3(0.0f, 1.0f, 1.0f));
+
+	for (int i = 0; i < 10; i++) {
+		auto rock = scene->addEntity();
+		modelComponent = rock->addComponent<ModelComponent>();
+		renderComponent = rock->addComponent<RendererComponent>();
+		transformComponent = rock->getComponent<TransformComponent>();
+		rigidbodyComponent = rock->addComponent<RigidbodyComponent>();
+		modelComponent->setModel(rockModel);
+		renderComponent->enableRender();
+		transformComponent->setLocalPosition(Random::randomVec3(-20.f, 20.f, -1.f, -1.f, -20.f, 20.f));
+		rigidbodyComponent->addActorStatic(*rockModel.get(), toPxTransform(transformComponent->getGlobalMatrix()));
+	}
 
 	/* --------------------- End Game World Description --------------------- */
 
