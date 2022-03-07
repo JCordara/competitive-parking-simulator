@@ -30,21 +30,14 @@ Application::Application(appSettings& settings):
 	environmentalLight->getComponent<LightingComponent>()->setAmbient(glm::vec3(0.1f, 0.1f, 0.1f));
 	environmentalLight->getComponent<LightingComponent>()->setDirectionalLight(glm::vec3(0.7f, 0.7f, 0.7f));
 
-	auto cameraChild = environmentalLight->addChild();
-	cameraChild->addComponent<CameraComponent>();
-	cameraChild->getComponent<CameraComponent>()->setOrthographicCamera(100.f, 100.f, 0.1f, 100.f);
-	auto transformComponent = cameraChild->getComponent<TransformComponent>();
-	transformComponent->setLocalPosition(-15.0f, 7.0f, 0.0f);
-	auto q1 = physx::PxQuat(glm::radians(-30.f), physx::PxVec3(1.f, 0.f, 0.f));
-	auto q2 = physx::PxQuat(glm::radians(-90.f), physx::PxVec3(0.f, 1.f, 0.f));
-	transformComponent->setLocalRotation(q2 * q1);
+
 
 	auto cube = scene->addEntity();
 	auto modelComponent     = cube->addComponent<ModelComponent>();
 	auto renderComponent    = cube->addComponent<RendererComponent>();
 	auto rigidbodyComponent = cube->addComponent<RigidbodyComponent>();
 	cube->addComponent<AudioComponent>();
-	transformComponent = cube->getComponent<TransformComponent>();
+	auto transformComponent = cube->getComponent<TransformComponent>();
 
 	g_boxID = cube->id();
 
@@ -110,6 +103,17 @@ Application::Application(appSettings& settings):
 	camTransform->setLocalPosition(0.0f, 9.0f, -5.5f);
 	camTransform->setLocalRotation(glm::radians(-45.0f), glm::vec3(1.f, 0.f, 0.f));
 	camTransform->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
+
+	auto cameraChild = car->addChild();
+	cameraChild->addComponent<CameraComponent>();
+	cameraChild->getComponent<CameraComponent>()->setOrthographicCamera(100.f, 100.f, 0.1f, 100.f);
+	transformComponent = cameraChild->getComponent<TransformComponent>();
+	transformComponent->setLocalPosition(-30.0f, 20.0f, 0.0f);
+	auto q1 = physx::PxQuat(glm::radians(-60.f), physx::PxVec3(1.f, 0.f, 0.f));
+	auto q2 = physx::PxQuat(glm::radians(-90.f), physx::PxVec3(0.f, 1.f, 0.f));
+	transformComponent->setLocalRotation(q2 * q1);
+	cameraChild->addComponent<DescriptionComponent>();
+	cameraChild->getComponent<DescriptionComponent>()->setInteger("Ignore parent rotations in render", 1);
 
 	mainCamTransform = camera->getComponent<TransformComponent>();
 
