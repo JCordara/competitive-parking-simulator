@@ -450,11 +450,12 @@ PxConvexMesh* createChassisMesh(const PxVec3 dims, PxPhysics& physics, PxCooking
     return createConvexMesh(verts, 8, physics, cooking);
 }
 
-PxRigidDynamic* createVehicleActor
-(const PxVehicleChassisData& chassisData,
-    PxMaterial** wheelMaterials, PxConvexMesh** wheelConvexMeshes, const PxU32 numWheels, const PxFilterData& wheelSimFilterData,
-    PxMaterial** chassisMaterials, PxConvexMesh** chassisConvexMeshes, const PxU32 numChassisMeshes, const PxFilterData& chassisSimFilterData,
-    PxPhysics& physics)
+PxRigidDynamic* createVehicleActor(
+    const PxVehicleChassisData& chassisData, PxMaterial** wheelMaterials, 
+    PxConvexMesh** wheelConvexMeshes, const PxU32 numWheels, 
+    const PxFilterData& wheelSimFilterData, PxMaterial** chassisMaterials, 
+    PxConvexMesh** chassisConvexMeshes, const PxU32 numChassisMeshes, 
+    const PxFilterData& chassisSimFilterData, PxPhysics& physics)
 {
     //We need a rigid body actor for the vehicle.
     //Don't forget to add the actor to the scene after setting up the associated vehicle.
@@ -618,8 +619,11 @@ PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc, PxPhysics* p
 
         //Engine
         PxVehicleEngineData engine;
-        engine.mPeakTorque = 500.0f;
-        engine.mMaxOmega = 600.0f;//approx 6000 rpm
+        engine.mPeakTorque = 1000.0f;  // accel
+        engine.mMaxOmega = 600.0f;      // top speed
+        engine.mMOI = 0.15f;
+        engine.mDampingRateFullThrottle = 0.25f;
+        engine.mDampingRateZeroThrottleClutchEngaged = 3.0f;
         driveSimData.setEngineData(engine);
 
         //Gears

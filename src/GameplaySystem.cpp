@@ -5,6 +5,8 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene)
 {
     Events::AiComponentInit.registerHandler<GameplaySystem,
         &GameplaySystem::registerAiComponent>(this);
+
+	setupAiNodes();
 }
     
 void GameplaySystem::update() {
@@ -31,7 +33,7 @@ GameplaySystem::~GameplaySystem() {
 void GameplaySystem::setupAiNodes() {
 
 	// Spawn Node Collection
-	std::shared_ptr<AiGraphNode> aiNode1 = std::shared_ptr<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode1 = std::make_shared<AiGraphNode>();
 	aiNode1->nodeType = AiGraphNode::NodeType::SPAWN;
 	aiNode1->position = glm::vec3();
 	aiGlobalNodes.push_back(aiNode1);

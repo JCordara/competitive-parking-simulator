@@ -21,17 +21,17 @@ public:
 		INTERSECTION,
 		SPAWN
 	};
-	AiGraphNode() {}
+	AiGraphNode();
 	// Sorting operator for f values
 	bool operator< (const std::shared_ptr<AiGraphNode>& other) const {
 		return g+h < other->g + other->h;
 	}
 	std::vector<std::shared_ptr<AiGraphNode>> neighbours;
-	glm::vec3 position;
+	glm::vec3 position = glm::vec3(1,1,1);
 	std::shared_ptr<AiGraphNode> parent; // For A* algorithm
-	float g; // For A* algorithm
-	float h; // For A* algorithm
-	NodeType nodeType;
+	float g = 0; // For A* algorithm
+	float h = 0; // For A* algorithm
+	NodeType nodeType = NodeType::SPAWN;
 	bool spawnTaken = false; // Only for Spawn nodes
 };
 
@@ -48,8 +48,6 @@ public:
     static ComponentEnum getType();
 
     void update();
-	void setCurrentNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList);
-	void pickRandGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList);
 	void switchState(States newState);
 
 	void setGameplaySystem(shared_ptr<GameplaySystem> system) { 
@@ -66,6 +64,8 @@ private:
 	// std::vector<GraphNode> graph;
 	std::shared_ptr<AiGraphNode> currentNode; // Node the AI car currently belongs to
 
+	void setSpawnNode();
+	void pickRandGoalNode();
 	void aStar(std::shared_ptr<AiGraphNode> goalNode);
 	float getFValue(std::shared_ptr<AiGraphNode> node);
 	float getHValue(std::shared_ptr<AiGraphNode> node,

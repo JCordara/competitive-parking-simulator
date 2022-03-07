@@ -1,12 +1,18 @@
 #include "Application.h"
 
 // Milestone hacks
-void Application::vroomSound(Entity&, float) {
-	audioSystem->createSource().playAudio(audioSystem->loadAudio("audio/rev.wav"));
+void Application::vroomSound(Entity&, float v) {
+	if (v <= 0) return;
+	AudioSource& s = audioSystem->createSource();
+	Audio& a = audioSystem->loadAudio("audio/rev.wav");
+	s.setGain(0.4f);
+	s.playAudio(a);
 }
 
 void Application::collisionSound() {
-	audioSystem->createSource().playAudio(audioSystem->loadAudio("audio/oof.wav"));
+	AudioSource& s = audioSystem->createSource();
+	Audio& a = audioSystem->loadAudio("audio/oof.wav");
+	s.playAudio(a);
 }
 
 // Actual code
@@ -52,10 +58,13 @@ Application::Application(appSettings& settings):
 	transformComponent = cube->getComponent<TransformComponent>();
 
 	auto cubeModel = std::make_shared<Model>(
-		"models/Test1.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/car3.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
-	auto vehicleModel = std::make_shared<Model>(
+	auto playerVehicleModel = std::make_shared<Model>(
 		"models/car1.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+
+	auto aiVehicleModel = std::make_shared<Model>(
+		"models/car2.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	modelComponent->setModel(cubeModel);
 	renderComponent->enableRender();
@@ -78,9 +87,9 @@ Application::Application(appSettings& settings):
 	auto aiCarRender = aiCar->addComponent<RendererComponent>();
 	auto aiCarVehicle = aiCar->addComponent<VehicleComponent>();
 	auto aiCarAI = aiCar->addComponent<AiComponent>();
-	aiCarAI->setCurrentNode(gameplay->aiGlobalNodes);
-	aiCarAI->pickRandGoalNode(gameplay->aiGlobalNodes);
-	aiCarModel->setModel(vehicleModel);
+	aiCarTransform->setLocalPosition(0.0f, 5.0f, 12.0f);
+	aiCarTransform->setLocalRotation(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	aiCarModel->setModel(aiVehicleModel);
 	aiCarRender->enableRender();
 
 	auto car = scene->addEntity();
@@ -90,7 +99,7 @@ Application::Application(appSettings& settings):
 	auto carVehicle    = car->addComponent<VehicleComponent>();
 	auto carController = car->addComponent<ControllerComponent>();
 
-	carModel->setModel(vehicleModel);
+	carModel->setModel(playerVehicleModel);
 	carRender->enableRender();
 	carController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);
 	carController->createAxis(GLFW_KEY_A, GLFW_KEY_D, &Events::VehicleSteer);
@@ -100,7 +109,7 @@ Application::Application(appSettings& settings):
 	camera->addComponent<CameraComponent>();
 	camera->getComponent<CameraComponent>()->setPerspectiveCamera(glm::radians(90.f), 1.f /*Will be modified to the window*/,0.01f, 300.f);
 	auto camTransform = camera->getComponent<TransformComponent>();
-	camTransform->setLocalPosition(0.0f, 10.0f, -5.0f);
+	camTransform->setLocalPosition(0.0f, 9.0f, -5.5f);
 	camTransform->setLocalRotation(glm::radians(-45.0f), glm::vec3(1.f, 0.f, 0.f));
 	camTransform->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
 
@@ -109,7 +118,7 @@ Application::Application(appSettings& settings):
 	mapGrass->addComponent<RendererComponent>();
 
 	auto mapGrassModel = std::make_shared<Model>(
-		"models/gamemapWholeMap.obj", glm::vec3(.5f, .1f, .2f)
+		"models/gamemapGrassPlane.obj", glm::vec3(.5f, .1f, .2f)
 	);
 
 	modelComponent = mapGrass->getComponent<ModelComponent>();
@@ -118,28 +127,54 @@ Application::Application(appSettings& settings):
 	renderComponent->enableRender();
 	transformComponent = mapGrass->getComponent<TransformComponent>();
 	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
-	transformComponent->localScale(0.3f, 0.3f, 0.3f);
+
+	auto mapRoad = scene->addEntity();
+	mapRoad->addComponent<ModelComponent>();
+	mapRoad->addComponent<RendererComponent>();
+
+	auto mapRoadModel = std::make_shared<Model>(
+		"models/gamemapRoad.obj", glm::vec3(.5f, .1f, .2f)
+	);
+
+	modelComponent = mapRoad->getComponent<ModelComponent>();
+	modelComponent->setModel(mapRoadModel);
+	renderComponent = mapRoad->getComponent<RendererComponent>();
+	renderComponent->enableRender();
+	transformComponent = mapRoad->getComponent<TransformComponent>();
+	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
+
+	auto mapPLines = scene->addEntity();
+	mapPLines->addComponent<ModelComponent>();
+	mapPLines->addComponent<RendererComponent>();
+
+	auto mapPLinesModel = std::make_shared<Model>(
+		"models/gamemapParkingLines.obj", glm::vec3(.5f, .1f, .2f)
+	);
+
+	modelComponent = mapPLines->getComponent<ModelComponent>();
+	modelComponent->setModel(mapPLinesModel);
+	renderComponent = mapPLines->getComponent<RendererComponent>();
+	renderComponent->enableRender();
+	transformComponent = mapPLines->getComponent<TransformComponent>();
+	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
+
+	auto mapFence = scene->addEntity();
+	mapFence->addComponent<ModelComponent>();
+	mapFence->addComponent<RendererComponent>();
+
+	auto mapFenceModel = std::make_shared<Model>(
+		"models/gamemapBoundaryFence.obj", glm::vec3(.5f, .5f, .5f)
+	);
+
+	modelComponent = mapFence->getComponent<ModelComponent>();
+	modelComponent->setModel(mapFenceModel);
+	renderComponent = mapFence->getComponent<RendererComponent>();
+	renderComponent->enableRender();
+	transformComponent = mapFence->getComponent<TransformComponent>();
+	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
 
 	Events::CarBoxCollision.registerHandler<Application, &Application::collisionSound>(this);
 	Events::VehicleAccelerate.registerHandler<Application, &Application::vroomSound>(this);
-
-	/*auto plane = scene->addEntity();
-	plane->addComponent<ModelComponent>();
-	plane->addComponent<RendererComponent>();
-	plane->addComponent<TransformComponent>();
-
-	auto planeModel = std::make_shared<Model>(
-		"models/SmilePlane.obj", glm::vec3(.5f, .1f, .2f));
-
-	modelComponent = plane->getComponent<ModelComponent>();
-	modelComponent->setModel(planeModel);
-	renderComponent = plane->getComponent<RendererComponent>();
-	renderComponent->enableRender();
-	transformComponent = plane->getComponent<TransformComponent>();
-	*/
-	//transformComponent->setLocalPosition(0.f, 0.f, 0.f);
-	//transformComponent->setLocalScale(10.f, 1.f, 10.f);
-	//transformComponent->setLocalRotation(-acosf(0.4f), glm::vec3(1.f, 0.f, 0.f));
 
 	/* --------------------- End Game World Description --------------------- */
 

@@ -42,12 +42,13 @@ glm::mat4 TransformComponent::getNestedMatrix(int depth) {
 }
 
 
-void TransformComponent::setLocalPosition(physx::PxVec3 position) {
-    setLocalPosition(position.x, position.y, position.z);
-}
-
 void TransformComponent::setLocalPosition(glm::vec3 position) {
     _position = position;
+	updatePhysicsPosition();
+}
+
+void TransformComponent::setLocalPosition(physx::PxVec3 position) {
+    setLocalPosition(position.x, position.y, position.z);
 }
 
 void TransformComponent::setLocalPosition(float x, float y, float z) {
@@ -57,6 +58,7 @@ void TransformComponent::setLocalPosition(float x, float y, float z) {
 
 void TransformComponent::setLocalRotation(physx::PxQuat rotation) {
       _rotation = rotation;
+	  updatePhysicsPosition();
 }
 
 void TransformComponent::setLocalRotation(float rotation, physx::PxVec3 axis) {
@@ -79,6 +81,7 @@ void TransformComponent::setLocalScale(float x, float y, float z) {
 
 void TransformComponent::localTranslate(glm::vec3 translation) {
     _position += translation;
+	updatePhysicsPosition();
 }
 
 void TransformComponent::localTranslate(float x, float y, float z) {
@@ -88,6 +91,7 @@ void TransformComponent::localTranslate(float x, float y, float z) {
 
 void TransformComponent::localRotate(physx::PxQuat rotation) {
 	_rotation = rotation *_rotation;
+	updatePhysicsPosition();
 }
 
 void TransformComponent::localRotate(float rotation, physx::PxVec3 axis) {
@@ -128,6 +132,39 @@ glm::mat4 TransformComponent::getLocalMatrix() {
 }
 
 
+void TransformComponent::updatePhysicsPosition() {
+	if (auto vc = entity.getComponent<VehicleComponent>()) {
+		vc->setTransform(toPxTransform(getGlobalMatrix()));
+	}
+}
+
+
+physx::PxTransform toPxTransform(glm::mat4& glm) {
+	
+	physx::PxMat44 px;
+	
+	px[0][0] = glm[0][0];
+	px[0][1] = glm[0][1];
+	px[0][2] = glm[0][2];
+	px[0][3] = glm[0][3];
+
+	px[1][0] = glm[1][0];
+	px[1][1] = glm[1][1];
+	px[1][2] = glm[1][2];
+	px[1][3] = glm[1][3];
+
+	px[2][0] = glm[2][0];
+	px[2][1] = glm[2][1];
+	px[2][2] = glm[2][2];
+	px[2][3] = glm[2][3];
+
+	px[3][0] = glm[3][0];
+	px[3][1] = glm[3][1];
+	px[3][2] = glm[3][2];
+	px[3][3] = glm[3][3];
+
+	return physx::PxTransform(px);
+}
 
 glm::mat4 quat_to_mat4(physx::PxQuat quat)
 {
