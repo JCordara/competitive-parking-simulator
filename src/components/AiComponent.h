@@ -33,6 +33,7 @@ public:
 	float h = 0; // For A* algorithm
 	NodeType nodeType = NodeType::SPAWN;
 	bool spawnTaken = false; // Only for Spawn nodes
+	int id = 0;
 };
 
 class AiComponent : public BaseComponent {

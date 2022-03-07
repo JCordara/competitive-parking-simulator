@@ -9,9 +9,9 @@ AiComponent::AiComponent(Entity& parent)
     : BaseComponent(parent)
 {
 	Events::AiComponentInit.broadcast(*this);
-	void setSpawnNode();
+	setSpawnNode();
 	std::cout << "SET THE SPAWN NODE" << std::endl;
-	void pickRandGoalNode();
+	pickRandGoalNode();
 	// forward
 	Events::VehicleAccelerate.broadcast(entity, 0.3); // Something to fix
 }
@@ -56,17 +56,25 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 	std::shared_ptr<AiGraphNode> Q = currentNode; // just to start
 	while (true) {
 		if (openList.size() == 0) break;
+		int index = 0;
+		if (openList.size() > 0) {
+			Q = openList[0]; // Just to start
+		}
 		// Find next node closest to goal
-		for each (std::shared_ptr<AiGraphNode> openNode in openList) {
-			if (getFValue(openNode) < getFValue(Q)) {
-				Q = openNode;
+		for (int i = 0; i < openList.size(); i++) {
+			std::cout << "OPENNODE: " << openList[i]->id << std::endl;
+			if (getFValue(openList[i]) < getFValue(Q)) {
+				Q = openList[i];
+				index = i;
 			}
 		}
-		auto _ = std::remove(openList.begin(), openList.end(), Q);
+		std::cout << "Q IS: " << Q->id << std::endl;
+		openList.erase(openList.begin()+index);
+		std::cout << "SIZE OF OPENNODES: " << openList.size() << std::endl;
 		if (Q->position == goalNode->position) break; // return Q
 		closedList.push_back(Q);
 		for each (std::shared_ptr<AiGraphNode> neighbor in Q->neighbours){
-			
+			std::cout << "NEIGHBOR IS: " << neighbor->id << std::endl;
 			neighbor->g = Q->g + getHValue(Q, neighbor);
 			neighbor->h = getHValue(neighbor, goalNode); //hueristic
 
@@ -74,8 +82,10 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 			// If this node has already been visited and has the same
 			// or a better path, ignore this node
 			for each (std::shared_ptr<AiGraphNode> openNode in openList) {
+				std::cout << "OPENNODE: " << openNode->id << std::endl;
 				if (openNode->position == neighbor->position) {
 					if (getFValue(openNode) <= getFValue(neighbor)) {
+						std::cout << "OPENNODE: " << openNode->id << std::endl;
 						skip = true;
 					}
 				}
@@ -111,7 +121,10 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 	std::cout << "FINISHED A STAR" << std::endl;
 	std::cout << "SIZE OF GLOBAL NODE LIST: " << gameplaySystem->aiGlobalNodes.size() << std::endl;
 	std::cout << "SIZE OF PATH OF NODES" << nodeQueue.size() << std::endl;
-	std::cout << "CURRENT NODE" << std::endl;
+	for (int i = 0; i < nodeQueue.size(); i++) {
+		std::cout << "NODE ID: " << nodeQueue[i]->id << std::endl;
+	}
+	std::cout << "CURRENT NODE" << currentNode->id << std::endl;
 }
 
 // This is just a get distance method really
@@ -148,10 +161,10 @@ void AiComponent::searchState() {
 	// COULD USE A PHYSX TRIGGERBOX INSTEAD HERE
 	float currentX = entity.getComponent<TransformComponent>()->getGlobalPosition().x;
 	float currentZ = entity.getComponent<TransformComponent>()->getGlobalPosition().z;
-	bool withinXBounds =	currentX + NODETHRESHOLD <= currentNode->position.x &&
-							currentX - NODETHRESHOLD >= currentNode->position.x;
-	bool withinZBounds =	currentZ + NODETHRESHOLD <= currentNode->position.z &&
-							currentZ - NODETHRESHOLD >= currentNode->position.z;
+	bool withinXBounds =	currentX <= currentNode->position.x + NODETHRESHOLD &&
+							currentX >= currentNode->position.x - NODETHRESHOLD;
+	bool withinZBounds =	currentZ <= currentNode->position.z + NODETHRESHOLD &&
+							currentZ >= currentNode->position.z - NODETHRESHOLD;
 	if (withinXBounds && withinZBounds) {
 		if (nodeQueue.size() == 1) {
 			pickClosestParkingNode(currentNode);
@@ -159,6 +172,7 @@ void AiComponent::searchState() {
 		}
 		else {
 			currentNode = nodeQueue[0];
+			std::cout << "CURRENT NODE" << currentNode->id << std::endl;
 			nodeQueue.erase(nodeQueue.begin());
 		}
 	}
@@ -210,7 +224,7 @@ void AiComponent::pickRandGoalNode() {
 	std::srand(Time::now());
 	// Should give number between 0 and vector.szie()-1
 	int pick = rand() % randIntCeiling;
-	std::cout << "PICKED A RANDOM NODE" << nodes[pick] << std::endl;
+	std::cout << "PICKED A RANDOM NODE" << nodes[pick]->id << std::endl;
 	aStar(nodes[pick]);
 }
 
@@ -225,7 +239,7 @@ void AiComponent::parkState() {
 							currentZ - NODETHRESHOLD >= currentNode->position.z;
 	if (withinXBounds && withinZBounds) {
 		if (nodeQueue.size() == 1) {
-			Events::VehicleBrake.broadcast(entity, 0.5);
+			Events::VehicleBrake.broadcast(entity, 1.f);
 		}
 		else {
 			currentNode = nodeQueue[0];
@@ -237,27 +251,30 @@ void AiComponent::parkState() {
 
 // Gets angle between goal and current forward, turns a bit in that direction nad goes forward.
 void AiComponent::moveToNextNode() {
+	const float ANGLETHRESHOLD = 3.14/10;
 	// Less sure this method works
 	glm::mat4 aiCarTransform = entity.getComponent<TransformComponent>()->getGlobalMatrix();
 	glm::vec3 aiForward = glm::vec3(aiCarTransform[2][0], aiCarTransform[2][1], aiCarTransform[2][2]);
 	// This method might work better
 	physx::PxQuat aiCarRotation = entity.getComponent<TransformComponent>()->getLocalRotation();
 	glm::vec3 aiForwardQuat = ComputeForwardVector(aiCarRotation);
+	aiForwardQuat = glm::normalize(aiForwardQuat);
 	// Vec between car and next node
 	glm::vec3 nodesVec = currentNode->position - entity.getComponent<TransformComponent>()->getGlobalPosition();
+	nodesVec = glm::normalize(nodesVec);
 
-	float angle = glm::dot(glm::normalize(aiForwardQuat), glm::normalize(nodesVec));
+	float angle = glm::dot(aiForwardQuat, nodesVec);
 	angle = angle / glm::length(aiForwardQuat);
 	angle = angle / glm::length(nodesVec);
 	angle = glm::acos(angle);
 	glm::vec3 cross = glm::cross(aiForwardQuat, nodesVec);
 	float angleFinal = glm::dot(glm::vec3(0, 1, 0), cross);
-	if (angleFinal < 0) {
-		float turnAmount = std::max(-1.f, (angleFinal/90));
+	if (angleFinal > 0) {
+		float turnAmount = std::max(-1.f, (angleFinal/(3.14f/2)));
 		//turn left
 		Events::VehicleSteer.broadcast(entity, turnAmount);
 	}
-	else {
+	else if (angleFinal ){
 		float turnAmount = std::min(1.f, (angleFinal / 90));
 		//turn right
 		Events::VehicleSteer.broadcast(entity, turnAmount);
