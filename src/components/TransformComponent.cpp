@@ -163,7 +163,7 @@ void TransformComponent::updateComponents() {
 }
 
 
-physx::PxTransform toPxTransform(glm::mat4& glm) {
+physx::PxTransform toPxTransform(glm::mat4 glm) {
 	
 	physx::PxMat44 px;
 	
