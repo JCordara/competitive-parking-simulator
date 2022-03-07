@@ -3,6 +3,9 @@
 #include "components/Entity.h"
 #include "Event.h"
 
+extern unsigned int g_boxID;
+extern unsigned int g_carID;
+
 void PhysXSimCallback::onContact(
     const PxContactPairHeader& pairHeader, 
     const PxContactPair* pairs, 
@@ -22,8 +25,10 @@ void PhysXSimCallback::onContact(
             unsigned int eID_1 = e1->id();
             unsigned int eID_2 = e2->id();
 
-            if ((eID_1 == 3 || eID_1 == 4) && (eID_2 == 3 || eID_2 == 4))
+            if ((eID_1 == g_carID || eID_1 == g_boxID) 
+            && (eID_2 == g_carID || eID_2 == g_boxID)) {
                 Events::CarBoxCollision.broadcast();
+            }
 
         }
     }

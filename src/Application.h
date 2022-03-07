@@ -55,6 +55,8 @@ public:
 
 private:
 
+	sp<TransformComponent> mainCamTransform;
+
 	appSettings settings;
 
 	/* Framework */
@@ -65,8 +67,8 @@ private:
 	std::shared_ptr<GameplaySystem>    gameplay;
 	std::shared_ptr<PhysicsSystem>     physics;
 	std::shared_ptr<RenderSystem>      render;
-	std::shared_ptr<AudioSystem>       audioSystem;
-	std::shared_ptr<InputSystem>  	   inputSystem;
+	std::shared_ptr<AudioSystem>       audio;
+	std::shared_ptr<InputSystem>  	   input;
 
 };
 

@@ -3,12 +3,35 @@
 
 #include "Components.h"
 
+class AudioSystem;
+class AudioSource;
+class Audio;
 
 class AudioComponent : public BaseComponent {
 public:
     AudioComponent(Entity& parent);
     ~AudioComponent();
     static ComponentEnum getType();
+
+    void setAudioSystem(sp<AudioSystem> as) {
+        audioSystem = as;
+    }
+
+    void updatePosition(glm::vec3 newPos);
+
+    void playSound(int id);
+
+    inline void onCrash() {
+        playSound(0);
+    }
+
+private:
+
+    sp<AudioSystem> audioSystem;
+    sp<TransformComponent> transform;
+
+    std::vector<Audio*> sounds;
+    AudioSource* source;
 };
 
 #endif // AUDIO_COMPONENT_H

@@ -52,7 +52,7 @@ private:
 	physx::PxQuat _rotation;
     glm::vec3 _scale;
 
-    void updatePhysicsPosition();
+    void updateComponents();
 };
 
 physx::PxTransform toPxTransform(glm::mat4& glm);

@@ -4,6 +4,20 @@
 #include "Entity.h"
 #include "Event.h"
 
+// Forward declare all component types
+class AiComponent;
+class AudioComponent;
+class ControllerComponent;
+class DescriptionComponent;
+class ModelComponent;
+class TransformComponent;
+class RigidbodyComponent;
+class RendererComponent;
+class LightingComponent;
+class CameraComponent;
+class VehicleComponent;
+class VolumeTriggerComponent;
+
 // Fun fact this is sorted alphabetically and I have OCD
 enum class ComponentEnum {
 	ai,
