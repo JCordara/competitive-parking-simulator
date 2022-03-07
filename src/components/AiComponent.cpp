@@ -5,6 +5,8 @@ AiComponent::AiComponent(Entity& parent)
     : BaseComponent(parent)
 {
 	Events::AiComponentInit.broadcast(*this);
+	void setSpawnNode();
+	void pickRandGoalNode();
 }
 
 ComponentEnum AiComponent::getType() {
@@ -115,12 +117,11 @@ float AiComponent::getFValue(std::shared_ptr<AiGraphNode> node) {
 }
 
 // Set the next node for the AI to go to
-void AiComponent::setCurrentNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList) {
-	for each (std::shared_ptr<AiGraphNode> node in globalNodeList) {
+void AiComponent::setSpawnNode() {
+	for each (std::shared_ptr<AiGraphNode> node in gameplaySystem->aiGlobalNodes) {
 		if (node->nodeType == AiGraphNode::NodeType::SPAWN && !(node->spawnTaken)) {
 			currentNode = node;
 			node->spawnTaken = true;
-			// 
 		}
 	}
 }
@@ -183,10 +184,10 @@ void AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode)
 	}
 }
 
-void AiComponent::pickRandGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList) {
+void AiComponent::pickRandGoalNode() {
 	// Randomly pick a node from the entrances to parking lots
 	std::vector<std::shared_ptr<AiGraphNode>> nodes;
-	for each (std::shared_ptr<AiGraphNode> node in globalNodeList) {
+	for each (std::shared_ptr<AiGraphNode> node in gameplaySystem->aiGlobalNodes) {
 		if (node->nodeType == AiGraphNode::NodeType::LOTENTRANCE) {
 			nodes.push_back(node);
 		}

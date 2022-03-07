@@ -48,8 +48,6 @@ public:
     static ComponentEnum getType();
 
     void update();
-	void setCurrentNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList);
-	void pickRandGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList);
 	void switchState(States newState);
 
 	void setGameplaySystem(shared_ptr<GameplaySystem> system) { 
@@ -66,6 +64,8 @@ private:
 	// std::vector<GraphNode> graph;
 	std::shared_ptr<AiGraphNode> currentNode; // Node the AI car currently belongs to
 
+	void setSpawnNode();
+	void pickRandGoalNode();
 	void aStar(std::shared_ptr<AiGraphNode> goalNode);
 	float getFValue(std::shared_ptr<AiGraphNode> node);
 	float getHValue(std::shared_ptr<AiGraphNode> node,

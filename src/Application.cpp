@@ -78,8 +78,6 @@ Application::Application(appSettings& settings):
 	auto aiCarRender = aiCar->addComponent<RendererComponent>();
 	auto aiCarVehicle = aiCar->addComponent<VehicleComponent>();
 	auto aiCarAI = aiCar->addComponent<AiComponent>();
-	aiCarAI->setCurrentNode(gameplay->aiGlobalNodes);
-	aiCarAI->pickRandGoalNode(gameplay->aiGlobalNodes);
 	aiCarModel->setModel(vehicleModel);
 	aiCarRender->enableRender();
 

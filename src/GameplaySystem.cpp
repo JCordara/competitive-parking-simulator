@@ -5,6 +5,8 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene)
 {
     Events::AiComponentInit.registerHandler<GameplaySystem,
         &GameplaySystem::registerAiComponent>(this);
+
+	setupAiNodes();
 }
     
 void GameplaySystem::update() {
