@@ -15,6 +15,7 @@
 - Physics Components
   - RigidbodyComponent (Keaton)
     - Cleanup
+    - Fix Vechile Body 
   - VehicleComponent (Joseph)
     - Tunable parameters
       - Top speed

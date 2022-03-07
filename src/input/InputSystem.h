@@ -46,10 +46,10 @@ public:
 	);
 
 	/* Create an axis from a single axis input and bind to event */
-	void createAxis(int inputPositive, Event<float>* event);
+	void createAxis(int input, Event<float>* event);
 	
 	/* Create an axis from a single axis input and bind to event */
-	void createAxis(int inputPositive, Event<Entity&, float>* event, Entity& e);
+	void createAxis(int input, Event<Entity&, float>* event, Entity& e);
 
 	/* Remove an axis bound to the keys */
 	void removeAxis(int inputA, int inputB);

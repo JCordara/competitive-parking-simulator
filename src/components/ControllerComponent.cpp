@@ -23,6 +23,14 @@ void ControllerComponent::createAxis(
     inputSystem->createAxis(inputPositive, inputNegative, event, entity, type);
 }
 
+/* Create an axis from input and bind to event */
+void ControllerComponent::createAxis(
+    int input, 
+    Event<Entity&, float>* event) 
+{
+    inputSystem->createAxis(input, event, entity);
+}
+
 /* Remove an axis bound to the keys */
 void ControllerComponent::removeAxis(int inputA, int inputB) {
     inputSystem->removeAxis(inputA, inputB);
