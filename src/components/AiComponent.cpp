@@ -10,6 +10,7 @@ AiComponent::AiComponent(Entity& parent)
 {
 	Events::AiComponentInit.broadcast(*this);
 	void setSpawnNode();
+	std::cout << "SET THE SPAWN NODE" << std::endl;
 	void pickRandGoalNode();
 }
 
@@ -35,6 +36,7 @@ void AiComponent::update() {
 }
 
 void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
+	std::cout << "STARTING A STAR" << std::endl;
 	//Start node is the next node in the path 
 	// if the recalculated path keeps going the way the AI was going great
 	// If not, then the AI can finish heading to that node and turn around
@@ -45,7 +47,7 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 	std::vector<std::shared_ptr<AiGraphNode>> closedList;
 
 	// Initialize open list with starting node
-	currentNode->parent = nullptr;
+	currentNode->parentNode = nullptr;
 	currentNode->g = 0;
 	openList.push_back(currentNode);
 
@@ -86,7 +88,7 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 				}
 			}
 			if (!skip) {
-				neighbor->parent = Q;
+				neighbor->parentNode = Q;
 				openList.push_back(neighbor);
 			}
 			std::sort(openList.begin(), openList.end());
@@ -96,14 +98,18 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 	std::shared_ptr<AiGraphNode> tempNode = Q;
 	nodeQueue.push_back(tempNode);//goal node
 	while (true) {
-		if (tempNode->parent != nullptr) {
-			tempNode = tempNode->parent;
+		if (tempNode->parentNode != nullptr) {
+			tempNode = tempNode->parentNode;
 			nodeQueue.insert(nodeQueue.begin(), tempNode);
 		}
 		else {
 			break;
 		}
 	}
+	std::cout << "FINISHED A STAR" << std::endl;
+	std::cout << "SIZE OF GLOBAL NODE LIST: " << gameplaySystem->aiGlobalNodes.size() << std::endl;
+	std::cout << "SIZE OF PATH OF NODES" << nodeQueue.size() << std::endl;
+	std::cout << "CURRENT NODE" << std::endl;
 }
 
 // This is just a get distance method really
@@ -201,6 +207,7 @@ void AiComponent::pickRandGoalNode() {
 	std::srand(Time::now());
 	// Should give number between 0 and vector.szie()-1
 	int pick = rand() % randIntCeiling;
+	std::cout << "PICKED A RANDOM NODE" << nodes[pick] << std::endl;
 	aStar(nodes[pick]);
 }
 

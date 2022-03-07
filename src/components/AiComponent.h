@@ -28,7 +28,7 @@ public:
 	}
 	std::vector<std::shared_ptr<AiGraphNode>> neighbours;
 	glm::vec3 position = glm::vec3(1,1,1);
-	std::shared_ptr<AiGraphNode> parent; // For A* algorithm
+	std::shared_ptr<AiGraphNode> parentNode; // For A* algorithm
 	float g = 0; // For A* algorithm
 	float h = 0; // For A* algorithm
 	NodeType nodeType = NodeType::SPAWN;
@@ -62,7 +62,7 @@ private:
 	std::vector<Entity> carQueue;
 	std::vector<std::shared_ptr<AiGraphNode>> nodeQueue;
 	// std::vector<GraphNode> graph;
-	std::shared_ptr<AiGraphNode> currentNode; // Node the AI car currently belongs to
+	std::shared_ptr<AiGraphNode> currentNode = std::make_shared<AiGraphNode>(); // Node the AI car currently belongs to
 
 	void setSpawnNode();
 	void pickRandGoalNode();

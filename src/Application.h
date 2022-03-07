@@ -22,7 +22,7 @@
 #include "GameplaySystem.h"
 #include "physics/PhysicsSystem.h"
 #include "RenderSystem.h"
-#include "InputSystem.h"
+#include "input/InputSystem.h"
 #include "audio/AudioSystem.h"
 
 // Other stuff

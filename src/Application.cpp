@@ -186,7 +186,11 @@ int Application::play() {
 
 			gameplay->update();	// Gameplay / AI update
 			physics->update();	// Physics update
-
+			/*for (int i = 0; i < scene->directChildren().size(); i++) {
+				std::cout << scene->directChildren().at(i)
+					<< scene->directChildren().at(i)->getComponent<TransformComponent>()->getGlobalPosition()
+					<< std::endl;
+			}*/
 		}
 
 		// Render the current scene
