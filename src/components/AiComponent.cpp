@@ -166,7 +166,7 @@ void AiComponent::searchState() {
 	bool withinZBounds =	currentZ <= currentNode->position.z + NODETHRESHOLD &&
 							currentZ >= currentNode->position.z - NODETHRESHOLD;
 	if (withinXBounds && withinZBounds) {
-		if (nodeQueue.size() == 1) {
+		if (currentNode->nodeType == AiGraphNode::NodeType::LOTENTRANCE) {
 			pickClosestParkingNode(currentNode);
 			state = States::PARK; // Reached entrance to parking lot
 		}
@@ -193,21 +193,28 @@ void AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode)
 			return;
 		}
 	}
+	visited.push_back(startNode);
 
-	for each (std::shared_ptr<AiGraphNode> node in parkingLot) {
-		for each (std::shared_ptr<AiGraphNode> neighbour in node->neighbours) {
-			if (node->nodeType == AiGraphNode::NodeType::INNERLOT) {
+	for (int i = 0; i < parkingLot.size(); i++) {
+		std::cout << "EXPANDING NODE: " << parkingLot[i]->id << std::endl;
+		for each (std::shared_ptr<AiGraphNode> neighbour in parkingLot[i]->neighbours) {
+			std::cout << "NEIGHBOR: " << neighbour->id << std::endl;
+			if (parkingLot[i]->nodeType == AiGraphNode::NodeType::INNERLOT) {
 				if (std::count(visited.begin(), visited.end(), neighbour) == 0) {
 					parkingLot.push_back(neighbour);
 				}
 			}
-			else if (node->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
+			else if (parkingLot[i]->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
+				std::cout << "FOUND PARKING STALL: " << parkingLot[i]->id << std::endl;
 				nodeQueue.clear(); // clear path for A*
-				aStar(node); // Sets path
+				aStar(parkingLot[i]); // Sets path
 				return;
 			}
 		}
-		std::remove(parkingLot.begin(), parkingLot.end(), node);
+		//::cout << "ERASING NODE: " << parkingLot[i]->id << std::endl;
+		//parkingLot.erase(parkingLot.begin() + i);
+		//std::remove(parkingLot.begin(), parkingLot.end(), node);
+		visited.push_back(parkingLot[i]);
 	}
 }
 
@@ -229,7 +236,7 @@ void AiComponent::pickRandGoalNode() {
 }
 
 void AiComponent::parkState() {
-	const float NODETHRESHOLD = 1.5; // How close to
+	const float NODETHRESHOLD = 2.5; // How close to
 	// COULD USE A PHYSX TRIGGERBOX INSTEAD HERE
 	float currentX = entity.getComponent<TransformComponent>()->getGlobalPosition().x;
 	float currentZ = entity.getComponent<TransformComponent>()->getGlobalPosition().z;
@@ -238,11 +245,12 @@ void AiComponent::parkState() {
 	bool withinZBounds =	currentZ + NODETHRESHOLD <= currentNode->position.z &&
 							currentZ - NODETHRESHOLD >= currentNode->position.z;
 	if (withinXBounds && withinZBounds) {
-		if (nodeQueue.size() == 1) {
+		if (currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
 			Events::VehicleBrake.broadcast(entity, 1.f);
 		}
 		else {
 			currentNode = nodeQueue[0];
+			std::cout << "CURRENT NODE" << currentNode->id << std::endl;
 			nodeQueue.erase(nodeQueue.begin());
 		}
 	}
@@ -269,15 +277,15 @@ void AiComponent::moveToNextNode() {
 	angle = glm::acos(angle);
 	glm::vec3 cross = glm::cross(aiForwardQuat, nodesVec);
 	float angleFinal = glm::dot(glm::vec3(0, 1, 0), cross);
-	if (angleFinal > 0) {
-		float turnAmount = std::max(-1.f, (angleFinal/(3.14f/2)));
+	if (angleFinal < 0) {
+		float turnAmount = std::max(-1.f, (angleFinal));
 		//turn left
-		Events::VehicleSteer.broadcast(entity, turnAmount);
+		Events::VehicleSteer.broadcast(entity, -turnAmount);
 	}
-	else if (angleFinal ){
-		float turnAmount = std::min(1.f, (angleFinal / 90));
+	else{
+		float turnAmount = std::min(1.f, (angleFinal));
 		//turn right
-		Events::VehicleSteer.broadcast(entity, turnAmount);
+		Events::VehicleSteer.broadcast(entity, -turnAmount);
 	}
 	
 }
