@@ -4,6 +4,7 @@
 #include "Components.h"
 #include <algorithm>
 #include <TimeInfo.h>
+#include <PhysX/PxPhysicsAPI.h>
 
 class AiGraphNode {
 public:
@@ -11,7 +12,8 @@ public:
 		OUTERROAD = 1,
 		LOTENTRANCE,
 		INNERLOT,
-		PARKINGSTALL
+		PARKINGSTALL,
+		INTERSECTION
 	};
 	AiGraphNode() {}
 	// Sorting operator for f values
@@ -50,11 +52,16 @@ private:
 
 	void aStar(std::shared_ptr<AiGraphNode> goalNode);
 	float getFValue(std::shared_ptr<AiGraphNode> node);
-	float getHValue(std::shared_ptr<AiGraphNode> node, std::shared_ptr<AiGraphNode> goalNode);
-	void searchState(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList);
+	float getHValue(std::shared_ptr<AiGraphNode> node,
+					std::shared_ptr<AiGraphNode> goalNode);
+	void searchState();
 	void parkState();
-	void pickGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList);
+	void pickRandGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList,
+						AiGraphNode::NodeType type);
+	void pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode);
 	void moveToNextNode();
+	glm::vec3 ComputeForwardVector(physx::PxQuat quat) const;
+	float calcAngle2Vec();
 
 
     float sightFrontConeWidth;

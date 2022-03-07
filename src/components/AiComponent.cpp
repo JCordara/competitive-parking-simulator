@@ -14,6 +14,19 @@ AiComponent::~AiComponent() {
     // Nothing to do here yet
 }
 
+// Expected order of executions before AiComponent updates
+// AI has spawned and setCurrentNode(startNode) has been run
+// Then pickRandGoalNode(globalListOfNodes, LOTENTRANCE)
+// A* Will be called by the previous method and path set 
+void AiComponent::update() {
+	if (state == States::SEARCH) {
+		searchState();
+	}
+	else if (state == States::PARK) {
+		parkState();
+	}
+}
+
 void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 	//Start node is the next node in the path 
 	// if the recalculated path keeps going the way the AI was going great
@@ -83,7 +96,6 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 		else {
 			break;
 		}
-
 	}
 }
 
@@ -110,8 +122,9 @@ void AiComponent::switchState(States newState) {
 	state = newState;
 }
 
-void AiComponent::searchState(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList) {
+void AiComponent::searchState() {
 	const float NODETHRESHOLD = 2.5; // How close to
+	// COULD USE A PHYSX TRIGGERBOX INSTEAD HERE
 	float currentX = entity.getComponent<TransformComponent>()->getGlobalPosition().x;
 	float currentZ = entity.getComponent<TransformComponent>()->getGlobalPosition().z;
 	bool withinXBounds =	currentX + NODETHRESHOLD <= currentNode->position.x &&
@@ -119,31 +132,128 @@ void AiComponent::searchState(std::vector<std::shared_ptr<AiGraphNode>> globalNo
 	bool withinZBounds =	currentZ + NODETHRESHOLD <= currentNode->position.z &&
 							currentZ - NODETHRESHOLD >= currentNode->position.z;
 	if (withinXBounds && withinZBounds) {
-		currentNode = nodeQueue[0];
-		nodeQueue.erase(nodeQueue.begin());
+		if (nodeQueue.size() == 1) {
+			pickClosestParkingNode(currentNode);
+			state = States::PARK; // Reached entrance to parking lot
+		}
+		else {
+			currentNode = nodeQueue[0];
+			nodeQueue.erase(nodeQueue.begin());
+		}
 	}
 	moveToNextNode();
 }
 
-void AiComponent::pickGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList) {
-	// Randomly pick a node from the entrances to parking lots
-	std::vector<std::shared_ptr<AiGraphNode>> entrances;
-	for each (std::shared_ptr<AiGraphNode> node in globalNodeList) {
-		if (node->nodeType == AiGraphNode::NodeType::LOTENTRANCE) {
-			entrances.push_back(node);
+// Finds the closest parking lot node
+// Assumes node doesnt get taken
+void AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode) {
+	std::vector<std::shared_ptr<AiGraphNode>> parkingLot;
+	std::vector<std::shared_ptr<AiGraphNode>> visited;
+	for each (std::shared_ptr<AiGraphNode> node in startNode->neighbours) {
+		if (node->nodeType == AiGraphNode::NodeType::INNERLOT) {
+			parkingLot.push_back(node);
+		}
+		else if (node->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
+			currentNode = node;
+			return;
 		}
 	}
-	int randIntCeiling = entrances.size();
+
+	for each (std::shared_ptr<AiGraphNode> node in parkingLot) {
+		for each (std::shared_ptr<AiGraphNode> neighbour in node->neighbours) {
+			if (node->nodeType == AiGraphNode::NodeType::INNERLOT) {
+				if (std::count(visited.begin(), visited.end(), neighbour) == 0) {
+					parkingLot.push_back(neighbour);
+				}
+			}
+			else if (node->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
+				nodeQueue.clear(); // clear path for A*
+				aStar(node); // Sets path
+				return;
+			}
+		}
+		std::remove(parkingLot.begin(), parkingLot.end(), node);
+	}
+}
+
+void AiComponent::pickRandGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList, AiGraphNode::NodeType type) {
+	// Randomly pick a node from the entrances to parking lots
+	std::vector<std::shared_ptr<AiGraphNode>> nodes;
+	for each (std::shared_ptr<AiGraphNode> node in globalNodeList) {
+		if (node->nodeType == type) {
+			nodes.push_back(node);
+		}
+	}
+	int randIntCeiling = nodes.size();
 	std::srand(Time::now());
 	// Should give number between 0 and vector.szie()-1
 	int pick = rand() % randIntCeiling;
-	aStar(entrances[pick]);
+	aStar(nodes[pick]);
 }
 
 void AiComponent::parkState() {
-
+	const float NODETHRESHOLD = 1.5; // How close to
+	// COULD USE A PHYSX TRIGGERBOX INSTEAD HERE
+	float currentX = entity.getComponent<TransformComponent>()->getGlobalPosition().x;
+	float currentZ = entity.getComponent<TransformComponent>()->getGlobalPosition().z;
+	bool withinXBounds =	currentX + NODETHRESHOLD <= currentNode->position.x &&
+							currentX - NODETHRESHOLD >= currentNode->position.x;
+	bool withinZBounds =	currentZ + NODETHRESHOLD <= currentNode->position.z &&
+							currentZ - NODETHRESHOLD >= currentNode->position.z;
+	if (withinXBounds && withinZBounds) {
+		if (nodeQueue.size() == 1) {
+			//Events::CarParked(entity);
+		}
+		else {
+			currentNode = nodeQueue[0];
+			nodeQueue.erase(nodeQueue.begin());
+		}
+	}
+	moveToNextNode();
 }
 
+// Gets angle between goal and current forward, turns a bit in that direction nad goes forward.
 void AiComponent::moveToNextNode() {
+	// Less sure this method works
+	glm::mat4 aiCarTransform = entity.getComponent<TransformComponent>()->getGlobalMatrix();
+	glm::vec3 aiForward = glm::vec3(aiCarTransform[2][0], aiCarTransform[2][1], aiCarTransform[2][2]);
+	// This method might work better
+	physx::PxQuat aiCarRotation = entity.getComponent<TransformComponent>()->getLocalRotation();
+	glm::vec3 aiForwardQuat = ComputeForwardVector(aiCarRotation);
+	// Vec between car and next node
+	glm::vec3 nodesVec = currentNode->position - entity.getComponent<TransformComponent>()->getGlobalPosition();
 
+	float angle = glm::dot(glm::normalize(aiForwardQuat), glm::normalize(nodesVec));
+	angle = angle / glm::length(aiForwardQuat);
+	angle = angle / glm::length(nodesVec);
+	angle = glm::acos(angle);
+	glm::vec3 cross = glm::cross(aiForwardQuat, nodesVec);
+	float angleFinal = glm::dot(glm::vec3(0, 1, 0), cross);
+	if (angleFinal < 0) {
+		float turnAmount = std::max(-1.f, (angleFinal/90));
+		//turn left
+		Events::VehicleSteer.broadcast(entity, turnAmount);
+	}
+	else {
+		float turnAmount = std::min(1.f, (angleFinal / 90));
+		//turn left
+		Events::VehicleSteer.broadcast(entity, turnAmount);
+	}
+	
+	// forward
+	Events::VehicleAccelerate.broadcast(entity, 0.1);
+}
+
+glm::vec3 AiComponent::ComputeForwardVector(physx::PxQuat quat) const
+{
+	const float x2 = 2.0f * quat.x;
+	const float y2 = 2.0f * quat.y;
+	const float z2 = 2.0f * quat.z;
+	const float x2w = x2 * quat.w;
+	const float y2w = y2 * quat.w;
+	const float x2x = x2 * quat.x;
+	const float z2x = z2 * quat.x;
+	const float y2y = y2 * quat.y;
+	const float z2y = z2 * quat.y;
+	return glm::vec3(z2x + y2w, z2y - x2w, 1.0f - (x2x + y2y));
 }
