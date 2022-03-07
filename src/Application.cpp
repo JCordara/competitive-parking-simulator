@@ -54,8 +54,11 @@ Application::Application(appSettings& settings):
 	auto cubeModel = std::make_shared<Model>(
 		"models/Test1.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
-	auto vehicleModel = std::make_shared<Model>(
+	auto playerVehicleModel = std::make_shared<Model>(
 		"models/car1.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+
+	auto aiVehicleModel = std::make_shared<Model>(
+		"models/car2.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	modelComponent->setModel(cubeModel);
 	renderComponent->enableRender();
@@ -78,7 +81,7 @@ Application::Application(appSettings& settings):
 	auto aiCarRender = aiCar->addComponent<RendererComponent>();
 	auto aiCarVehicle = aiCar->addComponent<VehicleComponent>();
 	auto aiCarAI = aiCar->addComponent<AiComponent>();
-	aiCarModel->setModel(vehicleModel);
+	aiCarModel->setModel(aiVehicleModel);
 	aiCarRender->enableRender();
 
 	auto car = scene->addEntity();
@@ -88,7 +91,7 @@ Application::Application(appSettings& settings):
 	auto carVehicle    = car->addComponent<VehicleComponent>();
 	auto carController = car->addComponent<ControllerComponent>();
 
-	carModel->setModel(vehicleModel);
+	carModel->setModel(playerVehicleModel);
 	carRender->enableRender();
 	carController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);
 	carController->createAxis(GLFW_KEY_A, GLFW_KEY_D, &Events::VehicleSteer);
