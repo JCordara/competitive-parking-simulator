@@ -114,8 +114,14 @@ float AiComponent::getFValue(std::shared_ptr<AiGraphNode> node) {
 }
 
 // Set the next node for the AI to go to
-void AiComponent::setCurrentNode(std::shared_ptr<AiGraphNode> startNode) {
-	currentNode = startNode;
+void AiComponent::setCurrentNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList) {
+	for each (std::shared_ptr<AiGraphNode> node in globalNodeList) {
+		if (node->nodeType == AiGraphNode::NodeType::SPAWN && !(node->spawnTaken)) {
+			currentNode = node;
+			node->spawnTaken = true;
+			// 
+		}
+	}
 }
 
 void AiComponent::switchState(States newState) {
@@ -176,11 +182,11 @@ void AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode)
 	}
 }
 
-void AiComponent::pickRandGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList, AiGraphNode::NodeType type) {
+void AiComponent::pickRandGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList) {
 	// Randomly pick a node from the entrances to parking lots
 	std::vector<std::shared_ptr<AiGraphNode>> nodes;
 	for each (std::shared_ptr<AiGraphNode> node in globalNodeList) {
-		if (node->nodeType == type) {
+		if (node->nodeType == AiGraphNode::NodeType::LOTENTRANCE) {
 			nodes.push_back(node);
 		}
 	}
@@ -236,12 +242,12 @@ void AiComponent::moveToNextNode() {
 	}
 	else {
 		float turnAmount = std::min(1.f, (angleFinal / 90));
-		//turn left
+		//turn right
 		Events::VehicleSteer.broadcast(entity, turnAmount);
 	}
 	
 	// forward
-	Events::VehicleAccelerate.broadcast(entity, 0.1);
+	Events::VehicleAccelerate.broadcast(entity, 0.1); // Something to fix
 }
 
 glm::vec3 AiComponent::ComputeForwardVector(physx::PxQuat quat) const

@@ -13,7 +13,8 @@ public:
 		LOTENTRANCE,
 		INNERLOT,
 		PARKINGSTALL,
-		INTERSECTION
+		INTERSECTION,
+		SPAWN
 	};
 	AiGraphNode() {}
 	// Sorting operator for f values
@@ -26,6 +27,7 @@ public:
 	float g; // For A* algorithm
 	float h; // For A* algorithm
 	NodeType nodeType;
+	bool spawnTaken = false; // Only for Spawn nodes
 };
 
 class AiComponent : public BaseComponent {
@@ -40,7 +42,8 @@ public:
     static ComponentEnum getType();
 
     void update();
-	void setCurrentNode(std::shared_ptr<AiGraphNode> startNode);
+	void setCurrentNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList);
+	void pickRandGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList);
 	void switchState(States newState);
 
 private:
@@ -56,8 +59,6 @@ private:
 					std::shared_ptr<AiGraphNode> goalNode);
 	void searchState();
 	void parkState();
-	void pickRandGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList,
-						AiGraphNode::NodeType type);
 	void pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode);
 	void moveToNextNode();
 	glm::vec3 ComputeForwardVector(physx::PxQuat quat) const;

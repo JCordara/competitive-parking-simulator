@@ -24,3 +24,31 @@ void GameplaySystem::update() {
 GameplaySystem::~GameplaySystem() {
 
 }
+
+void GameplaySystem::setupAiNodes() {
+
+	// Spawn Node Collection
+	std::shared_ptr<AiGraphNode> aiNode1 = std::shared_ptr<AiGraphNode>();
+	aiNode1->nodeType = AiGraphNode::NodeType::SPAWN;
+	aiNode1->position = glm::vec3();
+	aiGlobalNodes.push_back(aiNode1);
+	//
+
+	// Outer Roads Node Collection
+
+	//
+
+	// Entrances Node Collection
+
+	//
+
+	// Inner Parking Lot Node Collection
+
+	//
+
+	// Open Parking Stall Node Colelction
+
+	//
+
+	// Intersection Node Collection
+}

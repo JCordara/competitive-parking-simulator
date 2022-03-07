@@ -72,6 +72,17 @@ Application::Application(appSettings& settings):
 		)
 	);
 
+	auto aiCar = scene->addEntity();
+	auto aiCarTransform = aiCar->getComponent<TransformComponent>();
+	auto aiCarModel = aiCar->addComponent<ModelComponent>();
+	auto aiCarRender = aiCar->addComponent<RendererComponent>();
+	auto aiCarVehicle = aiCar->addComponent<VehicleComponent>();
+	auto aiCarAI = aiCar->addComponent<AiComponent>();
+	aiCarAI->setCurrentNode(gameplay->aiGlobalNodes);
+	aiCarAI->pickRandGoalNode(gameplay->aiGlobalNodes);
+	aiCarModel->setModel(vehicleModel);
+	aiCarRender->enableRender();
+
 	auto car = scene->addEntity();
 	auto carTransform  = car->getComponent<TransformComponent>();
 	auto carModel      = car->addComponent<ModelComponent>();

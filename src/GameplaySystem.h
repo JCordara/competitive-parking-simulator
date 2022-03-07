@@ -11,6 +11,8 @@ public:
 
     void update();
     ~GameplaySystem();
+	void setupAiNodes();
+	std::vector<std::shared_ptr<AiGraphNode>> aiGlobalNodes;
 
 private:
     std::shared_ptr<Scene> scene;
