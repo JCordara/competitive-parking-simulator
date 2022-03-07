@@ -62,19 +62,15 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 		}
 		// Find next node closest to goal
 		for (int i = 0; i < openList.size(); i++) {
-			std::cout << "OPENNODE: " << openList[i]->id << std::endl;
 			if (getFValue(openList[i]) < getFValue(Q)) {
 				Q = openList[i];
 				index = i;
 			}
 		}
-		std::cout << "Q IS: " << Q->id << std::endl;
 		openList.erase(openList.begin()+index);
-		std::cout << "SIZE OF OPENNODES: " << openList.size() << std::endl;
 		if (Q->position == goalNode->position) break; // return Q
 		closedList.push_back(Q);
 		for each (std::shared_ptr<AiGraphNode> neighbor in Q->neighbours){
-			std::cout << "NEIGHBOR IS: " << neighbor->id << std::endl;
 			neighbor->g = Q->g + getHValue(Q, neighbor);
 			neighbor->h = getHValue(neighbor, goalNode); //hueristic
 
@@ -82,10 +78,8 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 			// If this node has already been visited and has the same
 			// or a better path, ignore this node
 			for each (std::shared_ptr<AiGraphNode> openNode in openList) {
-				std::cout << "OPENNODE: " << openNode->id << std::endl;
 				if (openNode->position == neighbor->position) {
 					if (getFValue(openNode) <= getFValue(neighbor)) {
-						std::cout << "OPENNODE: " << openNode->id << std::endl;
 						skip = true;
 					}
 				}
@@ -119,8 +113,6 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 		}
 	}
 	std::cout << "FINISHED A STAR" << std::endl;
-	std::cout << "SIZE OF GLOBAL NODE LIST: " << gameplaySystem->aiGlobalNodes.size() << std::endl;
-	std::cout << "SIZE OF PATH OF NODES" << nodeQueue.size() << std::endl;
 	for (int i = 0; i < nodeQueue.size(); i++) {
 		std::cout << "NODE ID: " << nodeQueue[i]->id << std::endl;
 	}
@@ -196,16 +188,13 @@ void AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode)
 	visited.push_back(startNode);
 
 	for (int i = 0; i < parkingLot.size(); i++) {
-		std::cout << "EXPANDING NODE: " << parkingLot[i]->id << std::endl;
 		for each (std::shared_ptr<AiGraphNode> neighbour in parkingLot[i]->neighbours) {
-			std::cout << "NEIGHBOR: " << neighbour->id << std::endl;
 			if (parkingLot[i]->nodeType == AiGraphNode::NodeType::INNERLOT) {
 				if (std::count(visited.begin(), visited.end(), neighbour) == 0) {
 					parkingLot.push_back(neighbour);
 				}
 			}
 			else if (parkingLot[i]->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
-				std::cout << "FOUND PARKING STALL: " << parkingLot[i]->id << std::endl;
 				nodeQueue.clear(); // clear path for A*
 				aStar(parkingLot[i]); // Sets path
 				return;
@@ -231,19 +220,18 @@ void AiComponent::pickRandGoalNode() {
 	std::srand(Time::now());
 	// Should give number between 0 and vector.szie()-1
 	int pick = rand() % randIntCeiling;
-	std::cout << "PICKED A RANDOM NODE" << nodes[pick]->id << std::endl;
 	aStar(nodes[pick]);
 }
 
 void AiComponent::parkState() {
-	const float NODETHRESHOLD = 2.5; // How close to
+	const float NODETHRESHOLD = 1.5; // How close to
 	// COULD USE A PHYSX TRIGGERBOX INSTEAD HERE
 	float currentX = entity.getComponent<TransformComponent>()->getGlobalPosition().x;
 	float currentZ = entity.getComponent<TransformComponent>()->getGlobalPosition().z;
-	bool withinXBounds =	currentX + NODETHRESHOLD <= currentNode->position.x &&
-							currentX - NODETHRESHOLD >= currentNode->position.x;
-	bool withinZBounds =	currentZ + NODETHRESHOLD <= currentNode->position.z &&
-							currentZ - NODETHRESHOLD >= currentNode->position.z;
+	bool withinXBounds =	currentX <= currentNode->position.x + NODETHRESHOLD &&
+							currentX >= currentNode->position.x - NODETHRESHOLD;
+	bool withinZBounds =	currentZ <= currentNode->position.z + NODETHRESHOLD &&
+							currentZ >= currentNode->position.z - NODETHRESHOLD;
 	if (withinXBounds && withinZBounds) {
 		if (currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
 			Events::VehicleBrake.broadcast(entity, 1.f);

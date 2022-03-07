@@ -106,13 +106,13 @@ void GameplaySystem::setupAiNodes() {
 	// Open Parking Stall Node Colelction
 	aiNode8->nodeType = AiGraphNode::NodeType::PARKINGSTALL;
 	aiNode8->id = 8;
-	aiNode8->position = glm::vec3(-45, 1, 53);
+	aiNode8->position = glm::vec3(-45, 1, 60);
 	aiNode8->neighbours.push_back(aiNode6);
 	aiGlobalNodes.push_back(aiNode8);
 	
 	aiNode9->nodeType = AiGraphNode::NodeType::PARKINGSTALL;
 	aiNode9->id = 9;
-	aiNode9->position = glm::vec3(43, 1, -53);
+	aiNode9->position = glm::vec3(43, 1, -55);
 	aiNode9->neighbours.push_back(aiNode7);
 	aiGlobalNodes.push_back(aiNode9);
 	//
