@@ -55,3 +55,8 @@ void GameplaySystem::setupAiNodes() {
 
 	// Intersection Node Collection
 }
+
+void GameplaySystem::registerAiComponent(AiComponent& component) {
+	component.setGameplaySystem(
+		dynamic_pointer_cast<GameplaySystem>(shared_from_this()));
+}

@@ -191,6 +191,7 @@ void AiComponent::pickRandGoalNode(std::vector<std::shared_ptr<AiGraphNode>> glo
 			nodes.push_back(node);
 		}
 	}
+	if (nodes.size() == 0) return;
 	int randIntCeiling = nodes.size();
 	std::srand(Time::now());
 	// Should give number between 0 and vector.szie()-1
