@@ -107,7 +107,7 @@ Application::Application(appSettings& settings):
 	mapGrass->addComponent<RendererComponent>();
 
 	auto mapGrassModel = std::make_shared<Model>(
-		"models/gamemapWholeMap.obj", glm::vec3(.5f, .1f, .2f)
+		"models/gamemapGrassPlane.obj", glm::vec3(.5f, .1f, .2f)
 	);
 
 	modelComponent = mapGrass->getComponent<ModelComponent>();
@@ -115,29 +115,52 @@ Application::Application(appSettings& settings):
 	renderComponent = mapGrass->getComponent<RendererComponent>();
 	renderComponent->enableRender();
 	transformComponent = mapGrass->getComponent<TransformComponent>();
-	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
-	transformComponent->localScale(0.3f, 0.3f, 0.3f);
+	//transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
+
+	auto mapRoad = scene->addEntity();
+	mapRoad->addComponent<ModelComponent>();
+	mapRoad->addComponent<RendererComponent>();
+
+	auto mapRoadModel = std::make_shared<Model>(
+		"models/gamemapRoad.obj", glm::vec3(.5f, .1f, .2f)
+	);
+
+	modelComponent = mapRoad->getComponent<ModelComponent>();
+	modelComponent->setModel(mapRoadModel);
+	renderComponent = mapRoad->getComponent<RendererComponent>();
+	renderComponent->enableRender();
+	transformComponent = mapRoad->getComponent<TransformComponent>();
+
+	auto mapPLines = scene->addEntity();
+	mapPLines->addComponent<ModelComponent>();
+	mapPLines->addComponent<RendererComponent>();
+
+	auto mapPLinesModel = std::make_shared<Model>(
+		"models/gamemapParkingLines.obj", glm::vec3(.5f, .1f, .2f)
+	);
+
+	modelComponent = mapPLines->getComponent<ModelComponent>();
+	modelComponent->setModel(mapPLinesModel);
+	renderComponent = mapPLines->getComponent<RendererComponent>();
+	renderComponent->enableRender();
+	transformComponent = mapPLines->getComponent<TransformComponent>();
+
+	auto mapFence = scene->addEntity();
+	mapFence->addComponent<ModelComponent>();
+	mapFence->addComponent<RendererComponent>();
+
+	auto mapFenceModel = std::make_shared<Model>(
+		"models/gamemapBoundaryFence.obj", glm::vec3(.5f, .5f, .5f)
+	);
+
+	modelComponent = mapFence->getComponent<ModelComponent>();
+	modelComponent->setModel(mapFenceModel);
+	renderComponent = mapFence->getComponent<RendererComponent>();
+	renderComponent->enableRender();
+	transformComponent = mapFence->getComponent<TransformComponent>();
 
 	Events::CarBoxCollision.registerHandler<Application, &Application::collisionSound>(this);
 	Events::VehicleAccelerate.registerHandler<Application, &Application::vroomSound>(this);
-
-	/*auto plane = scene->addEntity();
-	plane->addComponent<ModelComponent>();
-	plane->addComponent<RendererComponent>();
-	plane->addComponent<TransformComponent>();
-
-	auto planeModel = std::make_shared<Model>(
-		"models/SmilePlane.obj", glm::vec3(.5f, .1f, .2f));
-
-	modelComponent = plane->getComponent<ModelComponent>();
-	modelComponent->setModel(planeModel);
-	renderComponent = plane->getComponent<RendererComponent>();
-	renderComponent->enableRender();
-	transformComponent = plane->getComponent<TransformComponent>();
-	*/
-	//transformComponent->setLocalPosition(0.f, 0.f, 0.f);
-	//transformComponent->setLocalScale(10.f, 1.f, 10.f);
-	//transformComponent->setLocalRotation(-acosf(0.4f), glm::vec3(1.f, 0.f, 0.f));
 
 	/* --------------------- End Game World Description --------------------- */
 
