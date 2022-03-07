@@ -5,6 +5,7 @@
 
 extern unsigned int g_boxID;
 extern unsigned int g_carID;
+extern unsigned int g_aiID;
 
 void PhysXSimCallback::onContact(
     const PxContactPairHeader& pairHeader, 
@@ -25,8 +26,7 @@ void PhysXSimCallback::onContact(
             unsigned int eID_1 = e1->id();
             unsigned int eID_2 = e2->id();
 
-            if ((eID_1 == g_carID || eID_1 == g_boxID) 
-            && (eID_2 == g_carID || eID_2 == g_boxID)) {
+            if (eID_1 == g_boxID || eID_2 == g_boxID) {
                 Events::CarBoxCollision.broadcast();
             }
 

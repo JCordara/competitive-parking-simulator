@@ -2,6 +2,7 @@
 
 unsigned int g_boxID;
 unsigned int g_carID;
+unsigned int g_aiID;
 
 Application::Application(appSettings& settings): 
 	settings(settings)
@@ -82,8 +83,10 @@ Application::Application(appSettings& settings):
 	aiCarModel->setModel(aiVehicleModel);
 	aiCarRender->enableRender();
 
+	g_aiID = aiCar->id();
+
 	auto car = scene->addEntity();
-	auto carTransform  = car->getComponent<TransformComponent>();
+	carTransform  = car->getComponent<TransformComponent>();
 	auto carModel      = car->addComponent<ModelComponent>();
 	auto carRender     = car->addComponent<RendererComponent>();
 	auto carVehicle    = car->addComponent<VehicleComponent>();
@@ -92,8 +95,11 @@ Application::Application(appSettings& settings):
 	carModel->setModel(playerVehicleModel);
 	carRender->enableRender();
 	carController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);
+	carController->createAxis(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, &Events::VehicleAccelerate);
 	carController->createAxis(GLFW_KEY_A, GLFW_KEY_D, &Events::VehicleSteer);
+	carController->createAxis(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::VehicleSteer);
 	carController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
+	carController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
 
 	g_carID = car->id();
 
@@ -206,20 +212,13 @@ int Application::play() {
 					<< scene->directChildren().at(i)->getComponent<TransformComponent>()->getGlobalPosition()
 					<< std::endl;
 			}*/
+
+			glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 			glm::vec3 front = glm::vec3(
-				mainCamTransform->getLocalRotation().getBasisVector2().x,
-				mainCamTransform->getLocalRotation().getBasisVector2().y,
-				mainCamTransform->getLocalRotation().getBasisVector2().z
+				-carTransform->getLocalRotation().getBasisVector2().x,
+				-carTransform->getLocalRotation().getBasisVector2().y,
+				-carTransform->getLocalRotation().getBasisVector2().z
 			);
-			glm::vec3 up = glm::vec3(
-				mainCamTransform->getLocalRotation().getBasisVector1().x,
-				mainCamTransform->getLocalRotation().getBasisVector1().y,
-				mainCamTransform->getLocalRotation().getBasisVector1().z
-			);
-
-			// printf("Front: (%.1f, %.1f, %.1f)\n", front.x, front.y, front.z);
-			// printf("Up: (%.1f, %.1f, %.1f)\n\n", up.x, up.y, up.z);
-
 			audio->setListenerOrientation(front, up);
 			audio->setListenerPosition(mainCamTransform->getGlobalPosition());
 		}

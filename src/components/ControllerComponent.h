@@ -24,6 +24,11 @@ public:
 		ControlAxis::TypeEnum type = ControlAxis::KEY
 	);
 
+	void createAxis(
+		int input, 
+		Event<Entity&, float>* event
+	);
+
 	/* Remove an axis bound to the keys */
 	void removeAxis(int inputA, int inputB);
 
