@@ -138,7 +138,7 @@ glm::mat4 TransformComponent::getLocalTranslationMatrix() {
 }
 
 glm::mat4 TransformComponent::getLocalRotationMatrix() {
-	return quat_to_mat4(_rotation);
+	return convert<glm::mat4>(_rotation);
 }
 
 glm::mat4 TransformComponent::getLocalScaleMatrix() {
@@ -155,65 +155,10 @@ glm::mat4 TransformComponent::getLocalMatrix() {
 
 void TransformComponent::updateComponents() {
 	if (auto vc = entity.getComponent<VehicleComponent>()) {
-		vc->setTransform(toPxTransform(getGlobalMatrix()));
+		vc->setTransform(convert<physx::PxTransform>(getGlobalMatrix()));
 	}
 	if (auto ac = entity.getComponent<AudioComponent>()) {
 		ac->updatePosition(getGlobalPosition());
 	}
 }
 
-
-physx::PxTransform toPxTransform(glm::mat4 glm) {
-	
-	physx::PxMat44 px;
-	
-	px[0][0] = glm[0][0];
-	px[0][1] = glm[0][1];
-	px[0][2] = glm[0][2];
-	px[0][3] = glm[0][3];
-
-	px[1][0] = glm[1][0];
-	px[1][1] = glm[1][1];
-	px[1][2] = glm[1][2];
-	px[1][3] = glm[1][3];
-
-	px[2][0] = glm[2][0];
-	px[2][1] = glm[2][1];
-	px[2][2] = glm[2][2];
-	px[2][3] = glm[2][3];
-
-	px[3][0] = glm[3][0];
-	px[3][1] = glm[3][1];
-	px[3][2] = glm[3][2];
-	px[3][3] = glm[3][3];
-
-	return physx::PxTransform(px);
-}
-
-glm::mat4 quat_to_mat4(physx::PxQuat quat)
-{
-	physx::PxMat44 mat4(quat);
-	glm::mat4 newMat;
-	newMat[0][0] = mat4[0][0];
-	newMat[0][1] = mat4[0][1];
-	newMat[0][2] = mat4[0][2];
-	newMat[0][3] = mat4[0][3];
-
-	newMat[1][0] = mat4[1][0];
-	newMat[1][1] = mat4[1][1];
-	newMat[1][2] = mat4[1][2];
-	newMat[1][3] = mat4[1][3];
-
-	newMat[2][0] = mat4[2][0];
-	newMat[2][1] = mat4[2][1];
-	newMat[2][2] = mat4[2][2];
-	newMat[2][3] = mat4[2][3];
-
-	newMat[3][0] = mat4[3][0];
-	newMat[3][1] = mat4[3][1];
-	newMat[3][2] = mat4[3][2];
-	newMat[3][3] = mat4[3][3];
-
-	//newMat = glm::scale(newMat, glm::vec3(-1.f, 1.f, 1.f));
-	return newMat;//glm::transpose(newMat);
-}

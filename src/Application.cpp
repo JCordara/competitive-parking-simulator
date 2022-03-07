@@ -174,7 +174,7 @@ Application::Application(appSettings& settings):
 		modelComponent->setModel(rockModel);
 		renderComponent->enableRender();
 		transformComponent->setLocalPosition(Random::randomVec3(-20.f, 20.f, -1.f, -1.f, -20.f, 20.f));
-		rigidbodyComponent->addActorStatic(*rockModel.get(), toPxTransform(transformComponent->getGlobalMatrix()));
+		rigidbodyComponent->addActorStatic(*rockModel.get(), convert<physx::PxTransform>(transformComponent->getGlobalMatrix()));
 	}
 
 	/* --------------------- End Game World Description --------------------- */

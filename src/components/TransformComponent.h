@@ -58,7 +58,5 @@ private:
     void updateComponents();
 };
 
-physx::PxTransform toPxTransform(glm::mat4 glm);
-glm::mat4 quat_to_mat4(physx::PxQuat x);
 
 #endif // TRANSFORM_COMPONENT_H
