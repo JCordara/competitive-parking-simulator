@@ -16,14 +16,15 @@ public:
     ~RigidbodyComponent();
     static ComponentEnum getType();
     
-	void addActorStatic(Model model, PxTransform startPos);
-	void addActorDynamic(Model model, PxTransform startPos);
+	void addActorStatic(const Model& model, PxTransform startPos);
+	void addActorDynamic(const Model& model, PxTransform startPos);
 
     inline void setPhysicsSystem(shared_ptr<PhysicsSystem> system) {
         physicsSystem = system;
     }
 
 private:
+
     shared_ptr<PhysicsSystem> physicsSystem;
 };
 

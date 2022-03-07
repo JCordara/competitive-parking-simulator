@@ -63,6 +63,68 @@ void PhysicsSystem::update() {
 }
 
 
+PxTriangleMeshGeometry PhysicsSystem::createStaticMesh(const Model& model) {
+
+	PxTolerancesScale scale;
+	PxCookingParams params(scale);
+	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+	params.meshCookingHint = PxMeshCookingHint::eCOOKING_PERFORMANCE;
+
+	pxCooking->setParams(params);
+	PxTriangleMeshDesc meshDesc;
+	vector<Mesh> arrMeshes = model.getMeshes();
+	
+	meshDesc.points.count = arrMeshes[0].vertsPos.size();
+	meshDesc.points.stride = sizeof(PxVec3);
+	meshDesc.points.data = arrMeshes[0].vertsPos.data();
+
+	meshDesc.triangles.count = arrMeshes[0].indicies.size()/3.0f;
+	meshDesc.triangles.stride = 3 * sizeof(PxU32);
+	meshDesc.triangles.data = arrMeshes[0].indicies.data();
+
+#ifdef _DEBUG
+	// mesh should be validated before cooked without the mesh cleaning
+	bool res = pxCooking->validateTriangleMesh(meshDesc);
+	PX_ASSERT(res);
+#endif
+
+	PxTriangleMesh* triMesh = pxCooking->createTriangleMesh(meshDesc,
+		pxPhysics->getPhysicsInsertionCallback());
+
+	return PxTriangleMeshGeometry(triMesh);
+}
+
+
+PxConvexMeshGeometry PhysicsSystem::createDynamicMesh(const Model& model) {
+
+	PxConvexMeshDesc convexDesc;
+	vector<Mesh> arrMeshes = model.getMeshes();
+
+	convexDesc.points.count = arrMeshes[0].vertsPos.size();
+	convexDesc.points.stride = sizeof(PxVec3);
+	convexDesc.points.data = arrMeshes[0].vertsPos.data();
+	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+
+	convexDesc.indices.count = arrMeshes[0].indicies.size();
+	convexDesc.indices.stride = 3 * sizeof(PxU32);
+	convexDesc.indices.data = arrMeshes[0].indicies.data();
+	
+	PxDefaultMemoryOutputStream buf;
+	bool res = pxCooking->cookConvexMesh(convexDesc, buf);
+
+#ifdef _DEBUG
+	PX_ASSERT(res);
+#endif
+
+	PxDefaultMemoryInputData readBuffer(buf.getData(), buf.getSize());
+	PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+	PxConvexMesh* convexMesh = pxPhysics->createConvexMesh(input);
+
+	return PxConvexMeshGeometry(convexMesh);
+}
+
+
 void PhysicsSystem::vehicleUpdate(shared_ptr<VehicleComponent> vc) {
 
 	// Get reference to vehicle

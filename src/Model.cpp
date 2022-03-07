@@ -150,6 +150,6 @@ void Model::draw(ShaderProgram& sp, GLenum textureLocation, GLint modelColourLoc
 	}
 
 
-	vector<Mesh> Model::getMeshes() {
+	vector<Mesh> Model::getMeshes() const {
 		return meshes;
 	}

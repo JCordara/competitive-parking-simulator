@@ -56,7 +56,7 @@ public:
 	Model(filepath path, vec3f col) : modelColour(col) { loadModel(path); }
 	void loadModel(filepath path);
 	void draw(ShaderProgram& sp, GLenum textureLocation, GLint modelColourLocation, GLint diffuseLocation, GLint specularLocation, GLint alphaLocation, GLint ambientLocation, unsigned int instances);
-	vector<Mesh> getMeshes();
+	vector<Mesh> getMeshes() const;
 private:
 	void processNode(aiNode* node, const aiScene* scene);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
