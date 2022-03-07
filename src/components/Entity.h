@@ -51,11 +51,11 @@ public:
     template<class C>
     enable_if_t<is_base_of_v<BaseComponent, C>, sp<C>>
     getComponent() {
-        try {
-            return dynamic_pointer_cast<C>(_components.at(C::getType()));
-        } catch (std::out_of_range) {
+
+        if (!static_cast<bool>(_components.count(C::getType())))
             return nullptr;
-        }
+
+        return dynamic_pointer_cast<C>(_components.at(C::getType()));
     }
 
     template<class C>
