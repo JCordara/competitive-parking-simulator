@@ -152,7 +152,7 @@ void PhysicsSystem::vehicleTurnMode(Entity& entity, float v)
 	auto vc = entity.getComponent<VehicleComponent>();
 	if (!vc) return;
 
-	vc->inputData.setAnalogSteer(v);
+	vc->inputData.setAnalogSteer(-v);
 }
 
 void PhysicsSystem::vehicleBrakeMode(Entity& entity, float v) 

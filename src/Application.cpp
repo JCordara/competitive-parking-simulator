@@ -96,7 +96,7 @@ Application::Application(appSettings& settings):
 	carRender->enableRender();
 	carController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);
 	carController->createAxis(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, &Events::VehicleAccelerate, ControlAxis::AXIS);
-	carController->createAxis(GLFW_KEY_A, GLFW_KEY_D, &Events::VehicleSteer);
+	carController->createAxis(GLFW_KEY_D, GLFW_KEY_A, &Events::VehicleSteer);
 	carController->createAxis(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::VehicleSteer);
 	carController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
 	carController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
