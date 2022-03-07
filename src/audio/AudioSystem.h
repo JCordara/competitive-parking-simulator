@@ -25,6 +25,10 @@
 #include <memory>   // Smart pointers
 #include <iostream> // Degubbing
 
+
+class AudioComponent;
+
+
 class AudioSystem : public GameSystem {
 
 public:
@@ -58,6 +62,8 @@ public:
     AudioSystem& operator=(const AudioSystem&) = delete;
     AudioSystem& operator=(AudioSystem&&) = delete;
     
+    void registerAudioComponent(AudioComponent& component);
+
     // Public destructor
     ~AudioSystem();
 

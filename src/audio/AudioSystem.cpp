@@ -28,6 +28,10 @@ AudioSystem::AudioSystem() {
         std::cerr << "Failed to make context current\n";
         exit(1);
     }
+
+    // Register self with audio components when they are created
+    Events::AudioComponentInit.registerHandler<AudioSystem,
+        &AudioSystem::registerAudioComponent>(this);
 }
 
 
@@ -179,6 +183,14 @@ void AudioSystem::openDevice(int deviceID) {
     alCheckErrors();
 
 }
+
+
+void AudioSystem::registerAudioComponent(AudioComponent& component) {
+    component.setAudioSystem(
+        dynamic_pointer_cast<AudioSystem>(shared_from_this()));
+}
+
+
 
 AudioSystem::~AudioSystem() {
     debug_log("Entering AudioSystem destructor");

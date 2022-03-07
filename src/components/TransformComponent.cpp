@@ -44,7 +44,7 @@ glm::mat4 TransformComponent::getNestedMatrix(int depth) {
 
 void TransformComponent::setLocalPosition(glm::vec3 position) {
     _position = position;
-	updatePhysicsPosition();
+	updateComponents();
 }
 
 void TransformComponent::setLocalPosition(physx::PxVec3 position) {
@@ -58,7 +58,7 @@ void TransformComponent::setLocalPosition(float x, float y, float z) {
 
 void TransformComponent::setLocalRotation(physx::PxQuat rotation) {
       _rotation = rotation;
-	  updatePhysicsPosition();
+	  updateComponents();
 }
 
 void TransformComponent::setLocalRotation(float rotation, physx::PxVec3 axis) {
@@ -81,7 +81,7 @@ void TransformComponent::setLocalScale(float x, float y, float z) {
 
 void TransformComponent::localTranslate(glm::vec3 translation) {
     _position += translation;
-	updatePhysicsPosition();
+	updateComponents();
 }
 
 void TransformComponent::localTranslate(float x, float y, float z) {
@@ -91,7 +91,7 @@ void TransformComponent::localTranslate(float x, float y, float z) {
 
 void TransformComponent::localRotate(physx::PxQuat rotation) {
 	_rotation = rotation *_rotation;
-	updatePhysicsPosition();
+	updateComponents();
 }
 
 void TransformComponent::localRotate(float rotation, physx::PxVec3 axis) {
@@ -132,9 +132,12 @@ glm::mat4 TransformComponent::getLocalMatrix() {
 }
 
 
-void TransformComponent::updatePhysicsPosition() {
+void TransformComponent::updateComponents() {
 	if (auto vc = entity.getComponent<VehicleComponent>()) {
 		vc->setTransform(toPxTransform(getGlobalMatrix()));
+	}
+	if (auto ac = entity.getComponent<AudioComponent>()) {
+		ac->updatePosition(getGlobalPosition());
 	}
 }
 

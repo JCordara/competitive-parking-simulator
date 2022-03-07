@@ -261,7 +261,7 @@ void AiComponent::moveToNextNode() {
 	}
 	
 	// forward
-	Events::VehicleAccelerate.broadcast(entity, 0.1); // Something to fix
+	Events::VehicleAccelerate.broadcast(entity, 1.0); // Something to fix
 }
 
 glm::vec3 AiComponent::ComputeForwardVector(physx::PxQuat quat) const

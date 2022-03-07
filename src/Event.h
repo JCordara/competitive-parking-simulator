@@ -20,6 +20,7 @@ class RigidbodyComponent;
 class VehicleComponent;
 class ControllerComponent;
 class AiComponent;
+class AudioComponent;
 
 namespace Events {
     extern Event<void> GameStart;
@@ -44,6 +45,9 @@ namespace Events {
     extern Event<ControllerComponent&> ControllerComponentInit;
     // Broadcast by ai components when they are initalized
     extern Event<AiComponent&> AiComponentInit;
+    // Broadcast by audio components when they are initalized
+    extern Event<AudioComponent&> AudioComponentInit;
+
 };
 
 #endif // EVENT_H

@@ -1,21 +1,8 @@
 #include "Application.h"
 
-// Milestone hacks
-void Application::vroomSound(Entity&, float v) {
-	if (v <= 0) return;
-	AudioSource& s = audioSystem->createSource();
-	Audio& a = audioSystem->loadAudio("audio/rev.wav");
-	s.setGain(0.4f);
-	s.playAudio(a);
-}
+unsigned int g_boxID;
+unsigned int g_carID;
 
-void Application::collisionSound() {
-	AudioSource& s = audioSystem->createSource();
-	Audio& a = audioSystem->loadAudio("audio/oof.wav");
-	s.playAudio(a);
-}
-
-// Actual code
 Application::Application(appSettings& settings): 
 	settings(settings)
 {
@@ -28,11 +15,11 @@ Application::Application(appSettings& settings):
 	window 		 = std::make_shared<Window>(1200, 800, "Test Window");
 
 	/* Game systems - update() every frame */
-	inputSystem  = std::make_shared<InputSystem>(window);
+	input        = std::make_shared<InputSystem>(window);
 	gameplay     = std::make_shared<GameplaySystem>(scene);
 	physics      = std::make_shared<PhysicsSystem>(scene);
 	render       = std::make_shared<RenderSystem>(scene, window);
-	audioSystem  = std::make_shared<AudioSystem>();
+	audio        = std::make_shared<AudioSystem>();
 
 
 	/* --------------------- Game World Description ------------------------ */
@@ -55,7 +42,10 @@ Application::Application(appSettings& settings):
 	auto modelComponent     = cube->addComponent<ModelComponent>();
 	auto renderComponent    = cube->addComponent<RendererComponent>();
 	auto rigidbodyComponent = cube->addComponent<RigidbodyComponent>();
+	cube->addComponent<AudioComponent>();
 	transformComponent = cube->getComponent<TransformComponent>();
+
+	g_boxID = cube->id();
 
 	auto cubeModel = std::make_shared<Model>(
 		"models/car3.obj", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -105,6 +95,8 @@ Application::Application(appSettings& settings):
 	carController->createAxis(GLFW_KEY_A, GLFW_KEY_D, &Events::VehicleSteer);
 	carController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
 
+	g_carID = car->id();
+
 	auto camera = car->addChild();
 	camera->addComponent<CameraComponent>();
 	camera->getComponent<CameraComponent>()->setPerspectiveCamera(glm::radians(90.f), 1.f /*Will be modified to the window*/,0.01f, 300.f);
@@ -112,6 +104,8 @@ Application::Application(appSettings& settings):
 	camTransform->setLocalPosition(0.0f, 9.0f, -5.5f);
 	camTransform->setLocalRotation(glm::radians(-45.0f), glm::vec3(1.f, 0.f, 0.f));
 	camTransform->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
+
+	mainCamTransform = camera->getComponent<TransformComponent>();
 
 	auto mapGrass = scene->addEntity();
 	mapGrass->addComponent<ModelComponent>();
@@ -173,9 +167,6 @@ Application::Application(appSettings& settings):
 	transformComponent = mapFence->getComponent<TransformComponent>();
 	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
 
-	Events::CarBoxCollision.registerHandler<Application, &Application::collisionSound>(this);
-	//Events::VehicleAccelerate.registerHandler<Application, &Application::vroomSound>(this);
-
 	/* --------------------- End Game World Description --------------------- */
 
 /* 
@@ -213,7 +204,7 @@ int Application::play() {
 	while (!window->shouldClose()) {
 		
 		// Process input
-		inputSystem->processInput();
+		input->processInput();
 
 		// Update time-related values
 		Time::update();
@@ -228,6 +219,22 @@ int Application::play() {
 					<< scene->directChildren().at(i)->getComponent<TransformComponent>()->getGlobalPosition()
 					<< std::endl;
 			}*/
+			glm::vec3 front = glm::vec3(
+				mainCamTransform->getLocalRotation().getBasisVector2().x,
+				mainCamTransform->getLocalRotation().getBasisVector2().y,
+				mainCamTransform->getLocalRotation().getBasisVector2().z
+			);
+			glm::vec3 up = glm::vec3(
+				mainCamTransform->getLocalRotation().getBasisVector1().x,
+				mainCamTransform->getLocalRotation().getBasisVector1().y,
+				mainCamTransform->getLocalRotation().getBasisVector1().z
+			);
+
+			// printf("Front: (%.1f, %.1f, %.1f)\n", front.x, front.y, front.z);
+			// printf("Up: (%.1f, %.1f, %.1f)\n\n", up.x, up.y, up.z);
+
+			audio->setListenerOrientation(front, up);
+			audio->setListenerPosition(mainCamTransform->getGlobalPosition());
 		}
 
 		// Render the current scene
