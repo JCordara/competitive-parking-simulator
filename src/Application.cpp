@@ -58,8 +58,8 @@ Application::Application(appSettings& settings):
 
 	modelComponent->setModel(cubeModel);
 	renderComponent->enableRender();
-	transformComponent->setLocalPosition(1.f, 1.5f, -5.f);
-	transformComponent->setLocalRotation(glm::radians(15.f), glm::vec3(0.f, 0.f, 1.f));
+	transformComponent->setLocalPosition(28.5f, 4.0f, 22.5f);
+	transformComponent->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
 	
 	rigidbodyComponent->addActorDynamic(
 		*cubeModel, 
@@ -152,20 +152,6 @@ Application::Application(appSettings& settings):
 	transformComponent = mapPLines->getComponent<TransformComponent>();
 	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
 
-	auto mapFence = scene->addEntity();
-	mapFence->addComponent<ModelComponent>();
-	mapFence->addComponent<RendererComponent>();
-
-	auto mapFenceModel = std::make_shared<Model>(
-		"models/gamemapBoundaryFence.obj", glm::vec3(.5f, .5f, .5f)
-	);
-
-	modelComponent = mapFence->getComponent<ModelComponent>();
-	modelComponent->setModel(mapFenceModel);
-	renderComponent = mapFence->getComponent<RendererComponent>();
-	renderComponent->enableRender();
-	transformComponent = mapFence->getComponent<TransformComponent>();
-	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
 
 	/* --------------------- End Game World Description --------------------- */
 
@@ -193,6 +179,7 @@ Application::Application(appSettings& settings):
 	rigidbodyComponent->addActorDynamic(newModel, position);
 	rigidbodyComponent->addActorStatic(newModel, position1);
 */
+
 }
 
 int Application::play() {
