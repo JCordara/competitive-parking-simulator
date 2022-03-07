@@ -12,6 +12,8 @@ AiComponent::AiComponent(Entity& parent)
 	void setSpawnNode();
 	std::cout << "SET THE SPAWN NODE" << std::endl;
 	void pickRandGoalNode();
+	// forward
+	Events::VehicleAccelerate.broadcast(entity, 0.3); // Something to fix
 }
 
 ComponentEnum AiComponent::getType() {
@@ -132,6 +134,7 @@ void AiComponent::setSpawnNode() {
 		if (node->nodeType == AiGraphNode::NodeType::SPAWN && !(node->spawnTaken)) {
 			currentNode = node;
 			node->spawnTaken = true;
+			return;
 		}
 	}
 }
@@ -260,8 +263,6 @@ void AiComponent::moveToNextNode() {
 		Events::VehicleSteer.broadcast(entity, turnAmount);
 	}
 	
-	// forward
-	Events::VehicleAccelerate.broadcast(entity, 0.1); // Something to fix
 }
 
 glm::vec3 AiComponent::ComputeForwardVector(physx::PxQuat quat) const
