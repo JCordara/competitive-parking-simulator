@@ -174,7 +174,7 @@ Application::Application(appSettings& settings):
 	transformComponent->localTranslate(0.0f, -1.0f, 0.0f);
 
 	Events::CarBoxCollision.registerHandler<Application, &Application::collisionSound>(this);
-	Events::VehicleAccelerate.registerHandler<Application, &Application::vroomSound>(this);
+	//Events::VehicleAccelerate.registerHandler<Application, &Application::vroomSound>(this);
 
 	/* --------------------- End Game World Description --------------------- */
 
