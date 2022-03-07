@@ -235,6 +235,7 @@ void AiComponent::parkState() {
 	if (withinXBounds && withinZBounds) {
 		if (currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
 			Events::VehicleBrake.broadcast(entity, 1.f);
+			//Events::CarParked.broadcast(entity);
 		}
 		else {
 			currentNode = nodeQueue[0];
