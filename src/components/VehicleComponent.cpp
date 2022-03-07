@@ -12,6 +12,16 @@ VehicleComponent::VehicleComponent(Entity& parent)
     // This sets the reference to the physics system
     Events::VehicleComponentInit.broadcast(*this);
 
+	// Get position of parent entity
+	PxTransform entityPose = PxTransform(PxIdentity);
+
+	if (auto tc = entity.getComponent<TransformComponent>()) {
+		entityPose.p.x = tc->getLocalPosition().x;
+		entityPose.p.y = tc->getLocalPosition().y;
+		entityPose.p.z = tc->getLocalPosition().z;
+		entityPose.q   = tc->getLocalRotation();
+	}
+
     // Create a vehicle
 	VehicleDesc vehicleDesc = initVehicleDesc();
 	vehicle = createVehicle4W(
@@ -21,18 +31,8 @@ VehicleComponent::VehicleComponent(Entity& parent)
 		entity
     );
 
-    PxVec3 position = PxVec3(
-        0, vehicleDesc.chassisDims.y*0.5f + vehicleDesc.wheelRadius+1.0f, 0);
-	PxTransform startTransform(position, PxQuat(PxIdentity));
-
-    // To start the vehicle upside down
-	PxTransform flip = PxTransform(
-        PxVec3(1.0f, 1.0f, 1.0f), 
-        PxQuat(3.1415926536f, PxVec3(1.0f, 0.0f, 0.f))
-    );
-
     // Add vehicle to physics scene
-	vehicle->getRigidDynamicActor()->setGlobalPose(startTransform);
+	vehicle->getRigidDynamicActor()->setGlobalPose(entityPose);
 	physicsSystem->pxScene->addActor(*vehicle->getRigidDynamicActor());
 }
 
@@ -43,8 +43,8 @@ VehicleDesc VehicleComponent::initVehicleDesc()
 	// Center of mass offset is 0.65m above the base of the chassis and 0.25m towards the front
 	const PxF32 chassisMass = 1500.0f;
 	const PxVec3 chassisDims(2.5f, 2.0f, 5.0f);
-	const PxVec3 chassisMOI
-	((chassisDims.y * chassisDims.y + chassisDims.z * chassisDims.z) * chassisMass / 12.0f,
+	const PxVec3 chassisMOI(
+		(chassisDims.y * chassisDims.y + chassisDims.z * chassisDims.z) * chassisMass / 12.0f,
 		(chassisDims.x * chassisDims.x + chassisDims.z * chassisDims.z) * 0.8f * chassisMass / 12.0f,
 		(chassisDims.x * chassisDims.x + chassisDims.y * chassisDims.y) * chassisMass / 12.0f);
 	const PxVec3 chassisCMOffset(0.0f, -chassisDims.y * 0.5f + 0.65f, 0.25f);

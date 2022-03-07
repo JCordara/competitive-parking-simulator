@@ -18,6 +18,10 @@ public:
     ~VehicleComponent();
     static ComponentEnum getType();
 
+    inline void setTransform(PxTransform& transform) {
+        vehicle->getRigidDynamicActor()->setGlobalPose(transform);
+    }
+
     inline void setPhysicsSystem(shared_ptr<PhysicsSystem> system) {
         physicsSystem = system;
     }
