@@ -52,7 +52,7 @@ Application::Application(appSettings& settings):
 	transformComponent = cube->getComponent<TransformComponent>();
 
 	auto cubeModel = std::make_shared<Model>(
-		"models/Test1.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/car3.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	auto playerVehicleModel = std::make_shared<Model>(
 		"models/car1.obj", glm::vec3(1.0f, 1.0f, 1.0f));
