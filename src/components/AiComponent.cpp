@@ -1,6 +1,10 @@
 #include "AiComponent.h"
 #include "GameplaySystem.h"
 
+AiGraphNode::AiGraphNode() {
+
+}
+
 AiComponent::AiComponent(Entity& parent) 
     : BaseComponent(parent)
 {

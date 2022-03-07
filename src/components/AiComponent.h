@@ -21,17 +21,17 @@ public:
 		INTERSECTION,
 		SPAWN
 	};
-	AiGraphNode() {}
+	AiGraphNode();
 	// Sorting operator for f values
 	bool operator< (const std::shared_ptr<AiGraphNode>& other) const {
 		return g+h < other->g + other->h;
 	}
 	std::vector<std::shared_ptr<AiGraphNode>> neighbours;
-	glm::vec3 position;
+	glm::vec3 position = glm::vec3(1,1,1);
 	std::shared_ptr<AiGraphNode> parent; // For A* algorithm
-	float g; // For A* algorithm
-	float h; // For A* algorithm
-	NodeType nodeType;
+	float g = 0; // For A* algorithm
+	float h = 0; // For A* algorithm
+	NodeType nodeType = NodeType::SPAWN;
 	bool spawnTaken = false; // Only for Spawn nodes
 };
 
