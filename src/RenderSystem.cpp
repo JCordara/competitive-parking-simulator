@@ -25,11 +25,24 @@ void RenderSystem::update() {
 		std::shared_ptr<CameraComponent> cameraComponent = e->getComponent<CameraComponent>();
 		std::shared_ptr<ModelComponent> modelComponent = e->getComponent<ModelComponent>();
 		std::shared_ptr<RendererComponent> rendererComponent = e->getComponent<RendererComponent>();
+		std::shared_ptr<DescriptionComponent> descriptionComponent = e->getComponent<DescriptionComponent>();
+		bool ignoreParentRotations = false;
+		if (descriptionComponent) {
+			ignoreParentRotations = descriptionComponent->getInteger("Ignore parent rotations in render").has_value();//Dont care about value, use a flag
+		}
 		glm::mat4 localToGlobaltransform = glm::mat4(1.0f); //Identity
 		glm::vec3 pos = glm::vec3(0.f); //Origin
 		if (transformComponent) {
-			localToGlobaltransform = transformComponent->getGlobalMatrix();
-			pos = glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, 0.f, 1.f));
+			if (ignoreParentRotations && e->parent()) {
+				localToGlobaltransform = transformComponent->getLocalMatrix();
+				if (e->parent()->getComponent<TransformComponent>())
+					localToGlobaltransform = (e->parent()->getComponent<TransformComponent>()->onlyPositionTransformGlobal()) * localToGlobaltransform;
+				pos = glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, 0.f, 1.f));
+			}
+			else {
+				localToGlobaltransform = transformComponent->getGlobalMatrix();
+				pos = glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, 0.f, 1.f));
+			}
 		}
 		if (lightingComponent) {
 			std::shared_ptr<PointLight> pointlight = lightingComponent->getPointLight();
