@@ -2,9 +2,14 @@
 #define AI_COMPONENT_H
 
 #include "Components.h"
+
 #include <algorithm>
 #include <TimeInfo.h>
 #include <PhysX/PxPhysicsAPI.h>
+
+
+class GameplaySystem;
+
 
 class AiGraphNode {
 public:
@@ -32,6 +37,7 @@ public:
 
 class AiComponent : public BaseComponent {
 public:
+
 	enum class States {
 		SEARCH = 1,
 		PARK,
@@ -46,7 +52,14 @@ public:
 	void pickRandGoalNode(std::vector<std::shared_ptr<AiGraphNode>> globalNodeList);
 	void switchState(States newState);
 
+	void setGameplaySystem(shared_ptr<GameplaySystem> system) { 
+		gameplaySystem = system; 
+	}
+
 private:
+
+	shared_ptr<GameplaySystem> gameplaySystem;
+
 	States state = States::SEARCH; // Default search
 	std::vector<Entity> carQueue;
 	std::vector<std::shared_ptr<AiGraphNode>> nodeQueue;

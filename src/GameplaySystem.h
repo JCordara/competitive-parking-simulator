@@ -6,6 +6,8 @@
 class GameplaySystem : public GameSystem {
 public:
 
+    friend class AiComponent;
+
     /* Prepare framework */
     GameplaySystem(std::shared_ptr<Scene> scene);
 
@@ -13,6 +15,8 @@ public:
     ~GameplaySystem();
 	void setupAiNodes();
 	std::vector<std::shared_ptr<AiGraphNode>> aiGlobalNodes;
+
+    void registerAiComponent(AiComponent& component);
 
 private:
     std::shared_ptr<Scene> scene;

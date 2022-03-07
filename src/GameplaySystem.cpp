@@ -2,7 +2,10 @@
 
 GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene)
     : scene(scene)
-{}
+{
+    Events::AiComponentInit.registerHandler<GameplaySystem,
+        &GameplaySystem::registerAiComponent>(this);
+}
     
 void GameplaySystem::update() {
 
