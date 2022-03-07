@@ -1,9 +1,10 @@
 #include "AiComponent.h"
+#include "GameplaySystem.h"
 
 AiComponent::AiComponent(Entity& parent) 
     : BaseComponent(parent)
 {
-
+	Events::AiComponentInit.broadcast(*this);
 }
 
 ComponentEnum AiComponent::getType() {

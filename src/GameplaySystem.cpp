@@ -2,7 +2,10 @@
 
 GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene)
     : scene(scene)
-{}
+{
+    Events::AiComponentInit.registerHandler<GameplaySystem,
+        &GameplaySystem::registerAiComponent>(this);
+}
     
 void GameplaySystem::update() {
 
@@ -24,3 +27,9 @@ void GameplaySystem::update() {
 GameplaySystem::~GameplaySystem() {
 
 }
+
+void GameplaySystem::registerAiComponent(AiComponent& component) {
+    component.setGameplaySystem(
+        dynamic_pointer_cast<GameplaySystem>(shared_from_this()));
+}
+
