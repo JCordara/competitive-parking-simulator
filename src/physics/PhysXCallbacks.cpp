@@ -41,6 +41,15 @@ void PhysXSimCallback::onTrigger(
 			PxTriggerPairFlag::eREMOVED_SHAPE_OTHER))
 			continue;
 
+		Entity* e1 = reinterpret_cast<Entity*>(pairs->otherActor->userData);
+		if (!e1) return;
+		if ((e1->hasComponent<VehicleComponent>())) {
+			std::cout<<"sss";
+		}
+
+
+		
+
 
 	}
 

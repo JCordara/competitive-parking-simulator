@@ -15,6 +15,9 @@ PhysicsSystem::PhysicsSystem(
 	// Register physics component initialization events
 	Events::RigidbodyComponentInit.registerHandler<
 		PhysicsSystem, &PhysicsSystem::registerRigidbodyComponent>(this);
+	
+	Events::VolumeTriggerComponentInit.registerHandler<
+		PhysicsSystem, &PhysicsSystem::registerVolumeTriggerComponent>(this);
 
 	Events::VehicleComponentInit.registerHandler<
 		PhysicsSystem, &PhysicsSystem::registerVehicleComponent>(this);
@@ -62,7 +65,19 @@ void PhysicsSystem::update() {
 
 }
 
+void PhysicsSystem::createTriggerBox(PxTransform startPos, PxBoxGeometry boxGeom) {
+	// test triggerShape
+	PxRigidActor* trigger = pxPhysics->createRigidStatic(startPos);
+	PxShape* triggerShape = PxRigidActorExt::createExclusiveShape(*trigger, boxGeom, *gMaterial);
+	//PxFilterFlags Tflags;
 
+	triggerShape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+	triggerShape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+
+	pxScene->addActor(*trigger);
+	triggerShape->release();
+
+}
 PxTriangleMesh* PhysicsSystem::createStaticMesh(const Model& model) {
 
 	PxTolerancesScale scale;
@@ -348,6 +363,7 @@ void PhysicsSystem::initPhysX()
 	pxScene->addActor(*pxGroundPlane);
 
 	
+
 }
 
 void PhysicsSystem::cleanupPhysics()
@@ -391,7 +407,11 @@ void PhysicsSystem::registerVehicleComponent(VehicleComponent& component) {
 		dynamic_pointer_cast<PhysicsSystem>(shared_from_this()));
 }
 
-
+/* Called whenever a vehicle component is created */
+void PhysicsSystem::registerVolumeTriggerComponent(VolumeTriggerComponent& component) {
+	component.setPhysicsSystem(
+		dynamic_pointer_cast<PhysicsSystem>(shared_from_this()));
+}
 
 PhysicsSystem::~PhysicsSystem() {}
 

@@ -1,9 +1,12 @@
 #include "VolumeTriggerComponent.h"
+#include "physics/PhysicsSystem.h"
 
-
-VolumeTriggerComponent::VolumeTriggerComponent(Entity& e) 
-    : BaseComponent(e)
-{}
+VolumeTriggerComponent::VolumeTriggerComponent(Entity& e)
+	: BaseComponent(e)
+	
+{
+	Events::VolumeTriggerComponentInit.broadcast(*this);
+}
 
 void VolumeTriggerComponent::attachEntity(std::shared_ptr<Entity> collisionEntity) {
 	auto it = attached.find(collisionEntity);
@@ -19,11 +22,8 @@ void VolumeTriggerComponent::flush() {
 	attached.clear();
 }
 
-void VolumeTriggerComponent::createVolumeShape(PxActor& actor) {
-	/*PxShape* treasureShape;
-	actor->getShapes(&treasureShape, 1);
-	treasureShape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
-	treasureShape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);*/
+void VolumeTriggerComponent::createVolumeShape(PxTransform startPos, PxBoxGeometry boxGeom) {
+	physicsSystem->createTriggerBox(startPos, boxGeom);
 }
 
 ComponentEnum VolumeTriggerComponent::getType() {

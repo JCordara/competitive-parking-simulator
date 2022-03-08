@@ -21,6 +21,7 @@ class VehicleComponent;
 class ControllerComponent;
 class AiComponent;
 class AudioComponent;
+class VolumeTriggerComponent;
 
 namespace Events {
     extern Event<void> GameStart;
@@ -47,6 +48,8 @@ namespace Events {
     extern Event<AiComponent&> AiComponentInit;
     // Broadcast by audio components when they are initalized
     extern Event<AudioComponent&> AudioComponentInit;
+	// Broadcast by volumetrigger components when they are initalized
+	extern Event<VolumeTriggerComponent&> VolumeTriggerComponentInit;
 
 };
 

@@ -27,6 +27,7 @@ public:
     PxSphereGeometry* createStaticSphere(const float radius);
     PxConvexMesh*   createDynamicMesh(const Model& model);
     PxConvexMesh*   createDynamicMesh(const PxVec3* v, const PxU32 n);
+	void createTriggerBox(PxTransform startPos, PxBoxGeometry boxGeom);
 
     ~PhysicsSystem();
     
@@ -65,6 +66,7 @@ private:
 
     void registerRigidbodyComponent(RigidbodyComponent& component);
     void registerVehicleComponent(VehicleComponent& component);
+	void registerVolumeTriggerComponent(VolumeTriggerComponent& component);
 
 };
 

@@ -170,6 +170,8 @@ Application::Application(appSettings& settings):
 	auto mapWall3 = scene->addEntity();
 	auto mapWall4 = scene->addEntity();
 
+	auto triggerBox = scene->addEntity();
+
 	auto environmentalLight = scene->addEntity();
 	auto mainCamera = playerCar->addChild();
 	auto shadowCamera = playerCar->addChild();
@@ -425,6 +427,21 @@ Application::Application(appSettings& settings):
 	// Hacky stuff
 	carTransform = playerCar->getComponent<TransformComponent>();
 	mainCamTransform = mainCamera->getComponent<TransformComponent>();
+
+
+	// --- TriggerBox ---
+	auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
+	for (int i = 0; i < sizeof(emptyparkingVertices) / sizeof(*emptyparkingVertices); i++) {
+		if(emptyparkingVertices[i].x == -148.5f){
+			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(3.0f, 1.0f, 1.0f));
+		}
+
+		else {
+			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 3.0f));
+		}
+		
+	};
+
 
 	/* --------------------- End Game World Description --------------------- */
 

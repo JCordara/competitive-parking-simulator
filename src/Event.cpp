@@ -16,6 +16,7 @@ Event<void> Events::CarBoxCollision;
 
 
 Event<RigidbodyComponent&> Events::RigidbodyComponentInit;
+Event<VolumeTriggerComponent&> Events::VolumeTriggerComponentInit;
 Event<VehicleComponent&> Events::VehicleComponentInit;
 Event<ControllerComponent&> Events::ControllerComponentInit;
 Event<AiComponent&> Events::AiComponentInit;
