@@ -41,17 +41,14 @@ void PhysXSimCallback::onTrigger(
 			PxTriggerPairFlag::eREMOVED_SHAPE_OTHER))
 			continue;
 
-		Entity* e1 = reinterpret_cast<Entity*>(pairs->otherActor->userData);
+		Entity* e1 = static_cast<Entity*>(pairs->otherActor->userData);
 		if (!e1) return;
-		if ((e1->hasComponent<VehicleComponent>() && e1->hasComponent<ControllerComponent>())) {
-			std::cout<<"sss";
+
+		if ((e1->hasComponent<VehicleComponent>() && e1->hasComponent<ControllerComponent>())&& (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)){
+			std::cout << nbPairs;
+			Events::CarParked.broadcast(*e1);
 		}
-
-
-		
-
-
 	}
-
+	
 }
 

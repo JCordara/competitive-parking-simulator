@@ -20,6 +20,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <PhysX/PxPhysicsAPI.h>
 
+#include "Random.h"
+
 #include "Log.h"
 
 using std::string;                           // Strings

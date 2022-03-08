@@ -8,7 +8,7 @@ using namespace physx;
 
 class PhysXSimCallback : public PxSimulationEventCallback {
 public:
-
+	
     void onContact(
         const PxContactPairHeader& pairHeader,
         const PxContactPair* pairs, 

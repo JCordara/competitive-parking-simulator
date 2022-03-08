@@ -156,6 +156,7 @@ void GameplaySystem::registerAiComponent(AiComponent& component) {
 }
 
 void GameplaySystem::registerCarParked(Entity& entity) {
+	std::cout << entity.id() << " , " << playerId << endl;
 	if (entity.id() == playerId) {
 		scores[playerId]++;
 		resetPlayer();
@@ -185,7 +186,12 @@ void GameplaySystem::addAiId(unsigned int aiId) {
 void GameplaySystem::resetPlayer() {
 	scene->getEntityByID(playerId)->
 	getComponent<TransformComponent>()->
-	setLocalPosition(glm::vec3(0, 2, 0));
+	setLocalPosition(glm::vec3(0, 0.1, 0));
+	scene->getEntityByID(playerId)->
+		getComponent<TransformComponent>()->
+		setLocalRotation(Random::randomFloat(0,6.28), glm::vec3(0, 1.0, 0));
+	scene->getEntityByID(playerId)->
+		getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->setLinearVelocity(PxVec3(0.0f));
 }
 
 void GameplaySystem::resetAi(unsigned int aiId) {

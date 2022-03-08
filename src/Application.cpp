@@ -161,7 +161,8 @@ Application::Application(appSettings& settings):
 
 	// --- Entities ---
 	auto playerCar = scene->addEntity();
-	gameplay->setPlayerId(playerCar->id());
+	playerId = playerCar->id();
+	scores[playerId] = 0;
 	auto aiCar = scene->addEntity();
 	gameplay->addAiId(aiCar->id());
 	

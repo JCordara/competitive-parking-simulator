@@ -11,7 +11,7 @@ using namespace physx;
 
 class VehicleComponent : public BaseComponent {
 public:
-
+	PxVehicleDrive4W* vehicle;
     friend class PhysicsSystem;
 
     VehicleComponent(Entity& parent);
@@ -44,7 +44,7 @@ private:
 
     shared_ptr<PhysicsSystem> physicsSystem;
 
-    PxVehicleDrive4W* vehicle;
+    
     PxVehicleDrive4WRawInputData inputData;
     bool isInAir;
 
