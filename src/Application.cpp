@@ -25,6 +25,20 @@ Application::Application(appSettings& settings):
 
 	/* --------------------- Game World Description ------------------------ */
 
+	// --- Entities ---
+	auto playerCar = scene->addEntity();
+	auto aiCar = scene->addEntity();
+	auto propCar = scene->addEntity();
+
+	auto mapGrass = scene->addEntity();
+	auto mapRoad = scene->addEntity();
+	auto mapLines = scene->addEntity();
+
+	auto environmentalLight = scene->addEntity();
+	auto mainCamera = playerCar->addChild();
+	auto shadowCamera = playerCar->addChild();
+
+
 	// --- Models ---
 	auto modelPlayerCar = std::make_shared<Model>(
 		"models/car1.obj", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -51,16 +65,72 @@ Application::Application(appSettings& settings):
 
 
 	// --- Directional light ---
-	auto environmentalLight = scene->addEntity();
 	environmentalLight->addComponent<LightingComponent>();
 	environmentalLight->getComponent<LightingComponent>()->setAmbient(glm::vec3(0.1f, 0.1f, 0.1f));
 	environmentalLight->getComponent<LightingComponent>()->setDirectionalLight(glm::vec3(0.7f, 0.7f, 0.7f));
 
 
-	// --- Prop car ---
-	auto propCar = scene->addEntity();
-	g_boxID = propCar->id();
+	// --- Main camera ---
+	auto mainCameraTransform = mainCamera->getComponent<TransformComponent>();
+	mainCameraTransform->setLocalPosition(0.0f, 9.0f, -5.5f);
+	mainCameraTransform->setLocalRotation(glm::radians(-45.0f), glm::vec3(1.f, 0.f, 0.f));
+	mainCameraTransform->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
 	
+	auto mainCamerCam = mainCamera->addComponent<CameraComponent>();
+	mainCamerCam->setPerspectiveCamera(glm::radians(90.f), 1.f /*Will be modified to the window*/,0.01f, 300.f);
+
+
+	// --- Shadow map camera ---
+	auto shadowCameraTransform = shadowCamera->getComponent<TransformComponent>();
+	auto q1 = physx::PxQuat(glm::radians(-60.f), physx::PxVec3(1.f, 0.f, 0.f));
+	auto q2 = physx::PxQuat(glm::radians(-90.f), physx::PxVec3(0.f, 1.f, 0.f));
+	shadowCameraTransform->setLocalPosition(-30.0f, 20.0f, 0.0f);
+	shadowCameraTransform->setLocalRotation(q2 * q1);
+
+	auto shadowCameraCam = shadowCamera->addComponent<CameraComponent>();
+	shadowCameraCam->setOrthographicCamera(100.f, 100.f, 0.1f, 100.f);
+
+	auto shadowCameraDesc = shadowCamera->addComponent<DescriptionComponent>();
+	shadowCameraDesc->setInteger("Ignore parent rotations in render", 1);
+
+	
+	// --- Player car ---	
+	auto playerTransform = playerCar->getComponent<TransformComponent>();
+	
+	auto playerModel = playerCar->addComponent<ModelComponent>();
+	playerModel->setModel(modelPlayerCar);
+	
+	auto playerRender = playerCar->addComponent<RendererComponent>();
+	playerRender->enableRender();
+	
+	auto playerVehicle = playerCar->addComponent<VehicleComponent>();
+	
+	auto playerController = playerCar->addComponent<ControllerComponent>();
+	playerController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);
+	playerController->createAxis(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, &Events::VehicleAccelerate, ControlAxis::AXIS);
+	playerController->createAxis(GLFW_KEY_D, GLFW_KEY_A, &Events::VehicleSteer);
+	playerController->createAxis(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::VehicleSteer);
+	playerController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
+	playerController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
+
+
+	// --- AI car ---	
+	auto aiCarTransform = aiCar->getComponent<TransformComponent>();
+	aiCarTransform->setLocalPosition(0.0f, 5.0f, 12.0f);
+	aiCarTransform->setLocalRotation(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	
+	auto aiCarModel = aiCar->addComponent<ModelComponent>();
+	aiCarModel->setModel(modelAiCar);
+	
+	auto aiCarRender = aiCar->addComponent<RendererComponent>();
+	aiCarRender->enableRender();
+	
+	auto aiCarVehicle = aiCar->addComponent<VehicleComponent>();
+	
+	auto aiCarAI = aiCar->addComponent<AiComponent>();
+
+
+	// --- Prop car ---
 	auto propCarTransform = propCar->getComponent<TransformComponent>();
 	propCarTransform->setLocalPosition(28.5f, 4.0f, 22.5f);
 	propCarTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
@@ -85,79 +155,7 @@ Application::Application(appSettings& settings):
 	propCar->addComponent<AudioComponent>();
 
 	
-	// --- AI car ---
-	auto aiCar = scene->addEntity();
-	g_aiID = aiCar->id();
-	
-	auto aiCarTransform = aiCar->getComponent<TransformComponent>();
-	aiCarTransform->setLocalPosition(0.0f, 5.0f, 12.0f);
-	aiCarTransform->setLocalRotation(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	
-	auto aiCarModel = aiCar->addComponent<ModelComponent>();
-	aiCarModel->setModel(modelAiCar);
-	
-	auto aiCarRender = aiCar->addComponent<RendererComponent>();
-	aiCarRender->enableRender();
-	
-	auto aiCarVehicle = aiCar->addComponent<VehicleComponent>();
-	
-	auto aiCarAI = aiCar->addComponent<AiComponent>();
-
-
-	// --- Player car ---
-	auto playerCar = scene->addEntity();
-	g_carID = playerCar->id();
-	
-	auto playerTransform = playerCar->getComponent<TransformComponent>();
-	
-	auto playerModel = playerCar->addComponent<ModelComponent>();
-	playerModel->setModel(modelPlayerCar);
-	
-	auto playerRender = playerCar->addComponent<RendererComponent>();
-	playerRender->enableRender();
-	
-	auto playerVehicle = playerCar->addComponent<VehicleComponent>();
-	
-	auto playerController = playerCar->addComponent<ControllerComponent>();
-	playerController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);
-	playerController->createAxis(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, &Events::VehicleAccelerate, ControlAxis::AXIS);
-	playerController->createAxis(GLFW_KEY_D, GLFW_KEY_A, &Events::VehicleSteer);
-	playerController->createAxis(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::VehicleSteer);
-	playerController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
-	playerController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
-
-
-	// --- Main camera ---
-	auto mainCamera = playerCar->addChild();
-	
-	auto mainCamerCam = mainCamera->addComponent<CameraComponent>();
-	mainCamerCam->setPerspectiveCamera(glm::radians(90.f), 1.f /*Will be modified to the window*/,0.01f, 300.f);
-
-	auto mainCameraTransform = mainCamera->getComponent<TransformComponent>();
-	mainCameraTransform->setLocalPosition(0.0f, 9.0f, -5.5f);
-	mainCameraTransform->setLocalRotation(glm::radians(-45.0f), glm::vec3(1.f, 0.f, 0.f));
-	mainCameraTransform->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
-
-
-	// --- Shadow map camera ---
-	auto shadowCamera = playerCar->addChild();
-
-	auto shadowCameraTransform = shadowCamera->getComponent<TransformComponent>();
-	auto q1 = physx::PxQuat(glm::radians(-60.f), physx::PxVec3(1.f, 0.f, 0.f));
-	auto q2 = physx::PxQuat(glm::radians(-90.f), physx::PxVec3(0.f, 1.f, 0.f));
-	shadowCameraTransform->setLocalPosition(-30.0f, 20.0f, 0.0f);
-	shadowCameraTransform->setLocalRotation(q2 * q1);
-
-	auto shadowCameraCam = shadowCamera->addComponent<CameraComponent>();
-	shadowCameraCam->setOrthographicCamera(100.f, 100.f, 0.1f, 100.f);
-
-	auto shadowCameraDesc = shadowCamera->addComponent<DescriptionComponent>();
-	shadowCameraDesc->setInteger("Ignore parent rotations in render", 1);
-
-
 	// --- Map grass ---
-	auto mapGrass = scene->addEntity();
-
 	auto mapGrassTransform = mapGrass->getComponent<TransformComponent>();
 	mapGrassTransform->localTranslate(0.0f, -1.0f, 0.0f);
 
@@ -169,8 +167,6 @@ Application::Application(appSettings& settings):
 
 
 	// --- Map road ---
-	auto mapRoad = scene->addEntity();
-
 	auto mapRoadTransform = mapRoad->getComponent<TransformComponent>();
 	mapRoadTransform->localTranslate(0.0f, -1.0f, 0.0f);
 
@@ -183,8 +179,6 @@ Application::Application(appSettings& settings):
 	
 
 	// --- Map lines ---
-	auto mapLines = scene->addEntity();
-
 	auto mapLinesTransform = mapLines->getComponent<TransformComponent>();
 	mapLinesTransform->localTranslate(0.0f, -1.0f, 0.0f);
 
@@ -196,8 +190,8 @@ Application::Application(appSettings& settings):
 
 	
 	// --- Rocks ---
-	sp<ModelComponent> rockModel = nullptr;
-	sp<RendererComponent> rockRender = nullptr;
+	sp<ModelComponent>     rockModel     = nullptr;
+	sp<RendererComponent>  rockRender    = nullptr;
 	sp<TransformComponent> rockTransform = nullptr;
 	sp<RigidbodyComponent> rockRigidbody = nullptr;
 
@@ -213,6 +207,11 @@ Application::Application(appSettings& settings):
 		rockTransform->setLocalPosition(Random::randomVec3(-20.f, 20.f, -1.f, -1.f, -20.f, 20.f));
 		rockRigidbody->addActorStatic(*modelRock, convert<physx::PxTransform>(rockTransform->getGlobalMatrix()));
 	}
+
+	// Hacky stuff
+	g_carID = playerCar->id();
+	g_aiID = aiCar->id();
+	g_boxID = propCar->id();
 
 	carTransform = playerCar->getComponent<TransformComponent>();
 	mainCamTransform = mainCamera->getComponent<TransformComponent>();
