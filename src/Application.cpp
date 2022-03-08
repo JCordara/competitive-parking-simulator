@@ -123,19 +123,18 @@ glm::vec3 emptyparkingVertices[] = {
 
 glm::vec3 rockPosVertices[] = {
 	glm::vec3(14.0f, -1.0f, -50.0f),
-	glm::vec3(13.0f, -1.0f, -56.0f),
-	glm::vec3(16.0f, -1.0f, -64.0f),
-	glm::vec3(14.0f, -1.0f, -55.0f),
-	glm::vec3(-14.0f, -1.0f, -56.0f),
-	glm::vec3(-17.0f, -1.0f, -57.0f),
-	glm::vec3(-9.0f, -1.0f, -58.0f),
-
+	glm::vec3(11.0f, -1.0f, -56.0f),
+	glm::vec3(20.0f, -1.0f, -64.0f),
+	glm::vec3(17.0f, -1.0f, -55.0f),
+	glm::vec3(-21.0f, -1.0f, -56.0f),
+	glm::vec3(-17.0f, -1.0f, -62.0f),
+	glm::vec3(-9.0f, -1.0f, -54.0f),
 	glm::vec3(14.0f, -1.0f, 50.0f),
 	glm::vec3(13.0f, -1.0f, 56.0f),
 	glm::vec3(16.0f, -1.0f, 64.0f),
-	glm::vec3(14.0f, -1.0f, 55.0f),
-	glm::vec3(-14.0f, -1.0f, 56.0f),
-	glm::vec3(-17.0f, -1.0f, 57.0f),
+	glm::vec3(-14.0f, -1.0f, 55.0f),
+	glm::vec3(-7.0f, -1.0f, 62.0f),
+	glm::vec3(-17.0f, -1.0f, 53.0f),
 	glm::vec3(-9.0f, -1.0f, 58.0f)
 };
 
@@ -291,7 +290,17 @@ Application::Application(appSettings& settings):
 		propCarTransform->setLocalPosition(parkingVertices[i]);
 		
 		if(i < 47){
-			propCarTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));	
+			int randomRotate = rand() % 10;
+			if(randomRotate <= 3) {
+				propCarTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));	
+			} else {
+				propCarTransform->setLocalRotation(glm::radians(270.f), glm::vec3(0.f, 1.f, 0.f));
+			}
+		} else {
+			int randomRotate = rand() % 10;
+			if(randomRotate <= 3) {
+				propCarTransform->setLocalRotation(glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));	
+			}
 		}
 
 		auto propCarModel = propCar->addComponent<ModelComponent>();
@@ -302,8 +311,6 @@ Application::Application(appSettings& settings):
 		
 		auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
 		propCarRigidbody->addActorDynamic(*modelPropCar, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
-
-		propCar->addComponent<AudioComponent>();
 	}
 
 	
@@ -351,7 +358,7 @@ Application::Application(appSettings& settings):
 	mapWall1Render->enableRender();
 
 	auto mapWall1Rigidbody = mapWall1->addComponent<RigidbodyComponent>();
-	mapWall1Rigidbody->addActorStatic(*modelMapWall1, convert<physx::PxTransform>(mapWall1Transform->getGlobalMatrix()));
+	mapWall1Rigidbody->addActorStaticMesh(*modelMapWall1, convert<physx::PxTransform>(mapWall1Transform->getGlobalMatrix()));
 
 	
 	auto mapWall2Transform = mapWall2->getComponent<TransformComponent>();
@@ -364,7 +371,7 @@ Application::Application(appSettings& settings):
 	mapWall2Render->enableRender();
 
 	auto mapWall2Rigidbody = mapWall2->addComponent<RigidbodyComponent>();
-	mapWall2Rigidbody->addActorStatic(*modelMapWall2, convert<physx::PxTransform>(mapWall2Transform->getGlobalMatrix()));
+	mapWall2Rigidbody->addActorStaticMesh(*modelMapWall2, convert<physx::PxTransform>(mapWall2Transform->getGlobalMatrix()));
 
 
 	auto mapWall3Transform = mapWall3->getComponent<TransformComponent>();
@@ -377,7 +384,7 @@ Application::Application(appSettings& settings):
 	mapWall3Render->enableRender();
 
 	auto mapWall3Rigidbody = mapWall3->addComponent<RigidbodyComponent>();
-	mapWall3Rigidbody->addActorStatic(*modelMapWall3, convert<physx::PxTransform>(mapWall3Transform->getGlobalMatrix()));
+	mapWall3Rigidbody->addActorStaticMesh(*modelMapWall3, convert<physx::PxTransform>(mapWall3Transform->getGlobalMatrix()));
 
 
 	auto mapWall4Transform = mapWall4->getComponent<TransformComponent>();
@@ -390,7 +397,7 @@ Application::Application(appSettings& settings):
 	mapWall4Render->enableRender();
 
 	auto mapWall4Rigidbody = mapWall4->addComponent<RigidbodyComponent>();
-	mapWall4Rigidbody->addActorStatic(*modelMapWall4, convert<physx::PxTransform>(mapWall4Transform->getGlobalMatrix()));
+	mapWall4Rigidbody->addActorStaticMesh(*modelMapWall4, convert<physx::PxTransform>(mapWall4Transform->getGlobalMatrix()));
 
 	
 	// --- Rocks ---
@@ -409,11 +416,15 @@ Application::Application(appSettings& settings):
 		rockModel->setModel(modelRock);
 		rockRender->enableRender();
 		rockTransform->setLocalPosition(rockPosVertices[i]);
-		int random = rand() % 2 + 1;
-		if(random == 1) {
-			rockTransform->setLocalRotation(glm::radians(45.f), glm::vec3(0.f, 1.f, 0.f));
+		int random = rand() % 10;
+		if(random < 3) {
+			rockTransform->setLocalRotation(glm::radians(40.f), glm::vec3(0.f, 1.f, 0.f));
+		} else if(random < 6){
+			rockTransform->setLocalRotation(glm::radians(124.f), glm::vec3(0.f, 1.f, 0.f));
+		} else if (random < 8){
+			rockTransform->setLocalRotation(glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
 		}
-		rockRigidbody->addActorStatic(*modelRock, convert<physx::PxTransform>(rockTransform->getGlobalMatrix()));
+		rockRigidbody->addActorStaticSphere(0.6f, convert<physx::PxTransform>(rockTransform->getGlobalMatrix()));
 	}
 
 	// Hacky stuff

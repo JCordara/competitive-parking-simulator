@@ -16,7 +16,8 @@ public:
     ~RigidbodyComponent();
     static ComponentEnum getType();
     
-	void addActorStatic(const Model& model, PxTransform startPos);
+	void addActorStaticMesh(const Model& model, PxTransform startPos);
+	void addActorStaticSphere(const float radius, PxTransform startPos);
 	void addActorDynamic(const Model& model, PxTransform startPos);
 
     inline void setPhysicsSystem(shared_ptr<PhysicsSystem> system) {
