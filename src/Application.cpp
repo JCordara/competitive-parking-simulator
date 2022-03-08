@@ -116,9 +116,9 @@ glm::vec3 parkingVertices[] = {
 };
 
 glm::vec3 emptyparkingVertices[] = {
-	glm::vec3(-148.5f, 2.0f, -23.2f),
-	glm::vec3(46.4f, 2.0f, -57.0f),
-	glm::vec3(-45.2f, 2.0f, 61.0f),
+	glm::vec3(-148.5f, -0.9f, -23.0f),
+	glm::vec3(46.4f, -0.9f, -57.0f),
+	glm::vec3(-45.2f, -0.9f, 61.0f),
 };
 
 glm::vec3 rockPosVertices[] = {
@@ -209,6 +209,9 @@ Application::Application(appSettings& settings):
 	auto modelMapWall4 = std::make_shared<Model>(
 		"models/gamemapBrickWall4.obj", glm::vec3(.5f, .1f, .2f));
 
+	auto modelParkIndic = std::make_shared<Model>(
+		"models/gamemapParkGuide.obj", glm::vec3(.5f, .1f, .2f));
+
 	auto modelRock = std::make_shared<Model>(
 		"models/Rock1.obj", glm::vec3(0.0f, 1.0f, 1.0f));
 
@@ -287,15 +290,17 @@ Application::Application(appSettings& settings):
 		
 		if(i < 47){
 			int randomRotate = rand() % 10;
-			if(randomRotate <= 3) {
-				propCarTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));	
+			if(randomRotate <= 4) {
+				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(80.f), glm::radians(100.f)), glm::vec3(0.f, 1.f, 0.f));	
 			} else {
-				propCarTransform->setLocalRotation(glm::radians(270.f), glm::vec3(0.f, 1.f, 0.f));
+				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(260.f), glm::radians(280.f)), glm::vec3(0.f, 1.f, 0.f));
 			}
 		} else {
 			int randomRotate = rand() % 10;
-			if(randomRotate <= 3) {
-				propCarTransform->setLocalRotation(glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));	
+			if(randomRotate <= 4) {
+				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(170.f), glm::radians(190.f)), glm::vec3(0.f, 1.f, 0.f));	
+			} else {
+				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(-10.f), glm::radians(10.f)), glm::vec3(0.f, 1.f, 0.f));	
 			}
 		}
 
@@ -396,6 +401,23 @@ Application::Application(appSettings& settings):
 	auto mapWall4Rigidbody = mapWall4->addComponent<RigidbodyComponent>();
 	mapWall4Rigidbody->addActorStaticMesh(*modelMapWall4, convert<physx::PxTransform>(mapWall4Transform->getGlobalMatrix()));
 
+	// --- Map Guide ---
+	for(int i = 0; i < sizeof(emptyparkingVertices)/sizeof(*emptyparkingVertices); i++){
+		auto ParkIndic = scene->addEntity();
+		auto ParkIndicTransform = ParkIndic->getComponent<TransformComponent>();
+		ParkIndicTransform->setLocalPosition(emptyparkingVertices[i]);
+		if(i == 0){
+			ParkIndicTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
+		} else if(i == 2) {
+			ParkIndicTransform->setLocalRotation(glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
+		}
+
+		auto ParkIndicModel = ParkIndic->addComponent<ModelComponent>();
+		ParkIndicModel->setModel(modelParkIndic);
+
+		auto ParkIndicRender = ParkIndic->addComponent<RendererComponent>();
+		ParkIndicRender->enableRender();
+	}
 	
 	// --- Rocks ---
 	sp<ModelComponent>     rockModel     = nullptr;
@@ -413,14 +435,8 @@ Application::Application(appSettings& settings):
 		rockModel->setModel(modelRock);
 		rockRender->enableRender();
 		rockTransform->setLocalPosition(rockPosVertices[i]);
-		int random = rand() % 10;
-		if(random < 3) {
-			rockTransform->setLocalRotation(glm::radians(40.f), glm::vec3(0.f, 1.f, 0.f));
-		} else if(random < 6){
-			rockTransform->setLocalRotation(glm::radians(124.f), glm::vec3(0.f, 1.f, 0.f));
-		} else if (random < 8){
-			rockTransform->setLocalRotation(glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
-		}
+		rockTransform->setLocalRotation(Random::randomFloat(glm::radians(0.0f), glm::radians(360.0f)), glm::vec3(0.f, 1.f, 0.f));
+	
 		rockRigidbody->addActorStaticSphere(0.6f, convert<physx::PxTransform>(rockTransform->getGlobalMatrix()));
 	}
 
@@ -429,11 +445,11 @@ Application::Application(appSettings& settings):
 	auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
 	for (int i = 0; i < sizeof(emptyparkingVertices) / sizeof(*emptyparkingVertices); i++) {
 		if(emptyparkingVertices[i].x == -148.5f){
-			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(3.0f, 1.0f, 1.0f));
+			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
 		}
 
 		else {
-			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 3.0f));
+			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
 		}
 		
 	};
