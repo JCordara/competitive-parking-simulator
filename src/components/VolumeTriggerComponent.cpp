@@ -19,6 +19,13 @@ void VolumeTriggerComponent::flush() {
 	attached.clear();
 }
 
+void VolumeTriggerComponent::createVolumeShape(PxActor& actor) {
+	/*PxShape* treasureShape;
+	actor->getShapes(&treasureShape, 1);
+	treasureShape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+	treasureShape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);*/
+}
+
 ComponentEnum VolumeTriggerComponent::getType() {
     return ComponentEnum::volumeTrigger;
 }

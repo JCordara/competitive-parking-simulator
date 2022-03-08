@@ -327,32 +327,15 @@ Application::Application(appSettings& settings):
 
 	carTransform = playerCar->getComponent<TransformComponent>();
 	mainCamTransform = mainCamera->getComponent<TransformComponent>();
+
+
+	
+
+
 	/* --------------------- End Game World Description --------------------- */
 
-/* 
-	// Some random crap Keaton was doing
-	std::vector<PxVec3> meshVerts = {
-		PxVec3(0 ,1, 0), PxVec3(1, 0, 0), PxVec3(-1, 0, 0), 
-		PxVec3(0 ,0, 1), PxVec3(0, 0,-1) 
-	};
 
-	std::vector<PxVec3> meshVerts2 = { 
-		PxVec3(3, 1,-1), PxVec3(1, 2, 0), PxVec3(-1, 1, 0), 
-		PxVec3(0, 1, 1), PxVec3(1, 0,-1), PxVec3( 1, 9,-1), 
-		PxVec3(1, 2,-1), PxVec3(1, 2,-1), PxVec3(-1,-1,-1) 
-	};
 
-	//Create Mesh Object
-	auto mesh = scene->addEntity();
-	
-	Model newModel("models/car1.obj", glm::vec3(1.0, 1.0, 1.0));
-	PxTransform position = PxTransform(PxVec3(0, 20.0f, 0.0f));
-	PxTransform position1 = PxTransform(PxVec3(10.0, 0.0f, 0.0f));
-
-	auto rigidbodyComponent = mesh->addComponent<RigidbodyComponent>();
-	rigidbodyComponent->addActorDynamic(newModel, position);
-	rigidbodyComponent->addActorStatic(newModel, position1);
-*/
 
 }
 

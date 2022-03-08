@@ -42,6 +42,7 @@ void RigidbodyComponent::addActorDynamic(const Model& model, PxTransform startPo
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
 	aConvexShape->setSimulationFilterData(meshFilterData);
 	physicsSystem->pxScene->addActor(*actor);
+	//actor->setMass(50.0f);
 	aConvexShape->release();
 }
 

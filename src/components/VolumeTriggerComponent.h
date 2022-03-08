@@ -12,7 +12,7 @@ public:
 	void attachEntity(std::shared_ptr<Entity> collisionEntity);
 	void removeEntity(std::shared_ptr<Entity> collisionEntity);
 	void flush();
-
+	void createVolumeShape(PxActor& actor);
     static  ComponentEnum getType();
     ~VolumeTriggerComponent();
 

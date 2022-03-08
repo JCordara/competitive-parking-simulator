@@ -347,7 +347,20 @@ void PhysicsSystem::initPhysX()
 	pxGroundPlane = createDrivablePlane(groundPlaneSimFilterData, gMaterial, pxPhysics);
 	pxScene->addActor(*pxGroundPlane);
 
-	
+	//test triggerShape
+	static PxRigidActor* trigger = pxPhysics->createRigidStatic(PxTransform(PxVec3(10.0f,0.0f,1.0f)));
+	PxShape* triggerShape = PxRigidActorExt::createExclusiveShape(*trigger,PxBoxGeometry(1, 1, 1), *gMaterial);
+	triggerShape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false); 
+	triggerShape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+	pxScene->addActor(*trigger);
+	triggerShape->release();
+
+	PxRigidDynamic* trigger1 = pxPhysics->createRigidDynamic(PxTransform(PxVec3(10.0f, 10.0f, 1.0f)));
+	PxShape* triggerShape1 = PxRigidActorExt::createExclusiveShape(*trigger1, PxBoxGeometry(1, 1, 1), *gMaterial);
+	//triggerShape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+	//triggerShape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+	pxScene->addActor(*trigger1);
+	//triggerShape1->release();
 
 }
 
