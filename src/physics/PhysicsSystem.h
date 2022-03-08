@@ -23,7 +23,8 @@ public:
 
     void update();
 
-    PxTriangleMesh* createStaticMesh (const Model& model);
+    PxTriangleMesh* createStaticMesh(const Model& model);
+    PxSphereGeometry* createStaticSphere(const float radius);
     PxConvexMesh*   createDynamicMesh(const Model& model);
     PxConvexMesh*   createDynamicMesh(const PxVec3* v, const PxU32 n);
 

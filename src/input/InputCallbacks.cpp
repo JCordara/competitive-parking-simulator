@@ -3,30 +3,31 @@
 // Called once per tick when a key is pressed
 void Callbacks::keyCallback(int key, int scancode, int action, int mods) {
 	// Broadcast void events bound to this key
-	try {
+	if(voidKeyEvents.count(createMapKey(key, action))) {
 		auto voidEvent = voidKeyEvents.at(createMapKey(key, action));
 		voidEvent->broadcast();
-	} catch (...) {}
-	 
+	}
+	
 	// Broadcast float events bound to this key
-	try {
+	if (floatKeyEvents.count(key)) {
 		auto floatEvent = floatKeyEvents.at(key);
 		floatEvent->broadcast(static_cast<float>(action));
-	} catch (...) {}
+	}
 
 	// Broadcast entity & float events bound to this key
-	try {
-	auto entityFloatEvent = entityFloatKeyEvents.at(key);
-	entityFloatEvent.first->broadcast(
-		entityFloatEvent.second, 
-		static_cast<float>(action));
-	} catch (...) {}
+	if (entityFloatKeyEvents.count(key)) {
+		auto entityFloatEvent = entityFloatKeyEvents.at(key);
+		entityFloatEvent.first->broadcast(
+			entityFloatEvent.second, 
+			static_cast<float>(action)
+		);
+	}
 
 	// Update axes bound to this key
-	try {
+	if (controlAxes.count(key)) {
 		auto controlAxis = controlAxes.at(key);
 		controlAxis->setInputValue(key, static_cast<float>(action));
-	} catch (...) {}
+	}
 }
 
 // Called once per tick when a mouse button is pressed
@@ -52,31 +53,31 @@ void Callbacks::gamepadButtonCallback(
 	unsigned char buttons[], int button, unsigned int n) {
 
 	// Broadcast void events bound to this key
-	try {
+	if (voidKeyEvents.count(createMapKey(button, buttons[button]))) {
 		auto voidEvent = voidKeyEvents.at(createMapKey(button, buttons[button]));
 		voidEvent->broadcast();
-	} catch (...) {}
+	}
 	 
 	// Broadcast float events bound to this key
-	try {
+	if (floatKeyEvents.count(button)) {
 		auto floatEvent = floatKeyEvents.at(button);
 		floatEvent->broadcast(static_cast<float>(buttons[button]));
-	} catch (...) {}
+	}
 
 	// Broadcast entity & float events bound to this key
-	try {
+	if (entityFloatKeyEvents.count(button)) {
 		auto entityFloatEvent = entityFloatKeyEvents.at(button);
 		entityFloatEvent.first->broadcast(
 			entityFloatEvent.second, 
 			static_cast<float>(buttons[button]));
-	} catch (...) {}
+	}
 
 	// Update axes bound to this key
-	try {
+	if (controlAxes.count(button)) {
 		auto controlAxis = controlAxes.at(button);
 		float v = static_cast<float>(buttons[button]);
 		controlAxis->setInputValue(button, v);
-	} catch (...) {}
+	}
 	
 }
 
@@ -84,16 +85,16 @@ void Callbacks::gamepadButtonCallback(
 void Callbacks::gamepadAxisCallback(float axes[], int axis, unsigned int n) {
 
 	// Broadcast float events bound to this key
-	try {	
+	if (floatKeyEvents.count(axis)) {	
 		auto floatEvent = floatKeyEvents.at(axis);
 		floatEvent->broadcast(static_cast<float>(axes[axis]));
-	} catch (...) {}
+	}
 
 	// Update axes bound to this axis
-	try {	
+	if (controlAxes.count(axis)) {	
 		auto controlAxis = controlAxes.at(axis);
 		controlAxis->setInputValue(axis, axes[axis]);
-	} catch (...) {}
+	}
 
 }
 
