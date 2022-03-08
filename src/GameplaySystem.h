@@ -28,6 +28,9 @@ public:
 	
 	void resetPlayer();
 	void resetAi(unsigned int);
+	bool gameWon();
+	
+
 
 private:
     std::shared_ptr<Scene> scene;

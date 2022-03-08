@@ -14,6 +14,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene)
     
 void GameplaySystem::update() {
 	std::vector<sp<Entity>> topLevelEntities = scene->topLevelEntities();
+
     //for (auto it = scene->begin(); it != scene->end(); it++) {
     for (auto& it : topLevelEntities) {
         if (auto ac = it->getComponent<AiComponent>()) {
@@ -219,4 +220,20 @@ void GameplaySystem::resetAi(unsigned int aiId) {
 				getComponent<AiComponent>()->pickRandGoalNode();
 		}
 	}
+}
+
+bool GameplaySystem::gameWon(){
+	if (scores[playerId] >= 5 || scores[aiList[0]] >= 5) {
+		if (scores[playerId] >= 5) {
+			return true;
+		}
+
+		if (scores[aiList[0]] >= 5) {
+			return true;
+		}
+	}
+	else {
+		return false;
+	}
+	
 }

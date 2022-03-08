@@ -5,6 +5,8 @@ extern std::unordered_map<unsigned int, int> scores;
 extern unsigned int playerId;
 extern std::vector<unsigned int> aiList;
 
+bool gameWon = false;
+
 void GUI::draw() {
 
 	glDisable(GL_FRAMEBUFFER_SRGB); // disable sRGB for things like imgui
@@ -26,6 +28,15 @@ void GUI::draw() {
 		ImGuiWindowFlags_AlwaysAutoResize |		// window should auto-resize to fit the text
 		ImGuiWindowFlags_NoTitleBar;			// no title; only the text should be visible
 
+	ImGuiWindowFlags winWindowFlags =
+		
+		ImGuiWindowFlags_NoMove |				// text "window" should not move
+		
+		ImGuiWindowFlags_NoCollapse |			// should not collapse
+		ImGuiWindowFlags_NoSavedSettings |		// don't want saved settings mucking things up
+		ImGuiWindowFlags_AlwaysAutoResize |		// window should auto-resize to fit the text
+		ImGuiWindowFlags_NoTitleBar;			// no title; only the text should be visible
+
 
 	ImGui::Begin("FPS counter", (bool*)0, textWindowFlags);
 
@@ -36,6 +47,22 @@ void GUI::draw() {
 	ImGui::Text("Player: %d", scores[playerId]);
 	ImGui::Text("AI-1: %d", scores[aiList[0]]); // 1 AI HArdcoded, gross
 
+	if (scores[playerId] >= 5 || scores[aiList[0]] >= 5) {
+		if (scores[playerId] >= 5) {
+			ImGui::SetCursorPos(ImVec2(20, 20));
+			ImGui::SetWindowFontScale(15.0f);
+			ImGui::Text("Player WINS");
+			gameWon = true;
+		};
+
+		if (scores[aiList[0]] >= 5) {
+
+			ImGui::SetCursorPos(ImVec2(20, 20));
+			ImGui::SetWindowFontScale(15.0f);
+			ImGui::Text("AI-1 WINS");
+			gameWon = true;
+		}
+	}
 	ImGui::End();
 
 	// Render the ImGui window

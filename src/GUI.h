@@ -12,6 +12,7 @@ class GUI {
 public:
 	void draw();
     ~GUI();
+	bool gameWon;
 };
 
 #endif

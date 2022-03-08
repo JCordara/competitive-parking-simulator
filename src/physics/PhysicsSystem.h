@@ -28,6 +28,7 @@ public:
     PxConvexMesh*   createDynamicMesh(const Model& model);
     PxConvexMesh*   createDynamicMesh(const PxVec3* v, const PxU32 n);
 	void createTriggerBox(PxTransform startPos, PxBoxGeometry boxGeom);
+	
 
     ~PhysicsSystem();
     
@@ -57,7 +58,7 @@ private:
 
     void vehicleUpdate(shared_ptr<VehicleComponent>);
     void simulateScene();
-    void cleanupPhysics();
+	void cleanupPhysics();
 
     void vehicleAccelerateMode(Entity& entity, float v);
     void vehicleTurnMode(Entity& entity, float v);

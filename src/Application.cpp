@@ -486,10 +486,15 @@ int Application::play() {
 	
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
+			if (scores[playerId] >= 5 || scores[aiList[0]] >= 5) {
+			}
+			else {
+				gameplay->update();	// Gameplay / AI update
+				physics->update();	// Physics update
+				audio->update();	// Audio update
+			}
+			
 
-			gameplay->update();	// Gameplay / AI update
-			physics->update();	// Physics update
-			audio->update();	// Audio update
 
 		}
 
