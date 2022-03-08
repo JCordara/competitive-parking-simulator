@@ -116,9 +116,9 @@ glm::vec3 parkingVertices[] = {
 };
 
 glm::vec3 emptyparkingVertices[] = {
-	glm::vec3(-148.5f, 2.0f, -23.2f),
-	glm::vec3(46.4f, 2.0f, -57.0f),
-	glm::vec3(-45.2f, 2.0f, 61.0f),
+	glm::vec3(-148.5f, -0.9f, -23.0f),
+	glm::vec3(46.4f, -0.9f, -57.0f),
+	glm::vec3(-45.2f, -0.9f, 61.0f),
 };
 
 glm::vec3 rockPosVertices[] = {
@@ -214,6 +214,9 @@ Application::Application(appSettings& settings):
 
 	auto modelMapWall4 = std::make_shared<Model>(
 		"models/gamemapBrickWall4.obj", glm::vec3(.5f, .1f, .2f));
+
+	auto modelParkIndic = std::make_shared<Model>(
+		"models/gamemapParkGuide.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelRock = std::make_shared<Model>(
 		"models/Rock1.obj", glm::vec3(0.0f, 1.0f, 1.0f));
@@ -406,6 +409,18 @@ Application::Application(appSettings& settings):
 	auto mapWall4Rigidbody = mapWall4->addComponent<RigidbodyComponent>();
 	mapWall4Rigidbody->addActorStaticMesh(*modelMapWall4, convert<physx::PxTransform>(mapWall4Transform->getGlobalMatrix()));
 
+	// --- Map Guide ---
+	for(int i = 0; i < sizeof(emptyparkingVertices)/sizeof(*emptyparkingVertices); i++){
+		auto ParkIndic = scene->addEntity();
+		auto ParkIndicTransform = ParkIndic->getComponent<TransformComponent>();
+		ParkIndicTransform->setLocalPosition(emptyparkingVertices[i]);
+
+		auto ParkIndicModel = ParkIndic->addComponent<ModelComponent>();
+		ParkIndicModel->setModel(modelParkIndic);
+
+		auto ParkIndicRender = ParkIndic->addComponent<RendererComponent>();
+		ParkIndicRender->enableRender();
+	}
 	
 	// --- Rocks ---
 	sp<ModelComponent>     rockModel     = nullptr;
