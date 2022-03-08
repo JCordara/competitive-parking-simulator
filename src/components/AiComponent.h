@@ -55,7 +55,9 @@ public:
 	void setGameplaySystem(shared_ptr<GameplaySystem> system) { 
 		gameplaySystem = system; 
 	}
-
+	std::shared_ptr<AiGraphNode> currentNode = std::make_shared<AiGraphNode>(); // Node the AI car currently belongs to
+	void setSpawnNode();
+	void pickRandGoalNode();
 private:
 
 	shared_ptr<GameplaySystem> gameplaySystem;
@@ -64,10 +66,9 @@ private:
 	std::vector<Entity> carQueue;
 	std::vector<std::shared_ptr<AiGraphNode>> nodeQueue;
 	// std::vector<GraphNode> graph;
-	std::shared_ptr<AiGraphNode> currentNode = std::make_shared<AiGraphNode>(); // Node the AI car currently belongs to
+	
 
-	void setSpawnNode();
-	void pickRandGoalNode();
+
 	void aStar(std::shared_ptr<AiGraphNode> goalNode);
 	float getFValue(std::shared_ptr<AiGraphNode> node);
 	float getHValue(std::shared_ptr<AiGraphNode> node,

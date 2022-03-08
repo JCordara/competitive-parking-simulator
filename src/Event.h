@@ -25,7 +25,7 @@ class VolumeTriggerComponent;
 
 namespace Events {
     extern Event<void> GameStart;
-    extern Event<void> CarParked;
+    extern Event<Entity&> CarParked;
     extern Event<void> CarUnParked;
 
     extern Event<Entity&, float> VehicleAccelerate;

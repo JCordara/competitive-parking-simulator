@@ -1,6 +1,10 @@
 #include "Application.h"
 #include <Random.h>
 
+unsigned int playerId = 0;
+std::vector<unsigned int> aiList;
+std::unordered_map<unsigned int, int> scores;
+
 glm::vec3 parkingVertices[] = {
 	//GROUP 1 - Horizontal Parking Spaces
 	//NEEDS 90 or 270 degree rotation
@@ -157,7 +161,9 @@ Application::Application(appSettings& settings):
 
 	// --- Entities ---
 	auto playerCar = scene->addEntity();
+	gameplay->setPlayerId(playerCar->id());
 	auto aiCar = scene->addEntity();
+	gameplay->addAiId(aiCar->id());
 	
 	//PUT PROPCAR IN A FOR LOOP
 	//auto propCar = scene->addEntity();
