@@ -13,7 +13,7 @@ AiComponent::AiComponent(Entity& parent)
 	std::cout << "SET THE SPAWN NODE" << std::endl;
 	pickRandGoalNode();
 	// forward
-	Events::VehicleAccelerate.broadcast(entity, 0.5); // Something to fix
+	Events::VehicleAccelerate.broadcast(entity, 0.8); // Something to fix
 }
 
 ComponentEnum AiComponent::getType() {
