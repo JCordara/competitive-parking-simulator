@@ -9,6 +9,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene)
 	Events::CarParked.registerHandler<GameplaySystem,
 		&GameplaySystem::registerCarParked>(this);
 
+
 	setupAiNodes();
 }
     
@@ -157,6 +158,7 @@ void GameplaySystem::registerAiComponent(AiComponent& component) {
 	component.setGameplaySystem(
 		dynamic_pointer_cast<GameplaySystem>(shared_from_this()));
 }
+
 
 void GameplaySystem::registerCarParked(Entity& entity) {
 	std::cout << entity.id() << " , " << playerId << endl;
