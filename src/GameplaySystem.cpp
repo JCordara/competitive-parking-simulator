@@ -45,6 +45,8 @@ void GameplaySystem::setupAiNodes() {
 	std::shared_ptr<AiGraphNode> aiNode10 = std::make_shared<AiGraphNode>();
 	std::shared_ptr<AiGraphNode> aiNode11 = std::make_shared<AiGraphNode>();
 	std::shared_ptr<AiGraphNode> aiNode12 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode13 = std::make_shared<AiGraphNode>();
+	std::shared_ptr<AiGraphNode> aiNode14 = std::make_shared<AiGraphNode>();
 
 	// Spawn Node Collection
 	aiNode1->nodeType = AiGraphNode::NodeType::SPAWN;
@@ -101,20 +103,33 @@ void GameplaySystem::setupAiNodes() {
 	aiNode7->neighbours.push_back(aiNode5);
 	aiNode7->neighbours.push_back(aiNode9);
 	aiGlobalNodes.push_back(aiNode7);
+
+	aiNode14->nodeType = AiGraphNode::NodeType::INNERLOT;
+	aiNode14->id = 7;
+	aiNode14->position = glm::vec3(135, 1, -23.2);
+	aiNode14->neighbours.push_back(aiNode13);
+	aiNode14->neighbours.push_back(aiNode7);
+	aiGlobalNodes.push_back(aiNode14);
 	//
 
 	// Open Parking Stall Node Colelction
 	aiNode8->nodeType = AiGraphNode::NodeType::PARKINGSTALL;
 	aiNode8->id = 8;
-	aiNode8->position = glm::vec3(-45, 1, 60);
+	aiNode8->position = glm::vec3(-45.2, 1, 61);
 	aiNode8->neighbours.push_back(aiNode6);
 	aiGlobalNodes.push_back(aiNode8);
 	
 	aiNode9->nodeType = AiGraphNode::NodeType::PARKINGSTALL;
 	aiNode9->id = 9;
-	aiNode9->position = glm::vec3(47, 1, -55);
+	aiNode9->position = glm::vec3(46.4, 1, -57);
 	aiNode9->neighbours.push_back(aiNode7);
 	aiGlobalNodes.push_back(aiNode9);
+
+	aiNode13->nodeType = AiGraphNode::NodeType::PARKINGSTALL;
+	aiNode13->id = 13;
+	aiNode13->position = glm::vec3(148.5, 1, -23.2);
+	aiNode13->neighbours.push_back(aiNode14);
+	aiGlobalNodes.push_back(aiNode13);
 	//
 
 	// Intersection Node Collection
