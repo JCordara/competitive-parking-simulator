@@ -1,8 +1,143 @@
 #include "Application.h"
 #include <Random.h>
+#include <stdlib.h>
 unsigned int g_boxID;
 unsigned int g_carID;
 unsigned int g_aiID;
+
+glm::vec3 parkingVertices[] = {
+	//GROUP 1 - Horizontal Parking Spaces
+	//NEEDS 90 or 270 degree rotation
+	glm::vec3(28.5f, 2.0f, 42.8f),
+	glm::vec3(28.5f, 2.0f, 36.2f),
+	glm::vec3(28.5f, 2.0f, 29.6f),
+	glm::vec3(28.5f, 2.0f, 23.0f),
+	glm::vec3(28.5f, 2.0f, 16.4f),
+	glm::vec3(28.5f, 2.0f, 9.8f),
+	glm::vec3(28.5f, 2.0f, 3.2f),
+	glm::vec3(28.5f, 2.0f, -3.4f),
+	glm::vec3(28.5f, 2.0f, -10.0f),
+	glm::vec3(28.5f, 2.0f, -16.6f),
+	glm::vec3(28.5f, 2.0f, -23.2f),
+	glm::vec3(28.5f, 2.0f, -46.2f),
+	glm::vec3(-148.5f, 2.0f, 49.6f),
+	glm::vec3(-148.5f, 2.0f, 29.6f),
+	glm::vec3(-148.5f, 2.0f, 23.0f),
+	glm::vec3(-148.5f, 2.0f, 16.4f),
+	glm::vec3(-148.5f, 2.0f, 9.8f),
+	glm::vec3(-148.5f, 2.0f, 3.2f),
+	glm::vec3(-148.5f, 2.0f, -3.4f),
+	glm::vec3(-148.5f, 2.0f, -10.0f),
+	glm::vec3(-148.5f, 2.0f, -16.6f),
+	glm::vec3(-148.5f, 2.0f, -29.8f),
+	glm::vec3(-148.5f, 2.0f, -36.4f),
+	glm::vec3(-148.5f, 2.0f, -43.0f),
+	glm::vec3(149.7f, 2.0f, 42.8f),
+	glm::vec3(149.7f, 2.0f, 36.2f),
+	glm::vec3(149.7f, 2.0f, 29.6f),
+	glm::vec3(149.7f, 2.0f, 23.0f),
+	glm::vec3(149.7f, 2.0f, 16.4f),
+	glm::vec3(149.7f, 2.0f, 9.8f),
+	glm::vec3(149.7f, 2.0f, 3.2f),
+	glm::vec3(149.7f, 2.0f, -3.4f),
+	glm::vec3(149.7f, 2.0f, -10.0f),
+	glm::vec3(149.7f, 2.0f, -16.6f),
+	glm::vec3(149.7f, 2.0f, -23.2f),
+	glm::vec3(149.7f, 2.0f, -46.2f),
+	glm::vec3(-27.7f, 2.0f, 49.6f),
+	glm::vec3(-27.7f, 2.0f, 29.6f),
+	glm::vec3(-27.7f, 2.0f, 23.0f),
+	glm::vec3(-27.7f, 2.0f, 16.4f),
+	glm::vec3(-27.7f, 2.0f, 9.8f),
+	glm::vec3(-27.7f, 2.0f, 3.2f),
+	glm::vec3(-27.7f, 2.0f, -3.4f),
+	glm::vec3(-27.7f, 2.0f, -10.0f),
+	glm::vec3(-27.7f, 2.0f, -16.6f),
+	glm::vec3(-27.7f, 2.0f, -23.2f),
+	glm::vec3(-27.7f, 2.0f, -46.2f),
+
+	//GROUP 2 - Vertical Parking Spaces
+	glm::vec3(39.8f, 2.0f, 61.0f),
+	glm::vec3(46.4f, 2.0f, 61.0f),
+	glm::vec3(53.0f, 2.0f, 61.0f),
+	glm::vec3(59.6f, 2.0f, 61.0f),
+	glm::vec3(66.2f, 2.0f, 61.0f),
+	glm::vec3(72.8f, 2.0f, 61.0f),
+	glm::vec3(79.4f, 2.0f, 61.0f),
+	glm::vec3(99.2f, 2.0f, 61.0f),
+	glm::vec3(105.8f, 2.0f, 61.0f),
+	glm::vec3(112.4f, 2.0f, 61.0f),
+	glm::vec3(119.0f, 2.0f, 61.0f),
+	glm::vec3(125.6f, 2.0f, 61.0f),
+	glm::vec3(132.2f, 2.0f, 61.0f),
+	glm::vec3(138.8f, 2.0f, 61.0f),
+	glm::vec3(39.8f, 2.0f, -57.0f),
+	glm::vec3(53.0f, 2.0f, -57.0f),
+	glm::vec3(59.6f, 2.0f, -57.0f),
+	glm::vec3(66.2f, 2.0f, -57.0f),
+	glm::vec3(72.8f, 2.0f, -57.0f),
+	glm::vec3(79.4f, 2.0f, -57.0f),
+	glm::vec3(99.2f, 2.0f, -57.0f),
+	glm::vec3(105.8f, 2.0f, -57.0f),
+	glm::vec3(112.4f, 2.0f, -57.0f),
+	glm::vec3(119.0f, 2.0f, -57.0f),
+	glm::vec3(125.6f, 2.0f, -57.0f),
+	glm::vec3(132.2f, 2.0f, -57.0f),
+	glm::vec3(138.8f, 2.0f, -57.0f),
+	glm::vec3(-38.6f, 2.0f, 61.0f),
+	glm::vec3(-51.8f, 2.0f, 61.0f),
+	glm::vec3(-58.4f, 2.0f, 61.0f),
+	glm::vec3(-65.0f, 2.0f, 61.0f),
+	glm::vec3(-71.6f, 2.0f, 61.0f),
+	glm::vec3(-78.2f, 2.0f, 61.0f),
+	glm::vec3(-84.8f, 2.0f, 61.0f),
+	glm::vec3(-91.4f, 2.0f, 61.0f),
+	glm::vec3(-98.0f, 2.0f, 61.0f),
+	glm::vec3(-104.6f, 2.0f, 61.0f),
+	glm::vec3(-111.2f, 2.0f, 61.0f),
+	glm::vec3(-117.8f, 2.0f, 61.0f),
+	glm::vec3(-124.4f, 2.0f, 61.0f),
+	glm::vec3(-131.0f, 2.0f, 61.0f),
+	glm::vec3(-137.6f, 2.0f, 61.0f),
+	glm::vec3(-38.6f, 2.0f, -57.0f),
+	glm::vec3(-45.2f, 2.0f, -57.0f),
+	glm::vec3(-51.8f, 2.0f, -57.0f),
+	glm::vec3(-58.4f, 2.0f, -57.0f),
+	glm::vec3(-65.0f, 2.0f, -57.0f),
+	glm::vec3(-71.6f, 2.0f, -57.0f),
+	glm::vec3(-78.2f, 2.0f, -57.0f),
+	glm::vec3(-98.0f, 2.0f, -57.0f),
+	glm::vec3(-104.6f, 2.0f, -57.0f),
+	glm::vec3(-111.2f, 2.0f, -57.0f),
+	glm::vec3(-117.8f, 2.0f, -57.0f),
+	glm::vec3(-124.4f, 2.0f, -57.0f),
+	glm::vec3(-131.0f, 2.0f, -57.0f),
+	glm::vec3(-137.6f, 2.0f, -57.0f)
+};
+
+glm::vec3 emptyparkingVertices[] = {
+	glm::vec3(-148.5f, 2.0f, -23.2f),
+	glm::vec3(46.4f, 2.0f, -57.0f),
+	glm::vec3(-45.2f, 2.0f, 61.0f),
+};
+
+glm::vec3 rockPosVertices[] = {
+	glm::vec3(14.0f, -1.0f, -50.0f),
+	glm::vec3(13.0f, -1.0f, -56.0f),
+	glm::vec3(16.0f, -1.0f, -64.0f),
+	glm::vec3(14.0f, -1.0f, -55.0f),
+	glm::vec3(-14.0f, -1.0f, -56.0f),
+	glm::vec3(-17.0f, -1.0f, -57.0f),
+	glm::vec3(-9.0f, -1.0f, -58.0f),
+
+	glm::vec3(14.0f, -1.0f, 50.0f),
+	glm::vec3(13.0f, -1.0f, 56.0f),
+	glm::vec3(16.0f, -1.0f, 64.0f),
+	glm::vec3(14.0f, -1.0f, 55.0f),
+	glm::vec3(-14.0f, -1.0f, 56.0f),
+	glm::vec3(-17.0f, -1.0f, 57.0f),
+	glm::vec3(-9.0f, -1.0f, 58.0f)
+};
 
 Application::Application(appSettings& settings): 
 	settings(settings)
@@ -35,6 +170,10 @@ Application::Application(appSettings& settings):
 	auto mapGrass = scene->addEntity();
 	auto mapRoad = scene->addEntity();
 	auto mapLines = scene->addEntity();
+	auto mapWall1 = scene->addEntity();
+	auto mapWall2 = scene->addEntity();
+	auto mapWall3 = scene->addEntity();
+	auto mapWall4 = scene->addEntity();
 
 	auto environmentalLight = scene->addEntity();
 	auto mainCamera = playerCar->addChild();
@@ -52,15 +191,25 @@ Application::Application(appSettings& settings):
 		"models/car3.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	auto modelMapGrass = std::make_shared<Model>(
-		"models/gamemapGrassPlane.obj", glm::vec3(.5f, .1f, .2f)
-	);
+		"models/gamemapGrassPlane.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelMapRoad = std::make_shared<Model>(
-		"models/gamemapRoad.obj", glm::vec3(.5f, .1f, .2f)
-	);
+		"models/gamemapRoad.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelMapLines = std::make_shared<Model>(
 		"models/gamemapParkingLines.obj", glm::vec3(.5f, .1f, .2f));
+
+	auto modelMapWall1 = std::make_shared<Model>(
+		"models/gamemapBrickWall1.obj", glm::vec3(.5f, .1f, .2f));
+
+	auto modelMapWall2 = std::make_shared<Model>(
+		"models/gamemapBrickWall2.obj", glm::vec3(.5f, .1f, .2f));
+
+	auto modelMapWall3 = std::make_shared<Model>(
+		"models/gamemapBrickWall3.obj", glm::vec3(.5f, .1f, .2f));
+
+	auto modelMapWall4 = std::make_shared<Model>(
+		"models/gamemapBrickWall4.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelRock = std::make_shared<Model>(
 		"models/Rock1.obj", glm::vec3(0.0f, 1.0f, 1.0f));
@@ -132,125 +281,12 @@ Application::Application(appSettings& settings):
 	auto aiCarAI = aiCar->addComponent<AiComponent>();
 
 	// --- Prop car ---
-	glm::vec3 parkingVertices[] = {
-		//GROUP 1 - Horizontal Parking Spaces
-		//NEEDS 90 or 270 degree rotation
-		glm::vec3(28.5f, 2.0f, 42.8f),
-		glm::vec3(28.5f, 2.0f, 36.2f),
-		glm::vec3(28.5f, 2.0f, 29.6f),
-   	 	glm::vec3(28.5f, 2.0f, 23.0f),
-    	glm::vec3(28.5f, 2.0f, 16.4f),
-    	glm::vec3(28.5f, 2.0f, 9.8f),
-		glm::vec3(28.5f, 2.0f, 3.2f),
-		glm::vec3(28.5f, 2.0f, -3.4f),
-		glm::vec3(28.5f, 2.0f, -10.0f),
-		glm::vec3(28.5f, 2.0f, -16.6f),
-		glm::vec3(28.5f, 2.0f, -23.2f),
-		glm::vec3(28.5f, 2.0f, -46.2f),
-		glm::vec3(-148.5f, 2.0f, 49.6f),
-		glm::vec3(-148.5f, 2.0f, 29.6f),
-   	 	glm::vec3(-148.5f, 2.0f, 23.0f),
-    	glm::vec3(-148.5f, 2.0f, 16.4f),
-    	glm::vec3(-148.5f, 2.0f, 9.8f),
-		glm::vec3(-148.5f, 2.0f, 3.2f),
-		glm::vec3(-148.5f, 2.0f, -3.4f),
-		glm::vec3(-148.5f, 2.0f, -10.0f),
-		glm::vec3(-148.5f, 2.0f, -16.6f),
-		glm::vec3(-148.5f, 2.0f, -23.2f),
-		glm::vec3(-148.5f, 2.0f, -29.8f),
-		glm::vec3(-148.5f, 2.0f, -36.4f),
-		glm::vec3(-148.5f, 2.0f, -43.0f),
-		glm::vec3(149.7f, 2.0f, 42.8f),
-		glm::vec3(149.7f, 2.0f, 36.2f),
-		glm::vec3(149.7f, 2.0f, 29.6f),
-   	 	glm::vec3(149.7f, 2.0f, 23.0f),
-    	glm::vec3(149.7f, 2.0f, 16.4f),
-    	glm::vec3(149.7f, 2.0f, 9.8f),
-		glm::vec3(149.7f, 2.0f, 3.2f),
-		glm::vec3(149.7f, 2.0f, -3.4f),
-		glm::vec3(149.7f, 2.0f, -10.0f),
-		glm::vec3(149.7f, 2.0f, -16.6f),
-		glm::vec3(149.7f, 2.0f, -23.2f),
-		glm::vec3(149.7f, 2.0f, -46.2f),
-		glm::vec3(-27.7f, 2.0f, 49.6f),
-		glm::vec3(-27.7f, 2.0f, 29.6f),
-   	 	glm::vec3(-27.7f, 2.0f, 23.0f),
-    	glm::vec3(-27.7f, 2.0f, 16.4f),
-    	glm::vec3(-27.7f, 2.0f, 9.8f),
-		glm::vec3(-27.7f, 2.0f, 3.2f),
-		glm::vec3(-27.7f, 2.0f, -3.4f),
-		glm::vec3(-27.7f, 2.0f, -10.0f),
-		glm::vec3(-27.7f, 2.0f, -16.6f),
-		glm::vec3(-27.7f, 2.0f, -23.2f),
-		glm::vec3(-27.7f, 2.0f, -46.2f),
-
-		//GROUP 2 - Vertical Parking Spaces
-		glm::vec3(39.8f, 2.0f, 61.0f),
-		glm::vec3(46.4f, 2.0f, 61.0f),
-		glm::vec3(53.0f, 2.0f, 61.0f),
-		glm::vec3(59.6f, 2.0f, 61.0f),
-		glm::vec3(66.2f, 2.0f, 61.0f),
-		glm::vec3(72.8f, 2.0f, 61.0f),
-		glm::vec3(79.4f, 2.0f, 61.0f),
-		glm::vec3(99.2f, 2.0f, 61.0f),
-		glm::vec3(105.8f, 2.0f, 61.0f),
-		glm::vec3(112.4f, 2.0f, 61.0f),
-		glm::vec3(119.0f, 2.0f, 61.0f),
-		glm::vec3(125.6f, 2.0f, 61.0f),
-		glm::vec3(132.2f, 2.0f, 61.0f),
-		glm::vec3(138.8f, 2.0f, 61.0f),
-		glm::vec3(39.8f, 2.0f, -57.0f),
-		glm::vec3(46.4f, 2.0f, -57.0f),
-		glm::vec3(53.0f, 2.0f, -57.0f),
-		glm::vec3(59.6f, 2.0f, -57.0f),
-		glm::vec3(66.2f, 2.0f, -57.0f),
-		glm::vec3(72.8f, 2.0f, -57.0f),
-		glm::vec3(79.4f, 2.0f, -57.0f),
-		glm::vec3(99.2f, 2.0f, -57.0f),
-		glm::vec3(105.8f, 2.0f, -57.0f),
-		glm::vec3(112.4f, 2.0f, -57.0f),
-		glm::vec3(119.0f, 2.0f, -57.0f),
-		glm::vec3(125.6f, 2.0f, -57.0f),
-		glm::vec3(132.2f, 2.0f, -57.0f),
-		glm::vec3(138.8f, 2.0f, -57.0f),
-		glm::vec3(-38.6f, 2.0f, 61.0f),
-		glm::vec3(-45.2f, 2.0f, 61.0f),
-		glm::vec3(-51.8f, 2.0f, 61.0f),
-		glm::vec3(-58.4f, 2.0f, 61.0f),
-		glm::vec3(-65.0f, 2.0f, 61.0f),
-		glm::vec3(-71.6f, 2.0f, 61.0f),
-		glm::vec3(-78.2f, 2.0f, 61.0f),
-		glm::vec3(-84.8f, 2.0f, 61.0f),
-		glm::vec3(-91.4f, 2.0f, 61.0f),
-		glm::vec3(-98.0f, 2.0f, 61.0f),
-		glm::vec3(-104.6f, 2.0f, 61.0f),
-		glm::vec3(-111.2f, 2.0f, 61.0f),
-		glm::vec3(-117.8f, 2.0f, 61.0f),
-		glm::vec3(-124.4f, 2.0f, 61.0f),
-		glm::vec3(-131.0f, 2.0f, 61.0f),
-		glm::vec3(-137.6f, 2.0f, 61.0f),
-		glm::vec3(-38.6f, 2.0f, -57.0f),
-		glm::vec3(-45.2f, 2.0f, -57.0f),
-		glm::vec3(-51.8f, 2.0f, -57.0f),
-		glm::vec3(-58.4f, 2.0f, -57.0f),
-		glm::vec3(-65.0f, 2.0f, -57.0f),
-		glm::vec3(-71.6f, 2.0f, -57.0f),
-		glm::vec3(-78.2f, 2.0f, -57.0f),
-		glm::vec3(-98.0f, 2.0f, -57.0f),
-		glm::vec3(-104.6f, 2.0f, -57.0f),
-		glm::vec3(-111.2f, 2.0f, -57.0f),
-		glm::vec3(-117.8f, 2.0f, -57.0f),
-		glm::vec3(-124.4f, 2.0f, -57.0f),
-		glm::vec3(-131.0f, 2.0f, -57.0f),
-		glm::vec3(-137.6f, 2.0f, -57.0f)
-	};
-
 	for(int i = 0; i < sizeof(parkingVertices)/sizeof(*parkingVertices); i++){
 		auto propCar = scene->addEntity();
 		auto propCarTransform = propCar->getComponent<TransformComponent>();
 		propCarTransform->setLocalPosition(parkingVertices[i]);
 		
-		if(i < 48){
+		if(i < 47){
 			propCarTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));	
 		}
 
@@ -300,6 +336,58 @@ Application::Application(appSettings& settings):
 	auto mapLinesRender = mapLines->addComponent<RendererComponent>();
 	mapLinesRender->enableRender();
 
+	// --- Map Walls ---
+	auto mapWall1Transform = mapWall1->getComponent<TransformComponent>();
+	mapWall1Transform->localTranslate(0.0f, -1.0f, 0.0f);
+
+	auto mapWall1Model = mapWall1->addComponent<ModelComponent>();
+	mapWall1Model->setModel(modelMapWall1);
+
+	auto mapWall1Render = mapWall1->addComponent<RendererComponent>();
+	mapWall1Render->enableRender();
+
+	auto mapWall1Rigidbody = mapWall1->addComponent<RigidbodyComponent>();
+	mapWall1Rigidbody->addActorStatic(*modelMapWall1, convert<physx::PxTransform>(mapWall1Transform->getGlobalMatrix()));
+
+	
+	auto mapWall2Transform = mapWall2->getComponent<TransformComponent>();
+	mapWall2Transform->localTranslate(0.0f, -1.0f, 0.0f);
+
+	auto mapWall2Model = mapWall2->addComponent<ModelComponent>();
+	mapWall2Model->setModel(modelMapWall2);
+
+	auto mapWall2Render = mapWall2->addComponent<RendererComponent>();
+	mapWall2Render->enableRender();
+
+	auto mapWall2Rigidbody = mapWall2->addComponent<RigidbodyComponent>();
+	mapWall2Rigidbody->addActorStatic(*modelMapWall2, convert<physx::PxTransform>(mapWall2Transform->getGlobalMatrix()));
+
+
+	auto mapWall3Transform = mapWall3->getComponent<TransformComponent>();
+	mapWall3Transform->localTranslate(0.0f, -1.0f, 0.0f);
+
+	auto mapWall3Model = mapWall3->addComponent<ModelComponent>();
+	mapWall3Model->setModel(modelMapWall3);
+
+	auto mapWall3Render = mapWall3->addComponent<RendererComponent>();
+	mapWall3Render->enableRender();
+
+	auto mapWall3Rigidbody = mapWall3->addComponent<RigidbodyComponent>();
+	mapWall3Rigidbody->addActorStatic(*modelMapWall3, convert<physx::PxTransform>(mapWall3Transform->getGlobalMatrix()));
+
+
+	auto mapWall4Transform = mapWall4->getComponent<TransformComponent>();
+	mapWall4Transform->localTranslate(0.0f, -1.0f, 0.0f);
+
+	auto mapWall4Model = mapWall4->addComponent<ModelComponent>();
+	mapWall4Model->setModel(modelMapWall4);
+
+	auto mapWall4Render = mapWall4->addComponent<RendererComponent>();
+	mapWall4Render->enableRender();
+
+	auto mapWall4Rigidbody = mapWall4->addComponent<RigidbodyComponent>();
+	mapWall4Rigidbody->addActorStatic(*modelMapWall4, convert<physx::PxTransform>(mapWall4Transform->getGlobalMatrix()));
+
 	
 	// --- Rocks ---
 	sp<ModelComponent>     rockModel     = nullptr;
@@ -307,7 +395,7 @@ Application::Application(appSettings& settings):
 	sp<TransformComponent> rockTransform = nullptr;
 	sp<RigidbodyComponent> rockRigidbody = nullptr;
 
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < sizeof(rockPosVertices)/sizeof(*rockPosVertices); i++) {
 		auto rock = scene->addEntity();
 		rockTransform = rock->getComponent<TransformComponent>();
 		rockModel = rock->addComponent<ModelComponent>();
@@ -316,7 +404,11 @@ Application::Application(appSettings& settings):
 
 		rockModel->setModel(modelRock);
 		rockRender->enableRender();
-		rockTransform->setLocalPosition(Random::randomVec3(-20.f, 20.f, -1.f, -1.f, -20.f, 20.f));
+		rockTransform->setLocalPosition(rockPosVertices[i]);
+		int random = rand() % 2 + 1;
+		if(random == 1) {
+			rockTransform->setLocalRotation(glm::radians(45.f), glm::vec3(0.f, 1.f, 0.f));
+		}
 		rockRigidbody->addActorStatic(*modelRock, convert<physx::PxTransform>(rockTransform->getGlobalMatrix()));
 	}
 
