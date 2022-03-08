@@ -1,9 +1,5 @@
 #include "Application.h"
 #include <Random.h>
-#include <stdlib.h>
-unsigned int g_boxID;
-unsigned int g_carID;
-unsigned int g_aiID;
 
 glm::vec3 parkingVertices[] = {
 	//GROUP 1 - Horizontal Parking Spaces
@@ -264,6 +260,8 @@ Application::Application(appSettings& settings):
 	playerController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
 	playerController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
 
+	playerCar->addComponent<AudioComponent>();
+
 
 	// --- AI car ---	
 	auto aiCarTransform = aiCar->getComponent<TransformComponent>();
@@ -413,38 +411,9 @@ Application::Application(appSettings& settings):
 	}
 
 	// Hacky stuff
-	g_carID = playerCar->id();
-	g_aiID = aiCar->id();
-	//g_boxID = propCar->id();
-
 	carTransform = playerCar->getComponent<TransformComponent>();
 	mainCamTransform = mainCamera->getComponent<TransformComponent>();
 	/* --------------------- End Game World Description --------------------- */
-
-/* 
-	// Some random crap Keaton was doing
-	std::vector<PxVec3> meshVerts = {
-		PxVec3(0 ,1, 0), PxVec3(1, 0, 0), PxVec3(-1, 0, 0), 
-		PxVec3(0 ,0, 1), PxVec3(0, 0,-1) 
-	};
-
-	std::vector<PxVec3> meshVerts2 = { 
-		PxVec3(3, 1,-1), PxVec3(1, 2, 0), PxVec3(-1, 1, 0), 
-		PxVec3(0, 1, 1), PxVec3(1, 0,-1), PxVec3( 1, 9,-1), 
-		PxVec3(1, 2,-1), PxVec3(1, 2,-1), PxVec3(-1,-1,-1) 
-	};
-
-	//Create Mesh Object
-	auto mesh = scene->addEntity();
-	
-	Model newModel("models/car1.obj", glm::vec3(1.0, 1.0, 1.0));
-	PxTransform position = PxTransform(PxVec3(0, 20.0f, 0.0f));
-	PxTransform position1 = PxTransform(PxVec3(10.0, 0.0f, 0.0f));
-
-	auto rigidbodyComponent = mesh->addComponent<RigidbodyComponent>();
-	rigidbodyComponent->addActorDynamic(newModel, position);
-	rigidbodyComponent->addActorStatic(newModel, position1);
-*/
 
 }
 
