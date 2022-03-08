@@ -445,7 +445,7 @@ Application::Application(appSettings& settings):
 		rockModel->setModel(modelRock);
 		rockRender->enableRender();
 		rockTransform->setLocalPosition(rockPosVertices[i]);
-		rockTransform->setLocalRotation(Random::randomFloat(0.0, 6.28), glm::vec3(0.f, 1.f, 0.f));
+		rockTransform->setLocalRotation(Random::randomFloat(glm::radians(0.0f), glm::radians(360.0f)), glm::vec3(0.f, 1.f, 0.f));
 	
 		rockRigidbody->addActorStaticSphere(0.6f, convert<physx::PxTransform>(rockTransform->getGlobalMatrix()));
 	}
