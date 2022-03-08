@@ -44,11 +44,10 @@ void PhysXSimCallback::onTrigger(
 	{
 
 		// ignore pairs when shapes have been deleted
-		/*if (pairs[i].flags & (PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER |
+		if (pairs[i].flags & (PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER |
 			PxTriggerPairFlag::eREMOVED_SHAPE_OTHER))
-			continue;*/
+			continue;
 
-		std::cout << "trigger" << std::endl;
 
 	}
 

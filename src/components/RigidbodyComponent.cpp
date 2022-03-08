@@ -24,7 +24,6 @@ void RigidbodyComponent::addActorStatic(const Model& model, PxTransform startPos
 
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
 	meshShape->setSimulationFilterData(meshFilterData);
-
 	physicsSystem->pxScene->addActor(*actor);
 	meshShape->release();
 }

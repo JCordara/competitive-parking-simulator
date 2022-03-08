@@ -186,6 +186,13 @@ PxFilterFlags VehicleFilterShader
     PX_UNUSED(constantBlock);
     PX_UNUSED(constantBlockSize);
 
+	//let triggers through
+	if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
+	{
+		pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+		return PxFilterFlag::eDEFAULT;
+	}
+
     pairFlags = PxPairFlag::eCONTACT_DEFAULT;
     
     if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))

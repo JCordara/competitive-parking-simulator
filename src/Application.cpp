@@ -267,6 +267,7 @@ Application::Application(appSettings& settings):
 	}
 
 	
+
 	// --- Map grass ---
 	auto mapGrassTransform = mapGrass->getComponent<TransformComponent>();
 	mapGrassTransform->localTranslate(0.0f, -1.0f, 0.0f);
@@ -327,10 +328,6 @@ Application::Application(appSettings& settings):
 
 	carTransform = playerCar->getComponent<TransformComponent>();
 	mainCamTransform = mainCamera->getComponent<TransformComponent>();
-
-
-	
-
 
 	/* --------------------- End Game World Description --------------------- */
 
