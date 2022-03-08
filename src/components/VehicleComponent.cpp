@@ -22,6 +22,25 @@ VehicleComponent::VehicleComponent(Entity& parent)
 		entityPose.q   = tc->getLocalRotation();
 	}
 
+	// Create chassis from entity's model if it has one
+	if (auto mc = entity.getComponent<ModelComponent>()) {
+		chassisMesh = physicsSystem->createDynamicMesh(*mc->getModel());
+	} else {
+		// Default chassis dimensions
+		const PxF32 x = 1.25f;
+		const PxF32 y = 1.0f;
+		const PxF32 z = 2.5f;
+
+		PxVec3 verts[8] = {
+			PxVec3( x, y,-z), PxVec3( x, y, z), PxVec3( x,-y, z),
+			PxVec3( x,-y,-z), PxVec3(-x, y,-z), PxVec3(-x, y, z),
+			PxVec3(-x,-y, z), PxVec3(-x,-y,-z)
+		};
+
+		// Create default chassis
+		chassisMesh = physicsSystem->createDynamicMesh(verts, 8);
+	}
+
     // Create a vehicle
 	VehicleDesc vehicleDesc = initVehicleDesc();
 	vehicle = createVehicle4W(vehicleDesc);
@@ -37,12 +56,12 @@ VehicleDesc VehicleComponent::initVehicleDesc()
 	// The moment of inertia is just the moment of inertia of a cuboid but modified for easier steering
 	// Center of mass offset is 0.65m above the base of the chassis and 0.25m towards the front
 	const PxF32 chassisMass = 1500.0f;
-	const PxVec3 chassisDims(2.5f, 2.0f, 5.0f);
+	const PxVec3 chassisDims = chassisMesh->getLocalBounds().getDimensions();
 	const PxVec3 chassisMOI(
 		(chassisDims.y * chassisDims.y + chassisDims.z * chassisDims.z) * chassisMass / 12.0f,
 		(chassisDims.x * chassisDims.x + chassisDims.z * chassisDims.z) * 0.8f * chassisMass / 12.0f,
 		(chassisDims.x * chassisDims.x + chassisDims.y * chassisDims.y) * chassisMass / 12.0f);
-	const PxVec3 chassisCMOffset(0.0f, -chassisDims.y * 0.5f + 0.65f, 0.25f);
+	const PxVec3 chassisCMOffset(0.0f, -chassisDims.y * 0.5f + 0.75f, 0.25f);
 
 	//Set up the wheel mass, radius, width, moment of inertia, and number of wheels.
 	//Moment of inertia is just the moment of inertia of a cylinder.
@@ -173,27 +192,7 @@ PxVehicleDrive4W* VehicleComponent::createVehicle4W(const VehicleDesc& vehicle4W
             wheelMaterials[i] = vehicle4WDesc.wheelMaterial;
         }
 
-        // Create chassis from entity's model if it has one
-        PxConvexMesh* chassisConvexMesh = nullptr;
-		if (auto mc = entity.getComponent<ModelComponent>()) {
-			chassisConvexMesh = physicsSystem->createDynamicMesh(*mc->getModel());
-		} else {
-			// Default chassis dimensions
-			const PxF32 x = 1.25f;
-			const PxF32 y = 1.0f;
-			const PxF32 z = 2.5f;
-
-			PxVec3 verts[8] = {
-				PxVec3( x, y,-z), PxVec3( x, y, z), PxVec3( x,-y, z),
-				PxVec3( x,-y,-z), PxVec3(-x, y,-z), PxVec3(-x, y, z),
-				PxVec3(-x,-y, z), PxVec3(-x,-y,-z)
-			};
-
-			// Create default chassis
-			chassisConvexMesh = physicsSystem->createDynamicMesh(verts, 8);
-		}
-
-        PxConvexMesh* chassisConvexMeshes[1] = { chassisConvexMesh };
+        PxConvexMesh* chassisConvexMeshes[1] = { chassisMesh };
         PxMaterial* chassisMaterials[1] = { vehicle4WDesc.chassisMaterial };
 
         //Rigid body data.
@@ -236,8 +235,8 @@ PxVehicleDrive4W* VehicleComponent::createVehicle4W(const VehicleDesc& vehicle4W
 
         //Engine
         PxVehicleEngineData engine;
-        engine.mPeakTorque = 1000.0f;  // accel
-        engine.mMaxOmega = 600.0f;      // top speed
+        engine.mPeakTorque = 1200.0f;  // accel
+        engine.mMaxOmega = 600.0f;     // top speed
         engine.mMOI = 0.15f;
         engine.mDampingRateFullThrottle = 0.25f;
         engine.mDampingRateZeroThrottleClutchEngaged = 3.0f;

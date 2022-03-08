@@ -223,13 +223,30 @@ namespace fourwheel
         //Compute the separation between each wheel along the z-axis.
         const PxF32 numLeftWheels = numWheels / 2.0f;
         const PxF32 deltaZ = (wheelFrontZ - wheelRearZ) / (numLeftWheels - 1.0f);
+
         //Set the outside of the left and right wheels to be flush with the chassis.
         //Set the top of the wheel to be just touching the underside of the chassis.
         //Begin by setting the rear-left/rear-right/front-left,front-right wheels.
-        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eREAR_LEFT] = PxVec3((-chassisDims.x + wheelWidth) * 0.5f, -(chassisDims.y / 2 + wheelRadius), wheelRearZ + 0 * deltaZ * 0.5f);
-        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eREAR_RIGHT] = PxVec3((+chassisDims.x - wheelWidth) * 0.5f, -(chassisDims.y / 2 + wheelRadius), wheelRearZ + 0 * deltaZ * 0.5f);
-        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eFRONT_LEFT] = PxVec3((-chassisDims.x + wheelWidth) * 0.5f, -(chassisDims.y / 2 + wheelRadius), wheelRearZ + (numLeftWheels - 1) * deltaZ);
-        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eFRONT_RIGHT] = PxVec3((+chassisDims.x - wheelWidth) * 0.5f, -(chassisDims.y / 2 + wheelRadius), wheelRearZ + (numLeftWheels - 1) * deltaZ);
+        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eREAR_LEFT] = PxVec3((
+            -chassisDims.x + wheelWidth) * 0.425f, 
+            -0.3f,//-(chassisDims.y / 2 + wheelRadius), 
+            wheelRearZ + 0 * deltaZ * 0.5f
+        );
+        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eREAR_RIGHT] = PxVec3((
+            +chassisDims.x - wheelWidth) * 0.425f, 
+            -0.3f,//-(chassisDims.y / 2 + wheelRadius), 
+            wheelRearZ + 0 * deltaZ * 0.5f
+        );
+        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eFRONT_LEFT] = PxVec3((
+            -chassisDims.x + wheelWidth) * 0.425f, 
+            -0.3f,//-(chassisDims.y / 2 + wheelRadius), 
+            wheelRearZ + (numLeftWheels - 1) * deltaZ
+        );
+        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eFRONT_RIGHT] = PxVec3((
+            +chassisDims.x - wheelWidth) * 0.425f, 
+            -0.3f,//-(chassisDims.y / 2 + wheelRadius), 
+            wheelRearZ + (numLeftWheels - 1) * deltaZ
+        );
         //Set the remaining wheels.
         for (PxU32 i = 2, wheelCount = 4; i < numWheels - 2; i += 2, wheelCount += 2)
         {

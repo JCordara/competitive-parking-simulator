@@ -12,15 +12,15 @@ Application::Application(appSettings& settings):
 	Time::init();
 	Random::init();
 	/* Framework - used by systems*/
-	scene        = Scene::newScene();
-	window 		 = std::make_shared<Window>(1200, 800, "Test Window");
+	scene    = Scene::newScene();
+	window   = std::make_shared<Window>(1200, 800, "Test Window");
 
 	/* Game systems - update() every frame */
-	input        = std::make_shared<InputSystem>(window);
-	gameplay     = std::make_shared<GameplaySystem>(scene);
-	physics      = std::make_shared<PhysicsSystem>(scene);
-	render       = std::make_shared<RenderSystem>(scene, window);
-	audio        = std::make_shared<AudioSystem>();
+	input    = std::make_shared<InputSystem>(window);
+	gameplay = std::make_shared<GameplaySystem>(scene);
+	physics  = std::make_shared<PhysicsSystem>(scene);
+	render   = std::make_shared<RenderSystem>(scene, window);
+	audio    = std::make_shared<AudioSystem>();
 
 
 	/* --------------------- Game World Description ------------------------ */

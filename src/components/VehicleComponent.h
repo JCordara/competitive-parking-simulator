@@ -29,7 +29,7 @@ public:
 private:
 
     VehicleDesc initVehicleDesc();
-    
+
     PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc);
 
     PxConvexMesh* createWheelMesh(const PxF32 width, const PxF32 radius);
@@ -47,6 +47,9 @@ private:
     PxVehicleDrive4W* vehicle;
     PxVehicleDrive4WRawInputData inputData;
     bool isInAir;
+
+    PxConvexMesh* chassisMesh;
+    // PxConvexMesh* wheelMesh;
 
 };
 
