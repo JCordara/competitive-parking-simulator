@@ -236,12 +236,12 @@ Application::Application(appSettings& settings):
 		glm::vec3(-65.0f, 2.0f, -57.0f),
 		glm::vec3(-71.6f, 2.0f, -57.0f),
 		glm::vec3(-78.2f, 2.0f, -57.0f),
-		//glm::vec3(-98.0f, 2.0f, -57.0f),
-		//glm::vec3(-104.6f, 2.0f, -57.0f),
-		//glm::vec3(-111.2f, 2.0f, -57.0f),
-		//glm::vec3(-117.8f, 2.0f, -57.0f),
-		//glm::vec3(-124.4f, 2.0f, -57.0f),
-		//glm::vec3(-131.0f, 2.0f, -57.0f),
+		glm::vec3(-98.0f, 2.0f, -57.0f),
+		glm::vec3(-104.6f, 2.0f, -57.0f),
+		glm::vec3(-111.2f, 2.0f, -57.0f),
+		glm::vec3(-117.8f, 2.0f, -57.0f),
+		glm::vec3(-124.4f, 2.0f, -57.0f),
+		glm::vec3(-131.0f, 2.0f, -57.0f),
 		glm::vec3(-137.6f, 2.0f, -57.0f)
 	};
 
