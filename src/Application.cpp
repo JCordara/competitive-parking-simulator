@@ -414,6 +414,11 @@ Application::Application(appSettings& settings):
 		auto ParkIndic = scene->addEntity();
 		auto ParkIndicTransform = ParkIndic->getComponent<TransformComponent>();
 		ParkIndicTransform->setLocalPosition(emptyparkingVertices[i]);
+		if(i == 0){
+			ParkIndicTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
+		} else if(i == 2) {
+			ParkIndicTransform->setLocalRotation(glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
+		}
 
 		auto ParkIndicModel = ParkIndic->addComponent<ModelComponent>();
 		ParkIndicModel->setModel(modelParkIndic);
