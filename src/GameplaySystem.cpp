@@ -74,14 +74,14 @@ void GameplaySystem::setupAiNodes() {
 	// Entrances Node Collection
 	aiNode4->nodeType = AiGraphNode::NodeType::LOTENTRANCE;
 	aiNode4->id = 4;
-	aiNode4->position = glm::vec3(-19, 1, 35);
+	aiNode4->position = glm::vec3(-19, 1, 41);
 	aiNode4->neighbours.push_back(aiNode10);
 	aiNode4->neighbours.push_back(aiNode6);
 	aiGlobalNodes.push_back(aiNode4);
 	
 	aiNode5->nodeType = AiGraphNode::NodeType::LOTENTRANCE;
 	aiNode5->id = 5;
-	aiNode5->position = glm::vec3(23, 1, -32);
+	aiNode5->position = glm::vec3(23, 1, -34);
 	aiNode5->neighbours.push_back(aiNode11);
 	aiNode5->neighbours.push_back(aiNode7);
 	aiGlobalNodes.push_back(aiNode5);
@@ -97,7 +97,7 @@ void GameplaySystem::setupAiNodes() {
 	
 	aiNode7->nodeType = AiGraphNode::NodeType::INNERLOT;
 	aiNode7->id = 7;
-	aiNode7->position = glm::vec3(43, 1, -32);
+	aiNode7->position = glm::vec3(43, 1, -33);
 	aiNode7->neighbours.push_back(aiNode5);
 	aiNode7->neighbours.push_back(aiNode9);
 	aiGlobalNodes.push_back(aiNode7);
@@ -112,7 +112,7 @@ void GameplaySystem::setupAiNodes() {
 	
 	aiNode9->nodeType = AiGraphNode::NodeType::PARKINGSTALL;
 	aiNode9->id = 9;
-	aiNode9->position = glm::vec3(43, 1, -55);
+	aiNode9->position = glm::vec3(47, 1, -55);
 	aiNode9->neighbours.push_back(aiNode7);
 	aiGlobalNodes.push_back(aiNode9);
 	//
@@ -120,7 +120,7 @@ void GameplaySystem::setupAiNodes() {
 	// Intersection Node Collection
 	aiNode10->nodeType = AiGraphNode::NodeType::INTERSECTION;
 	aiNode10->id = 10;
-	aiNode10->position = glm::vec3(1.5, 1, 30);
+	aiNode10->position = glm::vec3(1.5, 1, 37);
 	aiNode10->neighbours.push_back(aiNode2);
 	aiNode10->neighbours.push_back(aiNode12);
 	aiNode10->neighbours.push_back(aiNode4);
@@ -128,7 +128,7 @@ void GameplaySystem::setupAiNodes() {
 	
 	aiNode11->nodeType = AiGraphNode::NodeType::INTERSECTION;
 	aiNode11->id = 11;
-	aiNode11->position = glm::vec3(1.5, 1, -30);
+	aiNode11->position = glm::vec3(1.5, 1, -32);
 	aiNode11->neighbours.push_back(aiNode3);
 	aiNode11->neighbours.push_back(aiNode5);
 	aiGlobalNodes.push_back(aiNode11);
