@@ -14,8 +14,8 @@ AudioComponent::AudioComponent(Entity& parent)
 
     sounds.push_back(&audioSystem->loadAudio("audio/oof.wav"));
 
-    Events::CarBoxCollision.registerHandler<AudioComponent,
-        &AudioComponent::onCrash>(this);
+    // Events::Collision.registerHandler<AudioComponent,
+    //     &AudioComponent::onCrash>(this);
 }
 
 ComponentEnum AudioComponent::getType() {

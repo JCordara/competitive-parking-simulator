@@ -12,7 +12,7 @@ Event<Entity&, float> Events::VehicleHandbrake;
 Event<double, double> Events::CameraRotate;
 Event<double, double> Events::CameraZoom;
 
-Event<void> Events::CarBoxCollision;
+Event<glm::vec3&> Events::Collision;
 
 
 Event<RigidbodyComponent&> Events::RigidbodyComponentInit;

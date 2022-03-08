@@ -36,7 +36,7 @@ namespace Events {
     extern Event<double, double> CameraRotate;
     extern Event<double, double> CameraZoom;
 
-    extern Event<void> CarBoxCollision;
+    extern Event<glm::vec3&> Collision;
 
     // Broadcast by rigidbody components when they are initalized
     extern Event<RigidbodyComponent&> RigidbodyComponentInit;

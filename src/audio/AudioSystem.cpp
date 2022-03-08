@@ -56,7 +56,7 @@ AudioSystem::AudioSystem() {
     Events::CarParked.registerHandler<AudioSystem,
         &AudioSystem::playDing>(this);
 
-    Events::CarBoxCollision.registerHandler<AudioSystem,
+    Events::Collision.registerHandler<AudioSystem,
         &AudioSystem::playOof>(this);
 }
 
@@ -99,9 +99,10 @@ void AudioSystem::playDing(Entity&) {
     aux->playAudio(*ding);
 }
 
-void AudioSystem::playOof() {
+void AudioSystem::playOof(glm::vec3& position) {
+    aux->setPosition(position);
     aux->setPitch(Random::randomFloat(0.9f, 1.1f));
-    aux->setGain(Random::randomFloat(0.6f, 0.9f));
+    aux->setGain(Random::randomFloat(0.4f, 0.6f));
     aux->playAudio(*oof);
 }
 

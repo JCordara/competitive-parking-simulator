@@ -72,7 +72,7 @@ public:
     void stopEngine();
 
     void playDing(Entity&);
-    void playOof();
+    void playOof(glm::vec3&);
 
     // Public destructor
     ~AudioSystem();

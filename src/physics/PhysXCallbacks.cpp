@@ -13,15 +13,16 @@ void PhysXSimCallback::onContact(
 
         if(cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND) {
             
-            Entity* e1 = reinterpret_cast<Entity*>(pairHeader.actors[0]->userData);
-            Entity* e2 = reinterpret_cast<Entity*>(pairHeader.actors[1]->userData);
+            Entity* e1 = static_cast<Entity*>(pairHeader.actors[0]->userData);
+            Entity* e2 = static_cast<Entity*>(pairHeader.actors[1]->userData);
 
             if (!e1 || !e2) return;
 
             if ((e1->hasComponent<VehicleComponent>()   && e2->hasComponent<RigidbodyComponent>())
             ||  (e1->hasComponent<RigidbodyComponent>() && e2->hasComponent<VehicleComponent>())
             ||  (e1->hasComponent<VehicleComponent>()   && e2->hasComponent<VehicleComponent>())) {
-                Events::CarBoxCollision.broadcast();
+                glm::vec3 pos = e1->getComponent<TransformComponent>()->getGlobalPosition();
+                Events::Collision.broadcast(pos);
             }
 
         }
