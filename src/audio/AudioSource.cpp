@@ -100,6 +100,15 @@ void AudioSource::setGain(const float g) {
     alSourcef(sourceID, AL_GAIN, gain);
 }
 
+void AudioSource::setPitch(const float p) {
+    pitch = p;
+    alSourcef(sourceID, AL_PITCH, pitch);
+}
+
+void AudioSource::setLooping(const bool l) {
+    alSourcef(sourceID, AL_LOOPING, (l ? AL_TRUE : AL_FALSE));
+}
+
 
 
 void AudioSource::regenerateSource() {

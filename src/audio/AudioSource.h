@@ -35,6 +35,8 @@ public:
     glm::vec3 velocity() const;
 
     void setGain(const float g);
+    void setPitch(const float p);
+    void setLooping(const bool l);
 
     void regenerateSource();
 

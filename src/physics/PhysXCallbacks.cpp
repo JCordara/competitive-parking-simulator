@@ -18,8 +18,9 @@ void PhysXSimCallback::onContact(
 
             if (!e1 || !e2) return;
 
-            if ((e1->hasComponent<VehicleComponent>() && e2->hasComponent<RigidbodyComponent>())
-            ||  (e1->hasComponent<RigidbodyComponent>() && e2->hasComponent<VehicleComponent>())) {
+            if ((e1->hasComponent<VehicleComponent>()   && e2->hasComponent<RigidbodyComponent>())
+            ||  (e1->hasComponent<RigidbodyComponent>() && e2->hasComponent<VehicleComponent>())
+            ||  (e1->hasComponent<VehicleComponent>()   && e2->hasComponent<VehicleComponent>())) {
                 Events::CarBoxCollision.broadcast();
             }
 

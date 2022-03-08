@@ -21,9 +21,7 @@ public:
 
     void playSound(int id);
 
-    inline void onCrash() {
-        playSound(0);
-    }
+    void onCrash();
 
 private:
 

@@ -37,3 +37,8 @@ void AudioComponent::updatePosition(glm::vec3 newPos) {
     source->setPosition(newPos);
 }
 
+void AudioComponent::onCrash() {
+    source->setPitch(Random::randomFloat(0.9f, 1.1f));
+    source->setGain(Random::randomFloat(0.7f, 1.0f));
+    playSound(0);
+}

@@ -55,9 +55,6 @@ public:
 
 private:
 
-	sp<TransformComponent> mainCamTransform;
-	sp<TransformComponent> carTransform;
-
 	appSettings settings;
 
 	/* Framework */

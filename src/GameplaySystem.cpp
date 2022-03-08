@@ -13,7 +13,9 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene)
 }
     
 void GameplaySystem::update() {
-    for (auto it = scene->begin(); it != scene->end(); it++) {
+	std::vector<sp<Entity>> topLevelEntities = scene->topLevelEntities();
+    //for (auto it = scene->begin(); it != scene->end(); it++) {
+    for (auto& it : topLevelEntities) {
         if (auto ac = it->getComponent<AiComponent>()) {
             ac->update();
         }

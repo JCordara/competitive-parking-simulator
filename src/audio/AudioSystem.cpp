@@ -32,7 +32,79 @@ AudioSystem::AudioSystem() {
     // Register self with audio components when they are created
     Events::AudioComponentInit.registerHandler<AudioSystem,
         &AudioSystem::registerAudioComponent>(this);
+
+    // Hacky stuff
+    engineSound = &loadAudio("audio/engine.wav");
+    carSource = &createSource();
+    carSource->setPitch(1.0f);
+    carSource->setGain(0.075f);
+
+    music = &loadAudio("audio/CoconutMall.wav");
+    musicPlayer = &createStaticSource(glm::vec3());
+    musicPlayer->setLooping(true);
+    musicPlayer->setGain(0.5f);
+
+    ding = &loadAudio("audio/ding.wav");
+    oof = &loadAudio("audio/oof.wav");
+    aux = &createSource();
+    aux->setGain(1.0f);
+
+
+    Events::GameStart.registerHandler<AudioSystem,
+        &AudioSystem::onGameStart>(this);
+
+    Events::CarParked.registerHandler<AudioSystem,
+        &AudioSystem::playDing>(this);
+
+    Events::CarBoxCollision.registerHandler<AudioSystem,
+        &AudioSystem::playOof>(this);
 }
+
+void AudioSystem::update() {
+
+    glm::mat4 m = listener->getGlobalMatrix();
+    glm::vec3 front = glm::normalize(glm::vec3(-m * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
+    glm::vec3 up = glm::normalize(glm::vec3(m * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)));
+
+    setListenerOrientation(front, up);
+    setListenerPosition(m[3]);
+
+    float speed = car->getLinearVelocity().magnitude();
+    enginePitch = speed * 0.28f + 0.95f;
+    engineGain  = speed * 0.008f + 0.076f;
+    carSource->setPosition(m[3]);
+    carSource->setPitch(enginePitch);
+    carSource->setGain(engineGain);
+
+    aux->setPosition(m[3]);
+}
+
+void AudioSystem::onGameStart() {
+    musicPlayer->playAudio(*music);
+    startEngine();
+}
+
+void AudioSystem::startEngine() {
+    carSource->setLooping(true);
+    carSource->playAudio(*engineSound);
+}
+
+void AudioSystem::stopEngine() {
+    carSource->setLooping(false);
+}
+
+void AudioSystem::playDing(Entity&) {
+    aux->setPitch(Random::randomFloat(0.9f, 1.1f));
+    aux->setGain(1.0f);
+    aux->playAudio(*ding);
+}
+
+void AudioSystem::playOof() {
+    aux->setPitch(Random::randomFloat(0.9f, 1.1f));
+    aux->setGain(Random::randomFloat(0.6f, 0.9f));
+    aux->playAudio(*oof);
+}
+
 
 
 Audio& AudioSystem::loadAudio(std::string filepath) {

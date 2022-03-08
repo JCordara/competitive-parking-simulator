@@ -161,13 +161,7 @@ Application::Application(appSettings& settings):
 
 	// --- Entities ---
 	auto playerCar = scene->addEntity();
-	playerId = playerCar->id();
-	scores[playerId] = 0;
 	auto aiCar = scene->addEntity();
-	gameplay->addAiId(aiCar->id());
-	
-	//PUT PROPCAR IN A FOR LOOP
-	//auto propCar = scene->addEntity();
 
 	auto mapGrass = scene->addEntity();
 	auto mapRoad = scene->addEntity();
@@ -268,10 +262,6 @@ Application::Application(appSettings& settings):
 	playerController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
 	playerController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
 
-
-
-
-	playerCar->addComponent<AudioComponent>();
 
 
 	// --- AI car ---	
@@ -434,11 +424,7 @@ Application::Application(appSettings& settings):
 		rockRigidbody->addActorStaticSphere(0.6f, convert<physx::PxTransform>(rockTransform->getGlobalMatrix()));
 	}
 
-	// Hacky stuff
-	carTransform = playerCar->getComponent<TransformComponent>();
-	mainCamTransform = mainCamera->getComponent<TransformComponent>();
-
-
+	
 	// --- TriggerBox ---
 	auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
 	for (int i = 0; i < sizeof(emptyparkingVertices) / sizeof(*emptyparkingVertices); i++) {
@@ -451,6 +437,14 @@ Application::Application(appSettings& settings):
 		}
 		
 	};
+
+	// Hacky stuff
+	playerId = playerCar->id();
+	scores[playerId] = 0;
+	gameplay->addAiId(aiCar->id());
+
+	audio->setListener(mainCamera->getComponent<TransformComponent>());
+	audio->car = playerCar->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor();
 
 
 	/* --------------------- End Game World Description --------------------- */
@@ -479,20 +473,8 @@ int Application::play() {
 
 			gameplay->update();	// Gameplay / AI update
 			physics->update();	// Physics update
-			/*for (int i = 0; i < scene->directChildren().size(); i++) {
-				std::cout << scene->directChildren().at(i)
-					<< scene->directChildren().at(i)->getComponent<TransformComponent>()->getGlobalPosition()
-					<< std::endl;
-			}*/
+			audio->update();	// Audio update
 
-			glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-			glm::vec3 front = glm::vec3(
-				-carTransform->getLocalRotation().getBasisVector2().x,
-				-carTransform->getLocalRotation().getBasisVector2().y,
-				-carTransform->getLocalRotation().getBasisVector2().z
-			);
-			audio->setListenerOrientation(front, up);
-			audio->setListenerPosition(mainCamTransform->getGlobalPosition());
 		}
 
 		// Render the current scene

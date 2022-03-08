@@ -34,7 +34,7 @@ class AudioSystem : public GameSystem {
 public:
 
     AudioSystem();
-    void update() {}
+    void update();
 
     Audio& loadAudio(std::string filepath);
 
@@ -64,8 +64,22 @@ public:
     
     void registerAudioComponent(AudioComponent& component);
 
+    void setListener(sp<TransformComponent> tc) { listener = tc; }
+
+    void onGameStart();
+
+    void startEngine();
+    void stopEngine();
+
+    void playDing(Entity&);
+    void playOof();
+
     // Public destructor
     ~AudioSystem();
+
+    PxRigidDynamic* car;
+    float enginePitch;
+    float engineGain;
 
 private:
 
@@ -78,6 +92,17 @@ private:
 
     std::vector<std::string> filepaths;
 
+    shared_ptr<TransformComponent> listener;
+
+    AudioSource* carSource;
+    Audio* engineSound;
+
+    AudioSource* musicPlayer;
+    Audio* music;
+
+    AudioSource* aux;
+    Audio* ding;
+    Audio* oof;
 };
 
 
