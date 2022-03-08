@@ -29,6 +29,18 @@ public:
 private:
 
     VehicleDesc initVehicleDesc();
+    
+    PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc);
+
+    PxConvexMesh* createWheelMesh(const PxF32 width, const PxF32 radius);
+    
+    PxRigidDynamic* createVehicleActor(
+        const PxVehicleChassisData& chassisData, PxMaterial** wheelMaterials, 
+        PxConvexMesh** wheelConvexMeshes, const PxU32 numWheels, 
+        const PxFilterData& wheelSimFilterData, PxMaterial** chassisMaterials, 
+        PxConvexMesh** chassisConvexMeshes, const PxU32 numChassisMeshes, 
+        const PxFilterData& chassisSimFilterData);
+
 
     shared_ptr<PhysicsSystem> physicsSystem;
 

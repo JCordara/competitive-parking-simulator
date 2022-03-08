@@ -63,7 +63,7 @@ void PhysicsSystem::update() {
 }
 
 
-PxTriangleMeshGeometry PhysicsSystem::createStaticMesh(const Model& model) {
+PxTriangleMesh* PhysicsSystem::createStaticMesh(const Model& model) {
 
 	PxTolerancesScale scale;
 	PxCookingParams params(scale);
@@ -92,12 +92,13 @@ PxTriangleMeshGeometry PhysicsSystem::createStaticMesh(const Model& model) {
 	PxTriangleMesh* triMesh = pxCooking->createTriangleMesh(meshDesc,
 		pxPhysics->getPhysicsInsertionCallback());
 
-	return PxTriangleMeshGeometry(triMesh);
+	return triMesh;
 }
 
 
-PxConvexMeshGeometry PhysicsSystem::createDynamicMesh(const Model& model) {
+PxConvexMesh* PhysicsSystem::createDynamicMesh(const Model& model) {
 
+    // Create descriptor for convex mesh
 	PxConvexMeshDesc convexDesc;
 	vector<Mesh> arrMeshes = model.getMeshes();
 
@@ -110,18 +111,43 @@ PxConvexMeshGeometry PhysicsSystem::createDynamicMesh(const Model& model) {
 	convexDesc.indices.stride = 3 * sizeof(PxU32);
 	convexDesc.indices.data = arrMeshes[0].indicies.data();
 	
+	// Initialize mesh to null
+	PxConvexMesh* convexMesh = nullptr;
+
+	// Attempt to create mesh
 	PxDefaultMemoryOutputStream buf;
-	bool res = pxCooking->cookConvexMesh(convexDesc, buf);
+	if (pxCooking->cookConvexMesh(convexDesc, buf))
+    {
+        PxDefaultMemoryInputData inputData(buf.getData(), buf.getSize());
+        convexMesh = pxPhysics->createConvexMesh(inputData);
+    }
+	
+	// Return result
+	return convexMesh;
+}
 
-#ifdef _DEBUG
-	PX_ASSERT(res);
-#endif
+PxConvexMesh* PhysicsSystem::createDynamicMesh(const PxVec3* verts, const PxU32 numVerts)
+{
+    // Create descriptor for convex mesh
+    PxConvexMeshDesc convexDesc;
+    convexDesc.points.count = numVerts;
+    convexDesc.points.stride = sizeof(PxVec3);
+    convexDesc.points.data = verts;
+    convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
 
-	PxDefaultMemoryInputData readBuffer(buf.getData(), buf.getSize());
-	PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-	PxConvexMesh* convexMesh = pxPhysics->createConvexMesh(input);
+    // Initialize mesh to null
+	PxConvexMesh* convexMesh = nullptr;
 
-	return PxConvexMeshGeometry(convexMesh);
+	// Attempt to create mesh
+	PxDefaultMemoryOutputStream buf;
+	if (pxCooking->cookConvexMesh(convexDesc, buf))
+    {
+        PxDefaultMemoryInputData inputData(buf.getData(), buf.getSize());
+        convexMesh = pxPhysics->createConvexMesh(inputData);
+    }
+	
+	// Return result
+	return convexMesh;
 }
 
 

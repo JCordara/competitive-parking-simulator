@@ -17,7 +17,9 @@ void RigidbodyComponent::addActorStatic(const Model& model, PxTransform startPos
 	PxRigidActor* actor = physicsSystem->pxPhysics->createRigidStatic(mesht);
 	actor->userData = &entity;
 
-	PxTriangleMeshGeometry geom = physicsSystem->createStaticMesh(model);
+	PxTriangleMesh* mesh = physicsSystem->createStaticMesh(model);
+	PxTriangleMeshGeometry geom(mesh);
+
 	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*actor, geom, *gMaterial);
 
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
@@ -33,7 +35,8 @@ void RigidbodyComponent::addActorDynamic(const Model& model, PxTransform startPo
 	PxRigidDynamic* actor = physicsSystem->pxPhysics->createRigidDynamic(mesht);
 	actor->userData = &entity;
 
-	PxConvexMeshGeometry geom = physicsSystem->createDynamicMesh(model);
+	PxConvexMesh* mesh = physicsSystem->createDynamicMesh(model);
+	PxConvexMeshGeometry geom(mesh);
 
 	PxShape* aConvexShape = PxRigidActorExt::createExclusiveShape(*actor, geom, *gMaterial);
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);

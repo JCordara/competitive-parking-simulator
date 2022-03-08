@@ -23,8 +23,9 @@ public:
 
     void update();
 
-    PxTriangleMeshGeometry createStaticMesh (const Model& model);
-    PxConvexMeshGeometry   createDynamicMesh(const Model& model);
+    PxTriangleMesh* createStaticMesh (const Model& model);
+    PxConvexMesh*   createDynamicMesh(const Model& model);
+    PxConvexMesh*   createDynamicMesh(const PxVec3* v, const PxU32 n);
 
     ~PhysicsSystem();
     
