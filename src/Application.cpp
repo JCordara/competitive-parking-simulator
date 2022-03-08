@@ -119,19 +119,18 @@ glm::vec3 emptyparkingVertices[] = {
 
 glm::vec3 rockPosVertices[] = {
 	glm::vec3(14.0f, -1.0f, -50.0f),
-	glm::vec3(13.0f, -1.0f, -56.0f),
-	glm::vec3(16.0f, -1.0f, -64.0f),
-	glm::vec3(14.0f, -1.0f, -55.0f),
-	glm::vec3(-14.0f, -1.0f, -56.0f),
-	glm::vec3(-17.0f, -1.0f, -57.0f),
-	glm::vec3(-9.0f, -1.0f, -58.0f),
-
+	glm::vec3(11.0f, -1.0f, -56.0f),
+	glm::vec3(20.0f, -1.0f, -64.0f),
+	glm::vec3(17.0f, -1.0f, -55.0f),
+	glm::vec3(-21.0f, -1.0f, -56.0f),
+	glm::vec3(-17.0f, -1.0f, -62.0f),
+	glm::vec3(-9.0f, -1.0f, -54.0f),
 	glm::vec3(14.0f, -1.0f, 50.0f),
 	glm::vec3(13.0f, -1.0f, 56.0f),
 	glm::vec3(16.0f, -1.0f, 64.0f),
-	glm::vec3(14.0f, -1.0f, 55.0f),
-	glm::vec3(-14.0f, -1.0f, 56.0f),
-	glm::vec3(-17.0f, -1.0f, 57.0f),
+	glm::vec3(-14.0f, -1.0f, 55.0f),
+	glm::vec3(-7.0f, -1.0f, 62.0f),
+	glm::vec3(-17.0f, -1.0f, 53.0f),
 	glm::vec3(-9.0f, -1.0f, 58.0f)
 };
 
@@ -285,7 +284,17 @@ Application::Application(appSettings& settings):
 		propCarTransform->setLocalPosition(parkingVertices[i]);
 		
 		if(i < 47){
-			propCarTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));	
+			int randomRotate = rand() % 10;
+			if(randomRotate <= 3) {
+				propCarTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));	
+			} else {
+				propCarTransform->setLocalRotation(glm::radians(270.f), glm::vec3(0.f, 1.f, 0.f));
+			}
+		} else {
+			int randomRotate = rand() % 10;
+			if(randomRotate <= 3) {
+				propCarTransform->setLocalRotation(glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));	
+			}
 		}
 
 		auto propCarModel = propCar->addComponent<ModelComponent>();
