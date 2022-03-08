@@ -17,7 +17,7 @@ enum class ComponentEnum;
  * @brief Components are stored in a map structure with keys of type 
  * ComponentEnum. Entities can only have 1 of each component type.
  */
-class Entity {
+class Entity : public std::enable_shared_from_this<Entity> {
 public:
 
     Entity(sp<Entity> parent);

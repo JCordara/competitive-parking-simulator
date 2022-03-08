@@ -11,7 +11,7 @@ RigidbodyComponent::RigidbodyComponent(Entity& parent)
 }
 
 
-void RigidbodyComponent::addActorStatic(const Model& model, PxTransform startPos){
+void RigidbodyComponent::addActorStaticMesh(const Model& model, PxTransform startPos){
 
 	PxTransform mesht = startPos;
 	PxRigidActor* actor = physicsSystem->pxPhysics->createRigidStatic(mesht);
@@ -26,6 +26,21 @@ void RigidbodyComponent::addActorStatic(const Model& model, PxTransform startPos
 	meshShape->setSimulationFilterData(meshFilterData);
 	physicsSystem->pxScene->addActor(*actor);
 	meshShape->release();
+}
+
+void RigidbodyComponent::addActorStaticSphere(const float radius, PxTransform startPos) {
+
+	PxRigidStatic* actor = physicsSystem->pxPhysics->createRigidStatic(startPos);
+	actor->userData = &entity;
+
+	PxSphereGeometry sphereGeom(radius);
+
+	PxShape* sphere = PxRigidActorExt::createExclusiveShape(*actor, sphereGeom, *gMaterial);
+
+	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+	sphere->setSimulationFilterData(meshFilterData);
+	physicsSystem->pxScene->addActor(*actor);
+	sphere->release();
 }
 
 void RigidbodyComponent::addActorDynamic(const Model& model, PxTransform startPos) {

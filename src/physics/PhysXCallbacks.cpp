@@ -1,11 +1,6 @@
 #include "PhysXCallbacks.h"
-#include "crapweactuallyneed.h"
-#include "components/Entity.h"
-#include "Event.h"
+#include "Framework.h"
 
-extern unsigned int g_boxID;
-extern unsigned int g_carID;
-extern unsigned int g_aiID;
 
 void PhysXSimCallback::onContact(
     const PxContactPairHeader& pairHeader, 
@@ -23,10 +18,8 @@ void PhysXSimCallback::onContact(
 
             if (!e1 || !e2) return;
 
-            unsigned int eID_1 = e1->id();
-            unsigned int eID_2 = e2->id();
-
-            if (eID_1 == g_boxID || eID_2 == g_boxID) {
+            if ((e1->hasComponent<VehicleComponent>() && e2->hasComponent<RigidbodyComponent>())
+            ||  (e1->hasComponent<RigidbodyComponent>() && e2->hasComponent<VehicleComponent>())) {
                 Events::CarBoxCollision.broadcast();
             }
 

@@ -136,9 +136,10 @@ float AiComponent::getFValue(std::shared_ptr<AiGraphNode> node) {
 // Set the next node for the AI to go to
 void AiComponent::setSpawnNode() {
 	for each (std::shared_ptr<AiGraphNode> node in gameplaySystem->aiGlobalNodes) {
-		if (node->nodeType == AiGraphNode::NodeType::SPAWN && !(node->spawnTaken)) {
+		if (node->nodeType == AiGraphNode::NodeType::SPAWN && !(node->nodeTaken)) {
 			currentNode = node;
-			node->spawnTaken = true;
+			node->nodeTaken = true;
+			node->spawnAiComponent = entity.shared_from_this();
 			return;
 		}
 	}
@@ -150,7 +151,7 @@ void AiComponent::switchState(States newState) {
 
 void AiComponent::searchState() {
 	const float NODETHRESHOLD = 2.5; // How close to
-	// COULD USE A PHYSX TRIGGERBOX INSTEAD HERE
+	// COULD USE ABSOLUTE DISTANCE HERE
 	float currentX = entity.getComponent<TransformComponent>()->getGlobalPosition().x;
 	float currentZ = entity.getComponent<TransformComponent>()->getGlobalPosition().z;
 	bool withinXBounds =	currentX <= currentNode->position.x + NODETHRESHOLD &&
@@ -200,9 +201,6 @@ void AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode)
 				return;
 			}
 		}
-		//::cout << "ERASING NODE: " << parkingLot[i]->id << std::endl;
-		//parkingLot.erase(parkingLot.begin() + i);
-		//std::remove(parkingLot.begin(), parkingLot.end(), node);
 		visited.push_back(parkingLot[i]);
 	}
 }
@@ -225,7 +223,7 @@ void AiComponent::pickRandGoalNode() {
 
 void AiComponent::parkState() {
 	const float NODETHRESHOLD = 1.5; // How close to
-	// COULD USE A PHYSX TRIGGERBOX INSTEAD HERE
+	// COULD USE ABSOLUTE DISTANCE HERE
 	float currentX = entity.getComponent<TransformComponent>()->getGlobalPosition().x;
 	float currentZ = entity.getComponent<TransformComponent>()->getGlobalPosition().z;
 	bool withinXBounds =	currentX <= currentNode->position.x + NODETHRESHOLD &&
