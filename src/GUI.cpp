@@ -29,7 +29,7 @@ void GUI::draw() {
 		ImGuiWindowFlags_NoTitleBar;			// no title; only the text should be visible
 
 	ImGuiWindowFlags winWindowFlags =
-		
+		ImGuiWindowFlags_NoBackground |
 		ImGuiWindowFlags_NoMove |				// text "window" should not move
 		
 		ImGuiWindowFlags_NoCollapse |			// should not collapse
@@ -44,21 +44,27 @@ void GUI::draw() {
 	ImGui::SetWindowSize(ImVec2(80, 25));
 
 	ImGui::Text("FPS: %.2f", Time::fps());
+	ImGui::Text("First to Park 5 Times Wins!");
 	ImGui::Text("Player: %d", scores[playerId]);
 	ImGui::Text("AI-1: %d", scores[aiList[0]]); // 1 AI HArdcoded, gross
 
+	ImGui::End();
+
+
+	ImGui::Begin("Wincondition", (bool*)0, winWindowFlags);
+
 	if (scores[playerId] >= 5 || scores[aiList[0]] >= 5) {
 		if (scores[playerId] >= 5) {
-			ImGui::SetCursorPos(ImVec2(20, 20));
-			ImGui::SetWindowFontScale(15.0f);
+			ImGui::SetCursorPos(ImVec2(20, 25));
+			ImGui::SetWindowFontScale(14.0f);
 			ImGui::Text("Player WINS");
 			gameWon = true;
 		};
 
 		if (scores[aiList[0]] >= 5) {
 
-			ImGui::SetCursorPos(ImVec2(20, 20));
-			ImGui::SetWindowFontScale(15.0f);
+			ImGui::SetCursorPos(ImVec2(20, 25));
+			ImGui::SetWindowFontScale(14.0f);
 			ImGui::Text("AI-1 WINS");
 			gameWon = true;
 		}
