@@ -300,15 +300,17 @@ Application::Application(appSettings& settings):
 		
 		if(i < 47){
 			int randomRotate = rand() % 10;
-			if(randomRotate <= 3) {
-				propCarTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));	
+			if(randomRotate <= 4) {
+				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(80.f), glm::radians(100.f)), glm::vec3(0.f, 1.f, 0.f));	
 			} else {
-				propCarTransform->setLocalRotation(glm::radians(270.f), glm::vec3(0.f, 1.f, 0.f));
+				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(260.f), glm::radians(280.f)), glm::vec3(0.f, 1.f, 0.f));
 			}
 		} else {
 			int randomRotate = rand() % 10;
-			if(randomRotate <= 3) {
-				propCarTransform->setLocalRotation(glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));	
+			if(randomRotate <= 4) {
+				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(170.f), glm::radians(190.f)), glm::vec3(0.f, 1.f, 0.f));	
+			} else {
+				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(-10.f), glm::radians(10.f)), glm::vec3(0.f, 1.f, 0.f));	
 			}
 		}
 
