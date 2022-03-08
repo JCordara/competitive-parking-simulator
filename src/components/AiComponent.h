@@ -32,7 +32,7 @@ public:
 	float g = 0; // For A* algorithm
 	float h = 0; // For A* algorithm
 	NodeType nodeType = NodeType::SPAWN;
-	Entity& spawnAiComponent; // Only for Spawn nodes
+	std::shared_ptr<Entity> spawnAiComponent = nullptr; // Only for Spawn nodes
 	bool nodeTaken = false;
 	int id = 0;
 };

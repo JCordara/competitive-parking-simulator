@@ -139,7 +139,7 @@ void AiComponent::setSpawnNode() {
 		if (node->nodeType == AiGraphNode::NodeType::SPAWN && !(node->nodeTaken)) {
 			currentNode = node;
 			node->nodeTaken = true;
-			node->spawnAiComponent = entity;
+			node->spawnAiComponent = entity.shared_from_this();
 			return;
 		}
 	}
