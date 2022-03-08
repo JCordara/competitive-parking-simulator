@@ -43,7 +43,7 @@ void PhysXSimCallback::onTrigger(
 
 		Entity* e1 = reinterpret_cast<Entity*>(pairs->otherActor->userData);
 		if (!e1) return;
-		if ((e1->hasComponent<VehicleComponent>())) {
+		if ((e1->hasComponent<VehicleComponent>() && e1->hasComponent<ControllerComponent>())) {
 			std::cout<<"sss";
 		}
 

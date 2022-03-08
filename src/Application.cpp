@@ -261,6 +261,9 @@ Application::Application(appSettings& settings):
 	playerController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
 	playerController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
 
+
+
+
 	playerCar->addComponent<AudioComponent>();
 
 
