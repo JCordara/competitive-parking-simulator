@@ -28,7 +28,9 @@ Application::Application(appSettings& settings):
 	// --- Entities ---
 	auto playerCar = scene->addEntity();
 	auto aiCar = scene->addEntity();
-	auto propCar = scene->addEntity();
+	
+	//PUT PROPCAR IN A FOR LOOP
+	//auto propCar = scene->addEntity();
 
 	auto mapGrass = scene->addEntity();
 	auto mapRoad = scene->addEntity();
@@ -129,30 +131,140 @@ Application::Application(appSettings& settings):
 	
 	auto aiCarAI = aiCar->addComponent<AiComponent>();
 
-
 	// --- Prop car ---
-	auto propCarTransform = propCar->getComponent<TransformComponent>();
-	propCarTransform->setLocalPosition(28.5f, 4.0f, 22.5f);
-	propCarTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
+	glm::vec3 parkingVertices[] = {
+		//GROUP 1 - Horizontal Parking Spaces
+		//NEEDS 90 or 270 degree rotation
+		glm::vec3(28.5f, 2.0f, 42.8f),
+		glm::vec3(28.5f, 2.0f, 36.2f),
+		glm::vec3(28.5f, 2.0f, 29.6f),
+   	 	glm::vec3(28.5f, 2.0f, 23.0f),
+    	glm::vec3(28.5f, 2.0f, 16.4f),
+    	glm::vec3(28.5f, 2.0f, 9.8f),
+		glm::vec3(28.5f, 2.0f, 3.2f),
+		glm::vec3(28.5f, 2.0f, -3.4f),
+		glm::vec3(28.5f, 2.0f, -10.0f),
+		glm::vec3(28.5f, 2.0f, -16.6f),
+		glm::vec3(28.5f, 2.0f, -23.2f),
+		glm::vec3(28.5f, 2.0f, -46.2f),
+		glm::vec3(-148.5f, 2.0f, 49.6f),
+		glm::vec3(-148.5f, 2.0f, 29.6f),
+   	 	glm::vec3(-148.5f, 2.0f, 23.0f),
+    	glm::vec3(-148.5f, 2.0f, 16.4f),
+    	glm::vec3(-148.5f, 2.0f, 9.8f),
+		glm::vec3(-148.5f, 2.0f, 3.2f),
+		glm::vec3(-148.5f, 2.0f, -3.4f),
+		glm::vec3(-148.5f, 2.0f, -10.0f),
+		glm::vec3(-148.5f, 2.0f, -16.6f),
+		glm::vec3(-148.5f, 2.0f, -23.2f),
+		glm::vec3(-148.5f, 2.0f, -29.8f),
+		glm::vec3(-148.5f, 2.0f, -36.4f),
+		glm::vec3(-148.5f, 2.0f, -43.0f),
+		glm::vec3(149.7f, 2.0f, 42.8f),
+		glm::vec3(149.7f, 2.0f, 36.2f),
+		glm::vec3(149.7f, 2.0f, 29.6f),
+   	 	glm::vec3(149.7f, 2.0f, 23.0f),
+    	glm::vec3(149.7f, 2.0f, 16.4f),
+    	glm::vec3(149.7f, 2.0f, 9.8f),
+		glm::vec3(149.7f, 2.0f, 3.2f),
+		glm::vec3(149.7f, 2.0f, -3.4f),
+		glm::vec3(149.7f, 2.0f, -10.0f),
+		glm::vec3(149.7f, 2.0f, -16.6f),
+		glm::vec3(149.7f, 2.0f, -23.2f),
+		glm::vec3(149.7f, 2.0f, -46.2f),
+		glm::vec3(-27.7f, 2.0f, 49.6f),
+		glm::vec3(-27.7f, 2.0f, 29.6f),
+   	 	glm::vec3(-27.7f, 2.0f, 23.0f),
+    	glm::vec3(-27.7f, 2.0f, 16.4f),
+    	glm::vec3(-27.7f, 2.0f, 9.8f),
+		glm::vec3(-27.7f, 2.0f, 3.2f),
+		glm::vec3(-27.7f, 2.0f, -3.4f),
+		glm::vec3(-27.7f, 2.0f, -10.0f),
+		glm::vec3(-27.7f, 2.0f, -16.6f),
+		glm::vec3(-27.7f, 2.0f, -23.2f),
+		glm::vec3(-27.7f, 2.0f, -46.2f),
 
-	auto propCarModel = propCar->addComponent<ModelComponent>();
-	propCarModel->setModel(modelPropCar);
+		//GROUP 2 - Vertical Parking Spaces
+		glm::vec3(39.8f, 2.0f, 61.0f),
+		glm::vec3(46.4f, 2.0f, 61.0f),
+		glm::vec3(53.0f, 2.0f, 61.0f),
+		glm::vec3(59.6f, 2.0f, 61.0f),
+		glm::vec3(66.2f, 2.0f, 61.0f),
+		glm::vec3(72.8f, 2.0f, 61.0f),
+		glm::vec3(79.4f, 2.0f, 61.0f),
+		glm::vec3(99.2f, 2.0f, 61.0f),
+		glm::vec3(105.8f, 2.0f, 61.0f),
+		glm::vec3(112.4f, 2.0f, 61.0f),
+		glm::vec3(119.0f, 2.0f, 61.0f),
+		glm::vec3(125.6f, 2.0f, 61.0f),
+		glm::vec3(132.2f, 2.0f, 61.0f),
+		glm::vec3(138.8f, 2.0f, 61.0f),
+		glm::vec3(39.8f, 2.0f, -57.0f),
+		glm::vec3(46.4f, 2.0f, -57.0f),
+		glm::vec3(53.0f, 2.0f, -57.0f),
+		glm::vec3(59.6f, 2.0f, -57.0f),
+		glm::vec3(66.2f, 2.0f, -57.0f),
+		glm::vec3(72.8f, 2.0f, -57.0f),
+		glm::vec3(79.4f, 2.0f, -57.0f),
+		glm::vec3(99.2f, 2.0f, -57.0f),
+		glm::vec3(105.8f, 2.0f, -57.0f),
+		glm::vec3(112.4f, 2.0f, -57.0f),
+		glm::vec3(119.0f, 2.0f, -57.0f),
+		glm::vec3(125.6f, 2.0f, -57.0f),
+		glm::vec3(132.2f, 2.0f, -57.0f),
+		glm::vec3(138.8f, 2.0f, -57.0f),
+		glm::vec3(-38.6f, 2.0f, 61.0f),
+		glm::vec3(-45.2f, 2.0f, 61.0f),
+		glm::vec3(-51.8f, 2.0f, 61.0f),
+		glm::vec3(-58.4f, 2.0f, 61.0f),
+		glm::vec3(-65.0f, 2.0f, 61.0f),
+		glm::vec3(-71.6f, 2.0f, 61.0f),
+		glm::vec3(-78.2f, 2.0f, 61.0f),
+		glm::vec3(-84.8f, 2.0f, 61.0f),
+		glm::vec3(-91.4f, 2.0f, 61.0f),
+		glm::vec3(-98.0f, 2.0f, 61.0f),
+		glm::vec3(-104.6f, 2.0f, 61.0f),
+		glm::vec3(-111.2f, 2.0f, 61.0f),
+		glm::vec3(-117.8f, 2.0f, 61.0f),
+		glm::vec3(-124.4f, 2.0f, 61.0f),
+		glm::vec3(-131.0f, 2.0f, 61.0f),
+		glm::vec3(-137.6f, 2.0f, 61.0f),
+		glm::vec3(-38.6f, 2.0f, -57.0f),
+		glm::vec3(-45.2f, 2.0f, -57.0f),
+		glm::vec3(-51.8f, 2.0f, -57.0f),
+		glm::vec3(-58.4f, 2.0f, -57.0f),
+		glm::vec3(-65.0f, 2.0f, -57.0f),
+		glm::vec3(-71.6f, 2.0f, -57.0f),
+		glm::vec3(-78.2f, 2.0f, -57.0f),
+		//glm::vec3(-98.0f, 2.0f, -57.0f),
+		//glm::vec3(-104.6f, 2.0f, -57.0f),
+		//glm::vec3(-111.2f, 2.0f, -57.0f),
+		//glm::vec3(-117.8f, 2.0f, -57.0f),
+		//glm::vec3(-124.4f, 2.0f, -57.0f),
+		//glm::vec3(-131.0f, 2.0f, -57.0f),
+		glm::vec3(-137.6f, 2.0f, -57.0f)
+	};
 
-	auto propCarRender = propCar->addComponent<RendererComponent>();
-	propCarRender->enableRender();
-	
-	auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-	propCarRigidbody->addActorDynamic(
-		*modelPropCar, 
-		PxTransform(
-			propCarTransform->getGlobalPosition().x, 
-			propCarTransform->getGlobalPosition().y, 
-			propCarTransform->getGlobalPosition().z, 
-			propCarTransform->getLocalRotation()
-		)
-	);
+	for(int i = 0; i < sizeof(parkingVertices)/sizeof(*parkingVertices); i++){
+		auto propCar = scene->addEntity();
+		auto propCarTransform = propCar->getComponent<TransformComponent>();
+		propCarTransform->setLocalPosition(parkingVertices[i]);
+		
+		if(i < 48){
+			propCarTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));	
+		}
 
-	propCar->addComponent<AudioComponent>();
+		auto propCarModel = propCar->addComponent<ModelComponent>();
+		propCarModel->setModel(modelPropCar);
+
+		auto propCarRender = propCar->addComponent<RendererComponent>();
+		propCarRender->enableRender();
+		
+		auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
+		propCarRigidbody->addActorDynamic(*modelPropCar, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+
+		propCar->addComponent<AudioComponent>();
+	}
 
 	
 	// --- Map grass ---
@@ -211,7 +323,7 @@ Application::Application(appSettings& settings):
 	// Hacky stuff
 	g_carID = playerCar->id();
 	g_aiID = aiCar->id();
-	g_boxID = propCar->id();
+	//g_boxID = propCar->id();
 
 	carTransform = playerCar->getComponent<TransformComponent>();
 	mainCamTransform = mainCamera->getComponent<TransformComponent>();
