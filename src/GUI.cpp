@@ -1,6 +1,9 @@
 
 #include "GUI.h"
 
+extern std::unordered_map<unsigned int, int> scores;
+extern unsigned int playerId;
+extern std::vector<unsigned int> aiList;
 
 void GUI::draw() {
 
@@ -30,7 +33,8 @@ void GUI::draw() {
 	ImGui::SetWindowSize(ImVec2(80, 25));
 
 	ImGui::Text("FPS: %.2f", Time::fps());
-	// ImGui::Text("CarParked event triggered %d times", g_carsParked);
+	ImGui::Text("Player: %d", scores[playerId]);
+	ImGui::Text("AI-1: %d", scores[aiList[0]]); // 1 AI HArdcoded, gross
 
 	ImGui::End();
 

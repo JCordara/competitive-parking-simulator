@@ -3,6 +3,10 @@
 
 #include "GameSystem.h"
 
+extern std::unordered_map<unsigned int, int> scores;
+extern unsigned int playerId;
+extern std::vector<unsigned int> aiList;
+
 class GameplaySystem : public GameSystem {
 public:
 
@@ -15,8 +19,15 @@ public:
     ~GameplaySystem();
 	void setupAiNodes();
 	std::vector<std::shared_ptr<AiGraphNode>> aiGlobalNodes;
-
     void registerAiComponent(AiComponent& component);
+	void registerCarParked(Entity& entity);
+	
+	void setPlayerId(unsigned int);
+	
+	void addAiId(unsigned int);
+	
+	void resetPlayer();
+	void resetAi(unsigned int);
 
 private:
     std::shared_ptr<Scene> scene;

@@ -6,6 +6,9 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene)
     Events::AiComponentInit.registerHandler<GameplaySystem,
         &GameplaySystem::registerAiComponent>(this);
 
+	Events::CarParked.registerHandler<GameplaySystem,
+		&GameplaySystem::registerCarParked>(this);
+
 	setupAiNodes();
 }
     
@@ -150,4 +153,62 @@ void GameplaySystem::setupAiNodes() {
 void GameplaySystem::registerAiComponent(AiComponent& component) {
 	component.setGameplaySystem(
 		dynamic_pointer_cast<GameplaySystem>(shared_from_this()));
+}
+
+void GameplaySystem::registerCarParked(Entity& entity) {
+	if (entity.id() == playerId) {
+		scores[playerId]++;
+		resetPlayer();
+	}
+	else {
+		unordered_map<unsigned int, int>::iterator it;
+		for (it = scores.begin(); it != scores.end(); it++)
+		{
+			if (it->first == entity.id()) {
+				scores[it->first]++;
+				resetAi(it->first);
+			}
+		}
+	}
+}
+
+void GameplaySystem::setPlayerId(unsigned int playerId) {
+	playerId = playerId;
+	scores[playerId] = 0;
+}
+
+void GameplaySystem::addAiId(unsigned int aiId) {
+	aiList.push_back(aiId);
+	scores[aiId] = 0;
+}
+
+void GameplaySystem::resetPlayer() {
+	scene->getEntityByID(playerId)->
+	getComponent<TransformComponent>()->
+	setLocalPosition(glm::vec3(0, 2, 0));
+}
+
+void GameplaySystem::resetAi(unsigned int aiId) {
+	for (int i = 0; i < aiGlobalNodes.size(); i++) {
+		if (aiGlobalNodes[i]->spawnAiComponent == nullptr) continue;
+		if (aiGlobalNodes[i]->spawnAiComponent->id() == aiId) {
+			//Reset Position
+			scene->getEntityByID(aiId)->
+				getComponent<TransformComponent>()->
+				setLocalPosition(aiGlobalNodes[i]->
+				position);
+			//Switch state back to SEARCH
+			scene->getEntityByID(aiId)->
+				getComponent<AiComponent>()->
+				switchState(AiComponent::States::SEARCH);
+			//Reset node back to not taken so it can be taken again by the AI
+			aiGlobalNodes[i]->nodeTaken = false;
+			//Set the spawn node, the one we just freed
+			scene->getEntityByID(aiId)->
+				getComponent<AiComponent>()->setSpawnNode();
+			// Picks the new entrance goal and calls A*
+			scene->getEntityByID(aiId)->
+				getComponent<AiComponent>()->pickRandGoalNode();
+		}
+	}
 }

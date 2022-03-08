@@ -13,7 +13,7 @@ AiComponent::AiComponent(Entity& parent)
 	std::cout << "SET THE SPAWN NODE" << std::endl;
 	pickRandGoalNode();
 	// forward
-	Events::VehicleAccelerate.broadcast(entity, 0.3); // Something to fix
+	Events::VehicleAccelerate.broadcast(entity, 0.5); // Something to fix
 }
 
 ComponentEnum AiComponent::getType() {
@@ -232,8 +232,8 @@ void AiComponent::parkState() {
 							currentZ >= currentNode->position.z - NODETHRESHOLD;
 	if (withinXBounds && withinZBounds) {
 		if (currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
-			Events::VehicleBrake.broadcast(entity, 1.f);
-			//Events::CarParked.broadcast(entity);
+			//Events::VehicleBrake.broadcast(entity, 1.f);
+			Events::CarParked.broadcast(entity);
 		}
 		else {
 			currentNode = nodeQueue[0];

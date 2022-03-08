@@ -1,7 +1,7 @@
 #include "Event.h"
 
 Event<void> Events::GameStart;
-Event<void> Events::CarParked;
+Event<Entity&> Events::CarParked;
 Event<void> Events::CarUnParked;
 
 Event<Entity&, float> Events::VehicleAccelerate;
