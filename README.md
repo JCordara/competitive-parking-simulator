@@ -29,7 +29,18 @@
 
 
 ### Kaynen's tasks
-- ?
+- AI Recovery
+	- Reset when flipped, or flip car
+	- Get unstuck/avoidance
+- Gameplay System
+	- Clean up previous ad-hoc gameplay code
+	- GameMode Logic
+		- Game mode for musical chairs style
+		- Game mode for timed score based
+- Talk with Jeff about converting AI Node structure to
+  a heatmap where gradient descent can run
+- Talk to Brayden about getting nodes passed through to
+  AI nodes
 
 
 ### Brayden's tasks
