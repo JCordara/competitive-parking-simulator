@@ -4,6 +4,7 @@
 unsigned int playerId = 0;
 std::vector<unsigned int> aiList;
 std::unordered_map<unsigned int, int> scores;
+std::shared_ptr<Entity> playerCar;
 
 glm::vec3 parkingVertices[] = {
 	//GROUP 1 - Horizontal Parking Spaces
@@ -160,8 +161,11 @@ Application::Application(appSettings& settings):
 	/* --------------------- Game World Description ------------------------ */
 
 	// --- Entities ---
-	auto playerCar = scene->addEntity();
-	auto aiCar = scene->addEntity();
+	playerCar = scene->addEntity();
+	auto aiCar1 = scene->addEntity();
+	auto aiCar2 = scene->addEntity();
+	auto aiCar3 = scene->addEntity();
+	auto aiCar4 = scene->addEntity();
 
 	auto mapGrass = scene->addEntity();
 	auto mapRoad = scene->addEntity();
@@ -267,21 +271,61 @@ Application::Application(appSettings& settings):
 	playerController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
 
 
-
-	// --- AI car ---	
-	auto aiCarTransform = aiCar->getComponent<TransformComponent>();
-	aiCarTransform->setLocalPosition(0.0f, 5.0f, 12.0f);
+	// --- AI cars ---	
+	auto aiCarTransform = aiCar1->getComponent<TransformComponent>();
 	aiCarTransform->setLocalRotation(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	
-	auto aiCarModel = aiCar->addComponent<ModelComponent>();
+	auto aiCarModel = aiCar1->addComponent<ModelComponent>();
 	aiCarModel->setModel(modelAiCar);
 	
-	auto aiCarRender = aiCar->addComponent<RendererComponent>();
+	auto aiCarRender = aiCar1->addComponent<RendererComponent>();
 	aiCarRender->enableRender();
 	
-	auto aiCarVehicle = aiCar->addComponent<VehicleComponent>();
+	auto aiCarVehicle = aiCar1->addComponent<VehicleComponent>();
 	
-	auto aiCarAI = aiCar->addComponent<AiComponent>();
+	auto aiCarAI = aiCar1->addComponent<AiComponent>();
+
+
+	aiCarTransform = aiCar2->getComponent<TransformComponent>();
+	aiCarTransform->setLocalRotation(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	aiCarModel = aiCar2->addComponent<ModelComponent>();
+	aiCarModel->setModel(modelAiCar);
+
+	aiCarRender = aiCar2->addComponent<RendererComponent>();
+	aiCarRender->enableRender();
+
+	aiCarVehicle = aiCar2->addComponent<VehicleComponent>();
+
+	aiCarAI = aiCar2->addComponent<AiComponent>();
+
+
+	aiCarTransform = aiCar3->getComponent<TransformComponent>();
+	aiCarTransform->setLocalRotation(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	aiCarModel = aiCar3->addComponent<ModelComponent>();
+	aiCarModel->setModel(modelAiCar);
+
+	aiCarRender = aiCar3->addComponent<RendererComponent>();
+	aiCarRender->enableRender();
+
+	aiCarVehicle = aiCar3->addComponent<VehicleComponent>();
+
+	aiCarAI = aiCar3->addComponent<AiComponent>();
+
+
+	aiCarTransform = aiCar4->getComponent<TransformComponent>();
+	aiCarTransform->setLocalRotation(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	aiCarModel = aiCar4->addComponent<ModelComponent>();
+	aiCarModel->setModel(modelAiCar);
+
+	aiCarRender = aiCar4->addComponent<RendererComponent>();
+	aiCarRender->enableRender();
+
+	aiCarVehicle = aiCar4->addComponent<VehicleComponent>();
+
+	aiCarAI = aiCar4->addComponent<AiComponent>();
 
 	// --- Prop car ---
 	for(int i = 0; i < sizeof(parkingVertices)/sizeof(*parkingVertices); i++){
@@ -458,7 +502,10 @@ Application::Application(appSettings& settings):
 	// Hacky stuff
 	playerId = playerCar->id();
 	scores[playerId] = 0;
-	gameplay->addAiId(aiCar->id());
+	gameplay->addAiId(aiCar1->id());
+	gameplay->addAiId(aiCar2->id());
+	gameplay->addAiId(aiCar3->id());
+	gameplay->addAiId(aiCar4->id());
 
 	audio->setListener(mainCamera->getComponent<TransformComponent>());
 	audio->car = playerCar->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor();
@@ -487,7 +534,7 @@ int Application::play() {
 	
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
-			if (scores[playerId] >= 5 || scores[aiList[0]] >= 5) {
+			if (scores[playerId] >= 5 || scores[aiList[0]] >= 50) {
 			}
 			else {
 				gameplay->update();	// Gameplay / AI update
