@@ -1,5 +1,5 @@
 #include "AudioComponent.h"
-#include "audio/AudioSystem.h"
+#include "Audio/AudioSystem.h"
 
 
 AudioComponent::AudioComponent(Entity& parent) 

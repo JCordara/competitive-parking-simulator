@@ -1,5 +1,5 @@
 #include "VolumeTriggerComponent.h"
-#include "physics/PhysicsSystem.h"
+#include "Physics/PhysicsSystem.h"
 
 VolumeTriggerComponent::VolumeTriggerComponent(Entity& e)
 	: BaseComponent(e)

@@ -2,7 +2,7 @@
 #define CONTROLLER_COMPONENT_H
 
 #include "Components.h"
-#include "input/ControlAxis.h"
+#include "Input/ControlAxis.h"
 
 class InputSystem;
 

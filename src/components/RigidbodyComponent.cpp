@@ -1,5 +1,5 @@
 #include "RigidbodyComponent.h"
-#include "physics/PhysicsSystem.h"
+#include "Physics/PhysicsSystem.h"
 
 
 RigidbodyComponent::RigidbodyComponent(Entity& parent) 

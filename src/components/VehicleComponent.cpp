@@ -1,7 +1,7 @@
 #include "VehicleComponent.h"
 
-#include "physics/PhysicsSystem.h"
-#include "physics/VehicleDesc.h"
+#include "Physics/PhysicsSystem.h"
+#include "Physics/VehicleDesc.h"
 
 
 VehicleComponent::VehicleComponent(Entity& parent) 

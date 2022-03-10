@@ -1,5 +1,5 @@
 #include "ControllerComponent.h"
-#include "input/InputSystem.h"
+#include "Input/InputSystem.h"
 
 
 ControllerComponent::ControllerComponent(Entity& parent) 
