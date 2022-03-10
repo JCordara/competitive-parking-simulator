@@ -25,6 +25,8 @@
 #include <memory>   // Smart pointers
 #include <iostream> // Degubbing
 
+#include <LuaScript.h>
+
 
 class AudioComponent;
 
@@ -80,6 +82,9 @@ public:
     PxRigidDynamic* car;
     float enginePitch;
     float engineGain;
+    float speed;
+
+    Script calculateEngineSound;
 
 private:
 

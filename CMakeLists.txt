@@ -164,6 +164,9 @@ endfunction()
 # Copy all the shaders to binary output dir on build
 to_binary_dir("res/shaders" "/shaders")
 
+# Copy all the scripts to binary output dir on build
+to_binary_dir("res/scripts" "/scripts")
+
 # Copy all the audio files to binary output dir on build
 to_binary_dir("res/audio" "/audio")
 

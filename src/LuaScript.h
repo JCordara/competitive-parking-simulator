@@ -143,7 +143,7 @@ public:
     lua_State* state() { return L; };
 
     /* The size of the scripts compiled binary (in bytes) */
-    int binarySize() { return binary.size(); }
+    size_t binarySize() { return binary.size(); }
 
 private:
 
