@@ -1,8 +1,12 @@
 # CPSC 585 Project
-## TO DO:
+## Tasks to complete:
 - Camera follow
 	- "Lag"
 	- Camera collisions
+- Rendering support for transparency
+- Map
+	- Blender scripts to mark parking stalls
+	- Improve level design (aisles, obstacles, etc.)
 
 
 
@@ -22,6 +26,7 @@
 	- Tire size
 - Entity iteration
 - Refactor audio system
+- Fix controller support
 
 
 ### Keaton's tasks
