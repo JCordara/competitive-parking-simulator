@@ -26,7 +26,7 @@
 	- Tire size
 - Entity iteration
 - Refactor audio system
-- Fix controller support
+- Fix controller support (remove raw pointers in input system)
 
 
 ### Keaton's tasks
