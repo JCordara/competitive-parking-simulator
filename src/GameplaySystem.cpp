@@ -29,9 +29,9 @@ void GameplaySystem::registerAiComponent(AiComponent& component) {
 }
 
 
-void GameplaySystem::registerCarParked(Entity& entity) {
-	std::cout << entity.id() << " , " << playerId << endl;
-	if (entity.id() == playerId) {
+void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
+	std::cout << entity->id() << " , " << playerId << endl;
+	if (entity->id() == playerId) {
 		scores[playerId]++;
 		resetPlayer();
 	}
@@ -39,7 +39,7 @@ void GameplaySystem::registerCarParked(Entity& entity) {
 		unordered_map<unsigned int, int>::iterator it;
 		for (it = scores.begin(); it != scores.end(); it++)
 		{
-			if (it->first == entity.id()) {
+			if (it->first == entity->id()) {
 				scores[it->first]++;
 				resetAi(it->first);
 			}
