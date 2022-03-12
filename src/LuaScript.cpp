@@ -23,10 +23,13 @@ Script::Script(const std::string filename):
 
     // Compile the Lua script
     compileScript();
+
+#ifdef _DEBUG
+    scriptPath = "../../res/" + scriptPath;
+#endif
 }
 
 void Script::run() {
-
     // Set captured variables in Lua global environment
     for (auto& var : variables) {
         var->push(L);
@@ -87,6 +90,7 @@ void Script::setGlobal(bool& b, const char* name) {
 
 
 void Script::compileScript() {
+    printf("Recompiling script \"%s\"\n", scriptPath.c_str());
     // Load the script from file
     if(luaL_loadfile(L, scriptPath.c_str())) {
         lua::error(L, "Could not compile script \"%s\"", scriptPath.c_str());

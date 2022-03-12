@@ -60,10 +60,10 @@ private:
     void simulateScene();
 	void cleanupPhysics();
 
-    void vehicleAccelerateMode(Entity& entity, float v);
-    void vehicleTurnMode(Entity& entity, float v);
-    void vehicleBrakeMode(Entity& entity, float v);
-    void vehicleHandbrakeMode(Entity& entity, float v);
+    void vehicleAccelerateMode(shared_ptr<Entity> entity, float v);
+    void vehicleTurnMode(shared_ptr<Entity> entity, float v);
+    void vehicleBrakeMode(shared_ptr<Entity> entity, float v);
+    void vehicleHandbrakeMode(shared_ptr<Entity> entity, float v);
 
     void registerRigidbodyComponent(RigidbodyComponent& component);
     void registerVehicleComponent(VehicleComponent& component);

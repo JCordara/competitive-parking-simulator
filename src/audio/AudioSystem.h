@@ -73,7 +73,7 @@ public:
     void startEngine();
     void stopEngine();
 
-    void playDing(Entity&);
+    void playDing(shared_ptr<Entity>);
     void playOof(glm::vec3&);
 
     // Public destructor

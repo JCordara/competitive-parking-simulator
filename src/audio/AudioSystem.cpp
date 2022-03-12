@@ -61,6 +61,9 @@ AudioSystem::AudioSystem():
     Events::Collision.registerHandler<AudioSystem,
         &AudioSystem::playOof>(this);
 
+    Events::RecompileScripts.registerHandler<Script, 
+        &Script::reload>(&calculateEngineSound);
+
     calculateEngineSound.capture(enginePitch);
     calculateEngineSound.capture(engineGain);
     calculateEngineSound.capture(speed);
@@ -100,7 +103,7 @@ void AudioSystem::stopEngine() {
     carSource->setLooping(false);
 }
 
-void AudioSystem::playDing(Entity&) {
+void AudioSystem::playDing(shared_ptr<Entity>) {
     aux->setPitch(Random::randomFloat(0.9f, 1.1f));
     aux->setGain(1.0f);
     aux->playAudio(*ding);

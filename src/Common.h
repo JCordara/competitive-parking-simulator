@@ -14,6 +14,7 @@
 #include <functional>
 #include <stdexcept>
 #include <type_traits>
+#include <any>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -30,6 +31,7 @@ using std::shared_ptr,    std::make_shared;  // Shared pointers
 using std::unique_ptr,    std::make_unique;  // Unique pointers
 using std::enable_if_t,   std::is_base_of_v; // Template param type assertion
 using std::dynamic_pointer_cast;             // Downcast smart pointers
+using std::vector;
 
 
 namespace conversion {

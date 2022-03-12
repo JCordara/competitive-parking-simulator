@@ -2,6 +2,12 @@
 
 // Called once per tick when a key is pressed
 void Callbacks::keyCallback(int key, int scancode, int action, int mods) {
+
+	// Recompile scripts (alt + R)
+	if ((mods & GLFW_MOD_ALT) && (key == GLFW_KEY_R) && (action && GLFW_PRESS)) {
+		Events::RecompileScripts.broadcast();
+	}
+
 	// Broadcast void events bound to this key
 	if(voidKeyEvents.count(createMapKey(key, action))) {
 		auto voidEvent = voidKeyEvents.at(createMapKey(key, action));
@@ -125,8 +131,8 @@ void Callbacks::createAxis(
 void Callbacks::createAxis(
 	int inputPositive, 
 	int inputNegative, 
-	Event<Entity&, float>* event, 
-	Entity& e,
+	Event<shared_ptr<Entity>, float>* event, 
+	shared_ptr<Entity> e,
 	ControlAxis::TypeEnum type) 
 {
 	// Make a pointer to a new axis
@@ -186,7 +192,7 @@ void Callbacks::bindInput(int input, Event<float>* event) {
 	floatKeyEvents[input] = event;
 }
 
-void Callbacks::bindInput(int input, Event<Entity&, float>* event, Entity& e) {
+void Callbacks::bindInput(int input, Event<shared_ptr<Entity>, float>* event, shared_ptr<Entity> e) {
 	entityFloatKeyEvents.try_emplace(input, event, e);
 }
 

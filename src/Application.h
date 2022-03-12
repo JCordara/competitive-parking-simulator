@@ -50,9 +50,6 @@ public:
 	Application& operator= (const Application&) = delete;
 	Application& operator= (Application&&) = delete;
 
-	void vroomSound(Entity&, float);
-	void collisionSound();
-
 private:
 
 	appSettings settings;

@@ -27,7 +27,7 @@ public:
 	/* Bind a input (key/button) to a float event */
 	void bindInput(int input, Event<float>* event);
 	/* Bind a input (key/button) to a float event */
-	void bindInput(int input, Event<Entity&, float>* event, Entity& e);
+	void bindInput(int input, Event<shared_ptr<Entity>, float>* event, shared_ptr<Entity> e);
 
 	/* Create an axis between two inputs and bind to an event */
 	void createAxis(
@@ -40,8 +40,8 @@ public:
 	void createAxis(
 		int inputPositive,
 		int inputNegative,
-		Event<Entity&, float>* event,
-		Entity& e,
+		Event<shared_ptr<Entity>, float>* event,
+		shared_ptr<Entity> e,
 		ControlAxis::TypeEnum type = ControlAxis::KEY
 	);
 
@@ -49,7 +49,7 @@ public:
 	void createAxis(int input, Event<float>* event);
 	
 	/* Create an axis from a single axis input and bind to event */
-	void createAxis(int input, Event<Entity&, float>* event, Entity& e);
+	void createAxis(int input, Event<shared_ptr<Entity>, float>* event, shared_ptr<Entity> e);
 
 	/* Remove an axis bound to the keys */
 	void removeAxis(int inputA, int inputB);

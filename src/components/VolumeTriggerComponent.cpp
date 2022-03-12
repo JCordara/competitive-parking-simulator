@@ -1,7 +1,7 @@
 #include "VolumeTriggerComponent.h"
 #include "Physics/PhysicsSystem.h"
 
-VolumeTriggerComponent::VolumeTriggerComponent(Entity& e)
+VolumeTriggerComponent::VolumeTriggerComponent(shared_ptr<Entity> e)
 	: BaseComponent(e)
 	
 {

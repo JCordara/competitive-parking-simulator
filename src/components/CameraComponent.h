@@ -12,7 +12,7 @@ enum class CameraPurpose {
 
 class CameraComponent : public BaseComponent {
 public:
-	CameraComponent(Entity& parent);
+	CameraComponent(shared_ptr<Entity> parent);
 
 	void setOrthographicCamera(float width, float height, float nearPlane, float farPlane);
 	void setPerspectiveCamera(float fov, float aspectRatio, float nearPlane, float farPlane);

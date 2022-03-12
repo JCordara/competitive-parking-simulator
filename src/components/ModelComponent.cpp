@@ -1,7 +1,7 @@
 #include "ModelComponent.h"
 
 
-ModelComponent::ModelComponent(Entity& parent) 
+ModelComponent::ModelComponent(shared_ptr<Entity> parent) 
     : BaseComponent(parent)
 {}
 

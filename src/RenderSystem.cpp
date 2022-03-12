@@ -35,7 +35,7 @@ void RenderSystem::update() {
 		if (transformComponent) {
 			if (ignoreParentRotations && e->parent()) {
 				localToGlobaltransform = transformComponent->getLocalMatrix();
-				if (e->parent()->getComponent<TransformComponent>())
+				if (e->parent()->hasComponent<TransformComponent>())
 					localToGlobaltransform = (e->parent()->getComponent<TransformComponent>()->onlyPositionTransformGlobal()) * localToGlobaltransform;
 				pos = glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, 0.f, 1.f));
 			}

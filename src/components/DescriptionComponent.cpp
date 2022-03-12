@@ -1,7 +1,7 @@
 #include "DescriptionComponent.h"
 
 
-DescriptionComponent::DescriptionComponent(Entity& e)
+DescriptionComponent::DescriptionComponent(shared_ptr<Entity> e)
 	: BaseComponent(e)
 {}
 

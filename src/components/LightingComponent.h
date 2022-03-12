@@ -6,7 +6,7 @@
 
 class LightingComponent : public BaseComponent {
 public:
-	LightingComponent(Entity& parent);
+	LightingComponent(shared_ptr<Entity> parent);
 
 	void setPointLight(glm::vec3 col, glm::vec3 attenuationConsts);
 	void setSpotLight(glm::vec3 col, glm::vec3 attenuationConsts, float innerAngle, float outerAngle);
