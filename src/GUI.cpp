@@ -4,6 +4,7 @@
 extern std::unordered_map<unsigned int, int> scores;
 extern unsigned int playerId;
 extern std::vector<unsigned int> aiList;
+extern std::shared_ptr<Entity> playerCar;
 
 bool gameWon = false;
 
@@ -46,7 +47,13 @@ void GUI::draw() {
 	ImGui::Text("FPS: %.2f", Time::fps());
 	ImGui::Text("First to Park 5 Times Wins!");
 	ImGui::Text("Player: %d", scores[playerId]);
-	ImGui::Text("AI-1: %d", scores[aiList[0]]); // 1 AI HArdcoded, gross
+	//ImGui::Text("Player Pos: X:%.2f  Y:%.2f  Z:%.2f",
+	//	playerCar->getComponent<TransformComponent>()->getGlobalPosition().x,
+	//	playerCar->getComponent<TransformComponent>()->getGlobalPosition().y,
+	//	playerCar->getComponent<TransformComponent>()->getGlobalPosition().z);
+	for (int i = 0; i < aiList.size(); i++) {
+		ImGui::Text("AI-%d: %d", i+1,scores[aiList[i]]); // 1 AI HArdcoded, gross
+	}
 
 	ImGui::End();
 

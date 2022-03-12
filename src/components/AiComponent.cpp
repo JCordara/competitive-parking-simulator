@@ -13,7 +13,7 @@ AiComponent::AiComponent(shared_ptr<Entity> parent)
 	std::cout << "SET THE SPAWN NODE" << std::endl;
 	pickRandGoalNode();
 	// forward
-	Events::VehicleAccelerate.broadcast(entity, 0.8); // Something to fix
+	Events::VehicleAccelerate.broadcast(entity, 0.65); // Something to fix
 }
 
 ComponentEnum AiComponent::getType() {
@@ -140,6 +140,7 @@ void AiComponent::setSpawnNode() {
 			currentNode = node;
 			node->nodeTaken = true;
 			node->spawnAiComponent = entity->shared_from_this();
+			entity->getComponent<TransformComponent>()->setLocalPosition(node->position);
 			return;
 		}
 	}
