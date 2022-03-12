@@ -20,10 +20,10 @@
 // Engine sub-system includes
 #include "Framework.h"
 #include "GameplaySystem.h"
-#include "physics/PhysicsSystem.h"
+#include "Physics/PhysicsSystem.h"
 #include "RenderSystem.h"
-#include "input/InputSystem.h"
-#include "audio/AudioSystem.h"
+#include "Input/InputSystem.h"
+#include "Audio/AudioSystem.h"
 
 // Other stuff
 #include "Renderers.h"
@@ -49,9 +49,6 @@ public:
 	Application(Application&&) = delete;
 	Application& operator= (const Application&) = delete;
 	Application& operator= (Application&&) = delete;
-
-	void vroomSound(Entity&, float);
-	void collisionSound();
 
 private:
 

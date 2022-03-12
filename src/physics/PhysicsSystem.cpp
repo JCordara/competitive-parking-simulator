@@ -38,11 +38,9 @@ PhysicsSystem::PhysicsSystem(
 
 /* PhysX per-frame updates */
 void PhysicsSystem::update() {
-    for (auto it = gameScene->begin(); it != gameScene->end(); it++) {
-		// Update each vehicle given it's input values
-		if (auto vc = it->getComponent<VehicleComponent>()) {
-			vehicleUpdate(vc);
-		}
+	// Update each vehicle given it's input values
+	for (auto& vc : gameScene->iterate<VehicleComponent>()) {
+		vehicleUpdate(vc);
 	}
 
     simulateScene();
@@ -53,13 +51,21 @@ void PhysicsSystem::update() {
 
 	// Update each render object with the new transform
 	for (PxU32 i = 0; i < nbActiveActors; i++) {
-		if (PxRigidActor* actor = activeActors[i]->is<PxRigidActor>()) {
-			Entity* entity = static_cast<Entity*>(activeActors[i]->userData);
+
+		// Retrieve actor's rigidbody representation if possible
+		PxRigidActor* actor = activeActors[i]->is<PxRigidActor>();
+		if (!actor) continue; // If no rigidbody, go to next actor
+
+		// Retrieve the entity associated with the actor
+		Entity* entity = static_cast<Entity*>(actor->userData);
+		if (!entity) continue; // If no associated entity, go to next actor
+
+		// If entity has a transform component, set position/orientation
+		if (auto tc = entity->getComponent<TransformComponent>()) {
+			// Get the actor's transform
 			PxTransform pxTransform = actor->getGlobalPose();
-			if (auto tc = entity->getComponent<TransformComponent>()) {
-				tc->setLocalPosition(pxTransform.p);
-				tc->setLocalRotation(pxTransform.q);
-			}
+			tc->setLocalPosition(pxTransform.p);
+			tc->setLocalRotation(pxTransform.q);
 		}
 	}
 
@@ -232,9 +238,9 @@ void PhysicsSystem::simulateScene()
 }
 
 
-void PhysicsSystem::vehicleAccelerateMode(Entity& entity, float v) 
+void PhysicsSystem::vehicleAccelerateMode(shared_ptr<Entity> entity, float v) 
 {
-	auto vc = entity.getComponent<VehicleComponent>();
+	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
 
 	vc->inputData.setAnalogBrake(0.0f);
@@ -250,25 +256,25 @@ void PhysicsSystem::vehicleAccelerateMode(Entity& entity, float v)
 	vc->inputData.setAnalogAccel(v);
 }
 
-void PhysicsSystem::vehicleTurnMode(Entity& entity, float v) 
+void PhysicsSystem::vehicleTurnMode(shared_ptr<Entity> entity, float v) 
 {
-	auto vc = entity.getComponent<VehicleComponent>();
+	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
 
 	vc->inputData.setAnalogSteer(-v);
 }
 
-void PhysicsSystem::vehicleBrakeMode(Entity& entity, float v) 
+void PhysicsSystem::vehicleBrakeMode(shared_ptr<Entity> entity, float v) 
 {
-	auto vc = entity.getComponent<VehicleComponent>();
+	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
 
 	vc->inputData.setAnalogBrake(v);
 }
 
-void PhysicsSystem::vehicleHandbrakeMode(Entity& entity, float v) 
+void PhysicsSystem::vehicleHandbrakeMode(shared_ptr<Entity> entity, float v) 
 {
-	auto vc = entity.getComponent<VehicleComponent>();
+	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
 
 	vc->inputData.setAnalogHandbrake(v);

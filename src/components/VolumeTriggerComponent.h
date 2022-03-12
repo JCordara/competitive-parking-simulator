@@ -9,7 +9,7 @@
 class VolumeTriggerComponent : public BaseComponent {
 public:
 
-    VolumeTriggerComponent(Entity& e);
+    VolumeTriggerComponent(shared_ptr<Entity> e);
 
 	void attachEntity(std::shared_ptr<Entity> collisionEntity);
 	void removeEntity(std::shared_ptr<Entity> collisionEntity);

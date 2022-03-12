@@ -25,28 +25,28 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 #------------------------- Entities and Components -----------------------------
 # Build Entity/Component system as a separate library
 
-add_subdirectory(src/components)
+add_subdirectory(src/Components)
 list(APPEND LIBRARIES EntityComponent)
 
 
 #------------------------------ Audio System -----------------------------------
 # Build AudioSystem as a separate library
 
-add_subdirectory(src/audio)
+add_subdirectory(src/Audio)
 list(APPEND LIBRARIES AudioSystem)
 
 
 #----------------------------- Physics System ----------------------------------
 # Build PhysicsSystem as a separate library
 
-add_subdirectory(src/physics)
+add_subdirectory(src/Physics)
 list(APPEND LIBRARIES PhysicsSystem)
 
 
 #------------------------------ Input System -----------------------------------
 # Build InputSystem as a separate library
 
-add_subdirectory(src/input)
+add_subdirectory(src/Input)
 list(APPEND LIBRARIES InputSystem)
 
 
@@ -116,6 +116,13 @@ list(APPEND LIBRARIES
 	"${CMAKE_SOURCE_DIR}/lib/assimp/$<CONFIG>/assimp-vc142-mt.lib")
 
 
+# --------------------------------- Lua ----------------------------------------
+# Lua Library 
+
+list(APPEND LIBRARIES
+"${CMAKE_SOURCE_DIR}/lib/lua-5.4.2/$<CONFIG>/lua54.lib")
+
+
 # Some CMake magic
 # Searches for an OpenGL cmake module that comes with cmake installation
 find_package(OpenGL REQUIRED)
@@ -131,8 +138,8 @@ elseif(WIN32)
 	# Nothing to do here 
 endif()
 
-# Group source files together
-# Good for agile development style
+# Group top-level source files together
+# Good for our agile development style
 file(GLOB SOURCES "src/*")
 
 # Create main application and link libraries
@@ -155,7 +162,10 @@ function(TO_BINARY_DIR SOURCE_DIR DEST_DIR)
 endfunction()
 
 # Copy all the shaders to binary output dir on build
-to_binary_dir("src/shaders" "/shaders")
+to_binary_dir("res/shaders" "/shaders")
+
+# Copy all the scripts to binary output dir on build
+to_binary_dir("res/scripts" "/scripts")
 
 # Copy all the audio files to binary output dir on build
 to_binary_dir("res/audio" "/audio")

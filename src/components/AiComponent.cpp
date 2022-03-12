@@ -5,7 +5,7 @@ AiGraphNode::AiGraphNode() {
 
 }
 
-AiComponent::AiComponent(Entity& parent) 
+AiComponent::AiComponent(shared_ptr<Entity> parent) 
     : BaseComponent(parent)
 {
 	Events::AiComponentInit.broadcast(*this);
@@ -153,8 +153,8 @@ void AiComponent::switchState(States newState) {
 void AiComponent::searchState() {
 	const float NODETHRESHOLD = 2.5; // How close to
 	// COULD USE ABSOLUTE DISTANCE HERE
-	float currentX = entity.getComponent<TransformComponent>()->getGlobalPosition().x;
-	float currentZ = entity.getComponent<TransformComponent>()->getGlobalPosition().z;
+	float currentX = entity->getComponent<TransformComponent>()->getGlobalPosition().x;
+	float currentZ = entity->getComponent<TransformComponent>()->getGlobalPosition().z;
 	bool withinXBounds =	currentX <= currentNode->position.x + NODETHRESHOLD &&
 							currentX >= currentNode->position.x - NODETHRESHOLD;
 	bool withinZBounds =	currentZ <= currentNode->position.z + NODETHRESHOLD &&
@@ -225,8 +225,8 @@ void AiComponent::pickRandGoalNode() {
 void AiComponent::parkState() {
 	const float NODETHRESHOLD = 1.5; // How close to
 	// COULD USE ABSOLUTE DISTANCE HERE
-	float currentX = entity.getComponent<TransformComponent>()->getGlobalPosition().x;
-	float currentZ = entity.getComponent<TransformComponent>()->getGlobalPosition().z;
+	float currentX = entity->getComponent<TransformComponent>()->getGlobalPosition().x;
+	float currentZ = entity->getComponent<TransformComponent>()->getGlobalPosition().z;
 	bool withinXBounds =	currentX <= currentNode->position.x + NODETHRESHOLD &&
 							currentX >= currentNode->position.x - NODETHRESHOLD;
 	bool withinZBounds =	currentZ <= currentNode->position.z + NODETHRESHOLD &&
@@ -249,14 +249,14 @@ void AiComponent::parkState() {
 void AiComponent::moveToNextNode() {
 	const float ANGLETHRESHOLD = 3.14/10;
 	// Less sure this method works
-	glm::mat4 aiCarTransform = entity.getComponent<TransformComponent>()->getGlobalMatrix();
+	glm::mat4 aiCarTransform = entity->getComponent<TransformComponent>()->getGlobalMatrix();
 	glm::vec3 aiForward = glm::vec3(aiCarTransform[2][0], aiCarTransform[2][1], aiCarTransform[2][2]);
 	// This method might work better
-	physx::PxQuat aiCarRotation = entity.getComponent<TransformComponent>()->getLocalRotation();
+	physx::PxQuat aiCarRotation = entity->getComponent<TransformComponent>()->getLocalRotation();
 	glm::vec3 aiForwardQuat = ComputeForwardVector(aiCarRotation);
 	aiForwardQuat = glm::normalize(aiForwardQuat);
 	// Vec between car and next node
-	glm::vec3 nodesVec = currentNode->position - entity.getComponent<TransformComponent>()->getGlobalPosition();
+	glm::vec3 nodesVec = currentNode->position - entity->getComponent<TransformComponent>()->getGlobalPosition();
 	nodesVec = glm::normalize(nodesVec);
 
 	float angle = glm::dot(aiForwardQuat, nodesVec);

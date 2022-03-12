@@ -1,7 +1,7 @@
 #include "LightingComponent.h"
 
 
-LightingComponent::LightingComponent(Entity& parent)
+LightingComponent::LightingComponent(shared_ptr<Entity> parent)
 	: BaseComponent(parent)
 {}
 

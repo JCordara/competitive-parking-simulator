@@ -20,7 +20,7 @@ public:
 	void setupAiNodes();
 	std::vector<std::shared_ptr<AiGraphNode>> aiGlobalNodes;
     void registerAiComponent(AiComponent& component);
-	void registerCarParked(Entity& entity);
+	void registerCarParked(shared_ptr<Entity> entity);
 	
 	void setPlayerId(unsigned int);
 	

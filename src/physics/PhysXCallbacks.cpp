@@ -48,7 +48,7 @@ void PhysXSimCallback::onTrigger(
 
 		if ((e1->hasComponent<VehicleComponent>() && e1->hasComponent<ControllerComponent>())&& (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)){
 			std::cout << nbPairs;
-			Events::CarParked.broadcast(*e1);
+			Events::CarParked.broadcast(e1->shared_from_this());
 		}
 	}
 	

@@ -9,7 +9,7 @@ class Audio;
 
 class AudioComponent : public BaseComponent {
 public:
-    AudioComponent(Entity& parent);
+    AudioComponent(shared_ptr<Entity> parent);
     ~AudioComponent();
     static ComponentEnum getType();
 

@@ -8,6 +8,7 @@
 template<class T> using sp = std::shared_ptr<T>; // Shorter alias for shared_ptr
 
 
+class Scene;
 class BaseComponent;
 enum class ComponentEnum;
 
@@ -31,30 +32,39 @@ public:
     // ^ Assert that C is derived from BaseComponent
     addComponent(Args&&... args) {
         // Construct the component
-        sp<BaseComponent> component = make_shared<C>(*this, args...);
-        // Get the components type enum (used as map key)
-        ComponentEnum ctype = C::getType();
-        // Insert component into map
-        _components.insert( {ctype, component} );
+        auto self = shared_from_this();
+        sp<C> component = make_shared<C>(self, args...);
+        // Insert component into map using component type enum as key
+        _components.insert( {C::getType(), component} );
+        // Track newly added component in scene
+        getScene()->trackComponent<C>(component);
         // Return shared pointer to new component
-        return dynamic_pointer_cast<C>(component);
+        return component;
     }
     
     template<class C>   // Same deal as above but no variable arguments
     enable_if_t<is_base_of_v<BaseComponent, C>, bool> 
     removeComponent() {
-        // Remove component from map
-        size_t numErased = _components.erase(C::getType());
-        return static_cast<bool>(numErased);
+        // Attempt to retrieve component to remove
+        sp<C> component = getComponent<C>();
+        // Return false if no matching component found
+        if (!component) return false;
+        // Remove component from map and retrieve success
+        bool erased = static_cast<bool>(_components.erase(C::getType()));
+        // Untrack component in scene and retrieve success
+        bool untracked = getScene()->untrackComponent<C>(component);
+        // Return true only if the component was removed from the entity
+        // and untracked from the scene
+        return (erased && untracked);
     }
 
     template<class C>
     enable_if_t<is_base_of_v<BaseComponent, C>, sp<C>>
     getComponent() {
-
+        // Check if the entity has the requested component
         if (!static_cast<bool>(_components.count(C::getType())))
             return nullptr;
-
+        // Return the requested component
         return dynamic_pointer_cast<C>(_components.at(C::getType()));
     }
 
@@ -69,6 +79,8 @@ public:
 
     std::vector<sp<Entity>>& directChildren();
 
+    // Returns a pointer to the root node of hierarchy (Scene)
+    virtual sp<Scene> getScene();
     
     bool removeChildByID(unsigned int entityID);
     sp<Entity> getChildByID(unsigned int entityID);
@@ -85,7 +97,7 @@ public:
         Iterator  operator++(int); // Same (pre/postfix current behave the same)
         Iterator& operator--();    // Traverse iterator to previous entity
         Iterator  operator--(int); // Same (pre/postfix current behave the same)
-        Entity&   operator*();     // Access the entity at current iteration
+        shared_ptr<Entity>&   operator*();     // Access the entity at current iteration
         sp<Entity> operator->();   // Overload class member access operator
         bool operator!=(Iterator); // Inequality comparison for iteration
 
@@ -113,11 +125,9 @@ public:
 
 
 protected:
+
     // Structure containing an entities components
     unordered_map<ComponentEnum, sp<BaseComponent>> _components;
-    
-    // Reference to self
-    sp<Entity> _self;
 
     // Reference to parent entity
     sp<Entity> _parent;
@@ -137,13 +147,55 @@ protected:
     
 };
 
+
+
 // Simplify the scene to just be another entity with function aliases
 class Scene : public Entity {
 public:
 
-    static sp<Scene> newScene();
-
     Scene();
+
+    template<class C>
+    vector<sp<C>>& iterate() {
+        // If no components of this type are currently being tracked
+        if (!static_cast<bool>(componentMap.count(C::getType()))) {
+            // Create an empty list of components
+            componentMap[C::getType()] = vector<sp<C>>();
+        }
+        // Return the vector of components
+        return std::any_cast<vector<sp<C>>&>(componentMap.at(C::getType()));
+    }
+
+    template<class C>
+    void trackComponent(sp<C> c) {
+        // If no components of this type are currently being tracked
+        if (!static_cast<bool>(componentMap.count(C::getType()))) {
+            // Create an empty list of components
+            componentMap[C::getType()] = vector<sp<C>>();
+        }
+        // Get the vector of components
+        vector<sp<C>>& components = std::any_cast<vector<sp<C>>&>(componentMap.at(C::getType()));
+        // Add the passed component to the vector
+        components.push_back(c);
+    }
+
+    template<class C>
+    void untrackComponent(sp<C> c) {
+        // If no components of this type are currently being tracked
+        if (!static_cast<bool>(componentMap.count(C::getType()))) {
+            return; // Do nothing
+        }
+        // Get the vector of components
+        vector<sp<C>>& components = std::any_cast<vector<sp<C>>&>(componentMap.at(C::getType()));
+        // Search the vector for a matching component (by underlying shared_ptr address)
+        for (auto it = components.begin(); it != components.end(); it++) {
+            if (it->get() == c.get()) {
+                components.erase(it);   // Erase matching component(s)
+            }
+        }
+    }
+
+    sp<Scene> getScene();
 
     sp<Entity> addEntity();
     bool removeEntity(sp<Entity> doomedChild);
@@ -153,15 +205,11 @@ public:
     bool removeEntityByID(unsigned int entityID);
     sp<Entity> getEntityByID(unsigned int entityID);
 
+private:
+
+    unordered_map<ComponentEnum, std::any> componentMap;
+
 };
 
-// Null Entity class (used as parent of top level scene)
-class NullEntity : public Entity {
-public: 
-    NullEntity() : Entity(*this) { _entityID = NULL_ID; }
-};
-
-// Global null entity
-extern NullEntity nullEntity;
 
 #endif // ENTITY_H

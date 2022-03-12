@@ -1,6 +1,6 @@
 #include "TransformComponent.h"
 
-TransformComponent::TransformComponent(Entity& e) 
+TransformComponent::TransformComponent(shared_ptr<Entity> e) 
     : BaseComponent(e)
     , _position(glm::vec3(0.f))
     , _rotation(physx::PxQuat(0.f, physx::PxVec3(1.f, 0.f, 0.f)))
@@ -30,11 +30,12 @@ glm::mat4 TransformComponent::getNestedMatrix(int depth) {
     if (depth == 0) return getLocalMatrix();
 
     // Check that entity has parent
-	std::shared_ptr<TransformComponent> t;
+	shared_ptr<TransformComponent> t;
+	shared_ptr<Entity> nextParent = entity;
 	do {
-		shared_ptr<Entity> parent = entity.parent();
-		if (parent == nullptr) return getLocalMatrix();
-		t = parent->getComponent<TransformComponent>();
+		nextParent = nextParent->parent();
+		if (nextParent == nullptr) return getLocalMatrix();
+		t = nextParent->getComponent<TransformComponent>();
 		// Check that parent has transform component, if not move to the next parent
 	} while (!t);
     
@@ -52,11 +53,12 @@ glm::mat4 TransformComponent::onlyPositionTransformMatrix(int depth) {
 	if (depth == 0) return getLocalTranslationMatrix();
 
 	// Check that entity has parent
-	std::shared_ptr<TransformComponent> t;
+	shared_ptr<TransformComponent> t;
+	shared_ptr<Entity> nextParent = entity;
 	do {
-		shared_ptr<Entity> parent = entity.parent();
-		if (parent == nullptr) return getLocalTranslationMatrix();
-		t = parent->getComponent<TransformComponent>();
+		nextParent = nextParent->parent();
+		if (nextParent == nullptr) return getLocalMatrix();
+		t = nextParent->getComponent<TransformComponent>();
 		// Check that parent has transform component, if not move to the next parent
 	} while (!t);
 
@@ -154,10 +156,10 @@ glm::mat4 TransformComponent::getLocalMatrix() {
 
 
 void TransformComponent::updateComponents() {
-	if (auto vc = entity.getComponent<VehicleComponent>()) {
+	if (auto vc = entity->getComponent<VehicleComponent>()) {
 		vc->setTransform(convert<physx::PxTransform>(getGlobalMatrix()));
 	}
-	if (auto ac = entity.getComponent<AudioComponent>()) {
+	if (auto ac = entity->getComponent<AudioComponent>()) {
 		ac->updatePosition(getGlobalPosition());
 	}
 }

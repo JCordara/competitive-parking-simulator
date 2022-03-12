@@ -5,20 +5,18 @@
 // Initialize instance counter to 0
 unsigned int Entity::instanceCounter = 0;
 
-// Iniitialize global null entity
-NullEntity nullEntity;
-
 
 Entity::Entity(sp<Entity> parent) 
-    : _parent(parent), _siblingNumber(-1), _self(nullptr) {
+    : _parent(parent), _siblingNumber(-1) {
     _entityID = Entity::instanceCounter++;
-    addComponent<TransformComponent>();
 }
 
+
 sp<Entity> Entity::addChild() {
-    _children.emplace_back(make_shared<Entity>(_self));
-    _children.back()->_self = _children.back();
+    auto self = shared_from_this();
+    _children.emplace_back(make_shared<Entity>(self));
     _children.back()->_siblingNumber = _children.size() - 1;
+    _children.back()->addComponent<TransformComponent>();
     return _children.back();
 }
 
@@ -63,6 +61,15 @@ sp<Entity> Entity::getChildByID(unsigned int entityID) {
     return empty;
 }
 
+sp<Scene> Entity::getScene() {
+    sp<Entity> p = _parent;
+    while(p->parent() != nullptr) {
+        p = p->parent();
+    }
+    return dynamic_pointer_cast<Scene>(p);
+}
+
+
 
 // --- Entity Iterator ---
 Entity::Iterator Entity::begin() {
@@ -77,7 +84,7 @@ Entity::Iterator Entity::begin() {
 Entity::Iterator Entity::end() {
     // Return an iterator pointing to the last entity of traversal
     // Which is the root of the tree to be traversed
-    return Iterator(_self);
+    return Iterator(shared_from_this());
 }
 
 /** --- Traverse to next entity in hierarchy --- **
@@ -156,8 +163,8 @@ Entity::Iterator Entity::Iterator::operator--(int) {
     return operator--();
 }
 
-Entity& Entity::Iterator::operator*() {
-    return *_current; // Reference to entity pointed to by iterator
+shared_ptr<Entity>& Entity::Iterator::operator*() {
+    return _current; // Reference to entity pointed to by iterator
 }
 
 sp<Entity> Entity::Iterator::operator->() {
@@ -184,13 +191,12 @@ Entity::Iterator::Iterator(sp<Entity> e) : _current(e), _root(nullptr) {
 
 // --- Top level Scene aliases ---
 
-sp<Scene> Scene::newScene() {
-    sp<Scene> s = make_shared<Scene>();
-    s->_self = s;
-    return s;
+Scene::Scene() : Entity(nullptr) {}
+
+sp<Scene> Scene::getScene() { 
+    return dynamic_pointer_cast<Scene>(shared_from_this()); 
 }
 
-Scene::Scene() : Entity(nullptr) {}
 
 sp<Entity> Scene::addEntity() {
     return addChild();

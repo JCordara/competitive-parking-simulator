@@ -3,7 +3,9 @@
 
 
 /** Open default audio device and initialize OpenAL context */
-AudioSystem::AudioSystem() {
+AudioSystem::AudioSystem(): 
+    calculateEngineSound("scripts/calculateEngineSound.lua") 
+{
 
     // Get devices
     std::vector<std::string> deviceNames = getDeviceNames();
@@ -58,6 +60,13 @@ AudioSystem::AudioSystem() {
 
     Events::Collision.registerHandler<AudioSystem,
         &AudioSystem::playOof>(this);
+
+    Events::RecompileScripts.registerHandler<Script, 
+        &Script::reload>(&calculateEngineSound);
+
+    calculateEngineSound.capture(enginePitch);
+    calculateEngineSound.capture(engineGain);
+    calculateEngineSound.capture(speed);
 }
 
 void AudioSystem::update() {
@@ -69,9 +78,10 @@ void AudioSystem::update() {
     setListenerOrientation(front, up);
     setListenerPosition(m[3]);
 
-    float speed = car->getLinearVelocity().magnitude();
-    enginePitch = speed * 0.28f + 0.95f;
-    engineGain  = speed * 0.008f + 0.076f;
+    speed = car->getLinearVelocity().magnitude();
+
+    calculateEngineSound.run();
+
     carSource->setPosition(m[3]);
     carSource->setPitch(enginePitch);
     carSource->setGain(engineGain);
@@ -93,7 +103,7 @@ void AudioSystem::stopEngine() {
     carSource->setLooping(false);
 }
 
-void AudioSystem::playDing(Entity&) {
+void AudioSystem::playDing(shared_ptr<Entity>) {
     aux->setPitch(Random::randomFloat(0.9f, 1.1f));
     aux->setGain(1.0f);
     aux->playAudio(*ding);

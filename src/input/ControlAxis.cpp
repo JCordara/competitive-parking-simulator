@@ -7,15 +7,10 @@ ControlAxis::ControlAxis(
 	, event_(event) 
 	, inputA_(inputA)
 	, inputB_(inputB)
-	, valueA_(0.0f)
-	, valueB_(0.0f)
+	, valueA_(0.0f)	// Initialize input values to "unpressed"
+	, valueB_(0.0f)	// Initialize input values to "unpressed"
 	, type_(type)
-{
-	if (type_ == AXIS) {
-		valueA_ = -1.0f;
-		valueB_ = -1.0f;
-	}
-}
+{}
 
 ControlAxis::ControlAxis(int inputA, int inputB, TypeEnum type)
 	: ControlAxis(inputA, inputB, nullptr, type) {}
@@ -48,21 +43,16 @@ void ControlAxis::update() {
 }
 
 EntityControlAxis::EntityControlAxis(
-	int inputA, int inputB, Event<Entity&, float>* event, Entity& e, TypeEnum type):
+	int inputA, int inputB, Event<shared_ptr<Entity>, float>* event, shared_ptr<Entity> e, TypeEnum type):
 	ControlAxis(inputA, inputB, nullptr, type),
 	event_(event),
 	entity_(e)
-{
-	if (type_ == AXIS) {
-		valueA_ = -1.0f;
-		valueB_ = -1.0f;
-	}
-}
+{}
 
-EntityControlAxis::EntityControlAxis(int inputA, int inputB, Entity& e, TypeEnum type)
+EntityControlAxis::EntityControlAxis(int inputA, int inputB, shared_ptr<Entity> e, TypeEnum type)
 	: EntityControlAxis(inputA, inputB, nullptr, e, type) {}
 
-void EntityControlAxis::bindEvent(Event<Entity&, float>* event) { event_ = event; }
+void EntityControlAxis::bindEvent(Event<shared_ptr<Entity>, float>* event) { event_ = event; }
 
 void EntityControlAxis::update() {
 	// Update the value

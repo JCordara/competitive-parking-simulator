@@ -14,7 +14,7 @@ public:
 	PxVehicleDrive4W* vehicle;
     friend class PhysicsSystem;
 
-    VehicleComponent(Entity& parent);
+    VehicleComponent(shared_ptr<Entity> parent);
     ~VehicleComponent();
     static ComponentEnum getType();
 

@@ -2,14 +2,17 @@
 
 Event<void> Events::GameStart;
 Event<void> Events::GameWon;
-Event<Entity&, float> Events::GameReset;
-Event<Entity&> Events::CarParked;
+Event<shared_ptr<Entity>, float> Events::GameReset;
+Event<shared_ptr<Entity>> Events::CarParked;
 Event<void> Events::CarUnParked;
 
-Event<Entity&, float> Events::VehicleAccelerate;
-Event<Entity&, float> Events::VehicleSteer;
-Event<Entity&, float> Events::VehicleBrake;
-Event<Entity&, float> Events::VehicleHandbrake;
+Event<void> Events::RecompileScripts;
+
+
+Event<shared_ptr<Entity>, float> Events::VehicleAccelerate;
+Event<shared_ptr<Entity>, float> Events::VehicleSteer;
+Event<shared_ptr<Entity>, float> Events::VehicleBrake;
+Event<shared_ptr<Entity>, float> Events::VehicleHandbrake;
 
 Event<double, double> Events::CameraRotate;
 Event<double, double> Events::CameraZoom;

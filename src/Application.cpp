@@ -147,7 +147,7 @@ Application::Application(appSettings& settings):
 	Time::init();
 	Random::init();
 	/* Framework - used by systems*/
-	scene    = Scene::newScene();
+	scene    = std::make_shared<Scene>();
 	window   = std::make_shared<Window>(1200, 800, "Test Window");
 
 	/* Game systems - update() every frame */
@@ -156,7 +156,6 @@ Application::Application(appSettings& settings):
 	physics  = std::make_shared<PhysicsSystem>(scene);
 	render   = std::make_shared<RenderSystem>(scene, window);
 	audio    = std::make_shared<AudioSystem>();
-
 
 	/* --------------------- Game World Description ------------------------ */
 
@@ -180,7 +179,6 @@ Application::Application(appSettings& settings):
 	auto environmentalLight = scene->addEntity();
 	auto mainCamera = playerCar->addChild();
 	auto shadowCamera = playerCar->addChild();
-
 
 	// --- Models ---
 	auto modelPlayerCar = std::make_shared<Model>(
@@ -219,12 +217,10 @@ Application::Application(appSettings& settings):
 	auto modelRock = std::make_shared<Model>(
 		"models/Rock1.obj", glm::vec3(0.0f, 1.0f, 1.0f));
 
-
 	// --- Directional light ---
-	environmentalLight->addComponent<LightingComponent>();
+	environmentalLight->addComponent<LightingComponent>(); 
 	environmentalLight->getComponent<LightingComponent>()->setAmbient(glm::vec3(0.1f, 0.1f, 0.1f));
 	environmentalLight->getComponent<LightingComponent>()->setDirectionalLight(glm::vec3(0.7f, 0.7f, 0.7f));
-
 
 	// --- Main camera ---
 	auto mainCameraTransform = mainCamera->getComponent<TransformComponent>();
@@ -348,7 +344,6 @@ Application::Application(appSettings& settings):
 				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(-10.f), glm::radians(10.f)), glm::vec3(0.f, 1.f, 0.f));	
 			}
 		}
-
 		auto propCarModel = propCar->addComponent<ModelComponent>();
 		propCarModel->setModel(modelPropCar);
 
@@ -525,7 +520,7 @@ int Application::play() {
 
 	//Game loop
 	while (!window->shouldClose()) {
-		
+
 		// Process input
 		input->processInput();
 
@@ -541,9 +536,6 @@ int Application::play() {
 				physics->update();	// Physics update
 				audio->update();	// Audio update
 			}
-			
-
-
 		}
 
 		// Render the current scene

@@ -1,14 +1,14 @@
 #include "AudioComponent.h"
-#include "audio/AudioSystem.h"
+#include "Audio/AudioSystem.h"
 
 
-AudioComponent::AudioComponent(Entity& parent) 
+AudioComponent::AudioComponent(shared_ptr<Entity> parent) 
     : BaseComponent(parent)
 {
     // Get reference to AudioSystem
     Events::AudioComponentInit.broadcast(*this);
 
-    transform = entity.getComponent<TransformComponent>();
+    transform = entity->getComponent<TransformComponent>();
 
     source = &audioSystem->createSource(transform->getGlobalPosition());
 

@@ -25,6 +25,8 @@
 #include <memory>   // Smart pointers
 #include <iostream> // Degubbing
 
+#include <LuaScript.h>
+
 
 class AudioComponent;
 
@@ -71,7 +73,7 @@ public:
     void startEngine();
     void stopEngine();
 
-    void playDing(Entity&);
+    void playDing(shared_ptr<Entity>);
     void playOof(glm::vec3&);
 
     // Public destructor
@@ -80,6 +82,9 @@ public:
     PxRigidDynamic* car;
     float enginePitch;
     float engineGain;
+    float speed;
+
+    Script calculateEngineSound;
 
 private:
 

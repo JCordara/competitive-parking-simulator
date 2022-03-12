@@ -41,10 +41,10 @@ enum class ComponentEnum {
  */
 class BaseComponent {
 public:
-    BaseComponent(Entity& e) : entity(e) {}
+    BaseComponent(shared_ptr<Entity> e) : entity(e) {}
     virtual ~BaseComponent() {};
 protected:
-    Entity& entity;
+    shared_ptr<Entity> entity;
 };
 
 

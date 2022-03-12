@@ -1,8 +1,8 @@
 #include "ControllerComponent.h"
-#include "input/InputSystem.h"
+#include "Input/InputSystem.h"
 
 
-ControllerComponent::ControllerComponent(Entity& parent) 
+ControllerComponent::ControllerComponent(shared_ptr<Entity> parent) 
     : BaseComponent(parent)
 {
     Events::ControllerComponentInit.broadcast(*this);
@@ -17,7 +17,7 @@ ComponentEnum ControllerComponent::getType() {
 void ControllerComponent::createAxis(
     int inputPositive, 
     int inputNegative, 
-    Event<Entity&, float>* event, 
+    Event<shared_ptr<Entity>, float>* event, 
     ControlAxis::TypeEnum type) 
 {
     inputSystem->createAxis(inputPositive, inputNegative, event, entity, type);
@@ -26,7 +26,7 @@ void ControllerComponent::createAxis(
 /* Create an axis from input and bind to event */
 void ControllerComponent::createAxis(
     int input, 
-    Event<Entity&, float>* event) 
+    Event<shared_ptr<Entity>, float>* event) 
 {
     inputSystem->createAxis(input, event, entity);
 }
@@ -38,7 +38,7 @@ void ControllerComponent::removeAxis(int inputA, int inputB) {
 
 
 /* Bind a input (key/button) to a float event */
-void ControllerComponent::bindInput(int input, Event<Entity&, float>* event) {
+void ControllerComponent::bindInput(int input, Event<shared_ptr<Entity>, float>* event) {
     inputSystem->bindInput(input, event, entity);
 }
 

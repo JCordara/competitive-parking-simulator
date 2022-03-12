@@ -45,7 +45,7 @@ public:
 		PARK,
 		ATTACK
 	};
-    AiComponent(Entity& parent);
+    AiComponent(shared_ptr<Entity> parent);
     ~AiComponent();
     static ComponentEnum getType();
 
