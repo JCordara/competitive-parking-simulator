@@ -11,7 +11,6 @@
 
 
 ### Joseph's tasks
-- Lua scripting
 - Physics system
 - - Tunable vehicle parameters
 	- Top speed
@@ -24,9 +23,10 @@
 	- Braking strength
 	- Drivetrain (FWD/RWD/AWD)
 	- Tire size
-- Entity iteration
 - Refactor audio system
 - Fix controller support (remove raw pointers in input system)
+- Lua scripting (functional)
+- Entity iteration (fixed, needs testing)
 
 
 ### Keaton's tasks

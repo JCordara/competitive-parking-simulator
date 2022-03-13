@@ -18,10 +18,11 @@ void RenderSystem::update() {
 	renderPipeline->setWindowDimentions(window->getWidth(), window->getHeight());
 
 	//Attach all entity objects to render to render
-	for (Entity::Iterator e = scene->begin(); e != scene->end(); e++) {//Willl change, need to do tree traversal
+	// for (Entity::Iterator e = scene->begin(); e != scene->end(); e++) {//Willl change, need to do tree traversal
+	for (auto& transformComponent : scene->iterate<TransformComponent>()) {
 		
+		auto e = transformComponent->getEntity();
 		std::shared_ptr<LightingComponent> lightingComponent = e->getComponent<LightingComponent>();
-		std::shared_ptr<TransformComponent> transformComponent = e->getComponent<TransformComponent>();
 		std::shared_ptr<CameraComponent> cameraComponent = e->getComponent<CameraComponent>();
 		std::shared_ptr<ModelComponent> modelComponent = e->getComponent<ModelComponent>();
 		std::shared_ptr<RendererComponent> rendererComponent = e->getComponent<RendererComponent>();
