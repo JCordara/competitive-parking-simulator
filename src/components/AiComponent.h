@@ -19,7 +19,8 @@ public:
 		INNERLOT,
 		PARKINGSTALL,
 		INTERSECTION,
-		SPAWN
+		SPAWN,
+		RECOVERY
 	};
 	AiGraphNode();
 	// Sorting operator for f values
@@ -43,7 +44,9 @@ public:
 	enum class States {
 		SEARCH = 1,
 		PARK,
-		ATTACK
+		ATTACK,
+		RECOVERY,
+		RESET
 	};
     AiComponent(shared_ptr<Entity> parent);
     ~AiComponent();
@@ -63,11 +66,11 @@ private:
 	shared_ptr<GameplaySystem> gameplaySystem;
 
 	States state = States::SEARCH; // Default search
+	States lastState = States::RESET; // Default
+	glm::vec3 stuckPos = glm::vec3(); // Used for original stuck position
+	int recoveryTimeout = 0; // Count of frames where the vehicle is not moving enough
 	std::vector<Entity> carQueue;
 	std::vector<std::shared_ptr<AiGraphNode>> nodeQueue;
-	// std::vector<GraphNode> graph;
-	
-
 
 	void aStar(std::shared_ptr<AiGraphNode> goalNode);
 	float getFValue(std::shared_ptr<AiGraphNode> node);
@@ -75,6 +78,8 @@ private:
 					std::shared_ptr<AiGraphNode> goalNode);
 	void searchState();
 	void parkState();
+	void recoveryState();
+	float calcDistanceFromCurrentNode();
 	void pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode);
 	void moveToNextNode();
 	glm::vec3 ComputeForwardVector(physx::PxQuat quat) const;

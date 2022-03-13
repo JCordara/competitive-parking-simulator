@@ -281,7 +281,7 @@ Application::Application(appSettings& settings):
 	
 	auto aiCarAI = aiCar1->addComponent<AiComponent>();
 
-
+	
 	aiCarTransform = aiCar2->getComponent<TransformComponent>();
 	aiCarTransform->setLocalRotation(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -322,7 +322,7 @@ Application::Application(appSettings& settings):
 	aiCarVehicle = aiCar4->addComponent<VehicleComponent>();
 
 	aiCarAI = aiCar4->addComponent<AiComponent>();
-
+	
 	// --- Prop car ---
 	for(int i = 0; i < sizeof(parkingVertices)/sizeof(*parkingVertices); i++){
 		auto propCar = scene->addEntity();
@@ -529,7 +529,7 @@ int Application::play() {
 	
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
-			if (scores[playerId] >= 5 || scores[aiList[0]] >= 50) {
+			if (scores[playerId] >= 5 || scores[aiList[0]] >= 5) {
 			}
 			else {
 				gameplay->update();	// Gameplay / AI update

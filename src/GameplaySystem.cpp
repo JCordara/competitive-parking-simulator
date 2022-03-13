@@ -94,12 +94,12 @@ void GameplaySystem::resetAi(unsigned int aiId) {
 }
 
 bool GameplaySystem::gameWon(){
-	if (scores[playerId] >= 5 || scores[aiList[0]] >= 50) {
+	if (scores[playerId] >= 5 || scores[aiList[0]] >= 5) {
 		if (scores[playerId] >= 5) {
 			return true;
 		}
 
-		if (scores[aiList[0]] >= 50) {
+		if (scores[aiList[0]] >= 5) {
 			return true;
 		}
 	}

@@ -47,6 +47,8 @@ void GUI::draw() {
 	ImGui::Text("FPS: %.2f", Time::fps());
 	ImGui::Text("First to Park 5 Times Wins!");
 	ImGui::Text("Player: %d", scores[playerId]);
+	//ImGui::Text("Player Speed: X:%.2f ",
+	//	playerCar->getComponent<VehicleComponent>()->vehicle->computeForwardSpeed());
 	//ImGui::Text("Player Pos: X:%.2f  Y:%.2f  Z:%.2f",
 	//	playerCar->getComponent<TransformComponent>()->getGlobalPosition().x,
 	//	playerCar->getComponent<TransformComponent>()->getGlobalPosition().y,
