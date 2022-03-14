@@ -231,6 +231,8 @@ Application::Application(appSettings& settings):
 	auto mainCamerCam = mainCamera->addComponent<CameraComponent>();
 	mainCamerCam->setPerspectiveCamera(glm::radians(90.f), 1.f /*Will be modified to the window*/,0.01f, 300.f);
 
+	auto MainDescription = mainCamera->addComponent<DescriptionComponent>();
+	MainDescription->setInteger("Parent Global Y-Plane Forward Direction Projection", 1);
 
 	// --- Shadow map camera ---
 	auto shadowCameraTransform = shadowCamera->getComponent<TransformComponent>();
@@ -266,6 +268,8 @@ Application::Application(appSettings& settings):
 	playerController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
 	playerController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
 
+	auto playerDescription = playerCar->addComponent<DescriptionComponent>();
+	playerDescription->setVec3("Forward", glm::vec3(0.f,-1.f, 0.f));
 
 	// --- AI cars ---	
 	auto aiCarTransform = aiCar1->getComponent<TransformComponent>();

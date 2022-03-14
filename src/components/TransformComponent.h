@@ -23,6 +23,7 @@ public:
     glm::vec3     getLocalPosition() { return _position; }
 	physx::PxQuat getLocalRotation() { return _rotation; }
     glm::vec3     getLocalScale()    { return _scale; }
+
     
     void setLocalPosition(physx::PxVec3 position);
     void setLocalPosition(glm::vec3 position);
@@ -51,9 +52,9 @@ public:
 	glm::mat4 getLocalMatrix();
 
 private:
-    glm::vec3 _position;
-	physx::PxQuat _rotation;
-    glm::vec3 _scale;
+    glm::vec3 _position = glm::vec3(0.f, 0.f, 0.f);
+	physx::PxQuat _rotation = physx::PxQuat(0.f);
+    glm::vec3 _scale = glm::vec3(1.f, 1.f, 1.f);
 
     void updateComponents();
 };
