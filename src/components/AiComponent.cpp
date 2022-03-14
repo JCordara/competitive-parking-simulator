@@ -1,51 +1,51 @@
 #include "AiComponent.h"
 #include "GameplaySystem.h"
 
+// Default constructor
 AiGraphNode::AiGraphNode() {
 
 }
 
+// Normal constructor for AI Component
+// Calls the base component constructor then broadcasts its creation
+// Sets the AI's spawn node, picks a parking lot entrance to go to
+// then starts accelerating
+// The pickRandGoalNode() call, calls A* on its own
 AiComponent::AiComponent(shared_ptr<Entity> parent) 
     : BaseComponent(parent)
 {
 	Events::AiComponentInit.broadcast(*this);
 	setSpawnNode();
-	std::cout << "SET THE SPAWN NODE" << std::endl;
-	pickRandGoalNode();
-	// forward
-	Events::VehicleAccelerate.broadcast(entity, 0.65); 
+	pickRandEntranceNode();
+	accelForwards();
 }
 
+// Needed method for Entity typing
 ComponentEnum AiComponent::getType() {
     return ComponentEnum::ai;
 }
 
+// Destructor
 AiComponent::~AiComponent() {
     // Nothing to do here yet
 }
 
-// Expected order of executions before AiComponent updates
-// AI has spawned and setCurrentNode(startNode) has been run
-// Then pickRandGoalNode(globalListOfNodes, LOTENTRANCE)
-// A* Will be called by the previous method and path set 
+// The update method that is called continously for the AI
+// Switches between function calls depending on current state
 void AiComponent::update() {
 	if (state == States::SEARCH) {
 		searchState();
-	}
-	else if (state == States::PARK) {
-		parkState();
 	}
 	else if (state == States::RECOVERY) {
 		recoveryState();
 	}
 }
 
+// A* algorithm based on custom node structure, works by traversing neighbors
+// Should be called after reaching a goal node, takes in chosen node
+// Traverses the graph via neighbours from the currentNode to the goalNode
+// AI Car belongs to whatever node it is currently going to, i.e. currentNode
 void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
-	//Start node is the next node in the path 
-	// if the recalculated path keeps going the way the AI was going great
-	// If not, then the AI can finish heading to that node and turn around
-	//     can also learn to cut out the node it is going to and turn around right away
-	// When a node is reached the next node becomes the current node
 
 	std::vector<std::shared_ptr<AiGraphNode>> openList;
 	std::vector<std::shared_ptr<AiGraphNode>> closedList;
@@ -70,7 +70,7 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 			}
 		}
 		openList.erase(openList.begin()+index);
-		if (Q->position == goalNode->position) break; // return Q
+		if (Q->id == goalNode->id) break; // return Q
 		closedList.push_back(Q);
 		for each (std::shared_ptr<AiGraphNode> neighbor in Q->neighbours){
 			neighbor->g = Q->g + getHValue(Q, neighbor);
@@ -99,6 +99,7 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 				neighbor->parentNode = Q;
 				openList.push_back(neighbor);
 			}
+			// Sort so that the best choice is at start of list
 			std::sort(openList.begin(), openList.end());
 		}
 	}
@@ -108,7 +109,11 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 	while (true) {
 		if (tempNode->parentNode != nullptr) {
 			tempNode = tempNode->parentNode;
-			nodeQueue.insert(nodeQueue.begin(), tempNode);
+			// Don't add node already reached
+			if (tempNode->id != currentNode->id) {
+				nodeQueue.insert(nodeQueue.begin(), tempNode);
+			}
+			
 		}
 		else {
 			break;
@@ -116,6 +121,7 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 	}
 }
 
+// Helper function for A*
 // This is just a get distance method really
 float AiComponent::getHValue(std::shared_ptr<AiGraphNode> node1, std::shared_ptr<AiGraphNode> node2) {
 	float distX = std::abs(node2->position.x - node1->position.x);
@@ -124,13 +130,15 @@ float AiComponent::getHValue(std::shared_ptr<AiGraphNode> node1, std::shared_ptr
 	// h is estimated cost of shortest path to goal node
 	return distX + distY + distZ;
 }
-
+// Helper function for A*
+// Returns a nodes g+h values
 float AiComponent::getFValue(std::shared_ptr<AiGraphNode> node) {
 	// f is distance between start, node and goal node
 	return node->g + node->h;
 }
 
-// Set the next node for the AI to go to
+// Set the spawn Node for the AI
+// Chooses the first available Node in the global node list
 void AiComponent::setSpawnNode() {
 	for each (std::shared_ptr<AiGraphNode> node in gameplaySystem->aiGlobalNodes) {
 		if (node->nodeType == AiGraphNode::NodeType::SPAWN && !(node->nodeTaken)) {
@@ -143,34 +151,44 @@ void AiComponent::setSpawnNode() {
 	}
 }
 
+// Simple method for switching states
+// In case of recovery, don't set the last state to Recovery
 void AiComponent::switchState(States newState) {
+	lastState = state;
 	state = newState;
 }
 
-// Finds the closest parking lot node
-// Assumes node doesnt get taken
+// Finds the closest parking space node
+// Start node is the entrance to the parking lot
+// Traverses the lot through neighbors to make a list and find a parking stall
 void AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode) {
 	std::vector<std::shared_ptr<AiGraphNode>> parkingLot;
 	std::vector<std::shared_ptr<AiGraphNode>> visited;
+	// First adds the first neighbor in the lot to the
 	for each (std::shared_ptr<AiGraphNode> node in startNode->neighbours) {
 		if (node->nodeType == AiGraphNode::NodeType::INNERLOT) {
 			parkingLot.push_back(node);
+			break; // Only need one node to start traversal
 		}
+		// If the only neighbour happens to be a parking stall end there
 		else if (node->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
 			currentNode = node;
 			return;
 		}
 	}
 	visited.push_back(startNode);
-
+	// Traverse the lot sub-graph from the starting inner lot node
 	for (int i = 0; i < parkingLot.size(); i++) {
 		for each (std::shared_ptr<AiGraphNode> neighbour in parkingLot[i]->neighbours) {
-			if (parkingLot[i]->nodeType == AiGraphNode::NodeType::INNERLOT) {
+			bool isInLot = parkingLot[i]->nodeType == AiGraphNode::NodeType::INNERLOT;
+			bool isPark = parkingLot[i]->nodeType == AiGraphNode::NodeType::PARKINGSTALL;
+			bool isNotTaken = !parkingLot[i]->nodeTaken;
+			if (isInLot) {
 				if (std::count(visited.begin(), visited.end(), neighbour) == 0) {
 					parkingLot.push_back(neighbour);
 				}
 			}
-			else if (parkingLot[i]->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
+			else if (isPark && isNotTaken) {
 				nodeQueue.clear(); // clear path for A*
 				aStar(parkingLot[i]); // Sets path
 				return;
@@ -180,7 +198,9 @@ void AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode)
 	}
 }
 
-void AiComponent::pickRandGoalNode() {
+// Traverses the global node list to find a random entrance to go to
+// Calls A* after done with chosen node
+void AiComponent::pickRandEntranceNode() {
 	// Randomly pick a node from the entrances to parking lots
 	std::vector<std::shared_ptr<AiGraphNode>> nodes;
 	for each (std::shared_ptr<AiGraphNode> node in gameplaySystem->aiGlobalNodes) {
@@ -191,11 +211,12 @@ void AiComponent::pickRandGoalNode() {
 	if (nodes.size() == 0) return;
 	int randIntCeiling = nodes.size();
 	std::srand(Time::now() + (double)entity->id()); // Get AI picking differently
-	// Should give number between 0 and vector.szie()-1
+	// Should give number between 0 and vector.size()-1
 	int pick = rand() % randIntCeiling;
 	aStar(nodes[pick]);
 }
 
+// A helper method to calculate the distance from the current node
 float AiComponent::calcDistanceFromCurrentNode() {
 	float nodeX = currentNode->position.x; // Direction, don't count Y
 	float nodeZ = currentNode->position.z;
@@ -206,107 +227,75 @@ float AiComponent::calcDistanceFromCurrentNode() {
 	return std::sqrt(dSquared); // POSSIBLE OPTIMIZATION, REMOVE SQRT
 }
 
+// The search state method, called every update when in SEARCH state
+// Handling logic for reaching the current node the AI is approaching
+// Handles logic for detecting if the car gets stuck
 void AiComponent::searchState() {
-	const float NODETHRESHOLD = 2.5; // How close to
 	const float MINSPEED = 4.f; // minimum speed to be considered moving
 	const int MAXSTUCKTIME = 90; 
-	// COULD USE ABSOLUTE DISTANCE HERE
-	float currentX = entity->getComponent<TransformComponent>()->getGlobalPosition().x;
-	float currentZ = entity->getComponent<TransformComponent>()->getGlobalPosition().z;
-	bool withinXBounds = currentX <= currentNode->position.x + NODETHRESHOLD &&
-		currentX >= currentNode->position.x - NODETHRESHOLD;
-	bool withinZBounds = currentZ <= currentNode->position.z + NODETHRESHOLD &&
-		currentZ >= currentNode->position.z - NODETHRESHOLD;
-	if (withinXBounds && withinZBounds) {
+	bool inBounds = inRangeOfNode(NODETHRESHOLD);
+	// Checks if the car has reached the current node
+	if (inBounds) {
 		if (currentNode->nodeType == AiGraphNode::NodeType::LOTENTRANCE) {
 			pickClosestParkingNode(currentNode);
-			state = States::PARK; // Reached entrance to parking lot
-			lastState = States::SEARCH;
+			currentNode = nodeQueue[0];
+			nodeQueue.erase(nodeQueue.begin()); // Erase lot entrance already reached
+		}
+		else if(currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
+			Events::CarParked.broadcast(entity);
 		}
 		else {
 			currentNode = nodeQueue[0];
-			std::cout << "CURRENT NODE" << currentNode->id << std::endl;
 			nodeQueue.erase(nodeQueue.begin());
 		}
 	}
+	// Check for stuck status i.e. has not moved for too long
 	else if (recoveryTimeout > MAXSTUCKTIME) {
-
-		lastState = States::SEARCH;
-		state = States::RECOVERY;
+		switchState(States::RECOVERY);
 		stuckPos = entity->getComponent<TransformComponent>()->getGlobalPosition();
-		physx::PxQuat aiCarRotation = entity->
-			getComponent<TransformComponent>()->getLocalRotation();
-		glm::vec3 aiForwardVec = ComputeForwardVector(aiCarRotation);
-		aiForwardVec = glm::normalize(aiForwardVec);
-		glm::vec3 aiSideVec = glm::vec3(-aiForwardVec.y, aiForwardVec.x, aiForwardVec.z);
-		aiSideVec = aiSideVec * 8.f; // Length of 8
-		glm::vec3 newNodePos = stuckPos + aiSideVec;
-		std::shared_ptr<AiGraphNode> stuckNode = std::make_shared<AiGraphNode>();
-		stuckNode->nodeType = AiGraphNode::NodeType::RECOVERY;
-		stuckNode->position = newNodePos;
-		nodeQueue.insert(nodeQueue.begin(), currentNode);
-		currentNode = stuckNode;
+		createRecoveryNode();
 		recoveryTimeout = 0;
-		Events::VehicleAccelerate.broadcast(entity, -0.65); // reverse
+		accelReverse();
 	}
-	else if (entity->getComponent<VehicleComponent>()->vehicle->computeForwardSpeed() < MINSPEED) {
+	// If the AI's speed is low, count it as stuck and update the timeout count
+	else if (entity->getComponent<VehicleComponent>()->
+				vehicle->computeForwardSpeed() < MINSPEED) {
 		recoveryTimeout++; // One more frame of not moving enough
 	}
+	// Normal movement for the AI, just move to the next node
 	else {
 		recoveryTimeout = 0;
 		moveToNextNode();
 	}
 }
 
-void AiComponent::parkState() {
-	const float NODETHRESHOLD = 1.5; // How close to
-	const float MINSPEED = 4.f; // minimum speed to be considered moving
-	const int MAXSTUCKTIME = 90;
+// Helper method for calculating if the AI car has reached an area around a node
+bool AiComponent::inRangeOfNode(const float nodeThreshhold) {
 	// COULD USE ABSOLUTE DISTANCE HERE
 	float currentX = entity->getComponent<TransformComponent>()->getGlobalPosition().x;
 	float currentZ = entity->getComponent<TransformComponent>()->getGlobalPosition().z;
-	bool withinXBounds =	currentX <= currentNode->position.x + NODETHRESHOLD &&
-							currentX >= currentNode->position.x - NODETHRESHOLD;
-	bool withinZBounds =	currentZ <= currentNode->position.z + NODETHRESHOLD &&
-							currentZ >= currentNode->position.z - NODETHRESHOLD;
-	if (withinXBounds && withinZBounds) {
-		if (currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
-			//Events::VehicleBrake.broadcast(entity, 1.f);
-			Events::CarParked.broadcast(entity);
-		}
-		else {
-			currentNode = nodeQueue[0];
-			std::cout << "CURRENT NODE" << currentNode->id << std::endl;
-			nodeQueue.erase(nodeQueue.begin());
-		}
-	}
-	else if (recoveryTimeout > MAXSTUCKTIME) {
+	bool withinXBounds = currentX <= currentNode->position.x + nodeThreshhold &&
+		currentX >= currentNode->position.x - nodeThreshhold;
+	bool withinZBounds = currentZ <= currentNode->position.z + nodeThreshhold &&
+		currentZ >= currentNode->position.z - nodeThreshhold;
+	return withinXBounds && withinZBounds;
+}
 
-		lastState = States::PARK;
-		state = States::RECOVERY;
-		stuckPos = entity->getComponent<TransformComponent>()->getGlobalPosition();
-		physx::PxQuat aiCarRotation = entity->
-			getComponent<TransformComponent>()->getLocalRotation();
-		glm::vec3 aiForwardVec = ComputeForwardVector(aiCarRotation);
-		aiForwardVec = glm::normalize(aiForwardVec);
-		glm::vec3 aiSideVec = glm::vec3(-aiForwardVec.y, aiForwardVec.x, aiForwardVec.z);
-		aiSideVec = aiSideVec * 8.f; // Length of 8
-		glm::vec3 newNodePos = stuckPos + aiSideVec;
-		std::shared_ptr<AiGraphNode> stuckNode = std::make_shared<AiGraphNode>();
-		stuckNode->nodeType = AiGraphNode::NodeType::RECOVERY;
-		stuckNode->position = newNodePos;
-		nodeQueue.insert(nodeQueue.begin(), currentNode);
-		currentNode = stuckNode;
-		recoveryTimeout = 0;
-		Events::VehicleAccelerate.broadcast(entity, -0.65); // reverse
-	}
-	else if (entity->getComponent<VehicleComponent>()->vehicle->computeForwardSpeed() < MINSPEED) {
-		recoveryTimeout++; // One more frame of not moving enough
-	}
-	else {
-		recoveryTimeout = 0;
-		moveToNextNode();
-	}
+// Creates an extra node when in recovery mode for guidance
+void  AiComponent::createRecoveryNode() {
+	// Make a new temp node to direct AI
+	physx::PxQuat aiCarRotation = entity->
+		getComponent<TransformComponent>()->getLocalRotation();
+	glm::vec3 aiForwardVec = ComputeForwardVector(aiCarRotation);
+	aiForwardVec = glm::normalize(aiForwardVec);
+	glm::vec3 aiSideVec = glm::vec3(-aiForwardVec.z, aiForwardVec.y, aiForwardVec.x);
+	aiSideVec = aiSideVec * 8.f; // Length of 8
+	glm::vec3 newNodePos = stuckPos + aiSideVec;
+	std::shared_ptr<AiGraphNode> stuckNode = std::make_shared<AiGraphNode>();
+	stuckNode->nodeType = AiGraphNode::NodeType::RECOVERY;
+	stuckNode->position = newNodePos;
+	nodeQueue.insert(nodeQueue.begin(), currentNode);
+	currentNode = stuckNode;
 }
 
 // for the AI to test if it is stuck and to recover
@@ -318,11 +307,9 @@ void AiComponent::recoveryState() {
 	float amountMoved = glm::distance(
 		entity->getComponent<TransformComponent>()->getGlobalPosition(), stuckPos);
 
-
-
 	if (recoveryTimeout > MAXSTUCKTIME) {
 		//recoveryTimeout = 0;
-		//Events::VehicleAccelerate.broadcast(entity, -0.65); // reverse
+		//accelReverse();
 	}
 	if (amountMoved < REVERSEMINIMUM) {
 		// Randomly steer left or right
@@ -333,19 +320,12 @@ void AiComponent::recoveryState() {
 		if(pick == 0) Events::VehicleSteer.broadcast(entity, -1);
 		else if (pick == 1) Events::VehicleSteer.broadcast(entity, 1);
 		// Third number would be backing up straight
-
 	}
-//	else if (amountMoved < FORWARDMINIMUM) {
-//		Events::VehicleAccelerate.broadcast(entity, 0.65);
-//		recoveryTimeout++; // In this state means the car is not stuck
-//	}
 	else {
-		// Make a new temp node to direct AI
-		
 		state = lastState;
 		//lastState = States::RECOVERY;
 		recoveryTimeout = 0;
-		Events::VehicleAccelerate.broadcast(entity, 0.65); // reverse
+		accelForwards();
 	}
 }
 
@@ -377,6 +357,13 @@ void AiComponent::moveToNextNode() {
 		Events::VehicleSteer.broadcast(entity, -turnAmount);
 	}
 	
+}
+
+void AiComponent::accelForwards() {
+	Events::VehicleAccelerate.broadcast(entity, aiSpeed);
+}
+void AiComponent::accelReverse() {
+	Events::VehicleAccelerate.broadcast(entity, -aiSpeed);
 }
 
 glm::vec3 AiComponent::ComputeForwardVector(physx::PxQuat quat) const

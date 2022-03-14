@@ -88,7 +88,7 @@ void GameplaySystem::resetAi(unsigned int aiId) {
 				getComponent<AiComponent>()->setSpawnNode();
 			// Picks the new entrance goal and calls A*
 			scene->getEntityByID(aiId)->
-				getComponent<AiComponent>()->pickRandGoalNode();
+				getComponent<AiComponent>()->pickRandEntranceNode();
 		}
 	}
 }
@@ -194,7 +194,7 @@ void GameplaySystem::setupAiNodes() {
 
 	// Inner Parking Lot Node Collection
 	aiNode6->nodeType = AiGraphNode::NodeType::INNERLOT;
-	aiNode6->id = 7;
+	aiNode6->id = 6;
 	aiNode6->position = glm::vec3(-38, 1, 35);
 	aiNode6->neighbours.push_back(aiNode4);
 	aiNode6->neighbours.push_back(aiNode8);
@@ -208,7 +208,7 @@ void GameplaySystem::setupAiNodes() {
 	aiGlobalNodes.push_back(aiNode7);
 
 	aiNode14->nodeType = AiGraphNode::NodeType::INNERLOT;
-	aiNode14->id = 7;
+	aiNode14->id = 14;
 	aiNode14->position = glm::vec3(135, 1, -23.2);
 	aiNode14->neighbours.push_back(aiNode13);
 	aiNode14->neighbours.push_back(aiNode7);

@@ -43,11 +43,14 @@ public:
 
 	enum class States {
 		SEARCH = 1,
-		PARK,
 		ATTACK,
 		RECOVERY,
 		RESET
 	};
+
+	float aiSpeed = 0.65;
+	const float NODETHRESHOLD = 2.5;
+
     AiComponent(shared_ptr<Entity> parent);
     ~AiComponent();
     static ComponentEnum getType();
@@ -60,7 +63,7 @@ public:
 	}
 	std::shared_ptr<AiGraphNode> currentNode = std::make_shared<AiGraphNode>(); // Node the AI car currently belongs to
 	void setSpawnNode();
-	void pickRandGoalNode();
+	void pickRandEntranceNode();
 private:
 
 	shared_ptr<GameplaySystem> gameplaySystem;
@@ -77,11 +80,14 @@ private:
 	float getHValue(std::shared_ptr<AiGraphNode> node,
 					std::shared_ptr<AiGraphNode> goalNode);
 	void searchState();
-	void parkState();
 	void recoveryState();
 	float calcDistanceFromCurrentNode();
+	bool inRangeOfNode(float nodeThreshhold);
 	void pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode);
+	void createRecoveryNode();
 	void moveToNextNode();
+	void accelForwards();
+	void accelReverse();
 	glm::vec3 ComputeForwardVector(physx::PxQuat quat) const;
 	float calcAngle2Vec();
 
