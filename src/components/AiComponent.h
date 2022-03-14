@@ -50,20 +50,23 @@ public:
 
 	float aiSpeed = 0.65;
 	const float NODETHRESHOLD = 2.5;
+	float sightFrontConeWidth;
+	float sightFrontConeHeight;
+	float sightBackConeWidth;
+	float sightBackConeHeight;
+	// Node the AI car currently belongs to
+	std::shared_ptr<AiGraphNode> currentNode = std::make_shared<AiGraphNode>();
 
     AiComponent(shared_ptr<Entity> parent);
     ~AiComponent();
     static ComponentEnum getType();
-
     void update();
 	void switchState(States newState);
-
-	void setGameplaySystem(shared_ptr<GameplaySystem> system) { 
-		gameplaySystem = system; 
-	}
-	std::shared_ptr<AiGraphNode> currentNode = std::make_shared<AiGraphNode>(); // Node the AI car currently belongs to
+	void setGameplaySystem(shared_ptr<GameplaySystem> system)
+		{ gameplaySystem = system; }
 	void setSpawnNode();
 	void pickRandEntranceNode();
+
 private:
 
 	shared_ptr<GameplaySystem> gameplaySystem;
@@ -85,18 +88,11 @@ private:
 	bool inRangeOfNode(float nodeThreshhold);
 	void pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode);
 	void createRecoveryNode();
-	void moveToNextNode();
+	void steerToNextNode();
 	void accelForwards();
 	void accelReverse();
 	glm::vec3 ComputeForwardVector(physx::PxQuat quat) const;
 	float calcAngle2Vec();
-
-
-    float sightFrontConeWidth;
-    float sightFrontConeHeight;
-    float sightBackConeWidth;
-    float sightBackConeHeight;
-
 };
 
 #endif // AI_COMPONENT_H

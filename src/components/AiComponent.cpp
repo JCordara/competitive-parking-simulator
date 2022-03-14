@@ -265,7 +265,7 @@ void AiComponent::searchState() {
 	// Normal movement for the AI, just move to the next node
 	else {
 		recoveryTimeout = 0;
-		moveToNextNode();
+		steerToNextNode();
 	}
 }
 
@@ -323,21 +323,22 @@ void AiComponent::recoveryState() {
 	}
 	else {
 		state = lastState;
-		//lastState = States::RECOVERY;
 		recoveryTimeout = 0;
 		accelForwards();
 	}
 }
 
-// Gets angle between goal and current forward, turns a bit in that direction nad goes forward.
-void AiComponent::moveToNextNode() {
+// Gets angle between goal and current forward, turns towards goal
+void AiComponent::steerToNextNode() {
 	const float ANGLETHRESHOLD = 3.14/10;
 
-	physx::PxQuat aiCarRotation = entity->getComponent<TransformComponent>()->getLocalRotation();
+	physx::PxQuat aiCarRotation = entity->
+		getComponent<TransformComponent>()->getLocalRotation();
 	glm::vec3 aiForwardQuat = ComputeForwardVector(aiCarRotation);
 	aiForwardQuat = glm::normalize(aiForwardQuat);
 	// Vec between car and next node
-	glm::vec3 nodesVec = currentNode->position - entity->getComponent<TransformComponent>()->getGlobalPosition();
+	glm::vec3 nodesVec = currentNode->position - entity->
+		getComponent<TransformComponent>()->getGlobalPosition();
 	nodesVec = glm::normalize(nodesVec);
 
 	float angle = glm::dot(aiForwardQuat, nodesVec);
@@ -359,13 +360,16 @@ void AiComponent::moveToNextNode() {
 	
 }
 
+// Method for accelerating forwards
 void AiComponent::accelForwards() {
 	Events::VehicleAccelerate.broadcast(entity, aiSpeed);
 }
+// Method for accelerating backwards i.e. reversing
 void AiComponent::accelReverse() {
 	Events::VehicleAccelerate.broadcast(entity, -aiSpeed);
 }
 
+// Helper method for getting the forward vector of the AI car
 glm::vec3 AiComponent::ComputeForwardVector(physx::PxQuat quat) const
 {
 	const float x2 = 2.0f * quat.x;
