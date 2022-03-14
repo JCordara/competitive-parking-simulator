@@ -144,11 +144,18 @@ void AiComponent::setSpawnNode() {
 		if (node->nodeType == AiGraphNode::NodeType::SPAWN && !(node->nodeTaken)) {
 			currentNode = node;
 			node->nodeTaken = true;
-			node->spawnAiComponent = entity->shared_from_this();
+			//node->spawnAiComponent = entity->shared_from_this();
 			entity->getComponent<TransformComponent>()->setLocalPosition(node->position);
 			return;
 		}
 	}
+}
+
+// Resets the AI to a chosen spawn position and search state
+void AiComponent::resetAi() {
+	setSpawnNode();
+	switchState(States::SEARCH);
+	pickRandEntranceNode();
 }
 
 // Simple method for switching states
@@ -234,6 +241,7 @@ void AiComponent::searchState() {
 	const float MINSPEED = 4.f; // minimum speed to be considered moving
 	const int MAXSTUCKTIME = 90; 
 	bool inBounds = inRangeOfNode(NODETHRESHOLD);
+
 	// Checks if the car has reached the current node
 	if (inBounds) {
 		if (currentNode->nodeType == AiGraphNode::NodeType::LOTENTRANCE) {
@@ -245,6 +253,10 @@ void AiComponent::searchState() {
 			Events::CarParked.broadcast(entity);
 		}
 		else {
+			// Reset spawn node once first node is reached
+			if (currentNode->nodeType == AiGraphNode::NodeType::SPAWN) {
+				currentNode->nodeTaken = false;
+			}
 			currentNode = nodeQueue[0];
 			nodeQueue.erase(nodeQueue.begin());
 		}

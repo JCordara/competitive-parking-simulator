@@ -66,6 +66,7 @@ public:
 		{ gameplaySystem = system; }
 	void setSpawnNode();
 	void pickRandEntranceNode();
+	void resetAi();
 
 private:
 

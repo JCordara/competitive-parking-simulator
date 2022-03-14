@@ -35,13 +35,15 @@ void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
 		scores[playerId]++;
 		resetPlayer();
 	}
+	// Must be AI
 	else {
 		unordered_map<unsigned int, int>::iterator it;
 		for (it = scores.begin(); it != scores.end(); it++)
 		{
 			if (it->first == entity->id()) {
 				scores[it->first]++;
-				resetAi(it->first);
+				//resetAi(it->first);
+				entity->getComponent<AiComponent>()->resetAi();
 			}
 		}
 	}
@@ -66,31 +68,6 @@ void GameplaySystem::resetPlayer() {
 		setLocalRotation(Random::randomFloat(0,6.28), glm::vec3(0, 1.0, 0));
 	scene->getEntityByID(playerId)->
 		getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->setLinearVelocity(PxVec3(0.0f));
-}
-
-void GameplaySystem::resetAi(unsigned int aiId) {
-	for (int i = 0; i < aiGlobalNodes.size(); i++) {
-		if (aiGlobalNodes[i]->spawnAiComponent == nullptr) continue;
-		if (aiGlobalNodes[i]->spawnAiComponent->id() == aiId) {
-			//Reset Position
-			scene->getEntityByID(aiId)->
-				getComponent<TransformComponent>()->
-				setLocalPosition(aiGlobalNodes[i]->
-				position);
-			//Switch state back to SEARCH
-			scene->getEntityByID(aiId)->
-				getComponent<AiComponent>()->
-				switchState(AiComponent::States::SEARCH);
-			//Reset node back to not taken so it can be taken again by the AI
-			aiGlobalNodes[i]->nodeTaken = false;
-			//Set the spawn node, the one we just freed
-			scene->getEntityByID(aiId)->
-				getComponent<AiComponent>()->setSpawnNode();
-			// Picks the new entrance goal and calls A*
-			scene->getEntityByID(aiId)->
-				getComponent<AiComponent>()->pickRandEntranceNode();
-		}
-	}
 }
 
 bool GameplaySystem::gameWon(){
