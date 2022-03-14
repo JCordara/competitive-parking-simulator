@@ -269,7 +269,7 @@ Application::Application(appSettings& settings):
 	playerController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
 
 	auto playerDescription = playerCar->addComponent<DescriptionComponent>();
-	playerDescription->setVec3("Forward", glm::vec3(0.f,-1.f, 0.f));
+	playerDescription->setVec3("Forward", glm::vec3(0.f, 0.f, 1.f));
 
 	// --- AI cars ---	
 	auto aiCarTransform = aiCar1->getComponent<TransformComponent>();

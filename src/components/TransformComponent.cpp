@@ -42,28 +42,6 @@ glm::mat4 TransformComponent::getNestedMatrix(int depth) {
     return t->getNestedMatrix(depth - 1) * getLocalMatrix();
 }
 
-glm::mat4 TransformComponent::onlyPositionTransformGlobal() {
-	return onlyPositionTransformMatrix(-1);
-}
-
-// Returns the identity matrix if parent is null or has no transform component
-glm::mat4 TransformComponent::onlyPositionTransformMatrix(int depth) {
-
-	// Base case
-	if (depth == 0) return getLocalTranslationMatrix();
-
-	// Check that entity has parent
-	shared_ptr<TransformComponent> t;
-	shared_ptr<Entity> nextParent = entity;
-	do {
-		nextParent = nextParent->parent();
-		if (nextParent == nullptr) return getLocalMatrix();
-		t = nextParent->getComponent<TransformComponent>();
-		// Check that parent has transform component, if not move to the next parent
-	} while (!t);
-
-	return t->onlyPositionTransformMatrix(depth - 1) * getLocalTranslationMatrix();
-}
 
 void TransformComponent::setLocalPosition(glm::vec3 position) {
     _position = position;

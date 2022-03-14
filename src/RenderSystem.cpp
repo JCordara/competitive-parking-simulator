@@ -17,71 +17,56 @@ void RenderSystem::update() {
 	//Setting up window
 	renderPipeline->setWindowDimentions(window->getWidth(), window->getHeight());
 
-	//Attach all entity objects to render to render
-	// for (Entity::Iterator e = scene->begin(); e != scene->end(); e++) {//Willl change, need to do tree traversal
-	for (auto& transformComponent : scene->iterate<TransformComponent>()) {
-		
-		auto e = transformComponent->getEntity();
-		std::shared_ptr<LightingComponent> lightingComponent = e->getComponent<LightingComponent>();
-		std::shared_ptr<CameraComponent> cameraComponent = e->getComponent<CameraComponent>();
-		std::shared_ptr<ModelComponent> modelComponent = e->getComponent<ModelComponent>();
-		std::shared_ptr<RendererComponent> rendererComponent = e->getComponent<RendererComponent>();
-		std::shared_ptr<DescriptionComponent> descriptionComponent = e->getComponent<DescriptionComponent>();
-		bool ignoreParentRotations = false;
-		if (descriptionComponent) {
-			ignoreParentRotations = descriptionComponent->getInteger("Ignore parent rotations in render").has_value();//Dont care about value, use a flag
-		}
-		glm::mat4 localToGlobaltransform = glm::mat4(1.0f); //Identity
-		glm::vec3 pos = glm::vec3(0.f); //Origin
-		if (transformComponent) {
-			if (ignoreParentRotations && e->parent()) {
-				localToGlobaltransform = transformComponent->getLocalMatrix();
-				if (e->parent()->hasComponent<TransformComponent>())
-					localToGlobaltransform = (e->parent()->getComponent<TransformComponent>()->onlyPositionTransformGlobal()) * localToGlobaltransform;
-				pos = glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, 0.f, 1.f));
-			}
-			else {
-				localToGlobaltransform = transformComponent->getGlobalMatrix();
-				pos = glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, 0.f, 1.f));
-			}
-		}
-		if (lightingComponent) {
-			std::shared_ptr<PointLight> pointlight = lightingComponent->getPointLight();
-			std::shared_ptr<SpotLight> spotlight = lightingComponent->getSpotLight();
-			std::shared_ptr<DirectionalLight> directionallight = lightingComponent->getDirectionalLight();
-			std::shared_ptr<AmbientLight> ambientlight = lightingComponent->getAmbient();
-			if (pointlight) renderPipeline->addPointLight(pointlight, localToGlobaltransform);
-			if (spotlight) renderPipeline->addSpotLight(spotlight, localToGlobaltransform);
-			if (directionallight) renderPipeline->setDirectionalLight(directionallight);
-			if (ambientlight) renderPipeline->setAmbientLight(ambientlight);
-		}
-		if (cameraComponent) {
-			CameraPurpose purpose = cameraComponent->getPurpose();
-			if (purpose == CameraPurpose::render) {
-				cameraComponent->windowSizeChanged(window->getWidth(), window->getHeight());
-				renderPipeline->setCamera(
-					pos,
-					cameraComponent->getViewMatrix(localToGlobaltransform),
-					cameraComponent->getProjectionMatrix()
-				);
-			}
-			else if (purpose == CameraPurpose::shadowMap) {
-				renderPipeline->setDirectionalLightShadowMapProperties(
-					glm::normalize(glm::vec3(localToGlobaltransform * glm::vec4(0.f,0.f,-1.f,0.f))),
-					cameraComponent->getViewMatrix(localToGlobaltransform),
-					cameraComponent->getProjectionMatrix(),
-					4096,
-					4096
-				);
-			}
-		}
-		if (rendererComponent) {
-			if (rendererComponent->toBeRendered() && modelComponent) {
-				std::shared_ptr<Model> model = modelComponent->getModel();
-				if (model) renderPipeline->attachRender(model, localToGlobaltransform);
-			}
+	//All rendering objects
+	for (auto& rc : scene->iterate<RendererComponent>()) {
+		auto e = rc->getEntity();
+		auto mc = e->getComponent<ModelComponent>();
+		glm::mat4 localToGlobaltransform = getLocalToGlobalTransformation(e);
+		if (rc->toBeRendered() && mc) {
+			std::shared_ptr<Model> model = mc->getModel();
+			if (model) renderPipeline->attachRender(model, localToGlobaltransform);
 		}
 	}
+
+	//All Lighting objects
+	for (auto& lc : scene->iterate<LightingComponent>()) {
+		auto e = lc->getEntity();
+		glm::mat4 localToGlobaltransform = getLocalToGlobalTransformation(e);
+		std::shared_ptr<PointLight> pointlight = lc->getPointLight();
+		std::shared_ptr<SpotLight> spotlight = lc->getSpotLight();
+		std::shared_ptr<DirectionalLight> directionallight = lc->getDirectionalLight();
+		std::shared_ptr<AmbientLight> ambientlight = lc->getAmbient();
+		if (pointlight) renderPipeline->addPointLight(pointlight, localToGlobaltransform);
+		if (spotlight) renderPipeline->addSpotLight(spotlight, localToGlobaltransform);
+		if (directionallight) renderPipeline->setDirectionalLight(directionallight);
+		if (ambientlight) renderPipeline->setAmbientLight(ambientlight);
+	}
+
+	//All Camera Objects
+	for (auto& cc : scene->iterate<CameraComponent>()) {
+		auto e = cc->getEntity();
+		glm::mat4 localToGlobaltransform = getLocalToGlobalTransformation(e);
+		glm::vec3 pos = glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, 0.f, 1.f));
+		CameraPurpose purpose = cc->getPurpose();
+		if (purpose == CameraPurpose::render) {
+			cc->windowSizeChanged(window->getWidth(), window->getHeight());
+			renderPipeline->setCamera(
+				pos,
+				cc->getViewMatrix(localToGlobaltransform),
+				cc->getProjectionMatrix()
+			);
+		}
+		else if (purpose == CameraPurpose::shadowMap) {
+			renderPipeline->setDirectionalLightShadowMapProperties(
+				glm::normalize(glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, -1.f, 0.f))),
+				cc->getViewMatrix(localToGlobaltransform),
+				cc->getProjectionMatrix(),
+				4096,
+				4096
+			);
+		}
+	}
+
 	//Render the output
 	renderPipeline->executeRender();
 	//Flush the render queue
@@ -95,3 +80,53 @@ void RenderSystem::update() {
 RenderSystem::~RenderSystem() {
     //Nothing to do here
 }
+
+glm::vec3 VectorPlaneProjection(glm::vec3 vec, glm::vec3 normal) {
+	return vec - VectorVectorProjection(vec, normal);
+}
+
+glm::vec3 VectorVectorProjection(glm::vec3 vec, glm::vec3 vec0) {
+	vec0 = normalize(vec0);
+	return dot(vec, vec0) * vec0;
+}
+
+glm::mat4 getLocalToGlobalTransformation(sp<Entity> e) {
+	std::shared_ptr<TransformComponent> transformComponent = e->getComponent<TransformComponent>();
+	if (!transformComponent) return glm::mat4(1.0f);
+	std::shared_ptr<DescriptionComponent> descriptionComponent = e->getComponent<DescriptionComponent>();
+	if(!e->parent()) transformComponent->getLocalMatrix();
+	if (!e->parent()->hasComponent<TransformComponent>()) return transformComponent->getLocalMatrix();
+	bool ignoreParentRotations = false;
+	bool projectionOfParentOntoYPlane = false;
+	if (descriptionComponent) {
+		ignoreParentRotations = descriptionComponent->getInteger("Ignore parent rotations in render").has_value();//Dont care about value, use a flag
+		projectionOfParentOntoYPlane = descriptionComponent->getInteger("Parent Global Y-Plane Forward Direction Projection").has_value();
+	}
+	if (ignoreParentRotations) {
+		glm::vec3 temp = glm::vec3(e->parent()->getComponent<TransformComponent>()->getGlobalMatrix()[3]);
+		return glm::translate(glm::mat4(1.f), temp) * transformComponent->getLocalMatrix();
+	}
+	else if (projectionOfParentOntoYPlane) {
+		glm::vec3 Forward = glm::vec3(1.f, 0.f, 0.f);
+		if (e->parent()->hasComponent<DescriptionComponent>()) {
+			auto f = e->parent()->getComponent<DescriptionComponent>()->getVec3("Forward");
+			if (f.has_value()) Forward = f.value();
+		}
+		Forward = VectorPlaneProjection(Forward, glm::vec3(0.f, 1.f, 0.f));
+		glm::vec3 nForward = glm::vec3(e->parent()->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(Forward, 0.f));
+		nForward = VectorPlaneProjection(nForward, glm::vec3(0.f, 1.f, 0.f));
+		float angle = acosf(dot(normalize(Forward), nForward));
+		glm::vec3 normal = cross(Forward, nForward);
+		glm::mat4 rot;
+		if (length(normal) == 0.f) {
+			if (angle > 0.0001f) rot = convert<glm::mat4>(physx::PxQuat(glm::radians(180.f), physx::PxVec3(0.f, 1.f, 0.f)));
+			else rot = glm::mat4(1.f);
+		}
+		else rot = convert<glm::mat4>(physx::PxQuat(angle, convert<PxVec3>(normalize(normal))));
+		glm::vec3 temp = glm::vec3(e->parent()->getComponent<TransformComponent>()->getGlobalMatrix()[3]);
+		return glm::translate(glm::mat4(1.f), temp) * rot * transformComponent->getLocalMatrix();
+	}
+	return transformComponent->getGlobalMatrix();
+}
+
+

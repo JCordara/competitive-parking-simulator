@@ -30,3 +30,7 @@ private:
 
 
 #endif // RENDER_SYSTEM_H
+
+glm::vec3 VectorPlaneProjection(glm::vec3 vec, glm::vec3 normal);
+glm::vec3 VectorVectorProjection(glm::vec3 vec, glm::vec3 vec0);
+glm::mat4 getLocalToGlobalTransformation(sp<Entity> e);

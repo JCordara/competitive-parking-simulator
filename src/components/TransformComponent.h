@@ -17,9 +17,6 @@ public:
 	glm::mat4 getGlobalMatrix() { return getNestedMatrix(TO_ROOT); }
 	glm::mat4 getNestedMatrix(int depth);
 
-	glm::mat4 onlyPositionTransformGlobal();
-	glm::mat4 onlyPositionTransformMatrix(int depth);
-
     glm::vec3     getLocalPosition() { return _position; }
 	physx::PxQuat getLocalRotation() { return _rotation; }
     glm::vec3     getLocalScale()    { return _scale; }
