@@ -2,13 +2,14 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <vector>
-#include "Geometry.h"
 #include <ShaderProgram.h>
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <map>
 #include <Texture.h>
+#include <VertexArray.h>
+#include <VertexBuffer.h>
 
 using namespace std;
 using vec3f = glm::vec3;
