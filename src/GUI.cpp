@@ -84,6 +84,7 @@ void GUI::draw() {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); // Some middleware thing
 
+	glEnable(GL_FRAMEBUFFER_SRGB);
 }
 
 GUI::~GUI() {

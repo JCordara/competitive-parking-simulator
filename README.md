@@ -1,13 +1,7 @@
 # CPSC 585 Project
 ## Tasks to complete:
-- Camera follow
-	- "Lag"
-	- Camera collisions
-- Rendering support for transparency
-- Map
-	- Blender scripts to mark parking stalls
-	- Improve level design (aisles, obstacles, etc.)
-
+- Brainstorm obstacles
+- Map design ideas
 
 
 ### Joseph's tasks
@@ -30,7 +24,11 @@
 
 
 ### Keaton's tasks
-- ?
+- Write a thesis or something
+- Powerups maybe? At least brainstorm ideas
+- GUI
+- Drivable static objects (like ramps and speed bumps)
+- Variable object mass that doesn't break the game
 
 
 ### Kaynen's tasks
@@ -49,11 +47,16 @@
 
 
 ### Brayden's tasks
-- ?
+- Map
+	- Blender scripts to mark parking stalls
+	- Improve level design (aisles, obstacles, etc.)
 
 
 ### Jeff's tasks
-- ?
+- Camera follow
+	- "Lag"
+	- Camera collisions
+- Rendering support for transparency
 
 
 ### Team 4
