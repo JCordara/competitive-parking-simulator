@@ -13,11 +13,11 @@ int main(int argc, char* argv[]) {
 	/* Parse cmd line arguments */
 	appSettings settings;
 	switch (argc) {
-	case 0:
+	case 1:
 		Log::debug("No settings file provided, will load default settings");
 		settings = defaultSettings();
 		break;
-	case 1:
+	case 2:
 		Log::debug("Settings file provided");
 		settings = loadSettings(std::string(argv[0]));
 		break;

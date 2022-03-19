@@ -11,7 +11,11 @@ using namespace physx;
 
 class VehicleComponent : public BaseComponent {
 public:
+
 	PxVehicleDrive4W* vehicle;
+    PxShape* wheelShapes[4];
+    sp<Entity>  wheelEntities[4];
+
     friend class PhysicsSystem;
 
     VehicleComponent(shared_ptr<Entity> parent);
@@ -28,6 +32,15 @@ public:
 
 private:
 
+    shared_ptr<PhysicsSystem> physicsSystem;
+
+    PxVehicleDrive4WRawInputData inputData;
+    bool isInAir;
+    int numWheels;
+
+    PxConvexMesh* chassisMesh;
+    // PxConvexMesh* wheelMesh;
+
     VehicleDesc initVehicleDesc();
 
     PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc);
@@ -42,14 +55,6 @@ private:
         const PxFilterData& chassisSimFilterData);
 
 
-    shared_ptr<PhysicsSystem> physicsSystem;
-
-    
-    PxVehicleDrive4WRawInputData inputData;
-    bool isInAir;
-
-    PxConvexMesh* chassisMesh;
-    // PxConvexMesh* wheelMesh;
 
 };
 

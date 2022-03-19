@@ -5,7 +5,7 @@
 
 
 ### Joseph's tasks
-- Physics system
+- WHEELS
 - - Tunable vehicle parameters
 	- Top speed
 	- Acceleration
@@ -17,6 +17,7 @@
 	- Braking strength
 	- Drivetrain (FWD/RWD/AWD)
 	- Tire size
+- Physics system
 - Refactor audio system
 - Fix controller support (remove raw pointers in input system)
 - Lua scripting (functional)
@@ -24,17 +25,12 @@
 
 
 ### Keaton's tasks
-- Write a thesis or something
-- Powerups maybe? At least brainstorm ideas
-- GUI
-- Drivable static objects (like ramps and speed bumps)
-- Variable object mass that doesn't break the game
-
+- Flipping cars
+- Create rigidbody component functions to add geometric objects
+- Wait to assign point until cars are stopped in stall
 
 ### Kaynen's tasks
-- AI Recovery
-	- Reset when flipped, or flip car
-	- Get unstuck/avoidance
+- Main Menu
 - Gameplay System
 	- Clean up previous ad-hoc gameplay code
 	- GameMode Logic
@@ -47,16 +43,14 @@
 
 
 ### Brayden's tasks
-- Map
+- New map
 	- Blender scripts to mark parking stalls
 	- Improve level design (aisles, obstacles, etc.)
 
 
 ### Jeff's tasks
-- Camera follow
-	- "Lag"
-	- Camera collisions
 - Rendering support for transparency
+- Camera tuning
 
 
 ### Team 4

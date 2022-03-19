@@ -180,19 +180,21 @@ public:
     }
 
     template<class C>
-    void untrackComponent(sp<C> c) {
+    bool untrackComponent(sp<C> c) {
         // If no components of this type are currently being tracked
         if (!static_cast<bool>(componentMap.count(C::getType()))) {
-            return; // Do nothing
+            return false; // Do nothing
         }
         // Get the vector of components
         vector<sp<C>>& components = std::any_cast<vector<sp<C>>&>(componentMap.at(C::getType()));
         // Search the vector for a matching component (by underlying shared_ptr address)
         for (auto it = components.begin(); it != components.end(); it++) {
             if (it->get() == c.get()) {
-                components.erase(it);   // Erase matching component(s)
+                components.erase(it);   // Erase matching component
+                return true;
             }
         }
+        return false;
     }
 
     sp<Scene> getScene();

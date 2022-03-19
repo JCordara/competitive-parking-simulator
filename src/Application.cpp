@@ -1,10 +1,14 @@
 #include "Application.h"
 #include <Random.h>
 
+#define SPAWN_PROP_CARS 1
+const unsigned int g_numAiCars = 4;
+
 unsigned int playerId = 0;
 std::vector<unsigned int> aiList;
 std::unordered_map<unsigned int, int> scores;
 std::shared_ptr<Entity> playerCar;
+
 
 glm::vec3 parkingVertices[] = {
 	//GROUP 1 - Horizontal Parking Spaces
@@ -161,13 +165,10 @@ Application::Application(appSettings& settings):
 
 	// --- Entities ---
 	playerCar = scene->addEntity();
-	auto aiCar1 = scene->addEntity();
-	auto aiCar2 = scene->addEntity();
-	auto aiCar3 = scene->addEntity();
-	auto aiCar4 = scene->addEntity();
+	vector<sp<Entity>> aiCars;
 
 	auto mapGrass = scene->addEntity();
-	auto mapRoad = scene->addEntity();
+	auto mapRoad  = scene->addEntity();
 	auto mapLines = scene->addEntity();
 	auto mapWall1 = scene->addEntity();
 	auto mapWall2 = scene->addEntity();
@@ -182,13 +183,16 @@ Application::Application(appSettings& settings):
 
 	// --- Models ---
 	auto modelPlayerCar = std::make_shared<Model>(
-		"models/car1.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/car1chassis.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	auto modelAiCar = std::make_shared<Model>(
 		"models/car2.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	auto modelPropCar = std::make_shared<Model>(
 		"models/car3.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+
+	auto modelWheel = std::make_shared<Model>(
+		"models/car1wheel.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	auto modelMapGrass = std::make_shared<Model>(
 		"models/gamemapGrassPlane.obj", glm::vec3(.5f, .1f, .2f));
@@ -249,7 +253,19 @@ Application::Application(appSettings& settings):
 
 	
 	// --- Player car ---	
-	auto playerTransform = playerCar->getComponent<TransformComponent>();
+	// Add wheel entities
+	for (int i = 0; i < 4; i++) {
+		auto wheel = playerCar->addChild();
+		
+		auto mc = wheel->addComponent<ModelComponent>();
+		mc->setModel(modelWheel);
+
+		auto rc = wheel->addComponent<RendererComponent>();
+		rc->enableRender();
+
+		auto desc = wheel->addComponent<DescriptionComponent>();
+		desc->setInteger("wheel", 1);
+	}
 	
 	auto playerModel = playerCar->addComponent<ModelComponent>();
 	playerModel->setModel(modelPlayerCar);
@@ -257,7 +273,7 @@ Application::Application(appSettings& settings):
 	auto playerRender = playerCar->addComponent<RendererComponent>();
 	playerRender->enableRender();
 	
-	auto playerVehicle = playerCar->addComponent<VehicleComponent>();
+	playerCar->addComponent<VehicleComponent>();
 	
 	auto playerController = playerCar->addComponent<ControllerComponent>();
 	playerController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);
@@ -271,62 +287,41 @@ Application::Application(appSettings& settings):
 	auto playerDescription = playerCar->addComponent<DescriptionComponent>();
 	playerDescription->setVec3("Forward", glm::vec3(0.f, 0.f, 1.f));
 
+
 	// --- AI cars ---	
-	auto aiCarTransform = aiCar1->getComponent<TransformComponent>();
-	aiCarTransform->setLocalRotation(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	for (int i = 0; i < g_numAiCars; i++) {
+		auto aiCar = scene->addEntity();
+
+		auto tc = aiCar->getComponent<TransformComponent>();
+		tc->setLocalRotation(glm::radians(Random::randomFloat(0.0f, 180.0f)), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		// Add wheel entities
+		for (int i = 0; i < 4; i++) {
+			auto wheel = aiCar->addChild();
+			
+			auto mc = wheel->addComponent<ModelComponent>();
+			mc->setModel(modelWheel);
+
+			auto rc = wheel->addComponent<RendererComponent>();
+			rc->enableRender();
+
+			auto desc = wheel->addComponent<DescriptionComponent>();
+			desc->setInteger("wheel", 1);
+		}
+		
+		auto mc = aiCar->addComponent<ModelComponent>();
+		mc->setModel(modelAiCar);
+		
+		auto rc = aiCar->addComponent<RendererComponent>();
+		rc->enableRender();
+		
+		aiCar->addComponent<VehicleComponent>();
+		aiCar->addComponent<AiComponent>();
+
+		aiCars.push_back(aiCar);
+	}
 	
-	auto aiCarModel = aiCar1->addComponent<ModelComponent>();
-	aiCarModel->setModel(modelAiCar);
-	
-	auto aiCarRender = aiCar1->addComponent<RendererComponent>();
-	aiCarRender->enableRender();
-	
-	auto aiCarVehicle = aiCar1->addComponent<VehicleComponent>();
-	
-	auto aiCarAI = aiCar1->addComponent<AiComponent>();
-
-	
-	aiCarTransform = aiCar2->getComponent<TransformComponent>();
-	aiCarTransform->setLocalRotation(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	aiCarModel = aiCar2->addComponent<ModelComponent>();
-	aiCarModel->setModel(modelAiCar);
-
-	aiCarRender = aiCar2->addComponent<RendererComponent>();
-	aiCarRender->enableRender();
-
-	aiCarVehicle = aiCar2->addComponent<VehicleComponent>();
-
-	aiCarAI = aiCar2->addComponent<AiComponent>();
-
-
-	aiCarTransform = aiCar3->getComponent<TransformComponent>();
-	aiCarTransform->setLocalRotation(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	aiCarModel = aiCar3->addComponent<ModelComponent>();
-	aiCarModel->setModel(modelAiCar);
-
-	aiCarRender = aiCar3->addComponent<RendererComponent>();
-	aiCarRender->enableRender();
-
-	aiCarVehicle = aiCar3->addComponent<VehicleComponent>();
-
-	aiCarAI = aiCar3->addComponent<AiComponent>();
-
-
-	aiCarTransform = aiCar4->getComponent<TransformComponent>();
-	aiCarTransform->setLocalRotation(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	aiCarModel = aiCar4->addComponent<ModelComponent>();
-	aiCarModel->setModel(modelAiCar);
-
-	aiCarRender = aiCar4->addComponent<RendererComponent>();
-	aiCarRender->enableRender();
-
-	aiCarVehicle = aiCar4->addComponent<VehicleComponent>();
-
-	aiCarAI = aiCar4->addComponent<AiComponent>();
-	
+#if SPAWN_PROP_CARS
 	// --- Prop car ---
 	for(int i = 0; i < sizeof(parkingVertices)/sizeof(*parkingVertices); i++){
 		auto propCar = scene->addEntity();
@@ -357,7 +352,7 @@ Application::Application(appSettings& settings):
 		auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
 		propCarRigidbody->addActorDynamic(*modelPropCar, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 	}
-
+#endif
 	
 
 	// --- Map grass ---
@@ -498,22 +493,20 @@ Application::Application(appSettings& settings):
 		
 	};
 
-	// Hacky stuff
-	playerId = playerCar->id();
-	scores[playerId] = 0;
-	gameplay->addAiId(aiCar1->id());
-	gameplay->addAiId(aiCar2->id());
-	gameplay->addAiId(aiCar3->id());
-	gameplay->addAiId(aiCar4->id());
-
-	audio->setListener(mainCamera->getComponent<TransformComponent>());
-	audio->car = playerCar->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor();
-
 
 	/* --------------------- End Game World Description --------------------- */
 
-
-
+	// Hacky stuff
+	playerId = playerCar->id();
+	scores[playerId] = 0;
+	
+	for (auto aiCar : aiCars) {
+		gameplay->addAiId(aiCar->id());
+		scores[aiCar->id()] = 0;
+	}
+	
+	audio->setListener(mainCamera->getComponent<TransformComponent>());
+	audio->car = playerCar->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor();
 
 }
 
@@ -533,7 +526,7 @@ int Application::play() {
 	
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
-			if (scores[playerId] >= 5 || scores[aiList[0]] >= 5) {
+			if (scores[playerId] >= 5 ){//|| scores[aiList[0]] >= 5) {
 			}
 			else {
 				gameplay->update();	// Gameplay / AI update

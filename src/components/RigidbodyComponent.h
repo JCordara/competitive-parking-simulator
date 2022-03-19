@@ -20,13 +20,15 @@ public:
 	void addActorStaticSphere(const float radius, PxTransform startPos);
 	void addActorDynamic(const Model& model, PxTransform startPos);
 
+    PxRigidActor* getActor() { return actor; }
+
     inline void setPhysicsSystem(shared_ptr<PhysicsSystem> system) {
         physicsSystem = system;
     }
 
 private:
-
     shared_ptr<PhysicsSystem> physicsSystem;
+    PxRigidActor* actor;
 };
 
 #endif // PHYSICS_COMPONENT_H

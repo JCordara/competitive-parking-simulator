@@ -66,8 +66,24 @@ void PhysicsSystem::update() {
 			PxTransform pxTransform = actor->getGlobalPose();
 			tc->setLocalPosition(pxTransform.p);
 			tc->setLocalRotation(pxTransform.q);
+			
+			// If entity is a vehicle, set wheel positions
+			if (auto vc = entity->getComponent<VehicleComponent>()) {
+				for (int i = 0; i < 4; i++) {
+					if (!vc->wheelEntities[i]) continue;
+					
+					PxShape* wheelShape = vc->wheelShapes[i];
+					PxTransform wheelTransform = wheelShape->getLocalPose();
+
+					auto gameTrans = vc->wheelEntities[i]->getComponent<TransformComponent>();
+					gameTrans->setLocalPosition(wheelTransform.p);
+					gameTrans->setLocalRotation(wheelTransform.q);
+				}
+			}
 		}
+
 	}
+	// printf("\n");
 
 }
 
@@ -227,6 +243,8 @@ void PhysicsSystem::vehicleUpdate(shared_ptr<VehicleComponent> vc) {
 	// Work out if the vehicle is in the air
 	vc->isInAir = vehicle->getRigidDynamicActor()->isSleeping() ?
 		false : PxVehicleIsInAir(vehicleQueryResults[0]);
+
+	
 
 }
 

@@ -14,8 +14,8 @@ RigidbodyComponent::RigidbodyComponent(shared_ptr<Entity> parent)
 void RigidbodyComponent::addActorStaticMesh(const Model& model, PxTransform startPos){
 
 	PxTransform mesht = startPos;
-	PxRigidActor* actor = physicsSystem->pxPhysics->createRigidStatic(mesht);
-	actor->userData = static_cast<void*>(entity->shared_from_this().get());
+	actor = physicsSystem->pxPhysics->createRigidStatic(mesht);
+	actor->userData = static_cast<void*>(entity.get());
 
 	PxTriangleMesh* mesh = physicsSystem->createStaticMesh(model);
 	PxTriangleMeshGeometry geom(mesh);
@@ -30,8 +30,8 @@ void RigidbodyComponent::addActorStaticMesh(const Model& model, PxTransform star
 
 void RigidbodyComponent::addActorStaticSphere(const float radius, PxTransform startPos) {
 
-	PxRigidStatic* actor = physicsSystem->pxPhysics->createRigidStatic(startPos);
-	actor->userData = static_cast<void*>(entity->shared_from_this().get());
+	actor = physicsSystem->pxPhysics->createRigidStatic(startPos);
+	actor->userData = static_cast<void*>(entity.get());
 
 	PxSphereGeometry sphereGeom(radius);
 
@@ -46,8 +46,8 @@ void RigidbodyComponent::addActorStaticSphere(const float radius, PxTransform st
 void RigidbodyComponent::addActorDynamic(const Model& model, PxTransform startPos) {
 
 	PxTransform mesht = startPos;//PxTransform(PxVec3(0, 20.0f, 0.0f));
-	PxRigidDynamic* actor = physicsSystem->pxPhysics->createRigidDynamic(mesht);
-	actor->userData = static_cast<void*>(entity->shared_from_this().get());
+	actor = physicsSystem->pxPhysics->createRigidDynamic(mesht);
+	actor->userData = static_cast<void*>(entity.get());
 
 	PxConvexMesh* mesh = physicsSystem->createDynamicMesh(model);
 	PxConvexMeshGeometry geom(mesh);
@@ -66,5 +66,5 @@ ComponentEnum RigidbodyComponent::getType() {
 }
 
 RigidbodyComponent::~RigidbodyComponent() {
-    // Nothing to do here yet
+    physicsSystem->pxScene->removeActor(*actor, true);
 }

@@ -1,123 +1,7 @@
 #pragma once
 
-#include "crapweactuallyneed.h"
+#include "SnippetCode.h"
 
-
-//Data structure for quick setup of scene queries for suspension queries.
-VehicleSceneQueryData::VehicleSceneQueryData()
-    : mNumQueriesPerBatch(0),
-    mNumHitResultsPerQuery(0),
-    mRaycastResults(NULL),
-    mRaycastHitBuffer(NULL),
-    mPreFilterShader(NULL),
-    mPostFilterShader(NULL)
-{
-}
-
-VehicleSceneQueryData::~VehicleSceneQueryData()
-{
-}
-
-VehicleSceneQueryData* VehicleSceneQueryData::allocate
-(const PxU32 maxNumVehicles, const PxU32 maxNumWheelsPerVehicle, const PxU32 maxNumHitPointsPerWheel, const PxU32 numVehiclesInBatch,
-    PxBatchQueryPreFilterShader preFilterShader, PxBatchQueryPostFilterShader postFilterShader,
-    PxAllocatorCallback& allocator)
-{
-    const PxU32 sqDataSize = ((sizeof(VehicleSceneQueryData) + 15) & ~15);
-
-    const PxU32 maxNumWheels = maxNumVehicles * maxNumWheelsPerVehicle;
-    const PxU32 raycastResultSize = ((sizeof(PxRaycastQueryResult) * maxNumWheels + 15) & ~15);
-    const PxU32 sweepResultSize = ((sizeof(PxSweepQueryResult) * maxNumWheels + 15) & ~15);
-
-    const PxU32 maxNumHitPoints = maxNumWheels * maxNumHitPointsPerWheel;
-    const PxU32 raycastHitSize = ((sizeof(PxRaycastHit) * maxNumHitPoints + 15) & ~15);
-    const PxU32 sweepHitSize = ((sizeof(PxSweepHit) * maxNumHitPoints + 15) & ~15);
-
-    const PxU32 size = sqDataSize + raycastResultSize + raycastHitSize + sweepResultSize + sweepHitSize;
-    PxU8* buffer = static_cast<PxU8*>(allocator.allocate(size, NULL, NULL, 0));
-
-    VehicleSceneQueryData* sqData = new(buffer) VehicleSceneQueryData();
-    sqData->mNumQueriesPerBatch = numVehiclesInBatch * maxNumWheelsPerVehicle;
-    sqData->mNumHitResultsPerQuery = maxNumHitPointsPerWheel;
-    buffer += sqDataSize;
-
-    sqData->mRaycastResults = reinterpret_cast<PxRaycastQueryResult*>(buffer);
-    buffer += raycastResultSize;
-
-    sqData->mRaycastHitBuffer = reinterpret_cast<PxRaycastHit*>(buffer);
-    buffer += raycastHitSize;
-
-    sqData->mSweepResults = reinterpret_cast<PxSweepQueryResult*>(buffer);
-    buffer += sweepResultSize;
-
-    sqData->mSweepHitBuffer = reinterpret_cast<PxSweepHit*>(buffer);
-    buffer += sweepHitSize;
-
-    for (PxU32 i = 0; i < maxNumWheels; i++)
-    {
-        new(sqData->mRaycastResults + i) PxRaycastQueryResult();
-        new(sqData->mSweepResults + i) PxSweepQueryResult();
-    }
-
-    for (PxU32 i = 0; i < maxNumHitPoints; i++)
-    {
-        new(sqData->mRaycastHitBuffer + i) PxRaycastHit();
-        new(sqData->mSweepHitBuffer + i) PxSweepHit();
-    }
-
-    sqData->mPreFilterShader = preFilterShader;
-    sqData->mPostFilterShader = postFilterShader;
-
-    return sqData;
-}
-
-void VehicleSceneQueryData::free(PxAllocatorCallback& allocator)
-{
-    allocator.deallocate(this);
-}
-
-PxBatchQuery* VehicleSceneQueryData::setUpBatchedSceneQuery(const PxU32 batchId, const VehicleSceneQueryData& vehicleSceneQueryData, PxScene* scene)
-{
-    const PxU32 maxNumQueriesInBatch = vehicleSceneQueryData.mNumQueriesPerBatch;
-    const PxU32 maxNumHitResultsInBatch = vehicleSceneQueryData.mNumQueriesPerBatch * vehicleSceneQueryData.mNumHitResultsPerQuery;
-
-    PxBatchQueryDesc sqDesc(maxNumQueriesInBatch, maxNumQueriesInBatch, 0);
-
-    sqDesc.queryMemory.userRaycastResultBuffer = vehicleSceneQueryData.mRaycastResults + batchId * maxNumQueriesInBatch;
-    sqDesc.queryMemory.userRaycastTouchBuffer = vehicleSceneQueryData.mRaycastHitBuffer + batchId * maxNumHitResultsInBatch;
-    sqDesc.queryMemory.raycastTouchBufferSize = maxNumHitResultsInBatch;
-
-    sqDesc.queryMemory.userSweepResultBuffer = vehicleSceneQueryData.mSweepResults + batchId * maxNumQueriesInBatch;
-    sqDesc.queryMemory.userSweepTouchBuffer = vehicleSceneQueryData.mSweepHitBuffer + batchId * maxNumHitResultsInBatch;
-    sqDesc.queryMemory.sweepTouchBufferSize = maxNumHitResultsInBatch;
-
-    sqDesc.preFilterShader = vehicleSceneQueryData.mPreFilterShader;
-
-    sqDesc.postFilterShader = vehicleSceneQueryData.mPostFilterShader;
-
-    return scene->createBatchQuery(sqDesc);
-}
-
-PxRaycastQueryResult* VehicleSceneQueryData::getRaycastQueryResultBuffer(const PxU32 batchId)
-{
-    return (mRaycastResults + batchId * mNumQueriesPerBatch);
-}
-
-PxSweepQueryResult* VehicleSceneQueryData::getSweepQueryResultBuffer(const PxU32 batchId)
-{
-    return (mSweepResults + batchId * mNumQueriesPerBatch);
-}
-
-
-PxU32 VehicleSceneQueryData::getQueryResultBufferSize() const
-{
-    return mNumQueriesPerBatch;
-}
-
-// -- VehicleSceneQueryData --
-
-
-VehicleSceneQueryData* gVehicleSceneQueryData = NULL;
 PxBatchQuery* gBatchQuery = NULL;
 
 PxVehicleDrivableSurfaceToTireFrictionPairs* gFrictionPairs = NULL;
@@ -222,7 +106,14 @@ void setupNonDrivableSurface(PxFilterData& filterData)
 namespace fourwheel
 {
 
-    void computeWheelCenterActorOffsets4W(const PxF32 wheelFrontZ, const PxF32 wheelRearZ, const PxVec3& chassisDims, const PxF32 wheelWidth, const PxF32 wheelRadius, const PxU32 numWheels, PxVec3* wheelCentreOffsets)
+    void computeWheelCenterActorOffsets4W(
+        const PxF32 wheelFrontZ, 
+        const PxF32 wheelRearZ, 
+        const PxVec3& chassisDims, 
+        const PxF32 wheelWidth, 
+        const PxF32 wheelRadius, 
+        const PxU32 numWheels, 
+        PxVec3* wheelCentreOffsets)
     {
         //chassisDims.z is the distance from the rear of the chassis to the front of the chassis.
         //The front has z = 0.5*chassisDims.z and the rear has z = -0.5*chassisDims.z.
@@ -231,28 +122,32 @@ namespace fourwheel
         const PxF32 numLeftWheels = numWheels / 2.0f;
         const PxF32 deltaZ = (wheelFrontZ - wheelRearZ) / (numLeftWheels - 1.0f);
 
+        // Calculate where to put the wheels in order to lift the chassis the specified amount
+        const PxF32 lift = 0.1f;
+        const PxF32 height = (-0.5 * chassisDims.y) + wheelRadius + lift;
+
         //Set the outside of the left and right wheels to be flush with the chassis.
         //Set the top of the wheel to be just touching the underside of the chassis.
         //Begin by setting the rear-left/rear-right/front-left,front-right wheels.
-        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eREAR_LEFT] = PxVec3((
-            -chassisDims.x + wheelWidth) * 0.425f, 
-            -0.3f,//-(chassisDims.y / 2 + wheelRadius), 
-            wheelRearZ + 0 * deltaZ * 0.5f
+        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eREAR_LEFT] = PxVec3(
+            -(0.5*chassisDims.x) + wheelWidth, 
+            height,
+            -(0.5*chassisDims.z) + 0.625f
         );
-        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eREAR_RIGHT] = PxVec3((
-            +chassisDims.x - wheelWidth) * 0.425f, 
-            -0.3f,//-(chassisDims.y / 2 + wheelRadius), 
-            wheelRearZ + 0 * deltaZ * 0.5f
+        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eREAR_RIGHT] = PxVec3(
+            (0.5*chassisDims.x) - wheelWidth, 
+            height,
+            -(0.5*chassisDims.z) + 0.625f 
         );
-        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eFRONT_LEFT] = PxVec3((
-            -chassisDims.x + wheelWidth) * 0.425f, 
-            -0.3f,//-(chassisDims.y / 2 + wheelRadius), 
-            wheelRearZ + (numLeftWheels - 1) * deltaZ
+        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eFRONT_LEFT] = PxVec3(
+            -(0.5*chassisDims.x) + wheelWidth, 
+            height,
+            (0.5*chassisDims.z) - 0.64f
         );
-        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eFRONT_RIGHT] = PxVec3((
-            +chassisDims.x - wheelWidth) * 0.425f, 
-            -0.3f,//-(chassisDims.y / 2 + wheelRadius), 
-            wheelRearZ + (numLeftWheels - 1) * deltaZ
+        wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eFRONT_RIGHT] = PxVec3(
+            (0.5*chassisDims.x) - wheelWidth, 
+            height,
+            (0.5*chassisDims.z) - 0.64f
         );
         //Set the remaining wheels.
         for (PxU32 i = 2, wheelCount = 4; i < numWheels - 2; i += 2, wheelCount += 2)

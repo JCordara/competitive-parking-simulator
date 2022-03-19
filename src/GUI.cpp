@@ -53,31 +53,31 @@ void GUI::draw() {
 	//	playerCar->getComponent<TransformComponent>()->getGlobalPosition().x,
 	//	playerCar->getComponent<TransformComponent>()->getGlobalPosition().y,
 	//	playerCar->getComponent<TransformComponent>()->getGlobalPosition().z);
-	for (int i = 0; i < aiList.size(); i++) {
-		ImGui::Text("AI-%d: %d", i+1,scores[aiList[i]]); // 1 AI HArdcoded, gross
-	}
+	// for (int i = 0; i < aiList.size(); i++) {
+	// 	ImGui::Text("AI-%d: %d", i+1,scores[aiList[i]]); // 1 AI HArdcoded, gross
+	// }
 
 	ImGui::End();
 
 
 	ImGui::Begin("Wincondition", (bool*)0, winWindowFlags);
 
-	if (scores[playerId] >= 5 || scores[aiList[0]] >= 5) {
-		if (scores[playerId] >= 5) {
-			ImGui::SetCursorPos(ImVec2(20, 25));
-			ImGui::SetWindowFontScale(14.0f);
-			ImGui::Text("Player WINS");
-			gameWon = true;
-		};
+	// if (scores[playerId] >= 5 || scores[aiList[0]] >= 5) {
+	// 	if (scores[playerId] >= 5) {
+	// 		ImGui::SetCursorPos(ImVec2(20, 25));
+	// 		ImGui::SetWindowFontScale(14.0f);
+	// 		ImGui::Text("Player WINS");
+	// 		gameWon = true;
+	// 	};
 
-		if (scores[aiList[0]] >= 5) {
+	// 	if (scores[aiList[0]] >= 5) {
 
-			ImGui::SetCursorPos(ImVec2(20, 25));
-			ImGui::SetWindowFontScale(14.0f);
-			ImGui::Text("AI-1 WINS");
-			gameWon = true;
-		}
-	}
+	// 		ImGui::SetCursorPos(ImVec2(20, 25));
+	// 		ImGui::SetWindowFontScale(14.0f);
+	// 		ImGui::Text("AI-1 WINS");
+	// 		gameWon = true;
+	// 	}
+	// }
 	ImGui::End();
 
 	// Render the ImGui window

@@ -41,7 +41,6 @@ Window::Window(
 	}
 
 	glfwSetWindowSizeCallback(window.get(), defaultWindowSizeCallback);
-
 	// Standard ImGui/GLFW middleware
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();

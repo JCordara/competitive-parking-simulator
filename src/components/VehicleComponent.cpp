@@ -4,8 +4,9 @@
 #include "Physics/VehicleDesc.h"
 
 
-VehicleComponent::VehicleComponent(shared_ptr<Entity> parent) 
-    : BaseComponent(parent)
+VehicleComponent::VehicleComponent(shared_ptr<Entity> parent): 
+    BaseComponent(parent),
+    numWheels(0)
 {
 
     // Notify Physics system that this component was created
@@ -41,6 +42,13 @@ VehicleComponent::VehicleComponent(shared_ptr<Entity> parent)
 		chassisMesh = physicsSystem->createDynamicMesh(verts, 8);
 	}
 
+    // Get wheel children on component creation
+    for (auto& child : entity->directChildren()) {
+        if (auto desc = child->getComponent<DescriptionComponent>()) {
+            if (*desc->getInteger("wheel")) wheelEntities[numWheels++] = child;
+        }
+    }
+
     // Create a vehicle
 	VehicleDesc vehicleDesc = initVehicleDesc();
 	vehicle = createVehicle4W(vehicleDesc);
@@ -48,6 +56,13 @@ VehicleComponent::VehicleComponent(shared_ptr<Entity> parent)
     // Add vehicle to physics scene
 	vehicle->getRigidDynamicActor()->setGlobalPose(entityPose);
 	physicsSystem->pxScene->addActor(*vehicle->getRigidDynamicActor());
+
+    // Get wheel positions
+	PxShape *shapes[8];
+	vehicle->getRigidDynamicActor()->getShapes(shapes, 8, 0);
+	for (int i = 0; i < 4; i++) {
+		wheelShapes[i] = shapes[vehicle->mWheelsSimData.getWheelShapeMapping(i)];
+	}
 }
 
 VehicleDesc VehicleComponent::initVehicleDesc()
@@ -65,9 +80,17 @@ VehicleDesc VehicleComponent::initVehicleDesc()
 
 	//Set up the wheel mass, radius, width, moment of inertia, and number of wheels.
 	//Moment of inertia is just the moment of inertia of a cylinder.
-	const PxF32 wheelMass = 20.0f;
-	const PxF32 wheelRadius = 0.5f;
-	const PxF32 wheelWidth = 0.4f;
+    const PxF32 wheelWidth = 0.4f;
+    const PxF32 wheelRadius = 0.5f;
+
+    if (wheelEntities[0]) {
+        auto wheelModel = wheelEntities[0]->getComponent<ModelComponent>()->getModel();
+        PxVec3 wheelDimensions = physicsSystem->createDynamicMesh(*wheelModel)->getLocalBounds().getDimensions();
+
+        const PxF32 wheelWidth = wheelDimensions.x;
+        const PxF32 wheelRadius = wheelDimensions.y / 2;
+    }
+    const PxF32 wheelMass = 20.0f;
 	const PxF32 wheelMOI = 0.5f * wheelMass * wheelRadius * wheelRadius;
 	const PxU32 nbWheels = 4;
 
@@ -173,8 +196,12 @@ PxVehicleDrive4W* VehicleComponent::createVehicle4W(const VehicleDesc& vehicle4W
     //Set the rigid body mass, moment of inertia, and center of mass offset.
     PxRigidDynamic* veh4WActor = nullptr;
     {
-        //Construct a convex mesh for a cylindrical wheel.
+        // Check if the car has explicitly created wheels
+        bool defaultWheels = static_cast<bool>(wheelEntities[0]);
+
+        // Construct a convex mesh for a cylindrical wheel
         PxConvexMesh* wheelMesh = createWheelMesh(wheelWidth, wheelRadius);
+
         //Assume all wheels are identical for simplicity.
         PxConvexMesh* wheelConvexMeshes[PX_MAX_NB_WHEELS];
         PxMaterial* wheelMaterials[PX_MAX_NB_WHEELS];
@@ -274,8 +301,7 @@ PxVehicleDrive4W* VehicleComponent::createVehicle4W(const VehicleDesc& vehicle4W
     //Configure the userdata
     configureUserData(vehDrive4W, vehicle4WDesc.actorUserData, vehicle4WDesc.shapeUserDatas);
 
-    vehDrive4W->getRigidDynamicActor()->userData = 
-        static_cast<void*>(entity->shared_from_this().get());
+    vehDrive4W->getRigidDynamicActor()->userData = static_cast<void*>(entity.get());
 
     //Free the sim data because we don't need that any more.
     wheelsSimData->free();

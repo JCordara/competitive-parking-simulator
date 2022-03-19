@@ -6,7 +6,8 @@
 #include <PhysX/PxPhysicsAPI.h>
 #include "PhysXCallbacks.h"
 #include "VehicleDesc.h"
-#include "crapweactuallyneed.h"
+#include "VehicleSceneQueryData.h"
+#include "SnippetCode.h"
 
 class Model;
 
