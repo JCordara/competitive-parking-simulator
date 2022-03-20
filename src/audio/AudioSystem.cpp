@@ -61,9 +61,6 @@ AudioSystem::AudioSystem():
     Events::Collision.registerHandler<AudioSystem,
         &AudioSystem::playOof>(this);
 
-    Events::RecompileScripts.registerHandler<Script, 
-        &Script::reload>(&calculateEngineSound);
-
     calculateEngineSound.capture(enginePitch);
     calculateEngineSound.capture(engineGain);
     calculateEngineSound.capture(speed);

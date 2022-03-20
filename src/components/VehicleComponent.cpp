@@ -6,7 +6,9 @@
 
 VehicleComponent::VehicleComponent(shared_ptr<Entity> parent): 
     BaseComponent(parent),
-    numWheels(0)
+    numWheels(0),
+    chassisMass(1500.0f),
+    tuningScript("scripts/vehicleTuning.lua")
 {
 
     // Notify Physics system that this component was created
@@ -63,6 +65,38 @@ VehicleComponent::VehicleComponent(shared_ptr<Entity> parent):
 	for (int i = 0; i < 4; i++) {
 		wheelShapes[i] = shapes[vehicle->mWheelsSimData.getWheelShapeMapping(i)];
 	}
+
+    // Set up tuning script
+    tuningScript.setGlobal(chassisDims.x, "_chassisDimensionsX");
+    tuningScript.setGlobal(chassisDims.y, "_chassisDimensionsY");
+    tuningScript.setGlobal(chassisDims.z, "_chassisDimensionsZ");
+    tuningScript.setGlobal(chassisMass, "mass");
+    tuningScript.setGlobal(CMoffsetX, "CMoffsetX");
+    tuningScript.setGlobal(CMoffsetY, "CMoffsetY");
+    tuningScript.setGlobal(CMoffsetZ, "CMoffsetZ");
+
+    tuningScript.setGlobal(engineData.mMaxOmega, "speed");
+    tuningScript.setGlobal(engineData.mPeakTorque, "torque");
+    tuningScript.setGlobal(engineData.mMOI, "engineMOI");
+    tuningScript.setGlobal(engineData.mDampingRateFullThrottle, "dampingFullThrottle");
+    tuningScript.setGlobal(engineData.mDampingRateZeroThrottleClutchEngaged, "dampingClutchEngaged");
+    tuningScript.setGlobal(engineData.mDampingRateZeroThrottleClutchDisengaged, "dampingClutchDisengaged");
+    
+    tuningScript.setGlobal(wheelData.mRadius, "_wheelRadius");
+    tuningScript.setGlobal(maxHandbrakeTorque, "handbrakeTorque");
+    tuningScript.setGlobal(maxSteer, "turningRadius");
+    tuningScript.setGlobal(wheelData.mMass, "wheelMass");
+    tuningScript.setGlobal(wheelData.mMOI, "wheelMOI");
+    tuningScript.setGlobal(wheelData.mDampingRate, "wheelDamping");
+    tuningScript.setGlobal(wheelData.mToeAngle, "toeAngle");
+
+    // Set initial vehicle values
+    tuningScript.run();
+    reloadVehicleSettings();
+
+    // Reload vehicle tuning settings when script is recompiled
+    Events::RecompileScripts.registerHandler<VehicleComponent,
+        &VehicleComponent::reloadVehicleSettings>(this);
 }
 
 VehicleDesc VehicleComponent::initVehicleDesc()
@@ -70,13 +104,16 @@ VehicleDesc VehicleComponent::initVehicleDesc()
 	// Set up the chassis mass, dimensions, moment of inertia, and center of mass offset
 	// The moment of inertia is just the moment of inertia of a cuboid but modified for easier steering
 	// Center of mass offset is 0.65m above the base of the chassis and 0.25m towards the front
-	const PxF32 chassisMass = 1500.0f;
-	const PxVec3 chassisDims = chassisMesh->getLocalBounds().getDimensions();
+	chassisDims = chassisMesh->getLocalBounds().getDimensions();
 	const PxVec3 chassisMOI(
 		(chassisDims.y * chassisDims.y + chassisDims.z * chassisDims.z) * chassisMass / 12.0f,
 		(chassisDims.x * chassisDims.x + chassisDims.z * chassisDims.z) * 0.8f * chassisMass / 12.0f,
 		(chassisDims.x * chassisDims.x + chassisDims.y * chassisDims.y) * chassisMass / 12.0f);
-	const PxVec3 chassisCMOffset(0.0f, -chassisDims.y * 0.5f + 0.75f, 0.25f);
+
+    CMoffsetX = 0.0f;
+    CMoffsetY = -chassisDims.y * 0.5f + 0.75f;
+    CMoffsetZ = 0.25f;
+	const PxVec3 chassisCMOffset(CMoffsetX, CMoffsetY, CMoffsetZ);
 
 	//Set up the wheel mass, radius, width, moment of inertia, and number of wheels.
 	//Moment of inertia is just the moment of inertia of a cylinder.
@@ -90,6 +127,7 @@ VehicleDesc VehicleComponent::initVehicleDesc()
         const PxF32 wheelWidth = wheelDimensions.x;
         const PxF32 wheelRadius = wheelDimensions.y / 2;
     }
+
     const PxF32 wheelMass = 20.0f;
 	const PxF32 wheelMOI = 0.5f * wheelMass * wheelRadius * wheelRadius;
 	const PxU32 nbWheels = 4;
@@ -111,8 +149,57 @@ VehicleDesc VehicleComponent::initVehicleDesc()
 	vehicleDesc.wheelMaterial = gMaterial;
 	vehicleDesc.wheelSimFilterData = PxFilterData(COLLISION_FLAG_WHEEL, COLLISION_FLAG_WHEEL_AGAINST, 0, 0);
 
+    wheelData.mMass = wheelMass;
+    wheelData.mMOI = wheelMOI;
+    wheelData.mRadius = wheelRadius;
+    wheelData.mWidth = wheelWidth;
+
+    engineData.mPeakTorque = 1200.0f;  // accel
+    engineData.mMaxOmega = 600.0f;     // top speed
+    engineData.mMOI = 0.15f;
+    engineData.mDampingRateFullThrottle = 0.25f;
+    engineData.mDampingRateZeroThrottleClutchEngaged = 3.0f;
+
 	return vehicleDesc;
 }
+
+void VehicleComponent::reloadVehicleSettings() 
+{    
+    // Run tuning script
+    tuningScript.run();
+
+    // Reload center of mass
+    PxTransform CMoffset(CMoffsetX, CMoffsetY, CMoffsetZ);
+    vehicle->getRigidDynamicActor()->setCMassLocalPose(CMoffset);
+
+    // Reload chassis mass
+    vehicle->mWheelsSimData.setChassisMass(chassisMass);
+
+    // Reload engine data
+    vehicle->mDriveSimData.setEngineData(engineData);
+
+    // Reload wheel data
+    PxVehicleWheelData wheels[PX_MAX_NB_WHEELS];
+    {
+        //Set up the wheel data structures with mass, moi, radius, width.
+        for (PxU32 i = 0; i < numWheels; i++) wheels[i] = wheelData;
+
+        //Enable the handbrake for the rear wheels only.
+        wheels[PxVehicleDrive4WWheelOrder::eREAR_LEFT].mMaxHandBrakeTorque = maxHandbrakeTorque;
+        wheels[PxVehicleDrive4WWheelOrder::eREAR_RIGHT].mMaxHandBrakeTorque = maxHandbrakeTorque;
+        //Enable steering for the front wheels only.
+        wheels[PxVehicleDrive4WWheelOrder::eFRONT_LEFT].mMaxSteer = PxPi * maxSteer;
+        wheels[PxVehicleDrive4WWheelOrder::eFRONT_RIGHT].mMaxSteer = PxPi * maxSteer;
+
+        // Set each wheels data
+        for (PxU32 i = 0; i < numWheels; i++)
+            vehicle->mWheelsSimData.setWheelData(i, wheels[i]);
+    }
+
+    // printTuningInfo();
+
+}
+
 
 PxConvexMesh* VehicleComponent::createWheelMesh(
 	const PxF32 width, const PxF32 radius) 
@@ -176,7 +263,7 @@ PxRigidDynamic* VehicleComponent::createVehicleActor(
 
     vehActor->setMass(chassisData.mMass);
     vehActor->setMassSpaceInertiaTensor(chassisData.mMOI);
-    vehActor->setCMassLocalPose(PxTransform(chassisData.mCMOffset, PxQuat(PxIdentity)));
+    vehActor->setCMassLocalPose(PxTransform(CMoffsetX, CMoffsetY, CMoffsetZ));
 
     return vehActor;
 }
@@ -307,6 +394,31 @@ PxVehicleDrive4W* VehicleComponent::createVehicle4W(const VehicleDesc& vehicle4W
     wheelsSimData->free();
 
     return vehDrive4W;
+}
+
+void VehicleComponent::printTuningInfo() {
+    // Get info from vehicle
+    PxRigidDynamic* actor = vehicle->getRigidDynamicActor();
+    PxVec3 CMoffset = actor->getCMassLocalPose().p;
+    PxVehicleEngineData engine = vehicle->mDriveSimData.getEngineData();
+    PxVehicleWheelData wheelsF = vehicle->mWheelsSimData.getWheelData(PxVehicleDrive4WWheelOrder::eFRONT_LEFT);
+    PxVehicleWheelData wheelsR = vehicle->mWheelsSimData.getWheelData(PxVehicleDrive4WWheelOrder::eREAR_LEFT);
+
+    // Print info
+    printf("Mass: %.2f\n", actor->getMass());
+    printf("CM offset: (%.2f, %.2f, %.2f)\n", CMoffset.x, CMoffset.y, CMoffset.z);
+    printf("Speed: %.2f\n", engine.mMaxOmega);
+    printf("Torque: %.2f\n", engine.mPeakTorque);
+    printf("Engine MOI: %.2f\n", engine.mMOI);
+    printf("Engine damping (Full throttle): %.2f\n", engine.mDampingRateFullThrottle);
+    printf("Engine damping (Clutch engaged): %.2f\n", engine.mDampingRateZeroThrottleClutchEngaged);
+    printf("Engine damping (Clutch disengaged): %.2f\n", engine.mDampingRateZeroThrottleClutchDisengaged);
+    printf("Handbrake torque: %.2f\n", wheelsR.mMaxHandBrakeTorque);
+    printf("Turning radius: %.2f\n", wheelsF.mMaxSteer);
+    printf("Wheel mass: %.2f\n", wheelsF.mMass);
+    printf("Wheel MOI: %.2f\n", wheelsF.mMOI);
+    printf("Wheel damping: %.2f\n", wheelsF.mDampingRate);
+    printf("Wheel toe angle: %.2f\n", wheelsF.mToeAngle);
 }
 
 

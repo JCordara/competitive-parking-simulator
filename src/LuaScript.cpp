@@ -1,6 +1,6 @@
 
 #include "LuaScript.h"
-
+#include "Event.h"
 
 Script::Script(const std::string filename): 
     scriptPath(filename) 
@@ -21,12 +21,15 @@ Script::Script(const std::string filename):
     */
     luaL_openlibs(L);
 
-    // Compile the Lua script
-    compileScript();
-
 #ifdef _DEBUG
     scriptPath = "../../res/" + scriptPath;
 #endif
+
+    // Compile the Lua script
+    compileScript();
+
+    Events::RecompileScripts.registerHandler<Script, &Script::reload>(this);
+
 }
 
 void Script::run() {

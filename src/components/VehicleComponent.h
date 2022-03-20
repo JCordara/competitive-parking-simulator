@@ -2,6 +2,7 @@
 #define VEHICLE_COMPONENT_H
 
 #include "Components.h"
+#include "LuaScript.h"
 #include <PhysX/PxPhysicsAPI.h>
 
 class PhysicsSystem;
@@ -39,8 +40,20 @@ private:
     int numWheels;
 
     PxConvexMesh* chassisMesh;
-    // PxConvexMesh* wheelMesh;
 
+    Script tuningScript;
+
+    PxVehicleEngineData engineData;
+    PxVehicleWheelData  wheelData;
+    PxVec3 chassisDims;
+    double maxHandbrakeTorque;
+    double maxSteer;
+    double chassisMass;
+    double CMoffsetX;
+    double CMoffsetY;
+    double CMoffsetZ;
+
+    void reloadVehicleSettings();
     VehicleDesc initVehicleDesc();
 
     PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc);
@@ -54,7 +67,7 @@ private:
         PxConvexMesh** chassisConvexMeshes, const PxU32 numChassisMeshes, 
         const PxFilterData& chassisSimFilterData);
 
-
+    void printTuningInfo();
 
 };
 
