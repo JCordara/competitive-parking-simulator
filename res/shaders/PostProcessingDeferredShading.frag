@@ -10,6 +10,7 @@ uniform sampler2D textureNormal;
 uniform sampler2D textureDiffuseConstant;
 uniform sampler2D textureSpecularAndShinnyConstant;
 uniform sampler2D textureAmbientConstant;
+uniform sampler2D textureDepth;
 	//Depth test texture of directional light Shading
 uniform sampler2D textureDirectionalLightDepth;
 uniform sampler2D textureDirectionalLightPosition;
@@ -38,21 +39,21 @@ uniform vec3 directionalLightColour;
 uniform vec3 ambientLightColour;
 	//Camera Uniforms
 uniform vec3 cameraPosition;
+uniform vec2 clipDistance;
 
-mat3 sx = mat3( 
+#define NEAR_CLIP 1.0
+#define FAR_CLIP 130.0
+
+const mat3 sx = mat3( 
     1.0, 2.0, 1.0, 
     0.0, 0.0, 0.0, 
    -1.0, -2.0, -1.0 
 );
-mat3 sy = mat3( 
+const mat3 sy = mat3( 
     1.0, 0.0, -1.0, 
     2.0, 0.0, -2.0, 
     1.0, 0.0, -1.0 
 );
-
-//Cell Shading Constants
-#define CELL_LAYER_COUNT_DIFFUSE 0
-#define CELL_LAYER_COUNT_SPECULAR CELL_LAYER_COUNT_DIFFUSE + 0
 
 float attenuate(vec3 constaints, float dis){
 	return 1 / max(constaints[0] + constaints[1]*dis + constaints[1]*dis*dis,0.0001);
@@ -101,11 +102,18 @@ float directionalLightShadow(vec3 fragPositionInLight, float bias){
     return shadow;
 }
 
-vec3 cellShader(vec3 light, int bands){
+
+/*vec3 cellShader(vec3 light, int bands){
 	if(bands < 2) return light;
 	vec3 nf = floor(light * vec3(bands));
 	light = (nf)*(1.0 / vec3(bands));
 	return light;
+}*/
+
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return 2.0 * clipDistance[0] * clipDistance[1] / (clipDistance[1] + clipDistance[0] - z * (clipDistance[1] - clipDistance[0]));	
 }
 
 #define TEST 0
@@ -135,8 +143,8 @@ void main() {
 		if(distanceToLight < pointLightRadius[i]){
 			attenuateFactor = attenuate(pointLightAttenuationConstaints[i], distanceToLight);
 			lightDir = normalize(lightDir);
-			diffuseFactor = cellShader(attenuateFactor * diffuse(lightDir, norm, diff), CELL_LAYER_COUNT_DIFFUSE);
-			specularFactor = cellShader(attenuateFactor * specular(lightDir, norm, vDir, specShinny.rgb, specShinny.a), CELL_LAYER_COUNT_SPECULAR);
+			diffuseFactor = attenuateFactor * diffuse(lightDir, norm, diff);
+			specularFactor = attenuateFactor * specular(lightDir, norm, vDir, specShinny.rgb, specShinny.a);
 			phonglightAccumulator += (diffuseFactor + specularFactor) * pointLightColours[i];
 		}
 	}
@@ -151,23 +159,28 @@ void main() {
 		if( (distanceToLight < spotLightRadius[i]) && (cosAngle > spotLightCosAngles[i][1])){
 			attenuateFactor = attenuate(spotLightAttenuationConstaints[i], distanceToLight);
 			spotlightFactor = spotLightEdgeFactor(spotLightCosAngles[i][1], spotLightCosAngles[i][0], cosAngle);
-			diffuseFactor = cellShader(attenuateFactor * spotlightFactor * diffuse(lightDir, norm, diff), CELL_LAYER_COUNT_DIFFUSE);
-			specularFactor = cellShader(attenuateFactor * spotlightFactor * specular(lightDir, norm, vDir, specShinny.rgb, specShinny.a), CELL_LAYER_COUNT_SPECULAR);
+			diffuseFactor = attenuateFactor * spotlightFactor * diffuse(lightDir, norm, diff);
+			specularFactor = attenuateFactor * spotlightFactor * specular(lightDir, norm, vDir, specShinny.rgb, specShinny.a);
 			phonglightAccumulator += (diffuseFactor + specularFactor) * spotLightColours[i];
 		}
 	}
 	
 	//Directional Light, specular and diffuse + shadow mapping
 	float shadowfactor;
-	diffuseFactor = cellShader(diffuse(-directionalLightDirection, norm, diff),CELL_LAYER_COUNT_DIFFUSE);
-	specularFactor = cellShader(specular(-directionalLightDirection, norm, vDir, specShinny.rgb, specShinny.a), CELL_LAYER_COUNT_SPECULAR);
+	diffuseFactor = diffuse(-directionalLightDirection, norm, diff);
+	specularFactor = specular(-directionalLightDirection, norm, vDir, specShinny.rgb, specShinny.a);
 	shadowfactor = (1.0 - directionalLightShadow(directionalLightSpaceFragPos, max(MAX_BIAS * (1.0 - dot(norm, -directionalLightDirection)), MIN_BIAS)));
 	phonglightAccumulator +=  (diffuseFactor + specularFactor) * shadowfactor * directionalLightColour;
 	//Ambient Light
 	phonglightAccumulator += ambient * ambientLightColour;
 	//Final Result
 	color = color * vec4(phonglightAccumulator,1.0);//Lighting
-	color = color - vec4(edgeDetection());//Edge Detection
+	float edv = edgeDetection();
+	color = (1.0 - edv) * color + edv * vec4(0.0,0.0,0.0,1.0);//Edge Detection
+	//Depth Fade
+	float depthfactor =  min(max(2.0*LinearizeDepth(texture(textureDepth,fragUv2).r) / clipDistance[1] - 0.98, 0.0), 1.0);
+	float a = depthfactor * depthfactor;
+	color = (1.0 - a) * color + a * vec4(0.1,0.1,0.1,1.0);
 	color[3] = 1.0; //Alpha Correction
 #endif
 } 

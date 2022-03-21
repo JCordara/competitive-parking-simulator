@@ -19,6 +19,9 @@ public:
 	void updateOrthographicCamera(float width, float height, float nearPlane, float farPlane);
 	void updatePerspectiveCamera(float fov, float aspectRatio, float nearPlane, float farPlane);
 	void windowSizeChanged(int width, int height) { camera->windowSizeChanged(width, height); }
+	float getNearClipPlane() { return camera->getNearPlane(); }
+	float getFarClipPlane() { return camera->getFarPlane(); }
+	void setFov(float fov) { camera->setFov(fov); }
 	CameraPurpose getPurpose() { return purpose; }
 	glm::mat4 getViewMatrix(glm::mat4 cameraModelTransformation);
 	glm::mat4 getProjectionMatrix();

@@ -59,10 +59,12 @@ void GameRenderPipeline::setDirectionalLightShadowMapProperties(glm::vec3 direct
 	}
 }
 
-void GameRenderPipeline::setCamera(glm::vec3 pos, glm::mat4 V, glm::mat4 P) {
+void GameRenderPipeline::setCamera(glm::vec3 pos, glm::mat4 V, glm::mat4 P, float nearClip, float farClip) {
 	cameraPosition = pos;
 	cameraViewTransformation = V;
 	cameraProjectionTransformation = P;
+	this->nearClip = nearClip;
+	this->farClip = farClip;
 }
 void GameRenderPipeline::setWindowDimentions(int width, int height) {
 	if (cameraWidth != width || cameraHeight != height) {
@@ -121,16 +123,19 @@ void GameRenderPipeline::executeRender() {
 	glActiveTexture(GL_TEXTURE6);
 	textureAmbientConstant.bind();
 	glActiveTexture(GL_TEXTURE7);
-	directionalLightDepthTexture.bind();
+	renderdDepthTexture.bind();
 	glActiveTexture(GL_TEXTURE8);
+	directionalLightDepthTexture.bind();
+	glActiveTexture(GL_TEXTURE9);
 	textureDirectionalLightPosition.bind();
 
-	postProcessingRenderer.setTextureLocations(0, 1, 2, 3, 4, 5, 6, 7, 8);
+	postProcessingRenderer.setTextureLocations(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 	postProcessingRenderer.setPointLights(pointLights, pointLightTransforms);
 	postProcessingRenderer.setSpotLights(spotLights, spotLightTransforms);
 	postProcessingRenderer.setDirectionalLight(directionalLight, directionalLightDirection);
 	postProcessingRenderer.setAmbientLight(ambientLight);
 	postProcessingRenderer.setRenderedCameraPosition(cameraPosition);
+	postProcessingRenderer.setRenderedCameraClip(nearClip, farClip);
 	postProcessingRenderer.render();
 	//postProcessingRenderer.endUse();
 }
@@ -302,7 +307,8 @@ PostProcessingRenderer::PostProcessingRenderer() :
 	textureNormalLocation = glGetUniformLocation(shader, "textureNormal");
 	textureDiffuseConstantLocation = glGetUniformLocation(shader, "textureDiffuseConstant");
 	textureSpecularAndShinnyConstantLocation = glGetUniformLocation(shader, "textureSpecularAndShinnyConstant");
-	textureAmbientConstantLocation = glGetUniformLocation(shader, "textureAmbientConstant");
+	textureSpecularAndShinnyConstantLocation = glGetUniformLocation(shader, "textureSpecularAndShinnyConstant");
+	textureDepthLocation = glGetUniformLocation(shader, "textureDepth");
 	//Depth test texture of directional light Shading
 	textureDirectionalLightDepthLocation = glGetUniformLocation(shader, "textureDirectionalLightDepth");
 	textureDirectionalLightPositionLocation = glGetUniformLocation(shader, "textureDirectionalLightPosition");
@@ -327,6 +333,7 @@ PostProcessingRenderer::PostProcessingRenderer() :
 	ambientLightColourLocation = glGetUniformLocation(shader, "ambientLightColour");
 	//Camera Uniforms
 	cameraPositionLocation = glGetUniformLocation(shader, "cameraPosition");
+	clipDistanceLocation = glGetUniformLocation(shader, "clipDistance");
 	//Geom being set
 	vao.bind();
 	vertBuffer.uploadData(sizeof(glm::vec3) * 6, quad, GL_STATIC_DRAW);
@@ -347,8 +354,8 @@ void PostProcessingRenderer::use(int width, int height) {
 void PostProcessingRenderer::setTextureLocations(int textureColourActiveLocation, int textureClassificationActiveLocation,
 	int texturePositionActiveLocation, int textureNormalActiveLocation,
 	int textureDiffuseConstantActiveLocation, int textureSpecularAndShinnyConstantActiveLocation,
-	int textureAmbientConstantActiveLocation, int textureDirectionalLightDepthActiveLocation,
-	int textureDirectionalLightPositionActiveLocation) {
+	int textureAmbientConstantActiveLocation, int textureDepthActiveLocation,
+	int textureDirectionalLightDepthActiveLocation, int textureDirectionalLightPositionActiveLocation) {
 	//Set the texture locations in the Active API
 	glUniform1i(textureColourLocation, textureColourActiveLocation);
 	glUniform1i(textureClassificationLocation, textureClassificationActiveLocation);
@@ -357,6 +364,7 @@ void PostProcessingRenderer::setTextureLocations(int textureColourActiveLocation
 	glUniform1i(textureDiffuseConstantLocation, textureDiffuseConstantActiveLocation);
 	glUniform1i(textureSpecularAndShinnyConstantLocation, textureSpecularAndShinnyConstantActiveLocation);
 	glUniform1i(textureAmbientConstantLocation, textureAmbientConstantActiveLocation);
+	glUniform1i(textureDepthLocation, textureDepthActiveLocation);
 	glUniform1i(textureDirectionalLightDepthLocation, textureDirectionalLightDepthActiveLocation);
 	glUniform1i(textureDirectionalLightPositionLocation, textureDirectionalLightPositionActiveLocation);
 }
@@ -444,6 +452,9 @@ void PostProcessingRenderer::setAmbientLight(std::shared_ptr<AmbientLight> light
 
 void PostProcessingRenderer::setRenderedCameraPosition(glm::vec3& pos) {
 	glUniform3fv(cameraPositionLocation, 1, &pos[0]);
+}
+void PostProcessingRenderer::setRenderedCameraClip(float near, float far) {
+	glUniform2f(clipDistanceLocation, near, far);
 }
 
 void PostProcessingRenderer::render() {

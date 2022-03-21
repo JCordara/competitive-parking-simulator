@@ -79,13 +79,14 @@ public:
 	void setTextureLocations(int textureColourActiveLocation, int textureClassificationActiveLocation,
 		int texturePositionActiveLocation, int textureNormalActiveLocation,
 		int textureDiffuseConstantActiveLocation, int textureSpecularAndShinnyConstantActiveLocation,
-		int textureAmbientConstantActiveLocation, int textureDirectionalLightDepthActiveLocation,
-		int textureDirectionalLightPositionActiveLocation);
+		int textureAmbientConstantActiveLocation, int textureDepthActiveLocation,
+		int textureDirectionalLightDepthActiveLocation, int textureDirectionalLightPositionActiveLocation);
 	void setPointLights(std::vector<std::shared_ptr<PointLight>>& pointLights, std::vector<glm::mat4> transforms);
 	void setSpotLights(std::vector<std::shared_ptr<SpotLight>>& spotLights, std::vector<glm::mat4> transforms);
 	void setDirectionalLight(std::shared_ptr<DirectionalLight> light, glm::vec3 direction);
 	void setAmbientLight(std::shared_ptr<AmbientLight> light);
 	void setRenderedCameraPosition(glm::vec3& pos);
+	void setRenderedCameraClip(float near, float far);
 	void render();
 private:
 	//Program to run Shader
@@ -119,6 +120,7 @@ private:
 	GLint textureDiffuseConstantLocation;
 	GLint textureSpecularAndShinnyConstantLocation;
 	GLint textureAmbientConstantLocation;
+	GLint textureDepthLocation;
 	//Depth test texture of directional light Shading
 	GLint textureDirectionalLightDepthLocation;
 	GLint textureDirectionalLightPositionLocation;
@@ -143,6 +145,7 @@ private:
 	GLint ambientLightColourLocation;
 	//Camera Uniforms
 	GLint cameraPositionLocation;
+	GLint clipDistanceLocation;
 };
 
 class GameRenderPipeline {
@@ -158,7 +161,7 @@ public:
 	
 	//Set render properties
 	void setDirectionalLightShadowMapProperties(glm::vec3 direction, glm::mat4 V, glm::mat4 P, int width, int height);
-	void setCamera(glm::vec3 pos, glm::mat4 V, glm::mat4 P);
+	void setCamera(glm::vec3 pos, glm::mat4 V, glm::mat4 P, float nearClip, float farClip);
 	void setWindowDimentions(int width, int height);
 	//Attach Objects to render
 	void attachRender(std::shared_ptr<Model> model, glm::mat4 modelTransformation);
@@ -206,6 +209,8 @@ private:
 	int directionalLightCameraHeight;
 	// RenderProperties
 	glm::vec3 cameraPosition;
+	float nearClip;
+	float farClip;
 	glm::mat4 cameraViewTransformation;
 	glm::mat4 cameraProjectionTransformation;
 	int cameraWidth;

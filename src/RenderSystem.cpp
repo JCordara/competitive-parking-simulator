@@ -49,11 +49,21 @@ void RenderSystem::update() {
 		glm::vec3 pos = glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, 0.f, 1.f));
 		CameraPurpose purpose = cc->getPurpose();
 		if (purpose == CameraPurpose::render) {
+			if (e->parent()) {
+				if (e->parent()->hasComponent<VehicleComponent>()) {
+					auto v = e->parent()->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getLinearVelocity().magnitude();
+					v = v - 10.f;
+					v = (v < 0.f) ? 0.f : v;
+					cc->setFov(glm::radians(100.f + 1.2f*v));//Hacky lol
+				}
+			}
 			cc->windowSizeChanged(window->getWidth(), window->getHeight());
 			renderPipeline->setCamera(
 				pos,
 				cc->getViewMatrix(localToGlobaltransform),
-				cc->getProjectionMatrix()
+				cc->getProjectionMatrix(),
+				cc->getNearClipPlane(),
+				cc->getFarClipPlane()
 			);
 		}
 		else if (purpose == CameraPurpose::shadowMap) {
