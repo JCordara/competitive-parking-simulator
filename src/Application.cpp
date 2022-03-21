@@ -233,7 +233,7 @@ Application::Application(appSettings& settings):
 	mainCameraTransform->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
 	
 	auto mainCamerCam = mainCamera->addComponent<CameraComponent>();
-	mainCamerCam->setPerspectiveCamera(glm::radians(90.f), 1.f /*Will be modified to the window*/,0.01f, 300.f);
+	mainCamerCam->setPerspectiveCamera(glm::radians(100.f), 1.f /*Will be modified to the window*/,1.f, 100.f);
 
 	auto MainDescription = mainCamera->addComponent<DescriptionComponent>();
 	MainDescription->setInteger("Parent Global Y-Plane Forward Direction Projection", 1);
