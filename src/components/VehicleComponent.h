@@ -23,6 +23,9 @@ public:
     ~VehicleComponent();
     static ComponentEnum getType();
 
+    float getSpeed();
+    bool isInAir();
+
     inline void setTransform(PxTransform& transform) {
         vehicle->getRigidDynamicActor()->setGlobalPose(transform);
     }
@@ -36,7 +39,7 @@ private:
     shared_ptr<PhysicsSystem> physicsSystem;
 
     PxVehicleDrive4WRawInputData inputData;
-    bool isInAir;
+    bool isInAir_;
     int numWheels;
 
     PxConvexMesh* chassisMesh;

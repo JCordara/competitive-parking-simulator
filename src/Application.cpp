@@ -2,7 +2,7 @@
 #include <Random.h>
 
 #define SPAWN_PROP_CARS 1
-const unsigned int g_numAiCars = 4;
+const unsigned int g_numAiCars = 0;
 
 unsigned int playerId = 0;
 std::vector<unsigned int> aiList;
@@ -537,7 +537,6 @@ int Application::play() {
 
 		// Render the current scene
 		render->update();
-
 	}
 
 	return 0;

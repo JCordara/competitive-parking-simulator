@@ -421,6 +421,14 @@ void VehicleComponent::printTuningInfo() {
     printf("Wheel toe angle: %.2f\n", wheelsF.mToeAngle);
 }
 
+float VehicleComponent::getSpeed() {
+    return vehicle->getRigidDynamicActor()->getLinearVelocity().magnitude();
+}
+
+bool VehicleComponent::isInAir() {
+    return isInAir_;
+}
+
 
 ComponentEnum VehicleComponent::getType() {
     return ComponentEnum::vehicle;

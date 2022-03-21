@@ -205,7 +205,7 @@ void PhysicsSystem::vehicleUpdate(shared_ptr<VehicleComponent> vc) {
 		gSteerVsForwardSpeedTable, 
 		vc->inputData, 
 		Time::timeStep(), 
-		vc->isInAir, 
+		vc->isInAir_, 
 		*vehicle
 	);
 
@@ -247,7 +247,7 @@ void PhysicsSystem::vehicleUpdate(shared_ptr<VehicleComponent> vc) {
 
 
 	// Work out if the vehicle is in the air
-	vc->isInAir = vehicle->getRigidDynamicActor()->isSleeping() ?
+	vc->isInAir_ = vehicle->getRigidDynamicActor()->isSleeping() ?
 		false : PxVehicleIsInAir(vehicleQueryResults[0]);
 
 	
