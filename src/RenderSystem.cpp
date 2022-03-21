@@ -107,18 +107,28 @@ glm::mat4 getLocalToGlobalTransformation(sp<Entity> e) {
 		return glm::translate(glm::mat4(1.f), temp) * transformComponent->getLocalMatrix();
 	}
 	else if (projectionOfParentOntoYPlane) {
+		// Get the default forward direction
 		glm::vec3 Forward = glm::vec3(1.f, 0.f, 0.f);
 		if (e->parent()->hasComponent<DescriptionComponent>()) {
 			auto f = e->parent()->getComponent<DescriptionComponent>()->getVec3("Forward");
 			if (f.has_value()) Forward = f.value();
 		}
-		Forward = VectorPlaneProjection(Forward, glm::vec3(0.f, 1.f, 0.f));
-		glm::vec3 nForward = glm::vec3(e->parent()->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(Forward, 0.f));
-		nForward = VectorPlaneProjection(nForward, glm::vec3(0.f, 1.f, 0.f));
-		float angle = acosf(dot(normalize(Forward), nForward));
+		//Get new forward direction
+		glm::vec3 nForward = normalize(glm::vec3(e->parent()->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(Forward, 0.f)));
+		//Get the error correction vector mag
+		float magnatude_a = abs(dot(nForward, glm::vec3(0.f, 1.f, 0.f)));
+		magnatude_a = (magnatude_a < 0.258f) ? 0.f : magnatude_a - 0.258f;
+		//Get the projection onto the x-z plane
+		Forward = normalize(VectorPlaneProjection(Forward, glm::vec3(0.f, 1.f, 0.f)));
+		nForward = normalize(VectorPlaneProjection(nForward, glm::vec3(0.f, 1.f, 0.f)));
+		//Get the error correction vector
+		glm::vec3 a = magnatude_a * normalize(cross(nForward, glm::vec3(0.f, 1.f, 0.f)));
+		//Find hte angle between
+		nForward = normalize(a + nForward);
+		float angle = acosf(dot(Forward, nForward));
 		glm::vec3 normal = cross(Forward, nForward);
 		glm::mat4 rot;
-		if (length(normal) == 0.f) {
+		if (length(normal) < 0.0001f) {
 			if (angle > 0.0001f) rot = convert<glm::mat4>(physx::PxQuat(glm::radians(180.f), physx::PxVec3(0.f, 1.f, 0.f)));
 			else rot = glm::mat4(1.f);
 		}

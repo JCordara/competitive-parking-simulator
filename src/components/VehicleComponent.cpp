@@ -47,7 +47,7 @@ VehicleComponent::VehicleComponent(shared_ptr<Entity> parent):
     // Get wheel children on component creation
     for (auto& child : entity->directChildren()) {
         if (auto desc = child->getComponent<DescriptionComponent>()) {
-            if (*desc->getInteger("wheel")) wheelEntities[numWheels++] = child;
+            if (desc->getInteger("wheel").has_value()) wheelEntities[numWheels++] = child;
         }
     }
 
