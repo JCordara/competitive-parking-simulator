@@ -115,6 +115,7 @@ namespace fourwheel
         const PxU32 numWheels, 
         PxVec3* wheelCentreOffsets)
     {
+
         //chassisDims.z is the distance from the rear of the chassis to the front of the chassis.
         //The front has z = 0.5*chassisDims.z and the rear has z = -0.5*chassisDims.z.
         //Compute a position for the front wheel and the rear wheel along the z-axis.
@@ -130,22 +131,22 @@ namespace fourwheel
         //Set the top of the wheel to be just touching the underside of the chassis.
         //Begin by setting the rear-left/rear-right/front-left,front-right wheels.
         wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eREAR_LEFT] = PxVec3(
-            -(0.5*chassisDims.x) + wheelWidth, 
+            -(0.5*chassisDims.x) + (wheelWidth * 0.8f), 
             height,
             -(0.5*chassisDims.z) + 0.625f
         );
         wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eREAR_RIGHT] = PxVec3(
-            (0.5*chassisDims.x) - wheelWidth, 
+            (0.5*chassisDims.x) - (wheelWidth * 0.8f), 
             height,
             -(0.5*chassisDims.z) + 0.625f 
         );
         wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eFRONT_LEFT] = PxVec3(
-            -(0.5*chassisDims.x) + wheelWidth, 
+            -(0.5*chassisDims.x) + (wheelWidth * 0.8f), 
             height,
             (0.5*chassisDims.z) - 0.64f
         );
         wheelCentreOffsets[PxVehicleDrive4WWheelOrder::eFRONT_RIGHT] = PxVec3(
-            (0.5*chassisDims.x) - wheelWidth, 
+            (0.5*chassisDims.x) - (wheelWidth * 0.8f), 
             height,
             (0.5*chassisDims.z) - 0.64f
         );

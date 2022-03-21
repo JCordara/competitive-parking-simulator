@@ -74,6 +74,12 @@ void PhysicsSystem::update() {
 					
 					PxShape* wheelShape = vc->wheelShapes[i];
 					PxTransform wheelTransform = wheelShape->getLocalPose();
+					
+					// For left wheels
+					if (wheelTransform.p.x < 0.0f) {
+						PxQuat rotate180 = PxQuat(glm::radians(180.0f), PxVec3(0.0f, 1.0f, 0.0f));
+						wheelTransform.q = rotate180 * wheelTransform.q;
+					}
 
 					auto gameTrans = vc->wheelEntities[i]->getComponent<TransformComponent>();
 					gameTrans->setLocalPosition(wheelTransform.p);
