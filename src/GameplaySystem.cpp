@@ -32,8 +32,12 @@ void GameplaySystem::registerAiComponent(AiComponent& component) {
 void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
 	std::cout << entity->id() << " , " << playerId << endl;
 	if (entity->id() == playerId) {
-		scores[playerId]++;
-		resetPlayer();
+		
+		if (scene->getEntityByID(playerId)->getComponent<VehicleComponent>()->getSpeed() <= 3.0f) {
+			scores[playerId]++;
+			resetPlayer();
+		};
+		
 	}
 	// Must be AI
 	else {
