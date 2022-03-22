@@ -106,6 +106,7 @@ void GameRenderPipeline::executeRender() {
 	deferredRenderer.setDirectionalLightCameraTransformations(directionalLightViewTransformation, directionalLightProjectionTransformation);
 	for (auto it = renderQueue.begin(); it != renderQueue.end(); it++) deferredRenderer.render(it->second);
 	deferredRenderer.endUse();
+	deferredRenderer.copyDepth(0, renderdDepthTexture.getDimensions().x, renderdDepthTexture.getDimensions().y);
 	//Post Processing Pass
 	postProcessingRenderer.use(cameraWidth, cameraHeight);
 	glActiveTexture(GL_TEXTURE0);
@@ -152,6 +153,8 @@ void DepthRenderer::use(int width, int height) {
 	frameBuffer.bind();
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glDepthMask(GL_TRUE);
 	glCullFace(GL_BACK);
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -237,6 +240,8 @@ void DeferredRenderer::use(int width, int height) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glDepthMask(GL_TRUE);
 	glUniform1i(modelTextureLocation, 0);
 }
 
@@ -294,6 +299,10 @@ void DeferredRenderer::endUse() {
 	frameBuffer.unbind();
 }
 
+void DeferredRenderer::copyDepth(GLuint id, int width, int height) {
+	frameBuffer.copyDepth(id, width, height);
+}
+
 
 PostProcessingRenderer::PostProcessingRenderer() :
 	shader("shaders/PostProcessingDeferredShading.vert", "shaders/PostProcessingDeferredShading.frag"),
@@ -343,10 +352,12 @@ PostProcessingRenderer::PostProcessingRenderer() :
 
 void PostProcessingRenderer::use(int width, int height) {
 	//Setup render call settings
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, width, height);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//glDisable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_ALWAYS);
+	glDepthMask(GL_FALSE);
 	//Load the shader for use
 	shader.use();
 }

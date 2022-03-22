@@ -43,6 +43,7 @@ public:
 		GLint textureDirectionalLightPositionID,GLint depthTextureID);
 	void render(instancedPair& instancedRender);
 	void endUse();
+	void copyDepth(GLuint id, int width, int height);
 private:
 	ShaderProgram shader;
 	FrameBuffer frameBuffer;

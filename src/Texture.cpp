@@ -73,6 +73,8 @@ void Texture::setUpInternal(int width, int height, GLint interpolation, GLuint i
 	// Clean up
 	unbind();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);	//Return to default alignment
+	this->width = width;
+	this->height = height;
 }
 
 void Texture::setBorderColour(glm::vec4 col) {
