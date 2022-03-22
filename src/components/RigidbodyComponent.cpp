@@ -43,6 +43,21 @@ void RigidbodyComponent::addActorStaticSphere(const float radius, PxTransform st
 	sphere->release();
 }
 
+
+void RigidbodyComponent::addActorStaticBox(PxVec3 halfLen, PxTransform startPos) {
+
+	actor = physicsSystem->pxPhysics->createRigidStatic(startPos);
+	actor->userData = static_cast<void*>(entity.get());
+
+	PxBoxGeometry boxGeom(halfLen);
+
+	PxShape* box = PxRigidActorExt::createExclusiveShape(*actor, boxGeom, *gMaterial);
+
+	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+	box->setSimulationFilterData(meshFilterData);
+	physicsSystem->pxScene->addActor(*actor);
+	box->release();
+}
 void RigidbodyComponent::addActorDynamic(const Model& model, PxTransform startPos) {
 
 	PxTransform mesht = startPos;//PxTransform(PxVec3(0, 20.0f, 0.0f));
