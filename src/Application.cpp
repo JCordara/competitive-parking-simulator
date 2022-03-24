@@ -475,6 +475,10 @@ Application::Application(appSettings& settings):
 		mapTreeLeavesRender->enableRender();
 	}
 
+	/* -----------------------------------------------
+	  SEGMENTATION FAULT WITH PARKING LINES PAST 120??? 
+	   vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
+
 	// --- Map Parking Lines ---
 	parkingLineLocation = collectGLMVecFromFile("../../res/modelTransformations/parkingLinesLocation.txt", parkingLineLocation);
 	parkingLineRotation = collectfloatFromFile("../../res/modelTransformations/parkingLinesRotation.txt", parkingLineRotation);
@@ -493,7 +497,20 @@ Application::Application(appSettings& settings):
 		mapParkingLineRender->enableRender();
 		}
 	}
+
+	/* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	  SEGMENTATION FAULT WITH PARKING LINES PAST 120??? 
+	   ----------------------------------------------- */
 	
+	/*
+		Here is where we will collect Parking spot locations & rotations
+		Choose random spots for empty parking spots and put in separate vector (2 less than the AI + Player)
+		
+		Instantiate prop cars in rest of parking spaces that aren't gameplay pieces (check empty parking space vector)
+			- Randomly choose between 4 different prop cars (yellow car1, purple car1, sedan, truck)
+
+		Create the trigger boxes and particles for empty parking spots here
+	*/
 
 /*
 #if SPAWN_PROP_CARS
