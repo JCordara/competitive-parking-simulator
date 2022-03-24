@@ -36,10 +36,8 @@
 	- GameMode Logic
 		- Game mode for musical chairs style
 		- Game mode for timed score based
-- Talk with Jeff about converting AI Node structure to
-  a heatmap where gradient descent can run
-- Talk to Brayden about getting nodes passed through to
-  AI nodes
+- Modify AI Behaviour logic to sight radius
+- Collapse nodes to Traversal nodes with a float for car speed.
 
 
 ### Brayden's tasks
