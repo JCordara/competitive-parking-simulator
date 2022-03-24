@@ -2,7 +2,7 @@
 #include <Random.h>
 
 #define SPAWN_PROP_CARS 1
-const unsigned int g_numAiCars = 0;
+const unsigned int g_numAiCars = 2;
 
 unsigned int playerId = 0;
 std::vector<unsigned int> aiList;
@@ -119,7 +119,7 @@ Application::Application(appSettings& settings):
 		"models/car1wheel.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	auto modelAiCar = std::make_shared<Model>(
-		"models/car2.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/car2chassis.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	auto modelPropCar = std::make_shared<Model>(
 		"models/car3.obj", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -450,6 +450,7 @@ Application::Application(appSettings& settings):
 	treeLocation = collectGLMVecFromFile("../../res/modelTransformations/treeLocation.txt", treeLocation);
 
 	for(int i = 0; i < treeLocation.size(); i++){
+		// - Tree Stumps - 
 		auto mapTreeStump = scene->addEntity();
 		auto mapTreeStumpTransform = mapTreeStump->getComponent<TransformComponent>();
 		mapTreeStumpTransform->localTranslate(treeLocation.at(i).x, treeLocation.at(i).y, treeLocation.at(i).z);
@@ -463,6 +464,7 @@ Application::Application(appSettings& settings):
 		auto mapTreeStumpRigidbody = mapTreeStump->addComponent<RigidbodyComponent>();
 		mapTreeStumpRigidbody->addActorStaticMesh(*modelMapTreeStump, convert<physx::PxTransform>(mapTreeStumpTransform->getGlobalMatrix()));
 
+		// - Tree Leaves - 
 		auto mapTreeLeaves = scene->addEntity();
 		auto mapTreeLeavesTransform = mapTreeLeaves->getComponent<TransformComponent>();
 		mapTreeLeavesTransform->localTranslate(treeLocation.at(i).x, treeLocation.at(i).y, treeLocation.at(i).z);
@@ -503,13 +505,13 @@ Application::Application(appSettings& settings):
 	   ----------------------------------------------- */
 	
 	/*
-		Here is where we will collect Parking spot locations & rotations
-		Choose random spots for empty parking spots and put in separate vector (2 less than the AI + Player)
+		Here is where we will collect Parking spot locations & rotations (Vector/Float to File Functions)
+		Choose random spots for empty parking spots and put in separate vector (2 less than the AI + Player ( for(int i = 0; i < g_numAICars-1; i++) ))
 		
-		Instantiate prop cars in rest of parking spaces that aren't gameplay pieces (check empty parking space vector)
-			- Randomly choose between 4 different prop cars (yellow car1, purple car1, sedan, truck)
+		Instantiate prop cars in rest of parking spots that aren't gameplay spots (check empty parking spot vector through nested for loop)
+			- Randomly choose between 4 different prop cars (car3, car4, sedan, truck)
 
-		Create the trigger boxes and particles for empty parking spots here
+		Create the trigger boxes and particles for empty parking spots here (for loop using size of empty parking spot location vector)
 	*/
 
 /*
