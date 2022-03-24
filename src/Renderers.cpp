@@ -188,7 +188,7 @@ void DepthRenderer::render(instancedPair& instancedRender) {
 			temp = instancedRender.modelTransformations[j];
 			copy(glm::value_ptr(temp), glm::value_ptr(temp) + 16, back_inserter(ret1));
 		}
-		glUniformMatrix4fv(modelsLocation, instancedRender.modelTransformations.size(), GL_FALSE, ret1.data());
+		glUniformMatrix4fv(modelsLocation, count, GL_FALSE, ret1.data());
 		instancedRender.model->draw(shader, GL_TEXTURE0, -1, -1, -1, -1, -1, count);
 		ret1.clear();
 	}
@@ -302,8 +302,8 @@ void DeferredRenderer::render(instancedPair& instancedRender) {
 			temp = glm::inverse(temp);
 			copy(glm::value_ptr(temp), glm::value_ptr(temp) + 16, back_inserter(ret2));
 		}
-		glUniformMatrix4fv(modelTransformationsLocation, instancedRender.modelTransformations.size(), GL_FALSE, ret1.data());
-		glUniformMatrix4fv(modelTransformationsInverseLocation, instancedRender.modelTransformations.size(), GL_TRUE, ret2.data());
+		glUniformMatrix4fv(modelTransformationsLocation, count, GL_FALSE, ret1.data());
+		glUniformMatrix4fv(modelTransformationsInverseLocation, count, GL_TRUE, ret2.data());
 		instancedRender.model->draw(shader, GL_TEXTURE0, modelClassificationColourLocation,
 			modelDiffuseConstantLocation, modelSpecularConstantLocation, modelAlphaConstantLocation, modelAmbientConstantLocation, count);
 		ret1.clear();
@@ -331,7 +331,7 @@ PostProcessingRenderer::PostProcessingRenderer() :
 	textureNormalLocation = glGetUniformLocation(shader, "textureNormal");
 	textureDiffuseConstantLocation = glGetUniformLocation(shader, "textureDiffuseConstant");
 	textureSpecularAndShinnyConstantLocation = glGetUniformLocation(shader, "textureSpecularAndShinnyConstant");
-	textureSpecularAndShinnyConstantLocation = glGetUniformLocation(shader, "textureSpecularAndShinnyConstant");
+	textureAmbientConstantLocation = glGetUniformLocation(shader, "textureAmbientConstant");
 	textureDepthLocation = glGetUniformLocation(shader, "textureDepth");
 	//Depth test texture of directional light Shading
 	textureDirectionalLightDepthLocation = glGetUniformLocation(shader, "textureDirectionalLightDepth");

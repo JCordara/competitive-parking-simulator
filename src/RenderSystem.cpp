@@ -71,7 +71,7 @@ void RenderSystem::update() {
 				glm::normalize(glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, -1.f, 0.f))),
 				cc->getViewMatrix(localToGlobaltransform),
 				cc->getProjectionMatrix(),
-				4096,
+				8192,//4096,
 				4096
 			);
 		}

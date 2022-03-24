@@ -213,13 +213,13 @@ Application::Application(appSettings& settings):
 
 	// --- Shadow map camera ---
 	auto shadowCameraTransform = shadowCamera->getComponent<TransformComponent>();
-	auto q1 = physx::PxQuat(glm::radians(-60.f), physx::PxVec3(1.f, 0.f, 0.f));
-	auto q2 = physx::PxQuat(glm::radians(-90.f), physx::PxVec3(0.f, 1.f, 0.f));
-	shadowCameraTransform->setLocalPosition(-30.0f, 20.0f, 0.0f);
-	shadowCameraTransform->setLocalRotation(q2 * q1);
+	auto q1 = physx::PxQuat(glm::radians(-45.f), physx::PxVec3(1.f, 0.f, 0.f));
+	//auto q2 = physx::PxQuat(glm::radians(-90.f), physx::PxVec3(0.f, 1.f, 0.f));
+	shadowCameraTransform->setLocalPosition(0, 100.0f, 100.0f);
+	shadowCameraTransform->setLocalRotation( q1);
 
 	auto shadowCameraCam = shadowCamera->addComponent<CameraComponent>();
-	shadowCameraCam->setOrthographicCamera(100.f, 100.f, 0.1f, 100.f);
+	shadowCameraCam->setOrthographicCamera(300.f, 150.f, 10.f, 300.f);
 
 	auto shadowCameraDesc = shadowCamera->addComponent<DescriptionComponent>();
 	shadowCameraDesc->setInteger("Ignore parent rotations in render", 1);

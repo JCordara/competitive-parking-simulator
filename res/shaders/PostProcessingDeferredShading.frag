@@ -32,8 +32,8 @@ uniform vec2 spotLightCosAngles[MAX_NUMBER_SPOT_LIGHTS];
 uniform int numberOfSpotLights;
 	//Directional Lighting Uniforms
 uniform vec3 directionalLightDirection;
-#define MAX_BIAS 0.05
-#define MIN_BIAS 0.005
+#define MAX_BIAS 0.005
+#define MIN_BIAS 0.0005
 uniform vec3 directionalLightColour;
 	//Ambient Lighting Uniforms
 uniform vec3 ambientLightColour;
@@ -88,7 +88,7 @@ float directionalLightShadow(vec3 fragPositionInLight, float bias){
     vec3 projCoords = fragPositionInLight * 0.5 + 0.5;
 	if(projCoords.z < 0.0 || projCoords.x < 0.0 || projCoords.y < 0.0
 	||projCoords.z > 1.0 || projCoords.x > 1.0 || projCoords.y > 1.0)
-		return 0.0;
+		return 1.0;
     float currentDepth = projCoords.z;
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(textureDirectionalLightDepth, 0);
