@@ -2,7 +2,7 @@
 #include <Random.h>
 
 #define SPAWN_PROP_CARS 1
-const unsigned int g_numAiCars = 2;
+const unsigned int g_numAiCars = 0;
 
 unsigned int playerId = 0;
 std::vector<unsigned int> aiList;
@@ -17,6 +17,9 @@ std::vector<float> curbRotation;
 
 std::vector<glm::vec3> metalFenceLocation;
 std::vector<float> metalFenceRotation;
+
+std::vector<glm::vec3> warningWallLocation;
+std::vector<float> warningWallRotation;
 
 std::vector<glm::vec3> woodFenceLocation;
 std::vector<float> woodFenceRotation;
@@ -139,7 +142,7 @@ Application::Application(appSettings& settings):
 		"models/cpsMap_PLotPlane.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelMapMall = std::make_shared<Model>(
-		"models/cpsMap_Mall.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_Mall.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 	
 	auto modelMapMallText = std::make_shared<Model>(
 		"models/cpsMap_MallText.obj", glm::vec3(.5f, .1f, .2f));
@@ -181,6 +184,9 @@ Application::Application(appSettings& settings):
 
 	auto modelMapTreeLeaves = std::make_shared<Model>(
 		"models/cpsMap_TreeLeaves.obj", glm::vec3(.5f, .1f, .2f));
+
+	auto modelMapWarningWall = std::make_shared<Model>(
+		"models/cpsMap_WarningWall.obj", glm::vec3(.5f, .1f, .2f));
 
 
 	// --- Directional light ---
@@ -371,6 +377,23 @@ Application::Application(appSettings& settings):
 
 		auto mapMetalFenceRender = mapMetalFence->addComponent<RendererComponent>();
 		mapMetalFenceRender->enableRender();
+	}
+
+	// --- Map Warning Wall ---
+	warningWallLocation = collectGLMVecFromFile("../../res/modelTransformations/warningWallLocation.txt", warningWallLocation);
+	warningWallRotation = collectfloatFromFile("../../res/modelTransformations/warningWallRotation.txt", warningWallRotation);
+
+	for(int i = 0; i < warningWallLocation.size(); i++){
+		auto mapwarningWall = scene->addEntity();
+		auto mapwarningWallTransform = mapwarningWall->getComponent<TransformComponent>();
+		mapwarningWallTransform->localTranslate(warningWallLocation.at(i).x, warningWallLocation.at(i).y, warningWallLocation.at(i).z);
+		mapwarningWallTransform->localRotate(glm::radians(warningWallRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
+
+		auto mapwarningWallModel = mapwarningWall->addComponent<ModelComponent>();
+		mapwarningWallModel->setModel(modelMapWarningWall);
+
+		auto mapwarningWallRender = mapwarningWall->addComponent<RendererComponent>();
+		mapwarningWallRender->enableRender();
 	}
 	
 	// --- Map Curb ---
