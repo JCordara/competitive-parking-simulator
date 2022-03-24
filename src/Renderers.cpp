@@ -177,13 +177,20 @@ void DepthRenderer::attachFrameBufferTexture(GLuint depthTextureID) {
 void DepthRenderer::render(instancedPair& instancedRender) {
 	std::vector<GLfloat> ret1;
 	glm::mat4 temp;
-	if (instancedRender.modelTransformations.size() > 0) {
-		for (int j = 0; j < instancedRender.modelTransformations.size(); j++) {
+	int j = 0;
+	int count = 0;
+	while(j < instancedRender.modelTransformations.size()) {
+		for (
+			int count = 0;
+			j < instancedRender.modelTransformations.size() && count < 120;
+			j++, count++
+		) {
 			temp = instancedRender.modelTransformations[j];
 			copy(glm::value_ptr(temp), glm::value_ptr(temp) + 16, back_inserter(ret1));
 		}
 		glUniformMatrix4fv(modelsLocation, instancedRender.modelTransformations.size(), GL_FALSE, ret1.data());
 		instancedRender.model->draw(shader, GL_TEXTURE0, -1, -1, -1, -1, -1, instancedRender.modelTransformations.size());
+		ret1.clear();
 	}
 }
 
@@ -282,8 +289,14 @@ void DeferredRenderer::attachFrameBufferTextures(GLuint textureColourID, GLint t
 void DeferredRenderer::render(instancedPair& instancedRender) {
 	std::vector<GLfloat> ret1, ret2;
 	glm::mat4 temp;
-	if (instancedRender.modelTransformations.size() > 0) {
-		for (int j = 0; j < instancedRender.modelTransformations.size(); j++) {
+	int j = 0;
+	int count = 0;
+	while (j < instancedRender.modelTransformations.size()) {
+		for (
+			int count = 0;
+			j < instancedRender.modelTransformations.size() && count < 120;
+			j++, count++
+		) {
 			temp = instancedRender.modelTransformations[j];
 			copy(glm::value_ptr(temp), glm::value_ptr(temp) + 16, back_inserter(ret1));
 			temp = glm::inverse(temp);
@@ -293,6 +306,8 @@ void DeferredRenderer::render(instancedPair& instancedRender) {
 		glUniformMatrix4fv(modelTransformationsInverseLocation, instancedRender.modelTransformations.size(), GL_TRUE, ret2.data());
 		instancedRender.model->draw(shader, GL_TEXTURE0, modelClassificationColourLocation,
 			modelDiffuseConstantLocation, modelSpecularConstantLocation, modelAlphaConstantLocation, modelAmbientConstantLocation, instancedRender.modelTransformations.size());
+		ret1.clear();
+		ret2.clear();
 	}
 }
 void DeferredRenderer::endUse() {
