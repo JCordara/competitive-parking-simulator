@@ -178,10 +178,10 @@ void DepthRenderer::render(instancedPair& instancedRender) {
 	std::vector<GLfloat> ret1;
 	glm::mat4 temp;
 	int j = 0;
-	int count = 0;
+	int count;
 	while(j < instancedRender.modelTransformations.size()) {
 		for (
-			int count = 0;
+			count = 0;
 			j < instancedRender.modelTransformations.size() && count < 120;
 			j++, count++
 		) {
@@ -189,7 +189,7 @@ void DepthRenderer::render(instancedPair& instancedRender) {
 			copy(glm::value_ptr(temp), glm::value_ptr(temp) + 16, back_inserter(ret1));
 		}
 		glUniformMatrix4fv(modelsLocation, instancedRender.modelTransformations.size(), GL_FALSE, ret1.data());
-		instancedRender.model->draw(shader, GL_TEXTURE0, -1, -1, -1, -1, -1, instancedRender.modelTransformations.size());
+		instancedRender.model->draw(shader, GL_TEXTURE0, -1, -1, -1, -1, -1, count);
 		ret1.clear();
 	}
 }
@@ -293,7 +293,7 @@ void DeferredRenderer::render(instancedPair& instancedRender) {
 	int count = 0;
 	while (j < instancedRender.modelTransformations.size()) {
 		for (
-			int count = 0;
+			count = 0;
 			j < instancedRender.modelTransformations.size() && count < 120;
 			j++, count++
 		) {
@@ -305,7 +305,7 @@ void DeferredRenderer::render(instancedPair& instancedRender) {
 		glUniformMatrix4fv(modelTransformationsLocation, instancedRender.modelTransformations.size(), GL_FALSE, ret1.data());
 		glUniformMatrix4fv(modelTransformationsInverseLocation, instancedRender.modelTransformations.size(), GL_TRUE, ret2.data());
 		instancedRender.model->draw(shader, GL_TEXTURE0, modelClassificationColourLocation,
-			modelDiffuseConstantLocation, modelSpecularConstantLocation, modelAlphaConstantLocation, modelAmbientConstantLocation, instancedRender.modelTransformations.size());
+			modelDiffuseConstantLocation, modelSpecularConstantLocation, modelAlphaConstantLocation, modelAmbientConstantLocation, count);
 		ret1.clear();
 		ret2.clear();
 	}
