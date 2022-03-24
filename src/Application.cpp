@@ -32,6 +32,8 @@ std::vector<glm::vec3> treeLocation;
 std::vector<glm::vec3> parkingLineLocation;
 std::vector<float> parkingLineRotation;
 
+std::vector<glm::vec3> roadLocation;
+
 vector<glm::vec3> collectGLMVecFromFile(string filepath, vector<glm::vec3> vec){
 	std::ifstream file(filepath);
 	std::string str;
@@ -187,6 +189,9 @@ Application::Application(appSettings& settings):
 
 	auto modelMapWarningWall = std::make_shared<Model>(
 		"models/cpsMap_WarningWall.obj", glm::vec3(.5f, .1f, .2f));
+	
+	auto modelMapBGRoad = std::make_shared<Model>(
+		"models/cpsMap_BGRoad.obj", glm::vec3(.5f, .1f, .2f));
 
 
 	// --- Directional light ---
@@ -414,6 +419,21 @@ Application::Application(appSettings& settings):
 
 		auto mapCurbRigidbody = mapCurb->addComponent<RigidbodyComponent>();
 		mapCurbRigidbody->addActorStaticMesh(*modelMapCurb, convert<physx::PxTransform>(mapCurbTransform->getGlobalMatrix()));
+	}
+
+	// --- Map Background Road ---
+	roadLocation = collectGLMVecFromFile("../../res/modelTransformations/roadLocation.txt", roadLocation);
+
+	for(int i = 0; i < roadLocation.size(); i++){
+		auto mapBGRoad = scene->addEntity();
+		auto mapBGRoadTransform = mapBGRoad->getComponent<TransformComponent>();
+		mapBGRoadTransform->localTranslate(roadLocation.at(i).x, roadLocation.at(i).y, roadLocation.at(i).z);
+
+		auto mapBGRoadModel = mapBGRoad->addComponent<ModelComponent>();
+		mapBGRoadModel->setModel(modelMapBGRoad);
+
+		auto mapBGRoadRender = mapBGRoad->addComponent<RendererComponent>();
+		mapBGRoadRender->enableRender();
 	}
 
 	// --- Map Hedges ---
