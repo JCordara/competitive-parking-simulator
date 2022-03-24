@@ -121,10 +121,17 @@ Application::Application(appSettings& settings):
 	auto modelAiCar = std::make_shared<Model>(
 		"models/car2chassis.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
-	auto modelPropCar = std::make_shared<Model>(
+	auto modelPropCar1 = std::make_shared<Model>(
 		"models/car3.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
-	//ADD MORE PROPCAR MODELS HERE (SEDAN, TRUCK, ONE EXTRA COLOR OF MAIN CAR)
+	auto modelPropCar2 = std::make_shared<Model>(
+		"models/car4.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+
+	auto modelPropCar3 = std::make_shared<Model>(
+		"models/sedan.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+
+	auto modelPropCar4 = std::make_shared<Model>(
+		"models/truck.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 
 	// --- Static Map Models ---
