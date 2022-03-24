@@ -9,139 +9,69 @@ std::vector<unsigned int> aiList;
 std::unordered_map<unsigned int, int> scores;
 std::shared_ptr<Entity> playerCar;
 
+std::vector<glm::vec3> hedgeLocation;
+std::vector<float> hedgeRotation;
 
-glm::vec3 parkingVertices[] = {
-	//GROUP 1 - Horizontal Parking Spaces
-	//NEEDS 90 or 270 degree rotation
-	glm::vec3(28.5f, 2.0f, 42.8f),
-	glm::vec3(28.5f, 2.0f, 36.2f),
-	glm::vec3(28.5f, 2.0f, 29.6f),
-	glm::vec3(28.5f, 2.0f, 23.0f),
-	glm::vec3(28.5f, 2.0f, 16.4f),
-	glm::vec3(28.5f, 2.0f, 9.8f),
-	glm::vec3(28.5f, 2.0f, 3.2f),
-	glm::vec3(28.5f, 2.0f, -3.4f),
-	glm::vec3(28.5f, 2.0f, -10.0f),
-	glm::vec3(28.5f, 2.0f, -16.6f),
-	glm::vec3(28.5f, 2.0f, -23.2f),
-	glm::vec3(28.5f, 2.0f, -46.2f),
-	glm::vec3(-148.5f, 2.0f, 49.6f),
-	glm::vec3(-148.5f, 2.0f, 29.6f),
-	glm::vec3(-148.5f, 2.0f, 23.0f),
-	glm::vec3(-148.5f, 2.0f, 16.4f),
-	glm::vec3(-148.5f, 2.0f, 9.8f),
-	glm::vec3(-148.5f, 2.0f, 3.2f),
-	glm::vec3(-148.5f, 2.0f, -3.4f),
-	glm::vec3(-148.5f, 2.0f, -10.0f),
-	glm::vec3(-148.5f, 2.0f, -16.6f),
-	glm::vec3(-148.5f, 2.0f, -29.8f),
-	glm::vec3(-148.5f, 2.0f, -36.4f),
-	glm::vec3(-148.5f, 2.0f, -43.0f),
-	glm::vec3(149.7f, 2.0f, 42.8f),
-	glm::vec3(149.7f, 2.0f, 36.2f),
-	glm::vec3(149.7f, 2.0f, 29.6f),
-	glm::vec3(149.7f, 2.0f, 23.0f),
-	glm::vec3(149.7f, 2.0f, 16.4f),
-	glm::vec3(149.7f, 2.0f, 9.8f),
-	glm::vec3(149.7f, 2.0f, 3.2f),
-	glm::vec3(149.7f, 2.0f, -3.4f),
-	glm::vec3(149.7f, 2.0f, -10.0f),
-	glm::vec3(149.7f, 2.0f, -16.6f),
-	glm::vec3(149.7f, 2.0f, -23.2f),
-	glm::vec3(149.7f, 2.0f, -46.2f),
-	glm::vec3(-27.7f, 2.0f, 49.6f),
-	glm::vec3(-27.7f, 2.0f, 29.6f),
-	glm::vec3(-27.7f, 2.0f, 23.0f),
-	glm::vec3(-27.7f, 2.0f, 16.4f),
-	glm::vec3(-27.7f, 2.0f, 9.8f),
-	glm::vec3(-27.7f, 2.0f, 3.2f),
-	glm::vec3(-27.7f, 2.0f, -3.4f),
-	glm::vec3(-27.7f, 2.0f, -10.0f),
-	glm::vec3(-27.7f, 2.0f, -16.6f),
-	glm::vec3(-27.7f, 2.0f, -23.2f),
-	glm::vec3(-27.7f, 2.0f, -46.2f),
+std::vector<glm::vec3> curbLocation;
+std::vector<float> curbRotation;
 
-	//GROUP 2 - Vertical Parking Spaces
-	glm::vec3(39.8f, 2.0f, 61.0f),
-	glm::vec3(46.4f, 2.0f, 61.0f),
-	glm::vec3(53.0f, 2.0f, 61.0f),
-	glm::vec3(59.6f, 2.0f, 61.0f),
-	glm::vec3(66.2f, 2.0f, 61.0f),
-	glm::vec3(72.8f, 2.0f, 61.0f),
-	glm::vec3(79.4f, 2.0f, 61.0f),
-	glm::vec3(99.2f, 2.0f, 61.0f),
-	glm::vec3(105.8f, 2.0f, 61.0f),
-	glm::vec3(112.4f, 2.0f, 61.0f),
-	glm::vec3(119.0f, 2.0f, 61.0f),
-	glm::vec3(125.6f, 2.0f, 61.0f),
-	glm::vec3(132.2f, 2.0f, 61.0f),
-	glm::vec3(138.8f, 2.0f, 61.0f),
-	glm::vec3(39.8f, 2.0f, -57.0f),
-	glm::vec3(53.0f, 2.0f, -57.0f),
-	glm::vec3(59.6f, 2.0f, -57.0f),
-	glm::vec3(66.2f, 2.0f, -57.0f),
-	glm::vec3(72.8f, 2.0f, -57.0f),
-	glm::vec3(79.4f, 2.0f, -57.0f),
-	glm::vec3(99.2f, 2.0f, -57.0f),
-	glm::vec3(105.8f, 2.0f, -57.0f),
-	glm::vec3(112.4f, 2.0f, -57.0f),
-	glm::vec3(119.0f, 2.0f, -57.0f),
-	glm::vec3(125.6f, 2.0f, -57.0f),
-	glm::vec3(132.2f, 2.0f, -57.0f),
-	glm::vec3(138.8f, 2.0f, -57.0f),
-	glm::vec3(-38.6f, 2.0f, 61.0f),
-	glm::vec3(-51.8f, 2.0f, 61.0f),
-	glm::vec3(-58.4f, 2.0f, 61.0f),
-	glm::vec3(-65.0f, 2.0f, 61.0f),
-	glm::vec3(-71.6f, 2.0f, 61.0f),
-	glm::vec3(-78.2f, 2.0f, 61.0f),
-	glm::vec3(-84.8f, 2.0f, 61.0f),
-	glm::vec3(-91.4f, 2.0f, 61.0f),
-	glm::vec3(-98.0f, 2.0f, 61.0f),
-	glm::vec3(-104.6f, 2.0f, 61.0f),
-	glm::vec3(-111.2f, 2.0f, 61.0f),
-	glm::vec3(-117.8f, 2.0f, 61.0f),
-	glm::vec3(-124.4f, 2.0f, 61.0f),
-	glm::vec3(-131.0f, 2.0f, 61.0f),
-	glm::vec3(-137.6f, 2.0f, 61.0f),
-	glm::vec3(-38.6f, 2.0f, -57.0f),
-	glm::vec3(-45.2f, 2.0f, -57.0f),
-	glm::vec3(-51.8f, 2.0f, -57.0f),
-	glm::vec3(-58.4f, 2.0f, -57.0f),
-	glm::vec3(-65.0f, 2.0f, -57.0f),
-	glm::vec3(-71.6f, 2.0f, -57.0f),
-	glm::vec3(-78.2f, 2.0f, -57.0f),
-	glm::vec3(-98.0f, 2.0f, -57.0f),
-	glm::vec3(-104.6f, 2.0f, -57.0f),
-	glm::vec3(-111.2f, 2.0f, -57.0f),
-	glm::vec3(-117.8f, 2.0f, -57.0f),
-	glm::vec3(-124.4f, 2.0f, -57.0f),
-	glm::vec3(-131.0f, 2.0f, -57.0f),
-	glm::vec3(-137.6f, 2.0f, -57.0f)
-};
+std::vector<glm::vec3> metalFenceLocation;
+std::vector<float> metalFenceRotation;
 
-glm::vec3 emptyparkingVertices[] = {
-	glm::vec3(-148.5f, -0.9f, -23.0f),
-	glm::vec3(46.4f, -0.9f, -57.0f),
-	glm::vec3(-45.2f, -0.9f, 61.0f),
-};
+std::vector<glm::vec3> woodFenceLocation;
+std::vector<float> woodFenceRotation;
 
-glm::vec3 rockPosVertices[] = {
-	glm::vec3(14.0f, -1.0f, -50.0f),
-	glm::vec3(11.0f, -1.0f, -56.0f),
-	glm::vec3(20.0f, -1.0f, -64.0f),
-	glm::vec3(17.0f, -1.0f, -55.0f),
-	glm::vec3(-21.0f, -1.0f, -56.0f),
-	glm::vec3(-17.0f, -1.0f, -62.0f),
-	glm::vec3(-9.0f, -1.0f, -54.0f),
-	glm::vec3(14.0f, -1.0f, 50.0f),
-	glm::vec3(13.0f, -1.0f, 56.0f),
-	glm::vec3(16.0f, -1.0f, 64.0f),
-	glm::vec3(-14.0f, -1.0f, 55.0f),
-	glm::vec3(-7.0f, -1.0f, 62.0f),
-	glm::vec3(-17.0f, -1.0f, 53.0f),
-	glm::vec3(-9.0f, -1.0f, 58.0f)
-};
+std::vector<glm::vec3> woodFencePoleLocation;
+std::vector<float> woodFencePoleRotation;
+
+std::vector<glm::vec3> treeLocation;
+
+std::vector<glm::vec3> parkingLineLocation;
+std::vector<float> parkingLineRotation;
+
+vector<glm::vec3> collectGLMVecFromFile(string filepath, vector<glm::vec3> vec){
+	std::ifstream file(filepath);
+	std::string str;
+	std::string space = " ";
+	size_t pos = 0;
+
+	float x, y, z;
+
+	while(std::getline(file, str)) {
+		int counter = 0;
+		while((pos = str.find(space)) != string::npos) {
+			counter++;
+			if(counter == 1){
+				x = std::stof(str.substr(0, pos));
+			} else if(counter == 2){
+				y = std::stof(str.substr(0, pos));
+			}
+
+			str.erase(0, pos + space.length());
+		}
+
+		z = std::stof(str);
+
+		vec.push_back(glm::vec3(x,y,z));
+	}
+
+	file.close();
+
+	return vec;
+}
+
+vector<float> collectfloatFromFile(string filepath, vector<float> vec){
+	std::ifstream file(filepath);
+	std::string str;
+
+	while(std::getline(file, str)) {
+		vec.push_back(std::stof(str));
+	}
+
+	file.close();
+
+	return vec;
+}
 
 Application::Application(appSettings& settings): 
 	settings(settings)
@@ -167,13 +97,13 @@ Application::Application(appSettings& settings):
 	playerCar = scene->addEntity();
 	vector<sp<Entity>> aiCars;
 
+	auto mapRoad  	 = scene->addEntity();
+	auto mapMall     = scene->addEntity();
+	auto mapMallText = scene->addEntity();
 	auto mapGrass = scene->addEntity();
-	auto mapRoad  = scene->addEntity();
-	auto mapLines = scene->addEntity();
 	auto mapWall1 = scene->addEntity();
 	auto mapWall2 = scene->addEntity();
 	auto mapWall3 = scene->addEntity();
-	auto mapWall4 = scene->addEntity();
 
 	auto triggerBox = scene->addEntity();
 
@@ -181,9 +111,12 @@ Application::Application(appSettings& settings):
 	auto mainCamera = playerCar->addChild();
 	auto shadowCamera = playerCar->addChild();
 
-	// --- Models ---
+	// --- Car Models ---
 	auto modelPlayerCar = std::make_shared<Model>(
 		"models/car1chassis.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+
+	auto modelWheel = std::make_shared<Model>(
+		"models/car1wheel.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	auto modelAiCar = std::make_shared<Model>(
 		"models/car2.obj", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -191,35 +124,57 @@ Application::Application(appSettings& settings):
 	auto modelPropCar = std::make_shared<Model>(
 		"models/car3.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
-	auto modelWheel = std::make_shared<Model>(
-		"models/car1wheel.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+	//ADD MORE PROPCAR MODELS HERE (SEDAN, TRUCK, ONE EXTRA COLOR OF MAIN CAR)
 
-	auto modelMapGrass = std::make_shared<Model>(
-		"models/gamemapGrassPlane.obj", glm::vec3(.5f, .1f, .2f));
 
+	// --- Static Map Models ---
 	auto modelMapRoad = std::make_shared<Model>(
-		"models/gamemapRoad.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_PLotPlane.obj", glm::vec3(.5f, .1f, .2f));
 
-	auto modelMapLines = std::make_shared<Model>(
-		"models/gamemapParkingLines.obj", glm::vec3(.5f, .1f, .2f));
+	auto modelMapMall = std::make_shared<Model>(
+		"models/cpsMap_Mall.obj", glm::vec3(.5f, .1f, .2f));
+	
+	auto modelMapMallText = std::make_shared<Model>(
+		"models/cpsMap_MallText.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelMapWall1 = std::make_shared<Model>(
-		"models/gamemapBrickWall1.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_BWall1.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelMapWall2 = std::make_shared<Model>(
-		"models/gamemapBrickWall2.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_BWall2.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelMapWall3 = std::make_shared<Model>(
-		"models/gamemapBrickWall3.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_BWall3.obj", glm::vec3(.5f, .1f, .2f));
 
-	auto modelMapWall4 = std::make_shared<Model>(
-		"models/gamemapBrickWall4.obj", glm::vec3(.5f, .1f, .2f));
+	auto modelMapGrass = std::make_shared<Model>(
+		"models/cpsMap_BGGrass.obj", glm::vec3(.5f, .1f, .2f));
 
-	auto modelParkIndic = std::make_shared<Model>(
-		"models/gamemapParkGuide.obj", glm::vec3(.5f, .1f, .2f));
 
-	auto modelRock = std::make_shared<Model>(
-		"models/Rock1.obj", glm::vec3(0.0f, 1.0f, 1.0f));
+	// --- Instantiated Map Models ---
+	auto modelMapMetalFence = std::make_shared<Model>(
+		"models/cpsMap_MetalFence.obj", glm::vec3(.5f, .1f, .2f));
+
+	auto modelMapCurb = std::make_shared<Model>(
+		"models/cpsMap_Curb.obj", glm::vec3(.5f, .1f, .2f));
+
+	auto modelMapHedge = std::make_shared<Model>(
+		"models/cpsMap_Hedge.obj", glm::vec3(.5f, .1f, .2f));
+
+	auto modelMapWoodFence = std::make_shared<Model>(
+		"models/cpsMap_Woodfence.obj", glm::vec3(.5f, .1f, .2f));
+
+	auto modelMapWoodFencePole = std::make_shared<Model>(
+		"models/cpsMap_WoodfencePole.obj", glm::vec3(.5f, .1f, .2f));
+
+	auto modelMapParkingLine = std::make_shared<Model>(
+		"models/cpsMap_ParkingLine.obj", glm::vec3(.5f, .1f, .2f));
+	
+	auto modelMapTreeStump = std::make_shared<Model>(
+		"models/cpsMap_TreeStump.obj", glm::vec3(.5f, .1f, .2f));
+
+	auto modelMapTreeLeaves = std::make_shared<Model>(
+		"models/cpsMap_TreeLeaves.obj", glm::vec3(.5f, .1f, .2f));
+
 
 	// --- Directional light ---
 	environmentalLight->addComponent<LightingComponent>(); 
@@ -320,7 +275,227 @@ Application::Application(appSettings& settings):
 
 		aiCars.push_back(aiCar);
 	}
+
+
+	// --- Map road ---
+	auto mapRoadTransform = mapRoad->getComponent<TransformComponent>();
+
+	auto mapRoadModel = mapRoad->addComponent<ModelComponent>();
+	mapRoadModel->setModel(modelMapRoad);
+
+	auto mapRoadRender = mapRoad->addComponent<RendererComponent>();
+	mapRoadRender->enableRender();
+
+	// --- Map Background Grass ---
+	auto mapGrassTransform = mapGrass->getComponent<TransformComponent>();
+
+	auto mapGrassModel = mapGrass->addComponent<ModelComponent>();
+	mapGrassModel->setModel(modelMapGrass);
+
+	auto mapGrassRender = mapGrass->addComponent<RendererComponent>();
+	mapGrassRender->enableRender();
+
+	// --- Map Mall ---
+	auto mapMallTransform = mapMall->getComponent<TransformComponent>();
+	mapMallTransform->localTranslate(0.0f, -1.0f, 0.0f);
+
+	auto mapMallModel = mapMall->addComponent<ModelComponent>();
+	mapMallModel->setModel(modelMapMall);
+
+	auto mapMallRender = mapMall->addComponent<RendererComponent>();
+	mapMallRender->enableRender();
+
+	auto mapMallRigidbody = mapMall->addComponent<RigidbodyComponent>();
+	mapMallRigidbody->addActorStaticMesh(*modelMapMall, convert<physx::PxTransform>(mapMallTransform->getGlobalMatrix()));
+
+	// --- Map Mall Text ---
+	auto mapMallTextTransform = mapMallText->getComponent<TransformComponent>();
+	mapMallTextTransform->localTranslate(0.0f, -5.5f, 0.0f);
+
+	auto mapMallTextModel = mapMallText->addComponent<ModelComponent>();
+	mapMallTextModel->setModel(modelMapMallText);
+
+	auto mapMallTextRender = mapMallText->addComponent<RendererComponent>();
+	mapMallTextRender->enableRender();
+
+	// --- Map Boundary Walls ---
+	// - Left Wall - 
+	auto mapWall1Transform = mapWall1->getComponent<TransformComponent>();
+	mapWall1Transform->localTranslate(0.0f, -1.0f, 0.0f);
+
+	auto mapWall1Model = mapWall1->addComponent<ModelComponent>();
+	mapWall1Model->setModel(modelMapWall1);
+
+	auto mapWall1Rigidbody = mapWall1->addComponent<RigidbodyComponent>();
+	mapWall1Rigidbody->addActorStaticMesh(*modelMapWall1, convert<physx::PxTransform>(mapWall1Transform->getGlobalMatrix()));
+
+	// - Right Wall - 
+	auto mapWall2Transform = mapWall2->getComponent<TransformComponent>();
+	mapWall2Transform->localTranslate(0.0f, -1.0f, 0.0f);
+
+	auto mapWall2Model = mapWall2->addComponent<ModelComponent>();
+	mapWall2Model->setModel(modelMapWall2);
+
+	auto mapWall2Rigidbody = mapWall2->addComponent<RigidbodyComponent>();
+	mapWall2Rigidbody->addActorStaticMesh(*modelMapWall2, convert<physx::PxTransform>(mapWall2Transform->getGlobalMatrix()));
 	
+	// - Back Wall - 
+	auto mapWall3Transform = mapWall3->getComponent<TransformComponent>();
+	mapWall3Transform->localTranslate(0.0f, -1.0f, 0.0f);
+
+	auto mapWall3Model = mapWall3->addComponent<ModelComponent>();
+	mapWall3Model->setModel(modelMapWall3);
+
+	auto mapWall3Rigidbody = mapWall3->addComponent<RigidbodyComponent>();
+	mapWall3Rigidbody->addActorStaticMesh(*modelMapWall3, convert<physx::PxTransform>(mapWall3Transform->getGlobalMatrix()));
+
+	// --- Map Metal Fence ---
+	metalFenceLocation = collectGLMVecFromFile("../../res/modelTransformations/metalfenceLocation.txt", metalFenceLocation);
+	metalFenceRotation = collectfloatFromFile("../../res/modelTransformations/metalfenceRotation.txt", metalFenceRotation);
+
+	for(int i = 0; i < metalFenceLocation.size(); i++){
+		auto mapMetalFence = scene->addEntity();
+		auto mapMetalFenceTransform = mapMetalFence->getComponent<TransformComponent>();
+		mapMetalFenceTransform->localTranslate(metalFenceLocation.at(i).x, metalFenceLocation.at(i).y, metalFenceLocation.at(i).z);
+		mapMetalFenceTransform->localRotate(glm::radians(metalFenceRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
+
+		auto mapMetalFenceModel = mapMetalFence->addComponent<ModelComponent>();
+		mapMetalFenceModel->setModel(modelMapMetalFence);
+
+		auto mapMetalFenceRender = mapMetalFence->addComponent<RendererComponent>();
+		mapMetalFenceRender->enableRender();
+	}
+	
+	// --- Map Curb ---
+	curbLocation = collectGLMVecFromFile("../../res/modelTransformations/curbLocation.txt", curbLocation);
+	curbRotation = collectfloatFromFile("../../res/modelTransformations/curbRotation.txt", curbRotation);
+
+	for(int i = 0; i < curbLocation.size(); i++){
+		auto mapCurb = scene->addEntity();
+		auto mapCurbTransform = mapCurb->getComponent<TransformComponent>();
+		mapCurbTransform->localTranslate(curbLocation.at(i).x, curbLocation.at(i).y, curbLocation.at(i).z);
+		mapCurbTransform->localRotate(glm::radians(curbRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
+
+		auto mapCurbModel = mapCurb->addComponent<ModelComponent>();
+		mapCurbModel->setModel(modelMapCurb);
+
+		auto mapCurbRender = mapCurb->addComponent<RendererComponent>();
+		mapCurbRender->enableRender();
+
+		auto mapCurbRigidbody = mapCurb->addComponent<RigidbodyComponent>();
+		mapCurbRigidbody->addActorStaticMesh(*modelMapCurb, convert<physx::PxTransform>(mapCurbTransform->getGlobalMatrix()));
+	}
+
+	// --- Map Hedges ---
+	hedgeLocation = collectGLMVecFromFile("../../res/modelTransformations/hedgeLocation.txt", hedgeLocation);
+	hedgeRotation = collectfloatFromFile("../../res/modelTransformations/hedgeRotation.txt", hedgeRotation);
+
+	for(int i = 0; i < hedgeLocation.size(); i++){
+		auto mapHedge = scene->addEntity();
+		auto mapHedgeTransform = mapHedge->getComponent<TransformComponent>();
+		mapHedgeTransform->localTranslate(hedgeLocation.at(i).x, hedgeLocation.at(i).y, hedgeLocation.at(i).z);
+		mapHedgeTransform->localRotate(glm::radians(hedgeRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
+
+		auto mapHedgeModel = mapHedge->addComponent<ModelComponent>();
+		mapHedgeModel->setModel(modelMapHedge);
+
+		auto mapHedgeRender = mapHedge->addComponent<RendererComponent>();
+		mapHedgeRender->enableRender();
+
+		auto mapHedgeRigidbody = mapHedge->addComponent<RigidbodyComponent>();
+		mapHedgeRigidbody->addActorStaticBox(physx::PxVec3(7.0f, 1.9f, 0.8f), convert<physx::PxTransform>(mapHedgeTransform->getGlobalMatrix()));
+	}
+
+	// --- Map Wood Fence ---
+	woodFenceLocation = collectGLMVecFromFile("../../res/modelTransformations/woodfenceLocation.txt", woodFenceLocation);
+	woodFenceRotation = collectfloatFromFile("../../res/modelTransformations/woodfenceRotation.txt", woodFenceRotation);
+
+	for(int i = 0; i < woodFenceLocation.size(); i++){
+		auto mapWoodFence = scene->addEntity();
+		auto mapWoodFenceTransform = mapWoodFence->getComponent<TransformComponent>();
+		mapWoodFenceTransform->localTranslate(woodFenceLocation.at(i).x, woodFenceLocation.at(i).y, woodFenceLocation.at(i).z);
+		mapWoodFenceTransform->localRotate(glm::radians(woodFenceRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
+
+		auto mapWoodFenceModel = mapWoodFence->addComponent<ModelComponent>();
+		mapWoodFenceModel->setModel(modelMapWoodFence);
+
+		auto mapWoodFenceRender = mapWoodFence->addComponent<RendererComponent>();
+		mapWoodFenceRender->enableRender();
+
+		auto mapWoodFenceRigidbody = mapWoodFence->addComponent<RigidbodyComponent>();
+		mapWoodFenceRigidbody->addActorStaticMesh(*modelMapWoodFence, convert<physx::PxTransform>(mapWoodFenceTransform->getGlobalMatrix()));
+	}
+
+	// --- Map Wood Fence Pole ---
+	woodFencePoleLocation = collectGLMVecFromFile("../../res/modelTransformations/woodfencePoleLocation.txt", woodFencePoleLocation);
+	woodFencePoleRotation = collectfloatFromFile("../../res/modelTransformations/woodfencePoleRotation.txt", woodFencePoleRotation);
+
+	for(int i = 0; i < woodFencePoleLocation.size(); i++){
+		auto mapWoodFencePole = scene->addEntity();
+		auto mapWoodFencePoleTransform = mapWoodFencePole->getComponent<TransformComponent>();
+		mapWoodFencePoleTransform->localTranslate(woodFencePoleLocation.at(i).x, woodFencePoleLocation.at(i).y, woodFencePoleLocation.at(i).z);
+		mapWoodFencePoleTransform->localRotate(glm::radians(woodFencePoleRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
+
+		auto mapWoodFencePoleModel = mapWoodFencePole->addComponent<ModelComponent>();
+		mapWoodFencePoleModel->setModel(modelMapWoodFencePole);
+
+		auto mapWoodFencePoleRender = mapWoodFencePole->addComponent<RendererComponent>();
+		mapWoodFencePoleRender->enableRender();
+
+		auto mapWoodFencePoleRigidbody = mapWoodFencePole->addComponent<RigidbodyComponent>();
+		mapWoodFencePoleRigidbody->addActorStaticMesh(*modelMapWoodFencePole, convert<physx::PxTransform>(mapWoodFencePoleTransform->getGlobalMatrix()));
+	}
+
+	// --- Map Trees ---
+	treeLocation = collectGLMVecFromFile("../../res/modelTransformations/treeLocation.txt", treeLocation);
+
+	for(int i = 0; i < treeLocation.size(); i++){
+		auto mapTreeStump = scene->addEntity();
+		auto mapTreeStumpTransform = mapTreeStump->getComponent<TransformComponent>();
+		mapTreeStumpTransform->localTranslate(treeLocation.at(i).x, treeLocation.at(i).y, treeLocation.at(i).z);
+
+		auto mapTreeStumpModel = mapTreeStump->addComponent<ModelComponent>();
+		mapTreeStumpModel->setModel(modelMapTreeStump);
+
+		auto mapTreeStumpRender = mapTreeStump->addComponent<RendererComponent>();
+		mapTreeStumpRender->enableRender();
+
+		auto mapTreeStumpRigidbody = mapTreeStump->addComponent<RigidbodyComponent>();
+		mapTreeStumpRigidbody->addActorStaticMesh(*modelMapTreeStump, convert<physx::PxTransform>(mapTreeStumpTransform->getGlobalMatrix()));
+
+		auto mapTreeLeaves = scene->addEntity();
+		auto mapTreeLeavesTransform = mapTreeLeaves->getComponent<TransformComponent>();
+		mapTreeLeavesTransform->localTranslate(treeLocation.at(i).x, treeLocation.at(i).y, treeLocation.at(i).z);
+		mapTreeLeavesTransform->localRotate(Random::randomFloat(glm::radians(0.f), glm::radians(360.f)), glm::vec3(0.f, 1.f, 0.f));
+
+		auto mapTreeLeavesModel = mapTreeLeaves->addComponent<ModelComponent>();
+		mapTreeLeavesModel->setModel(modelMapTreeLeaves);
+
+		auto mapTreeLeavesRender = mapTreeLeaves->addComponent<RendererComponent>();
+		mapTreeLeavesRender->enableRender();
+	}
+
+	// --- Map Parking Lines ---
+	parkingLineLocation = collectGLMVecFromFile("../../res/modelTransformations/parkingLinesLocation.txt", parkingLineLocation);
+	parkingLineRotation = collectfloatFromFile("../../res/modelTransformations/parkingLinesRotation.txt", parkingLineRotation);
+
+	for(int i = 0; i < parkingLineLocation.size(); i++){
+		if(i < 120){
+		auto mapParkingLine = scene->addEntity();
+		auto mapParkingLineTransform = mapParkingLine->getComponent<TransformComponent>();
+		mapParkingLineTransform->localTranslate(parkingLineLocation.at(i).x, parkingLineLocation.at(i).y, parkingLineLocation.at(i).z);
+		mapParkingLineTransform->localRotate(glm::radians(parkingLineRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
+
+		auto mapParkingLineModel = mapParkingLine->addComponent<ModelComponent>();
+		mapParkingLineModel->setModel(modelMapParkingLine);
+
+		auto mapParkingLineRender = mapParkingLine->addComponent<RendererComponent>();
+		mapParkingLineRender->enableRender();
+		}
+	}
+	
+
+/*
 #if SPAWN_PROP_CARS
 	// --- Prop car ---
 	for(int i = 0; i < sizeof(parkingVertices)/sizeof(*parkingVertices); i++){
@@ -353,110 +528,6 @@ Application::Application(appSettings& settings):
 		propCarRigidbody->addActorDynamic(*modelPropCar, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 	}
 #endif
-	
-
-	// --- Map grass ---
-	auto mapGrassTransform = mapGrass->getComponent<TransformComponent>();
-	mapGrassTransform->localTranslate(0.0f, -1.0f, 0.0f);
-
-	auto mapGrassModel = mapGrass->addComponent<ModelComponent>();
-	mapGrassModel->setModel(modelMapGrass);
-
-	auto mapGrassRender = mapGrass->addComponent<RendererComponent>();
-	mapGrassRender->enableRender();
-
-
-	// --- Map road ---
-	auto mapRoadTransform = mapRoad->getComponent<TransformComponent>();
-	mapRoadTransform->localTranslate(0.0f, -1.0f, 0.0f);
-
-	auto mapRoadModel = mapRoad->addComponent<ModelComponent>();
-	mapRoadModel = mapRoad->getComponent<ModelComponent>();
-	mapRoadModel->setModel(modelMapRoad);
-
-	auto mapRoadRender = mapRoad->addComponent<RendererComponent>();
-	mapRoadRender->enableRender();
-	
-
-	// --- Map lines ---
-	auto mapLinesTransform = mapLines->getComponent<TransformComponent>();
-	mapLinesTransform->localTranslate(0.0f, -1.0f, 0.0f);
-
-	auto mapLinesModel = mapLines->addComponent<ModelComponent>();
-	mapLinesModel->setModel(modelMapLines);
-
-	auto mapLinesRender = mapLines->addComponent<RendererComponent>();
-	mapLinesRender->enableRender();
-
-	// --- Map Walls ---
-	auto mapWall1Transform = mapWall1->getComponent<TransformComponent>();
-	mapWall1Transform->localTranslate(0.0f, -1.0f, 0.0f);
-
-	auto mapWall1Model = mapWall1->addComponent<ModelComponent>();
-	mapWall1Model->setModel(modelMapWall1);
-
-	auto mapWall1Render = mapWall1->addComponent<RendererComponent>();
-	mapWall1Render->enableRender();
-
-	auto mapWall1Rigidbody = mapWall1->addComponent<RigidbodyComponent>();
-	mapWall1Rigidbody->addActorStaticMesh(*modelMapWall1, convert<physx::PxTransform>(mapWall1Transform->getGlobalMatrix()));
-
-	
-	auto mapWall2Transform = mapWall2->getComponent<TransformComponent>();
-	mapWall2Transform->localTranslate(0.0f, -1.0f, 0.0f);
-
-	auto mapWall2Model = mapWall2->addComponent<ModelComponent>();
-	mapWall2Model->setModel(modelMapWall2);
-
-	auto mapWall2Render = mapWall2->addComponent<RendererComponent>();
-	mapWall2Render->enableRender();
-
-	auto mapWall2Rigidbody = mapWall2->addComponent<RigidbodyComponent>();
-	mapWall2Rigidbody->addActorStaticMesh(*modelMapWall2, convert<physx::PxTransform>(mapWall2Transform->getGlobalMatrix()));
-
-
-	auto mapWall3Transform = mapWall3->getComponent<TransformComponent>();
-	mapWall3Transform->localTranslate(0.0f, -1.0f, 0.0f);
-
-	auto mapWall3Model = mapWall3->addComponent<ModelComponent>();
-	mapWall3Model->setModel(modelMapWall3);
-
-	auto mapWall3Render = mapWall3->addComponent<RendererComponent>();
-	mapWall3Render->enableRender();
-
-	auto mapWall3Rigidbody = mapWall3->addComponent<RigidbodyComponent>();
-	mapWall3Rigidbody->addActorStaticMesh(*modelMapWall3, convert<physx::PxTransform>(mapWall3Transform->getGlobalMatrix()));
-
-
-	auto mapWall4Transform = mapWall4->getComponent<TransformComponent>();
-	mapWall4Transform->localTranslate(0.0f, -1.0f, 0.0f);
-
-	auto mapWall4Model = mapWall4->addComponent<ModelComponent>();
-	mapWall4Model->setModel(modelMapWall4);
-
-	auto mapWall4Render = mapWall4->addComponent<RendererComponent>();
-	mapWall4Render->enableRender();
-
-	auto mapWall4Rigidbody = mapWall4->addComponent<RigidbodyComponent>();
-	mapWall4Rigidbody->addActorStaticMesh(*modelMapWall4, convert<physx::PxTransform>(mapWall4Transform->getGlobalMatrix()));
-
-	// --- Map Guide ---
-	for(int i = 0; i < sizeof(emptyparkingVertices)/sizeof(*emptyparkingVertices); i++){
-		auto ParkIndic = scene->addEntity();
-		auto ParkIndicTransform = ParkIndic->getComponent<TransformComponent>();
-		ParkIndicTransform->setLocalPosition(emptyparkingVertices[i]);
-		if(i == 0){
-			ParkIndicTransform->setLocalRotation(glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
-		} else if(i == 2) {
-			ParkIndicTransform->setLocalRotation(glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
-		}
-
-		auto ParkIndicModel = ParkIndic->addComponent<ModelComponent>();
-		ParkIndicModel->setModel(modelParkIndic);
-
-		auto ParkIndicRender = ParkIndic->addComponent<RendererComponent>();
-		ParkIndicRender->enableRender();
-	}
 	
 	// --- Rocks ---
 	sp<ModelComponent>     rockModel     = nullptr;
@@ -491,7 +562,9 @@ Application::Application(appSettings& settings):
 			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
 		}
 		
-	};
+	}; 
+
+*/
 
 
 	/* --------------------- End Game World Description --------------------- */
@@ -526,7 +599,7 @@ int Application::play() {
 	
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
-			if (scores[playerId] >= 5 ){//|| scores[aiList[0]] >= 5) {
+			if (scores[playerId] >= 5){//|| scores[aiList[0]] >= 5) {
 			}
 			else {
 				gameplay->update();	// Gameplay / AI update

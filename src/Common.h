@@ -4,6 +4,7 @@
 /* STL */
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <memory>
 #include <vector>
 #include <list>
