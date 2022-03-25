@@ -13,6 +13,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <PhysX/PxPhysicsAPI.h>
+#include <stack>
+#include <queue>
 
 // C++ standard library includes
 #include "Common.h"
@@ -65,6 +67,10 @@ private:
 	std::shared_ptr<AudioSystem>       audio;
 	std::shared_ptr<InputSystem>  	   input;
 
+	std::stack<shared_ptr<Menu>> menuStack;
+	std::queue<shared_ptr<Scene>> sceneQueue;
+	void setupMainMenu(shared_ptr<Scene> scene);
+	void setupBaseLevel(shared_ptr<Scene> scene);
 };
 
 //Functions to load settings

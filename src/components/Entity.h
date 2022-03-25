@@ -213,5 +213,22 @@ private:
 
 };
 
+class Menu : public Entity {
+public: 
+	enum ElementType {
+		BUTTON = 1,
+		DROPDOWN,
+		SLIDER
+	};
+
+	// Column -> row order
+	int columnMaxNum;
+	int rowMaxNum;
+	// Pressing a button will move over a column/row
+	std::vector<std::vector<ElementType>> layout;
+	Menu();
+
+};
+
 
 #endif // ENTITY_H

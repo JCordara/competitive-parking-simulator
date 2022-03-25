@@ -87,6 +87,7 @@ Application::Application(appSettings& settings):
 	Random::init();
 	/* Framework - used by systems*/
 	scene    = std::make_shared<Scene>();
+	std::shared_ptr<Menu> menu = std::make_shared<Menu>();
 	window   = std::make_shared<Window>(1200, 800, "Test Window");
 
 	/* Game systems - update() every frame */
@@ -96,14 +97,63 @@ Application::Application(appSettings& settings):
 	render   = std::make_shared<RenderSystem>(scene, window);
 	audio    = std::make_shared<AudioSystem>();
 
-	/* --------------------- Game World Description ------------------------ */
+	// Scene and Menu Logic
+	//setupMainMenu(menu);
+	setupBaseLevel(scene);// Can change later with appsettings logic
+	sceneQueue.push(scene);
 
-	// --- Entities ---
+}
+
+int Application::play() {
+
+	// Invoke observers of the GameStart event
+	Events::GameStart.broadcast();
+
+	//Game loop
+	while (!window->shouldClose()) {
+
+		// Process input
+		input->processInput();
+
+		// Update time-related values
+		Time::update();
+	
+		// Fixed time step game loop
+		while (Time::takeNextStep()) {
+			if (menuStack.size() > 0) { // Can change to one with 
+
+			}
+			else {
+				if (scores[playerId] >= 5) {//|| scores[aiList[0]] >= 5) {
+				}
+				else {
+					gameplay->update();	// Gameplay / AI update
+					physics->update();	// Physics update
+					audio->update();	// Audio update
+				}
+
+			}
+		}
+		// Render the current scene
+		render->update(); // Putting it in this if condition messes up the FPS calc somehow
+	}
+
+	return 0;
+}
+
+void Application::setupMainMenu(shared_ptr<Scene> scene) {
+	
+}
+
+void Application::setupBaseLevel(shared_ptr<Scene> scene) {
+/* --------------------- Game World Description ------------------------ */
+
+// --- Entities ---
 	playerCar = scene->addEntity();
 	vector<sp<Entity>> aiCars;
 
-	auto mapRoad  	 = scene->addEntity();
-	auto mapMall     = scene->addEntity();
+	auto mapRoad = scene->addEntity();
+	auto mapMall = scene->addEntity();
 	auto mapMallText = scene->addEntity();
 	auto mapGrass = scene->addEntity();
 	auto mapWall1 = scene->addEntity();
@@ -145,7 +195,7 @@ Application::Application(appSettings& settings):
 
 	auto modelMapMall = std::make_shared<Model>(
 		"models/cpsMap_Mall.obj", glm::vec3(1.0f, 1.0f, 1.0f));
-	
+
 	auto modelMapMallText = std::make_shared<Model>(
 		"models/cpsMap_MallText.obj", glm::vec3(.5f, .1f, .2f));
 
@@ -180,7 +230,7 @@ Application::Application(appSettings& settings):
 
 	auto modelMapParkingLine = std::make_shared<Model>(
 		"models/cpsMap_ParkingLine.obj", glm::vec3(.5f, .1f, .2f));
-	
+
 	auto modelMapTreeStump = std::make_shared<Model>(
 		"models/cpsMap_TreeStump.obj", glm::vec3(.5f, .1f, .2f));
 
@@ -189,13 +239,13 @@ Application::Application(appSettings& settings):
 
 	auto modelMapWarningWall = std::make_shared<Model>(
 		"models/cpsMap_WarningWall.obj", glm::vec3(.5f, .1f, .2f));
-	
+
 	auto modelMapBGRoad = std::make_shared<Model>(
 		"models/cpsMap_BGRoad.obj", glm::vec3(.5f, .1f, .2f));
 
 
 	// --- Directional light ---
-	environmentalLight->addComponent<LightingComponent>(); 
+	environmentalLight->addComponent<LightingComponent>();
 	environmentalLight->getComponent<LightingComponent>()->setAmbient(glm::vec3(0.1f, 0.1f, 0.1f));
 	environmentalLight->getComponent<LightingComponent>()->setDirectionalLight(glm::vec3(0.7f, 0.7f, 0.7f));
 
@@ -204,9 +254,9 @@ Application::Application(appSettings& settings):
 	mainCameraTransform->setLocalPosition(0.0f, 9.0f, -5.5f);
 	mainCameraTransform->setLocalRotation(glm::radians(-45.0f), glm::vec3(1.f, 0.f, 0.f));
 	mainCameraTransform->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
-	
+
 	auto mainCamerCam = mainCamera->addComponent<CameraComponent>();
-	mainCamerCam->setPerspectiveCamera(glm::radians(100.f), 1.f /*Will be modified to the window*/,1.f, 130.f);
+	mainCamerCam->setPerspectiveCamera(glm::radians(100.f), 1.f /*Will be modified to the window*/, 1.f, 130.f);
 
 	auto MainDescription = mainCamera->addComponent<DescriptionComponent>();
 	MainDescription->setInteger("Parent Global Y-Plane Forward Direction Projection", 1);
@@ -216,7 +266,7 @@ Application::Application(appSettings& settings):
 	auto q1 = physx::PxQuat(glm::radians(-45.f), physx::PxVec3(1.f, 0.f, 0.f));
 	//auto q2 = physx::PxQuat(glm::radians(-90.f), physx::PxVec3(0.f, 1.f, 0.f));
 	shadowCameraTransform->setLocalPosition(0, 100.0f, 100.0f);
-	shadowCameraTransform->setLocalRotation( q1);
+	shadowCameraTransform->setLocalRotation(q1);
 
 	auto shadowCameraCam = shadowCamera->addComponent<CameraComponent>();
 	shadowCameraCam->setOrthographicCamera(300.f, 150.f, 10.f, 300.f);
@@ -224,12 +274,12 @@ Application::Application(appSettings& settings):
 	auto shadowCameraDesc = shadowCamera->addComponent<DescriptionComponent>();
 	shadowCameraDesc->setInteger("Ignore parent rotations in render", 1);
 
-	
+
 	// --- Player car ---	
 	// Add wheel entities
 	for (int i = 0; i < 4; i++) {
 		auto wheel = playerCar->addChild();
-		
+
 		auto mc = wheel->addComponent<ModelComponent>();
 		mc->setModel(modelWheel);
 
@@ -239,15 +289,15 @@ Application::Application(appSettings& settings):
 		auto desc = wheel->addComponent<DescriptionComponent>();
 		desc->setInteger("wheel", 1);
 	}
-	
+
 	auto playerModel = playerCar->addComponent<ModelComponent>();
 	playerModel->setModel(modelPlayerCar);
-	
+
 	auto playerRender = playerCar->addComponent<RendererComponent>();
 	playerRender->enableRender();
-	
+
 	playerCar->addComponent<VehicleComponent>();
-	
+
 	auto playerController = playerCar->addComponent<ControllerComponent>();
 	playerController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);
 	playerController->createAxis(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, &Events::VehicleAccelerate, ControlAxis::AXIS);
@@ -271,7 +321,7 @@ Application::Application(appSettings& settings):
 		// Add wheel entities
 		for (int i = 0; i < 4; i++) {
 			auto wheel = aiCar->addChild();
-			
+
 			auto mc = wheel->addComponent<ModelComponent>();
 			mc->setModel(modelWheel);
 
@@ -281,13 +331,13 @@ Application::Application(appSettings& settings):
 			auto desc = wheel->addComponent<DescriptionComponent>();
 			desc->setInteger("wheel", 1);
 		}
-		
+
 		auto mc = aiCar->addComponent<ModelComponent>();
 		mc->setModel(modelAiCar);
-		
+
 		auto rc = aiCar->addComponent<RendererComponent>();
 		rc->enableRender();
-		
+
 		aiCar->addComponent<VehicleComponent>();
 		aiCar->addComponent<AiComponent>();
 
@@ -356,7 +406,7 @@ Application::Application(appSettings& settings):
 
 	auto mapWall2Rigidbody = mapWall2->addComponent<RigidbodyComponent>();
 	mapWall2Rigidbody->addActorStaticMesh(*modelMapWall2, convert<physx::PxTransform>(mapWall2Transform->getGlobalMatrix()));
-	
+
 	// - Back Wall - 
 	auto mapWall3Transform = mapWall3->getComponent<TransformComponent>();
 	mapWall3Transform->localTranslate(0.0f, -1.0f, 0.0f);
@@ -371,7 +421,7 @@ Application::Application(appSettings& settings):
 	metalFenceLocation = collectGLMVecFromFile("../../res/modelTransformations/metalfenceLocation.txt", metalFenceLocation);
 	metalFenceRotation = collectfloatFromFile("../../res/modelTransformations/metalfenceRotation.txt", metalFenceRotation);
 
-	for(int i = 0; i < metalFenceLocation.size(); i++){
+	for (int i = 0; i < metalFenceLocation.size(); i++) {
 		auto mapMetalFence = scene->addEntity();
 		auto mapMetalFenceTransform = mapMetalFence->getComponent<TransformComponent>();
 		mapMetalFenceTransform->localTranslate(metalFenceLocation.at(i).x, metalFenceLocation.at(i).y, metalFenceLocation.at(i).z);
@@ -388,7 +438,7 @@ Application::Application(appSettings& settings):
 	warningWallLocation = collectGLMVecFromFile("../../res/modelTransformations/warningWallLocation.txt", warningWallLocation);
 	warningWallRotation = collectfloatFromFile("../../res/modelTransformations/warningWallRotation.txt", warningWallRotation);
 
-	for(int i = 0; i < warningWallLocation.size(); i++){
+	for (int i = 0; i < warningWallLocation.size(); i++) {
 		auto mapwarningWall = scene->addEntity();
 		auto mapwarningWallTransform = mapwarningWall->getComponent<TransformComponent>();
 		mapwarningWallTransform->localTranslate(warningWallLocation.at(i).x, warningWallLocation.at(i).y, warningWallLocation.at(i).z);
@@ -400,12 +450,12 @@ Application::Application(appSettings& settings):
 		auto mapwarningWallRender = mapwarningWall->addComponent<RendererComponent>();
 		mapwarningWallRender->enableRender();
 	}
-	
+
 	// --- Map Curb ---
 	curbLocation = collectGLMVecFromFile("../../res/modelTransformations/curbLocation.txt", curbLocation);
 	curbRotation = collectfloatFromFile("../../res/modelTransformations/curbRotation.txt", curbRotation);
 
-	for(int i = 0; i < curbLocation.size(); i++){
+	for (int i = 0; i < curbLocation.size(); i++) {
 		auto mapCurb = scene->addEntity();
 		auto mapCurbTransform = mapCurb->getComponent<TransformComponent>();
 		mapCurbTransform->localTranslate(curbLocation.at(i).x, curbLocation.at(i).y, curbLocation.at(i).z);
@@ -424,7 +474,7 @@ Application::Application(appSettings& settings):
 	// --- Map Background Road ---
 	roadLocation = collectGLMVecFromFile("../../res/modelTransformations/roadLocation.txt", roadLocation);
 
-	for(int i = 0; i < roadLocation.size(); i++){
+	for (int i = 0; i < roadLocation.size(); i++) {
 		auto mapBGRoad = scene->addEntity();
 		auto mapBGRoadTransform = mapBGRoad->getComponent<TransformComponent>();
 		mapBGRoadTransform->localTranslate(roadLocation.at(i).x, roadLocation.at(i).y, roadLocation.at(i).z);
@@ -440,7 +490,7 @@ Application::Application(appSettings& settings):
 	hedgeLocation = collectGLMVecFromFile("../../res/modelTransformations/hedgeLocation.txt", hedgeLocation);
 	hedgeRotation = collectfloatFromFile("../../res/modelTransformations/hedgeRotation.txt", hedgeRotation);
 
-	for(int i = 0; i < hedgeLocation.size(); i++){
+	for (int i = 0; i < hedgeLocation.size(); i++) {
 		auto mapHedge = scene->addEntity();
 		auto mapHedgeTransform = mapHedge->getComponent<TransformComponent>();
 		mapHedgeTransform->localTranslate(hedgeLocation.at(i).x, hedgeLocation.at(i).y, hedgeLocation.at(i).z);
@@ -460,7 +510,7 @@ Application::Application(appSettings& settings):
 	woodFenceLocation = collectGLMVecFromFile("../../res/modelTransformations/woodfenceLocation.txt", woodFenceLocation);
 	woodFenceRotation = collectfloatFromFile("../../res/modelTransformations/woodfenceRotation.txt", woodFenceRotation);
 
-	for(int i = 0; i < woodFenceLocation.size(); i++){
+	for (int i = 0; i < woodFenceLocation.size(); i++) {
 		auto mapWoodFence = scene->addEntity();
 		auto mapWoodFenceTransform = mapWoodFence->getComponent<TransformComponent>();
 		mapWoodFenceTransform->localTranslate(woodFenceLocation.at(i).x, woodFenceLocation.at(i).y, woodFenceLocation.at(i).z);
@@ -480,7 +530,7 @@ Application::Application(appSettings& settings):
 	woodFencePoleLocation = collectGLMVecFromFile("../../res/modelTransformations/woodfencePoleLocation.txt", woodFencePoleLocation);
 	woodFencePoleRotation = collectfloatFromFile("../../res/modelTransformations/woodfencePoleRotation.txt", woodFencePoleRotation);
 
-	for(int i = 0; i < woodFencePoleLocation.size(); i++){
+	for (int i = 0; i < woodFencePoleLocation.size(); i++) {
 		auto mapWoodFencePole = scene->addEntity();
 		auto mapWoodFencePoleTransform = mapWoodFencePole->getComponent<TransformComponent>();
 		mapWoodFencePoleTransform->localTranslate(woodFencePoleLocation.at(i).x, woodFencePoleLocation.at(i).y, woodFencePoleLocation.at(i).z);
@@ -499,7 +549,7 @@ Application::Application(appSettings& settings):
 	// --- Map Trees ---
 	treeLocation = collectGLMVecFromFile("../../res/modelTransformations/treeLocation.txt", treeLocation);
 
-	for(int i = 0; i < treeLocation.size(); i++){
+	for (int i = 0; i < treeLocation.size(); i++) {
 		// - Tree Stumps - 
 		auto mapTreeStump = scene->addEntity();
 		auto mapTreeStumpTransform = mapTreeStump->getComponent<TransformComponent>();
@@ -528,160 +578,127 @@ Application::Application(appSettings& settings):
 	}
 
 	/* -----------------------------------------------
-	  SEGMENTATION FAULT WITH PARKING LINES PAST 120??? 
+	  SEGMENTATION FAULT WITH PARKING LINES PAST 120???
 	   vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
 
-	// --- Map Parking Lines ---
+	   // --- Map Parking Lines ---
 	parkingLineLocation = collectGLMVecFromFile("../../res/modelTransformations/parkingLinesLocation.txt", parkingLineLocation);
 	parkingLineRotation = collectfloatFromFile("../../res/modelTransformations/parkingLinesRotation.txt", parkingLineRotation);
 
-	for(int i = 0; i < parkingLineLocation.size(); i++){
-		if(i < 120){
-		auto mapParkingLine = scene->addEntity();
-		auto mapParkingLineTransform = mapParkingLine->getComponent<TransformComponent>();
-		mapParkingLineTransform->localTranslate(parkingLineLocation.at(i).x, parkingLineLocation.at(i).y, parkingLineLocation.at(i).z);
-		mapParkingLineTransform->localRotate(glm::radians(parkingLineRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
+	for (int i = 0; i < parkingLineLocation.size(); i++) {
+		if (i < 120) {
+			auto mapParkingLine = scene->addEntity();
+			auto mapParkingLineTransform = mapParkingLine->getComponent<TransformComponent>();
+			mapParkingLineTransform->localTranslate(parkingLineLocation.at(i).x, parkingLineLocation.at(i).y, parkingLineLocation.at(i).z);
+			mapParkingLineTransform->localRotate(glm::radians(parkingLineRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
 
-		auto mapParkingLineModel = mapParkingLine->addComponent<ModelComponent>();
-		mapParkingLineModel->setModel(modelMapParkingLine);
+			auto mapParkingLineModel = mapParkingLine->addComponent<ModelComponent>();
+			mapParkingLineModel->setModel(modelMapParkingLine);
 
-		auto mapParkingLineRender = mapParkingLine->addComponent<RendererComponent>();
-		mapParkingLineRender->enableRender();
+			auto mapParkingLineRender = mapParkingLine->addComponent<RendererComponent>();
+			mapParkingLineRender->enableRender();
 		}
 	}
 
 	/* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	  SEGMENTATION FAULT WITH PARKING LINES PAST 120??? 
+	  SEGMENTATION FAULT WITH PARKING LINES PAST 120???
 	   ----------------------------------------------- */
-	
-	/*
-		Here is where we will collect Parking spot locations & rotations (Vector/Float to File Functions)
-		Choose random spots for empty parking spots and put in separate vector (2 less than the AI + Player ( for(int i = 0; i < g_numAICars-1; i++) ))
-		
-		Instantiate prop cars in rest of parking spots that aren't gameplay spots (check empty parking spot vector through nested for loop)
-			- Randomly choose between 4 different prop cars (car3, car4, sedan, truck)
 
-		Create the trigger boxes and particles for empty parking spots here (for loop using size of empty parking spot location vector)
-	*/
+	   /*
+		   Here is where we will collect Parking spot locations & rotations (Vector/Float to File Functions)
+		   Choose random spots for empty parking spots and put in separate vector (2 less than the AI + Player ( for(int i = 0; i < g_numAICars-1; i++) ))
 
-/*
-#if SPAWN_PROP_CARS
-	// --- Prop car ---
-	for(int i = 0; i < sizeof(parkingVertices)/sizeof(*parkingVertices); i++){
-		auto propCar = scene->addEntity();
-		auto propCarTransform = propCar->getComponent<TransformComponent>();
-		propCarTransform->setLocalPosition(parkingVertices[i]);
-		
-		if(i < 47){
-			int randomRotate = rand() % 10;
-			if(randomRotate <= 4) {
-				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(80.f), glm::radians(100.f)), glm::vec3(0.f, 1.f, 0.f));	
-			} else {
-				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(260.f), glm::radians(280.f)), glm::vec3(0.f, 1.f, 0.f));
-			}
-		} else {
-			int randomRotate = rand() % 10;
-			if(randomRotate <= 4) {
-				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(170.f), glm::radians(190.f)), glm::vec3(0.f, 1.f, 0.f));	
-			} else {
-				propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(-10.f), glm::radians(10.f)), glm::vec3(0.f, 1.f, 0.f));	
-			}
-		}
-		auto propCarModel = propCar->addComponent<ModelComponent>();
-		propCarModel->setModel(modelPropCar);
+		   Instantiate prop cars in rest of parking spots that aren't gameplay spots (check empty parking spot vector through nested for loop)
+			   - Randomly choose between 4 different prop cars (car3, car4, sedan, truck)
 
-		auto propCarRender = propCar->addComponent<RendererComponent>();
-		propCarRender->enableRender();
-		
-		auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-		propCarRigidbody->addActorDynamic(*modelPropCar, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
-	}
-#endif
-	
-	// --- Rocks ---
-	sp<ModelComponent>     rockModel     = nullptr;
-	sp<RendererComponent>  rockRender    = nullptr;
-	sp<TransformComponent> rockTransform = nullptr;
-	sp<RigidbodyComponent> rockRigidbody = nullptr;
+		   Create the trigger boxes and particles for empty parking spots here (for loop using size of empty parking spot location vector)
+	   */
 
-	for (int i = 0; i < sizeof(rockPosVertices)/sizeof(*rockPosVertices); i++) {
-		auto rock = scene->addEntity();
-		rockTransform = rock->getComponent<TransformComponent>();
-		rockModel = rock->addComponent<ModelComponent>();
-		rockRender = rock->addComponent<RendererComponent>();
-		rockRigidbody = rock->addComponent<RigidbodyComponent>();
+	   /*
+	   #if SPAWN_PROP_CARS
+		   // --- Prop car ---
+		   for(int i = 0; i < sizeof(parkingVertices)/sizeof(*parkingVertices); i++){
+			   auto propCar = scene->addEntity();
+			   auto propCarTransform = propCar->getComponent<TransformComponent>();
+			   propCarTransform->setLocalPosition(parkingVertices[i]);
 
-		rockModel->setModel(modelRock);
-		rockRender->enableRender();
-		rockTransform->setLocalPosition(rockPosVertices[i]);
-		rockTransform->setLocalRotation(Random::randomFloat(glm::radians(0.0f), glm::radians(360.0f)), glm::vec3(0.f, 1.f, 0.f));
-	
-		rockRigidbody->addActorStaticSphere(0.6f, convert<physx::PxTransform>(rockTransform->getGlobalMatrix()));
-	}
+			   if(i < 47){
+				   int randomRotate = rand() % 10;
+				   if(randomRotate <= 4) {
+					   propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(80.f), glm::radians(100.f)), glm::vec3(0.f, 1.f, 0.f));
+				   } else {
+					   propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(260.f), glm::radians(280.f)), glm::vec3(0.f, 1.f, 0.f));
+				   }
+			   } else {
+				   int randomRotate = rand() % 10;
+				   if(randomRotate <= 4) {
+					   propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(170.f), glm::radians(190.f)), glm::vec3(0.f, 1.f, 0.f));
+				   } else {
+					   propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(-10.f), glm::radians(10.f)), glm::vec3(0.f, 1.f, 0.f));
+				   }
+			   }
+			   auto propCarModel = propCar->addComponent<ModelComponent>();
+			   propCarModel->setModel(modelPropCar);
 
-	
-	// --- TriggerBox ---
-	auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
-	for (int i = 0; i < sizeof(emptyparkingVertices) / sizeof(*emptyparkingVertices); i++) {
-		if(emptyparkingVertices[i].x == -148.5f){
-			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
-		}
+			   auto propCarRender = propCar->addComponent<RendererComponent>();
+			   propCarRender->enableRender();
 
-		else {
-			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
-		}
-		
-	}; 
+			   auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
+			   propCarRigidbody->addActorDynamic(*modelPropCar, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+		   }
+	   #endif
 
-*/
+		   // --- Rocks ---
+		   sp<ModelComponent>     rockModel     = nullptr;
+		   sp<RendererComponent>  rockRender    = nullptr;
+		   sp<TransformComponent> rockTransform = nullptr;
+		   sp<RigidbodyComponent> rockRigidbody = nullptr;
+
+		   for (int i = 0; i < sizeof(rockPosVertices)/sizeof(*rockPosVertices); i++) {
+			   auto rock = scene->addEntity();
+			   rockTransform = rock->getComponent<TransformComponent>();
+			   rockModel = rock->addComponent<ModelComponent>();
+			   rockRender = rock->addComponent<RendererComponent>();
+			   rockRigidbody = rock->addComponent<RigidbodyComponent>();
+
+			   rockModel->setModel(modelRock);
+			   rockRender->enableRender();
+			   rockTransform->setLocalPosition(rockPosVertices[i]);
+			   rockTransform->setLocalRotation(Random::randomFloat(glm::radians(0.0f), glm::radians(360.0f)), glm::vec3(0.f, 1.f, 0.f));
+
+			   rockRigidbody->addActorStaticSphere(0.6f, convert<physx::PxTransform>(rockTransform->getGlobalMatrix()));
+		   }
 
 
-	/* --------------------- End Game World Description --------------------- */
+		   // --- TriggerBox ---
+		   auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
+		   for (int i = 0; i < sizeof(emptyparkingVertices) / sizeof(*emptyparkingVertices); i++) {
+			   if(emptyparkingVertices[i].x == -148.5f){
+				   triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
+			   }
 
-	// Hacky stuff
+			   else {
+				   triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
+			   }
+
+		   };
+
+	   */
+
+
+	   /* --------------------- End Game World Description --------------------- */
+
+	   // Hacky stuff
 	playerId = playerCar->id();
 	scores[playerId] = 0;
-	
+
 	for (auto aiCar : aiCars) {
 		gameplay->addAiId(aiCar->id());
 		scores[aiCar->id()] = 0;
 	}
-	
+
 	audio->setListener(mainCamera->getComponent<TransformComponent>());
 	audio->car = playerCar->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor();
-
-}
-
-int Application::play() {
-
-	// Invoke observers of the GameStart event
-	Events::GameStart.broadcast();
-
-	//Game loop
-	while (!window->shouldClose()) {
-
-		// Process input
-		input->processInput();
-
-		// Update time-related values
-		Time::update();
-	
-		// Fixed time step game loop
-		while (Time::takeNextStep()) {
-			if (scores[playerId] >= 5){//|| scores[aiList[0]] >= 5) {
-			}
-			else {
-				gameplay->update();	// Gameplay / AI update
-				physics->update();	// Physics update
-				audio->update();	// Audio update
-			}
-		}
-
-		// Render the current scene
-		render->update();
-	}
-
-	return 0;
 }
 
 Application::~Application() {

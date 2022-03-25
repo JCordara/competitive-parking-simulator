@@ -218,3 +218,7 @@ bool Scene::removeEntityByID(unsigned int entityID) {
 sp<Entity> Scene::getEntityByID(unsigned int entityID) {
     return getChildByID(entityID);
 }
+
+// Menu
+
+Menu::Menu() : Entity(nullptr) {}
