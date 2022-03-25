@@ -135,19 +135,19 @@ Application::Application(appSettings& settings):
 		"models/car1wheel.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	auto modelAiCar = std::make_shared<Model>(
-		"models/car2chassis.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/car2chassis.obj", glm::vec3(.6f, .6f, .6f));
 
 	auto modelPropCar1 = std::make_shared<Model>(
-		"models/car3.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/car3.obj", glm::vec3(.8f, .5f, .6f));
 
 	auto modelPropCar2 = std::make_shared<Model>(
-		"models/car4.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/car4.obj", glm::vec3(.8f, .5f, .6f));
 
 	auto modelPropCar3 = std::make_shared<Model>(
-		"models/sedan.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/sedan.obj", glm::vec3(.8f, .5f, .6f));
 
 	auto modelPropCar4 = std::make_shared<Model>(
-		"models/truck.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/truck.obj", glm::vec3(.8f, .5f, .6f));
 
 
 	// --- Static Map Models ---
@@ -155,7 +155,7 @@ Application::Application(appSettings& settings):
 		"models/cpsMap_PLotPlane.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelMapMall = std::make_shared<Model>(
-		"models/cpsMap_Mall.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/cpsMap_Mall.obj", glm::vec3(.5f, .1f, .2f));
 	
 	auto modelMapMallText = std::make_shared<Model>(
 		"models/cpsMap_MallText.obj", glm::vec3(.5f, .1f, .2f));
@@ -170,36 +170,36 @@ Application::Application(appSettings& settings):
 		"models/cpsMap_BWall3.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelMapGrass = std::make_shared<Model>(
-		"models/cpsMap_BGGrass.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_BGGrass.obj", glm::vec3(.1f, .1f, .1f));
 
 
 	// --- Instantiated Map Models ---
 	auto modelMapMetalFence = std::make_shared<Model>(
-		"models/cpsMap_MetalFence.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_MetalFence.obj", glm::vec3(.9f, .5f, .1f));
 
 	auto modelMapCurb = std::make_shared<Model>(
-		"models/cpsMap_Curb.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_Curb.obj", glm::vec3(.2f, .5f, .5f));
 
 	auto modelMapHedge = std::make_shared<Model>(
-		"models/cpsMap_Hedge.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_Hedge.obj", glm::vec3(.6f, .8f, .5f));
 
 	auto modelMapWoodFence = std::make_shared<Model>(
-		"models/cpsMap_Woodfence.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_Woodfence.obj", glm::vec3(.3, .5, 1.0f));
 
 	auto modelMapWoodFencePole = std::make_shared<Model>(
-		"models/cpsMap_WoodfencePole.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_WoodfencePole.obj", glm::vec3(.3, .5, 1.0f));
 
 	auto modelMapParkingLine = std::make_shared<Model>(
 		"models/cpsMap_ParkingLine.obj", glm::vec3(.5f, .1f, .2f));
 	
 	auto modelMapTreeStump = std::make_shared<Model>(
-		"models/cpsMap_TreeStump.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_TreeStump.obj", glm::vec3(.1f, .4f, .2f));
 
 	auto modelMapTreeLeaves = std::make_shared<Model>(
-		"models/cpsMap_TreeLeaves.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_TreeLeaves.obj", glm::vec3(.1f, .4f, .2f));
 
 	auto modelMapWarningWall = std::make_shared<Model>(
-		"models/cpsMap_WarningWall.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_WarningWall.obj", glm::vec3(.9f, .5f, .1f));
 	
 	auto modelMapBGRoad = std::make_shared<Model>(
 		"models/cpsMap_BGRoad.obj", glm::vec3(.5f, .1f, .2f));
@@ -538,16 +538,12 @@ Application::Application(appSettings& settings):
 		mapTreeLeavesRender->enableRender();
 	}
 
-	/* -----------------------------------------------
-	  SEGMENTATION FAULT WITH PARKING LINES PAST 120??? 
-	   vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
 
 	// --- Map Parking Lines ---
 	parkingLineLocation = collectGLMVecFromFile("../../res/modelTransformations/parkingLinesLocation.txt", parkingLineLocation);
 	parkingLineRotation = collectfloatFromFile("../../res/modelTransformations/parkingLinesRotation.txt", parkingLineRotation);
 
 	for(int i = 0; i < parkingLineLocation.size(); i++){
-		if(i < 120){
 		auto mapParkingLine = scene->addEntity();
 		auto mapParkingLineTransform = mapParkingLine->getComponent<TransformComponent>();
 		mapParkingLineTransform->localTranslate(parkingLineLocation.at(i).x, parkingLineLocation.at(i).y, parkingLineLocation.at(i).z);
@@ -558,12 +554,8 @@ Application::Application(appSettings& settings):
 
 		auto mapParkingLineRender = mapParkingLine->addComponent<RendererComponent>();
 		mapParkingLineRender->enableRender();
-		}
 	}
 
-	/* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	  SEGMENTATION FAULT WITH PARKING LINES PAST 120??? 
-	   ----------------------------------------------- */
 	
 	/*
 		Here is where we will collect Parking spot locations & rotations (Vector/Float to File Functions)
