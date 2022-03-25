@@ -152,13 +152,13 @@ Application::Application(appSettings& settings):
 
 	// --- Static Map Models ---
 	auto modelMapRoad = std::make_shared<Model>(
-		"models/cpsMap_PLotPlane.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_PLotPlane.obj", glm::vec3(.0f, .0f, .0f));
 
 	auto modelMapMall = std::make_shared<Model>(
 		"models/cpsMap_Mall.obj", glm::vec3(.5f, .1f, .2f));
 	
 	auto modelMapMallText = std::make_shared<Model>(
-		"models/cpsMap_MallText.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_MallText.obj", glm::vec3(.5f, .7f, .2f));
 
 	auto modelMapWall1 = std::make_shared<Model>(
 		"models/cpsMap_BWall1.obj", glm::vec3(.5f, .1f, .2f));
@@ -207,12 +207,12 @@ Application::Application(appSettings& settings):
 
 	// --- Directional light ---
 	environmentalLight->addComponent<LightingComponent>(); 
-	environmentalLight->getComponent<LightingComponent>()->setAmbient(glm::vec3(0.1f, 0.1f, 0.1f));
-	environmentalLight->getComponent<LightingComponent>()->setDirectionalLight(glm::vec3(0.7f, 0.7f, 0.7f));
+	environmentalLight->getComponent<LightingComponent>()->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
+	environmentalLight->getComponent<LightingComponent>()->setDirectionalLight(glm::vec3(0.3f, 0.3f, 0.3f));
 
 	// --- Main camera ---
 	auto mainCameraTransform = mainCamera->getComponent<TransformComponent>();
-	mainCameraTransform->setLocalPosition(0.0f, 10.0f, -3.5f);
+	mainCameraTransform->setLocalPosition(0.0f, 12.0f, -2.0f);
 	mainCameraTransform->setLocalRotation(glm::radians(-60.0f), glm::vec3(1.f, 0.f, 0.f));
 	mainCameraTransform->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
 	
@@ -230,7 +230,7 @@ Application::Application(appSettings& settings):
 	shadowCameraTransform->setLocalRotation( q1);
 
 	auto shadowCameraCam = shadowCamera->addComponent<CameraComponent>();
-	shadowCameraCam->setOrthographicCamera(300.f, 150.f, 10.f, 300.f);
+	shadowCameraCam->setOrthographicCamera(200.f, 150.f, 10.f, 300.f);
 
 	auto shadowCameraDesc = shadowCamera->addComponent<DescriptionComponent>();
 	shadowCameraDesc->setInteger("Ignore parent rotations in render", 1);
@@ -256,6 +256,9 @@ Application::Application(appSettings& settings):
 	
 	auto playerRender = playerCar->addComponent<RendererComponent>();
 	playerRender->enableRender();
+
+	auto playerLight = playerCar->addComponent<LightingComponent>();
+	playerLight->setSpotLight(glm::vec3(0.94, 0.89, 0.54), glm::vec3(1.0f, 0.f, 0.f), glm::radians(15.f), glm::radians(30.f));
 	
 	playerCar->addComponent<VehicleComponent>();
 	

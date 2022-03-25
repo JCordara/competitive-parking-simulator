@@ -169,9 +169,17 @@ public:
 	//Render the output
 	void executeRender();
 	//Clear functions
-	void clearPointLights() { pointLights.clear(); }
-	void clearSpotLights() { spotLights.clear(); }
-	void clearRenderQueue() { renderQueue.clear(); }
+	void clearPointLights() {
+		pointLights.clear();
+		pointLightTransforms.clear();
+	}
+	void clearSpotLights() {
+		spotLights.clear();
+		spotLightTransforms.clear();
+	}
+	void clearRenderQueue() {
+		renderQueue.clear();
+	}
 	void flushLists() {
 		clearPointLights();
 		clearSpotLights();

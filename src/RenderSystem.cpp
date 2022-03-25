@@ -50,14 +50,6 @@ void RenderSystem::update() {
 		glm::vec3 pos = glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, 0.f, 1.f));
 		CameraPurpose purpose = cc->getPurpose();
 		if (purpose == CameraPurpose::render) {
-			if (e->parent()) {
-				if (e->parent()->hasComponent<VehicleComponent>()) {
-					auto v = e->parent()->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getLinearVelocity().magnitude();
-					v = v - 10.f;
-					v = (v < 0.f) ? 0.f : v;
-					cc->setFov(glm::radians(100.f + 0.2f*v));//Hacky lol
-				}
-			}
 			cc->windowSizeChanged(window->getWidth(), window->getHeight());
 			renderPipeline->setCamera(
 				pos,
@@ -72,8 +64,8 @@ void RenderSystem::update() {
 				glm::normalize(glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, -1.f, 0.f))),
 				cc->getViewMatrix(localToGlobaltransform),
 				cc->getProjectionMatrix(),
-				8192,//4096,
-				4096
+				4096,
+				3072
 			);
 		}
 	}
@@ -114,7 +106,7 @@ glm::mat4 getLocalToGlobalTransformation(sp<Entity> e) {
 	std::shared_ptr<TransformComponent> transformComponent = e->getComponent<TransformComponent>();
 	if (!transformComponent) return glm::mat4(1.0f);
 	std::shared_ptr<DescriptionComponent> descriptionComponent = e->getComponent<DescriptionComponent>();
-	if(!e->parent()) transformComponent->getLocalMatrix();
+	if(!e->parent()) return transformComponent->getLocalMatrix();
 	if (!e->parent()->hasComponent<TransformComponent>()) return transformComponent->getLocalMatrix();
 	bool ignoreParentRotations = false;
 	bool projectionOfParentOntoYPlane = false;
