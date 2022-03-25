@@ -4,7 +4,12 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include "Common.h"
+#include "Event.h"
 
 
 // Functor for deleting a GLFW window.
@@ -13,6 +18,9 @@
 // is properly destroyed when std::unique_ptr needs to clean up its resource
 struct WindowDeleter {
 	void operator() (GLFWwindow* window) const {
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 		glfwDestroyWindow(window);
 	}
 };
@@ -34,7 +42,8 @@ public:
 
 	static inline void defaultWindowSizeCallback(
 		GLFWwindow* window, int width, int height) { 
-			glViewport(0, 0, width, height); 
+			glViewport(0, 0, width, height);
+			Events::WindowResized.broadcast(width, height);
 	}
 
 	glm::ivec2 getPos() const;

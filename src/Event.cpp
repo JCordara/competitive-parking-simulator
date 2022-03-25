@@ -17,6 +17,8 @@ Event<shared_ptr<Entity>, float> Events::VehicleHandbrake;
 Event<double, double> Events::CameraRotate;
 Event<double, double> Events::CameraZoom;
 
+Event<int, int> Events::WindowResized;
+
 Event<glm::vec3&> Events::Collision;
 
 
@@ -26,5 +28,7 @@ Event<VehicleComponent&> Events::VehicleComponentInit;
 Event<ControllerComponent&> Events::ControllerComponentInit;
 Event<AiComponent&> Events::AiComponentInit;
 Event<AudioComponent&> Events::AudioComponentInit;
+
+Event<bool> Events::TestUiEvent;
 
 

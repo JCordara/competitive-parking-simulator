@@ -41,6 +41,8 @@ namespace Events {
     extern Event<double, double> CameraRotate;
     extern Event<double, double> CameraZoom;
 
+    extern Event<int, int> WindowResized;
+
     extern Event<glm::vec3&> Collision;
 
     // Broadcast by rigidbody components when they are initalized
@@ -55,6 +57,8 @@ namespace Events {
     extern Event<AudioComponent&> AudioComponentInit;
 	// Broadcast by volumetrigger components when they are initalized
 	extern Event<VolumeTriggerComponent&> VolumeTriggerComponentInit;
+
+    extern Event<bool> TestUiEvent;
 
 };
 
