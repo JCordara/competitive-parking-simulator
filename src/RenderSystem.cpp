@@ -3,13 +3,14 @@
 
 RenderSystem::RenderSystem(
     std::shared_ptr<Scene> scene,
+    std::shared_ptr<GuiScene> gui,
     std::shared_ptr<Window> window)
     : scene(scene)
+	, guiScene(gui)
     , window(window)
 {
     /* Rendering system initialization */
 	renderPipeline = std::make_shared<GameRenderPipeline>();
-	gui = std::make_shared<GUI>();
 }
 
 void RenderSystem::update() {
@@ -54,7 +55,7 @@ void RenderSystem::update() {
 					auto v = e->parent()->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getLinearVelocity().magnitude();
 					v = v - 10.f;
 					v = (v < 0.f) ? 0.f : v;
-					cc->setFov(glm::radians(100.f + 1.2f*v));//Hacky lol
+					cc->setFov(glm::radians(100.f + 0.2f*v));//Hacky lol
 				}
 			}
 			cc->windowSizeChanged(window->getWidth(), window->getHeight());
@@ -82,10 +83,19 @@ void RenderSystem::update() {
 	//Flush the render queue
 	renderPipeline->flushLists();
 	//Draw the GUI ontop
-	gui->draw();
+	guiScene->draw();
 	//Swap the drawbuffer
 	window->swapBuffers();
 }
+
+void RenderSystem::changeScene(shared_ptr<Scene> newScene) {
+	scene = newScene;
+}
+
+void RenderSystem::changeGui(shared_ptr<GuiScene> newGui) {
+	guiScene = newGui;
+}
+
 
 RenderSystem::~RenderSystem() {
     //Nothing to do here

@@ -5,7 +5,7 @@
 #include "Window.h"
 #include <Renderers.h>
 #include <Entity.h>
-#include <GUI.h>
+#include <GuiScene.h>
 
 class RenderSystem : public GameSystem {
 public:
@@ -13,18 +13,24 @@ public:
     /* Prepare framework */
     RenderSystem(
         std::shared_ptr<Scene> scene,
+        std::shared_ptr<GuiScene> gui,
         std::shared_ptr<Window> window
     );
 
     void update();
+
+    void changeScene(shared_ptr<Scene> newScene);
+    void changeGui(shared_ptr<GuiScene> newGui);
+
     ~RenderSystem();
     
 private:
-    std::shared_ptr<Scene>             scene;
-    std::shared_ptr<Window>            window;
+
+    std::shared_ptr<Scene>    scene;
+    std::shared_ptr<Window>   window;
+	std::shared_ptr<GuiScene> guiScene;
 
 	std::shared_ptr<GameRenderPipeline> renderPipeline;
-	std::shared_ptr<GUI> gui;
 
 };
 

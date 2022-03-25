@@ -28,7 +28,7 @@
 // Other stuff
 #include "Renderers.h"
 #include "GLDebug.h"
-#include "GUI.h"
+#include "GuiScene.h"
 #include "Shader.h"
 #include "EditorCamera.h"
 #include "Window.h"
@@ -55,15 +55,16 @@ private:
 	appSettings settings;
 
 	/* Framework */
-	std::shared_ptr<Scene>             scene;
-	std::shared_ptr<Window>            window;
+	shared_ptr<Scene>          scene;
+	shared_ptr<GuiScene>       guiScene;
+	shared_ptr<Window>         window;
 
 	/* Game systems - update() every frame */
-	std::shared_ptr<GameplaySystem>    gameplay;
-	std::shared_ptr<PhysicsSystem>     physics;
-	std::shared_ptr<RenderSystem>      render;
-	std::shared_ptr<AudioSystem>       audio;
-	std::shared_ptr<InputSystem>  	   input;
+	shared_ptr<GameplaySystem> gameplay;
+	shared_ptr<PhysicsSystem>  physics;
+	shared_ptr<RenderSystem>   render;
+	shared_ptr<AudioSystem>    audio;
+	shared_ptr<InputSystem>    input;
 
 };
 

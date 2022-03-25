@@ -1,12 +1,6 @@
 #include "Window.h"
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 
-// ----------------------
-// non-static definitions
-// ----------------------
 
 Window::Window(
 	int width, 
@@ -41,6 +35,10 @@ Window::Window(
 	}
 
 	glfwSetWindowSizeCallback(window.get(), defaultWindowSizeCallback);
+
+	// Broadcast window size for anything that needs it
+	Events::WindowResized.broadcast(width, height);
+
 	// Standard ImGui/GLFW middleware
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -48,6 +46,11 @@ Window::Window(
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window.get(), true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
+
+	io.Fonts->AddFontFromFileTTF("fonts/segoeui.ttf", 20);
+	io.Fonts->AddFontFromFileTTF("fonts/segoeui.ttf", 40);
+	io.Fonts->AddFontFromFileTTF("fonts/segoeui.ttf", 60);
+	io.Fonts->AddFontFromFileTTF("fonts/segoeuib.ttf", 100);
 }
 
 Window::operator GLFWwindow*() {

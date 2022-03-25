@@ -2,7 +2,7 @@
 #include <Random.h>
 
 #define SPAWN_PROP_CARS 1
-const unsigned int g_numAiCars = 0;
+const unsigned int g_numAiCars = 4;
 
 unsigned int playerId = 0;
 std::vector<unsigned int> aiList;
@@ -86,15 +86,26 @@ Application::Application(appSettings& settings):
 	Time::init();
 	Random::init();
 	/* Framework - used by systems*/
+	window   = std::make_shared<Window>(1200, 800, "Competitive Parking Simulator");
 	scene    = std::make_shared<Scene>();
-	window   = std::make_shared<Window>(1200, 800, "Test Window");
+	guiScene = std::make_shared<GuiScene>(window);
 
 	/* Game systems - update() every frame */
 	input    = std::make_shared<InputSystem>(window);
 	gameplay = std::make_shared<GameplaySystem>(scene);
 	physics  = std::make_shared<PhysicsSystem>(scene);
-	render   = std::make_shared<RenderSystem>(scene, window);
+	render   = std::make_shared<RenderSystem>(scene, guiScene, window);
 	audio    = std::make_shared<AudioSystem>();
+
+	// Example gui creation
+	guiScene->addLabel(0.5f, 0.0f, "Test label em0", 0);
+	guiScene->addLabel(0.5f, 0.2f, "Test label em1", 1);
+	guiScene->addLabel(0.5f, 0.4f, "Test label em2", 2);
+	guiScene->addLabel(0.05f, 0.6f, "Test label em3", 3);
+	guiScene->addButton(0.1f, 0.7f, "Button em0", Events::CarUnParked, 0);
+	guiScene->addButton(0.4f, 0.7f, "Button em1", Events::GameStart, 1);
+	guiScene->addButton(0.7f, 0.7f, "Button em2", Events::GameStart, 2);
+	guiScene->addCheckbox(0.3f, 0.3f, "Test checkbox", Events::TestUiEvent);
 
 	/* --------------------- Game World Description ------------------------ */
 
@@ -201,8 +212,8 @@ Application::Application(appSettings& settings):
 
 	// --- Main camera ---
 	auto mainCameraTransform = mainCamera->getComponent<TransformComponent>();
-	mainCameraTransform->setLocalPosition(0.0f, 9.0f, -5.5f);
-	mainCameraTransform->setLocalRotation(glm::radians(-45.0f), glm::vec3(1.f, 0.f, 0.f));
+	mainCameraTransform->setLocalPosition(0.0f, 10.0f, -3.5f);
+	mainCameraTransform->setLocalRotation(glm::radians(-60.0f), glm::vec3(1.f, 0.f, 0.f));
 	mainCameraTransform->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
 	
 	auto mainCamerCam = mainCamera->addComponent<CameraComponent>();
@@ -635,7 +646,6 @@ Application::Application(appSettings& settings):
 
 */
 
-
 	/* --------------------- End Game World Description --------------------- */
 
 	// Hacky stuff
@@ -673,7 +683,7 @@ int Application::play() {
 			else {
 				gameplay->update();	// Gameplay / AI update
 				physics->update();	// Physics update
-				audio->update();	// Audio update
+				// audio->update();	// Audio update
 			}
 		}
 
