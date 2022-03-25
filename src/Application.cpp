@@ -89,7 +89,8 @@ Application::Application(appSettings& settings):
 	window   = std::make_shared<Window>(1200, 800, "Competitive Parking Simulator");
 	scene    = std::make_shared<Scene>();
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>();
-	window   = std::make_shared<Window>(1200, 800, "Test Window");
+	//window   = std::make_shared<Window>(1200, 800, "Test Window");
+	guiScene = std::make_shared<GuiScene>(window);
 
 	/* Game systems - update() every frame */
 	input    = std::make_shared<InputSystem>(window);
@@ -157,8 +158,6 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	guiScene->addButton(0.4f, 0.7f, "Button em1", Events::GameStart, 1);
 	guiScene->addButton(0.7f, 0.7f, "Button em2", Events::GameStart, 2);
 	guiScene->addCheckbox(0.3f, 0.3f, "Test checkbox", Events::TestUiEvent);
-
-	/* --------------------- Game World Description ------------------------ */
 
 // --- Entities ---
 	playerCar = scene->addEntity();
