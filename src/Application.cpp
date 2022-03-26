@@ -314,9 +314,21 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 	auto playerRender = playerCar->addComponent<RendererComponent>();
 	playerRender->enableRender();
+	//Add the two head lights to the player car
+	auto lightEntity = playerCar->addChild();
+	auto lc = lightEntity->addComponent<LightingComponent>();
+	lc->setSpotLight(glm::vec3(0.94f, 0.89f, 0.54f), glm::vec3(1.0f, 0.f, 0.f), glm::radians(5.f), glm::radians(16.f));
+	lightEntity->addComponent<TransformComponent>();
+	lightEntity->getComponent<TransformComponent>()->setLocalPosition(-0.8f, 0.15f, 1.f);
+	lightEntity->getComponent<TransformComponent>()->setLocalRotation(glm::radians(5.f), glm::vec3(1.f, 0.f, 0.f));
 
-	auto playerLight = playerCar->addComponent<LightingComponent>();
-	playerLight->setSpotLight(glm::vec3(0.94, 0.89, 0.54), glm::vec3(1.0f, 0.f, 0.f), glm::radians(15.f), glm::radians(30.f));
+	auto lightEntity2 = playerCar->addChild();
+	auto lc2 = lightEntity2->addComponent<LightingComponent>();
+	lc2->setSpotLight(glm::vec3(0.94f, 0.89f, 0.54f), glm::vec3(1.0f, 0.f, 0.f), glm::radians(5.f), glm::radians(16.f));
+	lightEntity2->addComponent<TransformComponent>();
+	lightEntity2->getComponent<TransformComponent>()->setLocalPosition(0.8f, 0.15f, 1.f);
+	lightEntity2->getComponent<TransformComponent>()->setLocalRotation(glm::radians(5.f), glm::vec3(1.f, 0.f, 0.f));
+	//-------------------
 	
 	playerCar->addComponent<VehicleComponent>();
 

@@ -426,7 +426,7 @@ void PostProcessingRenderer::setPointLights(std::vector<std::shared_ptr<PointLig
 }
 
 void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight>>& spotLights, std::vector<glm::mat4> transforms) {
-	std::vector<std::vector<GLfloat>> ret = std::vector<std::vector<GLfloat>>(7);
+	std::vector<std::vector<GLfloat>> ret = std::vector<std::vector<GLfloat>>(6);
 	ret[0] = std::vector<GLfloat>(3 * spotLights.size());
 	ret[1] = std::vector<GLfloat>(3 * spotLights.size());
 	ret[2] = std::vector<GLfloat>(3 * spotLights.size());
@@ -434,9 +434,8 @@ void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight
 	ret[4] = std::vector<GLfloat>(	  spotLights.size());
 	ret[5] = std::vector<GLfloat>(2 * spotLights.size());
 	glm::vec3 temp;
-	glm::vec4 temp4 = glm::vec4(0.f, 0.f, 0.f, 1.f);
 	for (int i = 0; i < spotLights.size(); i++) {
-		temp = glm::vec3(transforms[i] * temp4); //spotLights[i]->getPos();
+		temp = glm::vec3(transforms[i][3]); //spotLights[i]->getPos();
 		ret[0][3 * i + 0] = temp[0];
 		ret[0][3 * i + 1] = temp[1];
 		ret[0][3 * i + 2] = temp[2];
@@ -448,8 +447,7 @@ void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight
 		ret[2][3 * i + 0] = temp[0];
 		ret[2][3 * i + 1] = temp[1];
 		ret[2][3 * i + 2] = temp[2];
-		temp4 = glm::vec4(0.f, 0.f, 1.f, 0.f);
-		temp = glm::vec3(transforms[i] * temp4);
+		temp = glm::vec3(transforms[i][2]);
 		ret[3][3 * i + 0] = temp[0];
 		ret[3][3 * i + 1] = temp[1];
 		ret[3][3 * i + 2] = temp[2];
