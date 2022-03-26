@@ -35,6 +35,11 @@ void GuiScene::draw() {
 		ImVec2(static_cast<float>(window->getWidth()), static_cast<float>(window->getHeight())), 
 		ImGuiCond_FirstUseEver);
 
+	vector<Button> buttonEvents;
+	vector<Checkbox> checkboxEvents;
+	vector<SliderFloat> floatSliderEvents;
+	vector<SliderInt> intSliderEvents;
+
 	if (ImGui::Begin("GUI LAYER", nullptr, windowFlags)) {
 
 		// Render the scene's elements
@@ -52,23 +57,22 @@ void GuiScene::draw() {
 			// Render button
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * button.x, window->getHeight() * button.y));
 			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[button.emphasisLevel]);
-			if (ImGui::Button(button.text.c_str(), ImVec2(btnWidth, btnHeight))) {
-				button.event.broadcast();
-			}
+			if (ImGui::Button(button.text.c_str(), ImVec2(btnWidth, btnHeight)))
+				buttonEvents.push_back(button);
 			ImGui::PopFont();
 		}
 
 		for (auto& checkbox : checkboxes) {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * checkbox.x, window->getHeight() * checkbox.y));
 			if (ImGui::Checkbox(checkbox.text.c_str(), &checkbox.v))
-				checkbox.event.broadcast(checkbox.v);
+				checkboxEvents.push_back(checkbox);
 		}
 
 		for (auto& slider : floatSliders) {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * slider.x, window->getHeight() * slider.y));
 			ImGui::PushItemWidth(window->getWidth() * 0.15f);
 			if (ImGui::SliderFloat(slider.text.c_str(), &slider.v, slider.min, slider.max, "%.2f"))
-				slider.event.broadcast(slider.v);
+				floatSliderEvents.push_back(slider);
 			ImGui::PopItemWidth();
 		}
 
@@ -76,12 +80,18 @@ void GuiScene::draw() {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * slider.x, window->getHeight() * slider.y));
 			ImGui::PushItemWidth(window->getWidth() * 0.15f);
 			if (ImGui::SliderInt(slider.text.c_str(), &slider.v, slider.min, slider.max))
-				slider.event.broadcast(slider.v);
+				intSliderEvents.push_back(slider);
 			ImGui::PopItemWidth();
 		}
 
 		ImGui::End();
 	}
+
+	// Broadcast any events after rendering finished
+	if (buttonEvents.size() > 0) buttonEvents[0].event.broadcast();
+	if (checkboxEvents.size() > 0) checkboxEvents[0].event.broadcast(checkboxEvents[0].v);
+	if (floatSliderEvents.size() > 0) floatSliderEvents[0].event.broadcast(floatSliderEvents[0].v);
+	if (intSliderEvents.size() > 0) intSliderEvents[0].event.broadcast(intSliderEvents[0].v);
 
 	// Render the ImGui window
 	ImGui::Render();

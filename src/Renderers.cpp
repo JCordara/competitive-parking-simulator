@@ -82,15 +82,28 @@ void GameRenderPipeline::setWindowDimentions(int width, int height) {
 	}
 }
 
-void GameRenderPipeline::attachRender(std::shared_ptr<Model> model, glm::mat4 modelTransformation) {
-	auto it = renderQueue.find(model.get());
-	if (it != renderQueue.end())//Already exists
-		it->second.modelTransformations.push_back(modelTransformation);
+void GameRenderPipeline::attachRender(std::shared_ptr<Model> model, glm::mat4 modelTransformation, bool isTransparent) {
+	if (!isTransparent) {
+		auto it = renderQueue.find(model.get());
+		if (it != renderQueue.end())//Already exists
+			it->second.modelTransformations.push_back(modelTransformation);
+		else {
+			instancedPair newPair;
+			newPair.model = model;
+			newPair.modelTransformations.push_back(modelTransformation);
+			renderQueue.insert(std::pair<Model*, instancedPair>(model.get(), newPair));
+		}
+	}
 	else {
-		instancedPair newPair;
-		newPair.model = model;
-		newPair.modelTransformations.push_back(modelTransformation);
-		renderQueue.insert(std::pair<Model*, instancedPair>(model.get(), newPair));
+		auto it = renderQueueTransparent.find(model.get());
+		if (it != renderQueueTransparent.end())//Already exists
+			it->second.modelTransformations.push_back(modelTransformation);
+		else {
+			instancedPair newPair;
+			newPair.model = model;
+			newPair.modelTransformations.push_back(modelTransformation);
+			renderQueueTransparent.insert(std::pair<Model*, instancedPair>(model.get(), newPair));
+		}
 	}
 }
 
@@ -139,6 +152,11 @@ void GameRenderPipeline::executeRender() {
 	postProcessingRenderer.setRenderedCameraClip(nearClip, farClip);
 	postProcessingRenderer.render();
 	//postProcessingRenderer.endUse();
+	transparentRenderer.use();
+	transparentRenderer.setCameraTransformations(cameraViewTransformation, cameraProjectionTransformation);
+	for (auto it = renderQueueTransparent.begin(); it != renderQueueTransparent.end(); it++) transparentRenderer.render(it->second);
+	//transparentRenderer.endUse();
+
 }
 
 DepthRenderer::DepthRenderer() : shader("shaders/DepthTexture.vert", "shaders/DepthTexture.frag"), frameBuffer() {
@@ -153,6 +171,7 @@ void DepthRenderer::use(int width, int height) {
 	frameBuffer.bind();
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
 	glCullFace(GL_BACK);
@@ -249,6 +268,7 @@ void DeferredRenderer::use(int width, int height) {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
 	glUniform1i(modelTextureLocation, 0);
 }
 
@@ -373,6 +393,7 @@ void PostProcessingRenderer::use(int width, int height) {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_ALWAYS);
 	glDepthMask(GL_FALSE);
+	glDisable(GL_BLEND);
 	//Load the shader for use
 	shader.use();
 }
@@ -426,7 +447,7 @@ void PostProcessingRenderer::setPointLights(std::vector<std::shared_ptr<PointLig
 }
 
 void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight>>& spotLights, std::vector<glm::mat4> transforms) {
-	std::vector<std::vector<GLfloat>> ret = std::vector<std::vector<GLfloat>>(7);
+	std::vector<std::vector<GLfloat>> ret = std::vector<std::vector<GLfloat>>(6);
 	ret[0] = std::vector<GLfloat>(3 * spotLights.size());
 	ret[1] = std::vector<GLfloat>(3 * spotLights.size());
 	ret[2] = std::vector<GLfloat>(3 * spotLights.size());
@@ -434,9 +455,8 @@ void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight
 	ret[4] = std::vector<GLfloat>(	  spotLights.size());
 	ret[5] = std::vector<GLfloat>(2 * spotLights.size());
 	glm::vec3 temp;
-	glm::vec4 temp4 = glm::vec4(0.f, 0.f, 0.f, 1.f);
 	for (int i = 0; i < spotLights.size(); i++) {
-		temp = glm::vec3(transforms[i] * temp4); //spotLights[i]->getPos();
+		temp = glm::vec3(transforms[i][3]); //spotLights[i]->getPos();
 		ret[0][3 * i + 0] = temp[0];
 		ret[0][3 * i + 1] = temp[1];
 		ret[0][3 * i + 2] = temp[2];
@@ -448,8 +468,7 @@ void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight
 		ret[2][3 * i + 0] = temp[0];
 		ret[2][3 * i + 1] = temp[1];
 		ret[2][3 * i + 2] = temp[2];
-		temp4 = glm::vec4(0.f, 0.f, 1.f, 0.f);
-		temp = glm::vec3(transforms[i] * temp4);
+		temp = glm::vec3(transforms[i][2]);
 		ret[3][3 * i + 0] = temp[0];
 		ret[3][3 * i + 1] = temp[1];
 		ret[3][3 * i + 2] = temp[2];
@@ -488,4 +507,54 @@ void PostProcessingRenderer::render() {
 	vao.bind();
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	vao.unbind();
+}
+
+TransparentRenderer::TransparentRenderer() : shader("shaders/TransparentObject.vert", "shaders/TransparentObject.frag") {
+	//Model Properties
+	modelTextureLocation = glGetUniformLocation(shader, "colourTexture");
+	modelClassificationColourLocation = glGetUniformLocation(shader, "modelColour");
+	modelAmbientConstantLocation = glGetUniformLocation(shader, "uniformPhongAmbient");
+	//Transformations
+	modelTransformationsLocation = glGetUniformLocation(shader, "Ms");
+	cameraViewTransformationLocation = glGetUniformLocation(shader, "cameraV");
+	cameraProjectionTransformationLocation = glGetUniformLocation(shader, "cameraP");
+}
+
+void TransparentRenderer::use() {
+	shader.use();
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_FRAMEBUFFER_SRGB);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glDepthMask(GL_FALSE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void TransparentRenderer::setCameraTransformations(glm::mat4 V, glm::mat4 P) {
+	glUniformMatrix4fv(cameraViewTransformationLocation, 1, GL_FALSE, &V[0][0]);
+	glUniformMatrix4fv(cameraProjectionTransformationLocation, 1, GL_FALSE, &P[0][0]);
+}
+
+void TransparentRenderer::render(instancedPair& instancedRender) {
+	std::vector<GLfloat> ret1;
+	glm::mat4 temp;
+	int j = 0;
+	int count = 0;
+	while (j < instancedRender.modelTransformations.size()) {
+		for (
+			count = 0;
+			j < instancedRender.modelTransformations.size() && count < 120;
+			j++, count++
+			) {
+			temp = instancedRender.modelTransformations[j];
+			copy(glm::value_ptr(temp), glm::value_ptr(temp) + 16, back_inserter(ret1));
+		}
+		glUniformMatrix4fv(modelTransformationsLocation, count, GL_FALSE, ret1.data());
+		instancedRender.model->draw(shader, GL_TEXTURE0, -1, -1, -1, -1, modelAmbientConstantLocation, count);
+		ret1.clear();
+	}
 }

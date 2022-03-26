@@ -25,7 +25,7 @@ void RenderSystem::update() {
 		glm::mat4 localToGlobaltransform = getLocalToGlobalTransformation(e);
 		if (rc->toBeRendered() && mc) {
 			std::shared_ptr<Model> model = mc->getModel();
-			if (model) renderPipeline->attachRender(model, localToGlobaltransform);
+			if (model) renderPipeline->attachRender(model, localToGlobaltransform, rc->isTransparent());
 		}
 	}
 
