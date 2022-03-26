@@ -84,6 +84,7 @@ void Application::gameStart() {
 	}
 	std::cout << "TEST" << std::endl;
 	setupBaseLevelGUI();
+	Events::GameStart.broadcast();
 }
 
 Application::Application(appSettings& settings): 
@@ -121,7 +122,7 @@ Application::Application(appSettings& settings):
 int Application::play() {
 
 	// Invoke observers of the GameStart event
-	//Events::GameStart.broadcast();
+	
 
 	//Game loop
 	while (!window->shouldClose()) {
@@ -159,8 +160,7 @@ void Application::setupMainMenu() {
 	menuStack.push(menu);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	std::vector<string> names = { "Play","Options","Exit" };
-	std::vector<Event<void>> events = { Events::GamePlay, Events::GameOptions, Events::GameExit };
-	//std::cout << "EVENT: " << eve << std::endl;
+	//std::vector<Event<void>> events = { Events::GamePlay, Events::GameOptions, Events::GameExit };
 	/*
 	for (int i = 0; i < menu->layout.size(); i++) {
 		for (int j = 0; j < menu->layout[i].size(); j++) {
