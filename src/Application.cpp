@@ -100,7 +100,7 @@ Application::Application(appSettings& settings):
 	audio    = std::make_shared<AudioSystem>(scene);
 
 	// Scene and Menu Logic
-	setupMainMenu(menu);
+	//setupMainMenu(menu);
 	setupBaseLevel(scene);// Can change later with appsettings logic
 	sceneQueue.push(scene);
 
@@ -119,12 +119,12 @@ int Application::play() {
 
 		// Update time-related values
 		Time::update();
-	
+
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
 			// The 1 is the game gui
 			if (menuStack.size() > 1) { // Can change to one with
-				
+
 
 				//render->changeGui(guiScene);
 			}
@@ -140,7 +140,7 @@ int Application::play() {
 			}
 		}
 		// Render the current scene
-		render->update(); // Putting it in this if condition messes up the FPS calc somehow
+		render->update();
 	}
 
 	return 0;
@@ -718,37 +718,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	audio->setListener(mainCamera->getComponent<TransformComponent>());
 }
 
-int Application::play() {
 
-	// Invoke observers of the GameStart event
-	Events::GameStart.broadcast();
-
-	//Game loop
-	while (!window->shouldClose()) {
-
-		// Process input
-		input->processInput();
-
-		// Update time-related values
-		Time::update();
-	
-		// Fixed time step game loop
-		while (Time::takeNextStep()) {
-			if (scores[playerId] >= 5){//|| scores[aiList[0]] >= 5) {
-			}
-			else {
-				gameplay->update();	// Gameplay / AI update
-				physics->update();	// Physics update
-				audio->update();	// Audio update
-			}
-		}
-
-		// Render the current scene
-		render->update();
-	}
-
-	return 0;
-}
 
 Application::~Application() {
 	//Clean-up
