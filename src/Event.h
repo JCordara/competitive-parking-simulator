@@ -43,7 +43,7 @@ namespace Events {
 
     extern Event<int, int> WindowResized;
 
-    extern Event<glm::vec3&> Collision;
+    extern Event<shared_ptr<Entity>, shared_ptr<Entity>> Collision;
 
     // Broadcast by rigidbody components when they are initalized
     extern Event<RigidbodyComponent&> RigidbodyComponentInit;
@@ -59,6 +59,8 @@ namespace Events {
 	extern Event<VolumeTriggerComponent&> VolumeTriggerComponentInit;
 
     extern Event<bool> TestUiEvent;
+    extern Event<float> ChangeMusicVolume;
+    extern Event<int> ChangeNumAI;
 
 };
 

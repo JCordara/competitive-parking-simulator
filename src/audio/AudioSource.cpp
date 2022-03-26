@@ -7,9 +7,7 @@ AudioSource::AudioSource(bool staticSource)
     , looping(false)
     , position_(glm::vec3())
     , velocity_(glm::vec3())
-    , _null()
-    , currAudio(&_null)
-    , _isStatic(staticSource)
+    , isStatic_(staticSource)
 {
 
     // Initialize source properties
@@ -19,7 +17,6 @@ AudioSource::AudioSource(bool staticSource)
     alSource3f(sourceID, AL_POSITION, position_.x, position_.y, position_.z);
     alSource3f(sourceID, AL_VELOCITY, velocity_.x, velocity_.y, velocity_.z);
     alSourcei(sourceID, AL_LOOPING, looping);
-    alSourcei(sourceID, AL_BUFFER, *currAudio);
 }
 
 AudioSource::AudioSource(const glm::vec3 position_init, bool staticSource) 
@@ -30,14 +27,19 @@ AudioSource::AudioSource(const glm::vec3 position_init, bool staticSource)
 }
 
 
-void AudioSource::playAudio(const Audio& audio) {
+void AudioSource::playAudio(shared_ptr<Audio> audio) {
+    if (audio == nullptr) return;
 
     if (isPlaying()) 
         alSourceStop(sourceID);
 
+    if (currAudio == nullptr) { 
+        currAudio = audio;
+        alSourcei(sourceID, AL_BUFFER, *currAudio);
+    } 
     // Dont switch buffers if unnecessary
-    if (audio != *currAudio) {
-        currAudio = &audio;
+    if (*audio != *currAudio) {
+        currAudio = audio;
         alSourcei(sourceID, AL_BUFFER, *currAudio);
     }
 
@@ -54,20 +56,20 @@ bool AudioSource::isPlaying() {
 }
 
 
-void AudioSource::setPosition(const glm::vec3& _position) {
+void AudioSource::setPosition(const glm::vec3& position) {
 
     // Update non-static source velocity each time this function is called
     // Expected that the position of non-static sources is updated per-frame
-    if (!_isStatic) {
+    if (!isStatic_) {
         // Get last known position
         glm::vec3 lastPosition;
         alGetSourcefv(sourceID, AL_POSITION, glm::value_ptr(lastPosition));
         
         // Predict instantaneous velocity given last frame exec time
         glm::vec3 velocity(
-            (_position.x - lastPosition.x) / static_cast<float>(Time::delta()),
-            (_position.y - lastPosition.y) / static_cast<float>(Time::delta()),
-            (_position.z - lastPosition.z) / static_cast<float>(Time::delta())
+            (position.x - lastPosition.x) / static_cast<float>(Time::delta()),
+            (position.y - lastPosition.y) / static_cast<float>(Time::delta()),
+            (position.z - lastPosition.z) / static_cast<float>(Time::delta())
         );
         
         // Scale down doppler effect intensity
@@ -76,7 +78,7 @@ void AudioSource::setPosition(const glm::vec3& _position) {
         alSource3f(sourceID, AL_VELOCITY, velocity.x, velocity.y, velocity.z);
     }
 
-    alSourcefv(sourceID, AL_POSITION, glm::value_ptr(_position));
+    alSourcefv(sourceID, AL_POSITION, glm::value_ptr(position));
     
 }
 

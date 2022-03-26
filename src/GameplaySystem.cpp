@@ -69,7 +69,7 @@ void GameplaySystem::resetPlayer() {
 	setLocalPosition(glm::vec3(0, 0.1, 0));
 	scene->getEntityByID(playerId)->
 		getComponent<TransformComponent>()->
-		setLocalRotation(Random::randomFloat(0,6.28), glm::vec3(0, 1.0, 0));
+		setLocalRotation(Random::randomFloat(0.0f,6.28f), glm::vec3(0.0f, 1.0f, 0.0f));
 	scene->getEntityByID(playerId)->
 		getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->setLinearVelocity(PxVec3(0.0f));
 }
@@ -87,7 +87,7 @@ bool GameplaySystem::gameWon(){
 	else {
 		return false;
 	}
-	
+	return true;
 }
 
 void GameplaySystem::setupAiNodes() {

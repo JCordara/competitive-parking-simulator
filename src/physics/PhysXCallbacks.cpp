@@ -22,7 +22,7 @@ void PhysXSimCallback::onContact(
             ||  (e1->hasComponent<RigidbodyComponent>() && e2->hasComponent<VehicleComponent>())
             ||  (e1->hasComponent<VehicleComponent>()   && e2->hasComponent<VehicleComponent>())) {
                 glm::vec3 pos = e1->getComponent<TransformComponent>()->getGlobalPosition();
-                Events::Collision.broadcast(pos);
+                Events::Collision.broadcast(e1->shared_from_this(), e2->shared_from_this());
             }
 
         }
@@ -47,7 +47,7 @@ void PhysXSimCallback::onTrigger(
 		if (!e1) return;
 
 		if ((e1->hasComponent<VehicleComponent>() && e1->hasComponent<ControllerComponent>())&& (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)){
-			std::cout << nbPairs;
+			// std::cout << nbPairs;
 			Events::CarParked.broadcast(e1->shared_from_this());
 		}
 	}

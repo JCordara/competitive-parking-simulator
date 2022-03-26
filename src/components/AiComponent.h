@@ -48,8 +48,8 @@ public:
 		RESET
 	};
 
-	float aiSpeed = 0.65;
-	const float NODETHRESHOLD = 2.5;
+	float aiSpeed = 0.65f;
+	const float NODETHRESHOLD = 2.5f;
 	float sightFrontConeWidth;
 	float sightFrontConeHeight;
 	float sightBackConeWidth;

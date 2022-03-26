@@ -19,7 +19,7 @@ Event<double, double> Events::CameraZoom;
 
 Event<int, int> Events::WindowResized;
 
-Event<glm::vec3&> Events::Collision;
+Event<shared_ptr<Entity>, shared_ptr<Entity>> Events::Collision;
 
 
 Event<RigidbodyComponent&> Events::RigidbodyComponentInit;
@@ -30,5 +30,8 @@ Event<AiComponent&> Events::AiComponentInit;
 Event<AudioComponent&> Events::AudioComponentInit;
 
 Event<bool> Events::TestUiEvent;
+Event<float> Events::ChangeMusicVolume;
+Event<int> Events::ChangeNumAI;
+
 
 

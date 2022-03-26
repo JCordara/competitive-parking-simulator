@@ -35,56 +35,36 @@ class AudioSystem : public GameSystem {
 
 public:
 
-    AudioSystem();
+    AudioSystem(shared_ptr<Scene> scene);
     void update();
 
-    Audio& loadAudio(std::string filepath);
+    shared_ptr<Audio> loadAudio(std::string filepath);
 
-    AudioSource& createSource();
-    AudioSource& createSource(const glm::vec3 position_init);
+    shared_ptr<AudioSource> createSource();
+    shared_ptr<AudioSource> createSource(const glm::vec3 position_init);
 
-    AudioSource& createStaticSource();
-    AudioSource& createStaticSource(const glm::vec3 position_init);
+    shared_ptr<AudioSource> createStaticSource();
+    shared_ptr<AudioSource> createStaticSource(const glm::vec3 position_init);
 
+    void setListener(sp<TransformComponent> tc) { listener = tc; }
     void setListenerPosition(const glm::vec3& _position);
     void setListenerOrientation(const glm::vec3& _front, const glm::vec3& _up);
-    
-    // Listener orientation can also be set using the camera's view matrix
-    void setListenerOrientation(const glm::mat4& _vm);
+
+    void registerAudioComponent(AudioComponent& component);
 
     // ----- Device management methods -----
     int availableDevicesCount() const;
     void openDevice(int deviceID);
     std::vector<std::string> getDeviceNames();
-    AudioDevice& getDevice(int deviceID);
-
-    // ----- Rule of 5 Singleton deletions -----
-    AudioSystem(const AudioSystem&) = delete;
-    AudioSystem(AudioSystem&&) = delete;
-    AudioSystem& operator=(const AudioSystem&) = delete;
-    AudioSystem& operator=(AudioSystem&&) = delete;
+    shared_ptr<AudioDevice> getDevice(int deviceID);
     
-    void registerAudioComponent(AudioComponent& component);
-
-    void setListener(sp<TransformComponent> tc) { listener = tc; }
-
-    void onGameStart();
-
-    void startEngine();
-    void stopEngine();
-
-    void playDing(shared_ptr<Entity>);
-    void playOof(glm::vec3&);
 
     // Public destructor
     ~AudioSystem();
 
-    PxRigidDynamic* car;
-    float enginePitch;
-    float engineGain;
-    float speed;
-
-    Script calculateEngineSound;
+    void onGameStart();
+    void onCollision(sp<Entity> e0, sp<Entity> s1);
+    void onMusicVolumeChanged(float gain);
 
 private:
 
@@ -97,17 +77,12 @@ private:
 
     std::vector<std::string> filepaths;
 
+    shared_ptr<Scene> scene;
     shared_ptr<TransformComponent> listener;
 
-    AudioSource* carSource;
-    Audio* engineSound;
+    shared_ptr<AudioSource> musicPlayer;
+    shared_ptr<Audio> music;
 
-    AudioSource* musicPlayer;
-    Audio* music;
-
-    AudioSource* aux;
-    Audio* ding;
-    Audio* oof;
 };
 
 

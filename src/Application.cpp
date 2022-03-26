@@ -95,17 +95,19 @@ Application::Application(appSettings& settings):
 	gameplay = std::make_shared<GameplaySystem>(scene);
 	physics  = std::make_shared<PhysicsSystem>(scene);
 	render   = std::make_shared<RenderSystem>(scene, guiScene, window);
-	audio    = std::make_shared<AudioSystem>();
+	audio    = std::make_shared<AudioSystem>(scene);
 
 	// Example gui creation
-	guiScene->addLabel(0.5f, 0.0f, "Test label em0", 0);
-	guiScene->addLabel(0.5f, 0.2f, "Test label em1", 1);
-	guiScene->addLabel(0.5f, 0.4f, "Test label em2", 2);
-	guiScene->addLabel(0.05f, 0.6f, "Test label em3", 3);
-	guiScene->addButton(0.1f, 0.7f, "Button em0", Events::CarUnParked, 0);
-	guiScene->addButton(0.4f, 0.7f, "Button em1", Events::GameStart, 1);
-	guiScene->addButton(0.7f, 0.7f, "Button em2", Events::GameStart, 2);
-	guiScene->addCheckbox(0.3f, 0.3f, "Test checkbox", Events::TestUiEvent);
+	// guiScene->addLabel(0.5f, 0.0f, "Test label em0", 0);
+	// guiScene->addLabel(0.5f, 0.2f, "Test label em1", 1);
+	// guiScene->addLabel(0.5f, 0.4f, "Test label em2", 2);
+	// guiScene->addLabel(0.05f, 0.6f, "Test label em3", 3);
+	// guiScene->addButton(0.1f, 0.7f, "Button em0", Events::CarUnParked, 0);
+	// guiScene->addButton(0.4f, 0.7f, "Button em1", Events::GameStart, 1);
+	// guiScene->addButton(0.7f, 0.7f, "Button em2", Events::GameStart, 2);
+	// guiScene->addCheckbox(0.3f, 0.3f, "Test checkbox", Events::TestUiEvent);
+	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
+	guiScene->addSlider(0.01f, 0.2f, "AI Opponents", Events::ChangeNumAI, 4, 0, 10);
 
 	/* --------------------- Game World Description ------------------------ */
 
@@ -271,6 +273,9 @@ Application::Application(appSettings& settings):
 	playerController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
 	playerController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
 
+	auto playerAudio = playerCar->addComponent<AudioComponent>();
+	playerAudio->addEngineSound("audio/engine.wav", playerCar->getComponent<VehicleComponent>());
+
 	auto playerDescription = playerCar->addComponent<DescriptionComponent>();
 	playerDescription->setVec3("Forward", glm::vec3(0.f, 0.f, 1.f));
 
@@ -304,7 +309,8 @@ Application::Application(appSettings& settings):
 		
 		aiCar->addComponent<VehicleComponent>();
 		aiCar->addComponent<AiComponent>();
-
+		auto audioComponent = aiCar->addComponent<AudioComponent>();
+		audioComponent->addSound(AudioTrigger::Collision, "audio/oof.wav");
 		aiCars.push_back(aiCar);
 	}
 
@@ -653,8 +659,6 @@ Application::Application(appSettings& settings):
 	}
 	
 	audio->setListener(mainCamera->getComponent<TransformComponent>());
-	audio->car = playerCar->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor();
-
 }
 
 int Application::play() {
@@ -678,7 +682,7 @@ int Application::play() {
 			else {
 				gameplay->update();	// Gameplay / AI update
 				physics->update();	// Physics update
-				// audio->update();	// Audio update
+				audio->update();	// Audio update
 			}
 		}
 
