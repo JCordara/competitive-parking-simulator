@@ -26,6 +26,9 @@ class VolumeTriggerComponent;
 
 namespace Events {
     extern Event<void> GameStart;
+	extern Event<void> GamePlay;
+	extern Event<void> GameExit;
+	extern Event<void> GameOptions;
 	extern Event<void> GameWon;
 	extern Event<shared_ptr<Entity>, float> GameReset;
     extern Event<shared_ptr<Entity>> CarParked;

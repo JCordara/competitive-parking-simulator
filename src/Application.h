@@ -51,6 +51,7 @@ public:
 	Application(Application&&) = delete;
 	Application& operator= (const Application&) = delete;
 	Application& operator= (Application&&) = delete;
+	void gameStart();
 
 private:
 
@@ -70,7 +71,8 @@ private:
 
 	std::stack<shared_ptr<Menu>> menuStack;
 	std::queue<shared_ptr<Scene>> sceneQueue;
-	void setupMainMenu(shared_ptr<Menu> menu);
+	void setupBaseLevelGUI();
+	void setupMainMenu();
 	void setupBaseLevel(shared_ptr<Scene> scene);
 };
 

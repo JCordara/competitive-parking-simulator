@@ -52,8 +52,9 @@ void GuiScene::draw() {
 			// Render button
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * button.x, window->getHeight() * button.y));
 			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[button.emphasisLevel]);
-			if (ImGui::Button(button.text.c_str(), ImVec2(btnWidth, btnHeight)))
+			if (ImGui::Button(button.text.c_str(), ImVec2(btnWidth, btnHeight))) {
 				button.event.broadcast();
+			}
 			ImGui::PopFont();
 		}
 

@@ -213,21 +213,30 @@ private:
 
 };
 
-class Menu : public Entity {
+class Menu {
 public: 
-	enum ElementType {
-		BUTTON = 1,
-		DROPDOWN,
-		SLIDER
+	//enum ElementType {
+	//	BUTTON = 1,
+	//	DROPDOWN,
+	//	SLIDER
+	//};
+	struct Element {
+		//ElementType type;
+		float positionX;
+		float positionY;
 	};
 
 	// Column -> row order
 	int columnMaxNum;
 	int rowMaxNum;
+	float buttonOffset;
+	int windowSizeX;
+	int windowSizeY;
 	// Pressing a button will move over a column/row
-	std::vector<std::vector<ElementType>> layout;
-	Menu();
+	std::vector<std::vector<Element>> layout;
+	Menu(int columnNum, int rowNum, float inButtonOffset);
 
+	void calculateElementPositions();
 };
 
 

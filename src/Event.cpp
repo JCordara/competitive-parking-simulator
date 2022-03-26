@@ -1,6 +1,9 @@
 #include "Event.h"
 
 Event<void> Events::GameStart;
+Event<void> Events::GamePlay;
+Event<void> Events::GameExit;
+Event<void> Events::GameOptions;
 Event<void> Events::GameWon;
 Event<shared_ptr<Entity>, float> Events::GameReset;
 Event<shared_ptr<Entity>> Events::CarParked;

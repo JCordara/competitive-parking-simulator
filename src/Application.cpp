@@ -78,9 +78,21 @@ vector<float> collectfloatFromFile(string filepath, vector<float> vec){
 	return vec;
 }
 
+void Application::gameStart() {
+	for (int i = 0; i < menuStack.size(); i++) {
+		menuStack.pop();
+	}
+	std::cout << "TEST" << std::endl;
+	setupBaseLevelGUI();
+}
+
 Application::Application(appSettings& settings): 
 	settings(settings)
 {
+	//Register the game start event handler
+	Events::GamePlay.registerHandler<Application,
+		&Application::gameStart>(this);
+
 	//App initialization
 	glfwInit();
 	Time::init();
@@ -88,7 +100,7 @@ Application::Application(appSettings& settings):
 	/* Framework - used by systems*/
 	window   = std::make_shared<Window>(1200, 800, "Competitive Parking Simulator");
 	scene    = std::make_shared<Scene>();
-	std::shared_ptr<Menu> menu = std::make_shared<Menu>();
+	
 	//window   = std::make_shared<Window>(1200, 800, "Test Window");
 	guiScene = std::make_shared<GuiScene>(window);
 
@@ -100,8 +112,8 @@ Application::Application(appSettings& settings):
 	audio    = std::make_shared<AudioSystem>(scene);
 
 	// Scene and Menu Logic
-	//setupMainMenu(menu);
 	setupBaseLevel(scene);// Can change later with appsettings logic
+	setupMainMenu();
 	sceneQueue.push(scene);
 
 }
@@ -109,7 +121,7 @@ Application::Application(appSettings& settings):
 int Application::play() {
 
 	// Invoke observers of the GameStart event
-	Events::GameStart.broadcast();
+	//Events::GameStart.broadcast();
 
 	//Game loop
 	while (!window->shouldClose()) {
@@ -122,13 +134,7 @@ int Application::play() {
 
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
-			// The 1 is the game gui
-			if (menuStack.size() > 1) { // Can change to one with
-
-
-				//render->changeGui(guiScene);
-			}
-			else {
+			if (menuStack.size() == 0) {
 				if (scores[playerId] >= 5) {//|| scores[aiList[0]] >= 5) {
 				}
 				else {
@@ -136,7 +142,6 @@ int Application::play() {
 					physics->update();	// Physics update
 					audio->update();	// Audio update
 				}
-
 			}
 		}
 		// Render the current scene
@@ -146,9 +151,40 @@ int Application::play() {
 	return 0;
 }
 
-void Application::setupMainMenu(shared_ptr<Menu> menu) {
-
+void Application::setupMainMenu() {
+	int columnNum = 1;
+	int rowNum = 3;
+	float buttonSizeOffset = 0.1;
+	std::shared_ptr<Menu> menu = std::make_shared<Menu>(columnNum, rowNum, buttonSizeOffset);
 	menuStack.push(menu);
+	guiScene = std::make_shared<GuiScene>(window); // Reset gui
+	std::vector<string> names = { "Play","Options","Exit" };
+	std::vector<Event<void>> events = { Events::GamePlay, Events::GameOptions, Events::GameExit };
+	//std::cout << "EVENT: " << eve << std::endl;
+	/*
+	for (int i = 0; i < menu->layout.size(); i++) {
+		for (int j = 0; j < menu->layout[i].size(); j++) {
+			guiScene->addButton(menu->layout[i][j].positionX,
+								menu->layout[i][j].positionY,
+								names[(i*rowNum)+j],
+								events[(i*rowNum)+j],
+								1);
+		}
+	}*/
+	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][0].positionY,
+						"Play", Events::GamePlay, 1);
+	guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY,
+						"Options", Events::GameOptions, 1);
+	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY,
+						"Exit", Events::GameExit, 1);
+	render->changeGui(guiScene);
+}
+
+void Application::setupBaseLevelGUI() {
+	guiScene = std::make_shared<GuiScene>(window); // Reset gui
+	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
+	guiScene->addSlider(0.01f, 0.2f, "AI Opponents", Events::ChangeNumAI, 4, 0, 10);
+	render->changeGui(guiScene);
 }
 
 void Application::setupBaseLevel(shared_ptr<Scene> scene) {
@@ -162,8 +198,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	// guiScene->addButton(0.4f, 0.7f, "Button em1", Events::GameStart, 1);
 	// guiScene->addButton(0.7f, 0.7f, "Button em2", Events::GameStart, 2);
 	// guiScene->addCheckbox(0.3f, 0.3f, "Test checkbox", Events::TestUiEvent);
-	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
-	guiScene->addSlider(0.01f, 0.2f, "AI Opponents", Events::ChangeNumAI, 4, 0, 10);
+	setupBaseLevelGUI();
 
 	/* --------------------- Game World Description ------------------------ */
 
