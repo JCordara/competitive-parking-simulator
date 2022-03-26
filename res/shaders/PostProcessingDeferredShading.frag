@@ -35,13 +35,14 @@ uniform vec3 directionalLightDirection;
 #define MAX_BIAS 0.005
 #define MIN_BIAS 0.0005
 uniform vec3 directionalLightColour;
+//uniform vec2 directionalLightPixelSize;
 	//Ambient Lighting Uniforms
 uniform vec3 ambientLightColour;
 	//Camera Uniforms
 uniform vec3 cameraPosition;
 uniform vec2 clipDistance;
 
-#define NEAR_CLIP 1.0
+#define NEAR_CLIP 10.0
 #define FAR_CLIP 130.0
 
 const mat3 sx = mat3( 
@@ -88,27 +89,17 @@ float directionalLightShadow(vec3 fragPositionInLight, float bias){
     vec3 projCoords = fragPositionInLight * 0.5 + 0.5;
 	if(projCoords.z < 0.0 || projCoords.x < 0.0 || projCoords.y < 0.0
 	||projCoords.z > 1.0 || projCoords.x > 1.0 || projCoords.y > 1.0)
-		return 1.0;
-    float currentDepth = projCoords.z;
+		return 0.0;
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(textureDirectionalLightDepth, 0);
 	for(int x = -1; x <= 1; ++x){
 		for(int y = -1; y <= 1; ++y){
 			float pcfDepth = texture(textureDirectionalLightDepth, projCoords.xy + vec2(x, y) * texelSize).r; 
-			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+			shadow += projCoords.z - bias > pcfDepth ? 1.0 : 0.0;        
 		}    
 	}
-	shadow /= 9.0;
-    return shadow;
+    return shadow * 0.1111111; //(/9)
 }
-
-
-/*vec3 cellShader(vec3 light, int bands){
-	if(bands < 2) return light;
-	vec3 nf = floor(light * vec3(bands));
-	light = (nf)*(1.0 / vec3(bands));
-	return light;
-}*/
 
 float LinearizeDepth(float depth) 
 {
@@ -143,9 +134,9 @@ void main() {
 		if(distanceToLight < pointLightRadius[i]){
 			attenuateFactor = attenuate(pointLightAttenuationConstaints[i], distanceToLight);
 			lightDir = normalize(lightDir);
-			diffuseFactor = attenuateFactor * diffuse(lightDir, norm, diff);
-			specularFactor = attenuateFactor * specular(lightDir, norm, vDir, specShinny.rgb, specShinny.a);
-			phonglightAccumulator += (diffuseFactor + specularFactor) * pointLightColours[i];
+			diffuseFactor = diffuse(lightDir, norm, diff);
+			specularFactor = specular(lightDir, norm, vDir, specShinny.rgb, specShinny.a);
+			phonglightAccumulator += attenuateFactor * (diffuseFactor + specularFactor) * pointLightColours[i];
 		}
 	}
 	
@@ -159,9 +150,9 @@ void main() {
 		if( (distanceToLight < spotLightRadius[i]) && (cosAngle > spotLightCosAngles[i][1])){
 			attenuateFactor = attenuate(spotLightAttenuationConstaints[i], distanceToLight);
 			spotlightFactor = spotLightEdgeFactor(spotLightCosAngles[i][1], spotLightCosAngles[i][0], cosAngle);
-			diffuseFactor = attenuateFactor * spotlightFactor * diffuse(lightDir, norm, diff);
-			specularFactor = attenuateFactor * spotlightFactor * specular(lightDir, norm, vDir, specShinny.rgb, specShinny.a);
-			phonglightAccumulator += (diffuseFactor + specularFactor) * spotLightColours[i];
+			diffuseFactor =  diffuse(lightDir, norm, diff);
+			specularFactor = spotlightFactor * specular(lightDir, norm, vDir, specShinny.rgb, specShinny.a);
+			phonglightAccumulator += attenuateFactor * (diffuseFactor + specularFactor) * spotLightColours[i];
 		}
 	}
 	
@@ -178,9 +169,9 @@ void main() {
 	float edv = edgeDetection();
 	color = (1.0 - edv) * color + edv * vec4(0.0,0.0,0.0,1.0);//Edge Detection
 	//Depth Fade
-	float depthfactor =  min(max(2.0*LinearizeDepth(texture(textureDepth,fragUv2).r) / clipDistance[1] - 0.98, 0.0), 1.0);
-	float a = depthfactor * depthfactor;
-	color = (1.0 - a) * color + a * vec4(0.1,0.1,0.1,1.0);
-	color[3] = 1.0; //Alpha Correction
+	//float depthfactor =  min(max(2.0*LinearizeDepth(texture(textureDepth,fragUv2).r) / clipDistance[1] - 0.98, 0.0), 1.0);
+	//float a = depthfactor * depthfactor;
+	//color = (1.0 - a) * color + a * vec4(0.1,0.1,0.1,1.0);
 #endif
+	color[3] = 1.0; //Alpha Correction
 } 

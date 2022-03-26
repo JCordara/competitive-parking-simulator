@@ -97,7 +97,7 @@ Application::Application(appSettings& settings):
 	gameplay = std::make_shared<GameplaySystem>(scene);
 	physics  = std::make_shared<PhysicsSystem>(scene);
 	render   = std::make_shared<RenderSystem>(scene, guiScene, window);
-	audio    = std::make_shared<AudioSystem>();
+	audio    = std::make_shared<AudioSystem>(scene);
 
 	// Scene and Menu Logic
 	setupMainMenu(menu);
@@ -154,16 +154,18 @@ void Application::setupMainMenu(shared_ptr<Menu> menu) {
 void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 /* --------------------- Game World Description ------------------------ */
 	// Example gui creation
-	
-	guiScene->addLabel(0.5f, 0.0f, "Test label em0", 0);
-	guiScene->addLabel(0.5f, 0.2f, "Test label em1", 1);
-	guiScene->addLabel(0.5f, 0.4f, "Test label em2", 2);
-	guiScene->addLabel(0.05f, 0.6f, "Test label em3", 3);
-	guiScene->addButton(0.1f, 0.7f, "Button em0", Events::CarUnParked, 0);
-	guiScene->addButton(0.4f, 0.7f, "Button em1", Events::GameStart, 1);
-	guiScene->addButton(0.7f, 0.7f, "Button em2", Events::GameStart, 2);
-	guiScene->addCheckbox(0.3f, 0.3f, "Test checkbox", Events::TestUiEvent);
-	
+	// guiScene->addLabel(0.5f, 0.0f, "Test label em0", 0);
+	// guiScene->addLabel(0.5f, 0.2f, "Test label em1", 1);
+	// guiScene->addLabel(0.5f, 0.4f, "Test label em2", 2);
+	// guiScene->addLabel(0.05f, 0.6f, "Test label em3", 3);
+	// guiScene->addButton(0.1f, 0.7f, "Button em0", Events::CarUnParked, 0);
+	// guiScene->addButton(0.4f, 0.7f, "Button em1", Events::GameStart, 1);
+	// guiScene->addButton(0.7f, 0.7f, "Button em2", Events::GameStart, 2);
+	// guiScene->addCheckbox(0.3f, 0.3f, "Test checkbox", Events::TestUiEvent);
+	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
+	guiScene->addSlider(0.01f, 0.2f, "AI Opponents", Events::ChangeNumAI, 4, 0, 10);
+
+	/* --------------------- Game World Description ------------------------ */
 
 // --- Entities ---
 	playerCar = scene->addEntity();
@@ -191,30 +193,30 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		"models/car1wheel.obj", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	auto modelAiCar = std::make_shared<Model>(
-		"models/car2chassis.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/car2chassis.obj", glm::vec3(.6f, .6f, .6f));
 
 	auto modelPropCar1 = std::make_shared<Model>(
-		"models/car3.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/car3.obj", glm::vec3(.8f, .5f, .6f));
 
 	auto modelPropCar2 = std::make_shared<Model>(
-		"models/car4.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/car4.obj", glm::vec3(.8f, .5f, .6f));
 
 	auto modelPropCar3 = std::make_shared<Model>(
-		"models/sedan.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/sedan.obj", glm::vec3(.8f, .5f, .6f));
 
 	auto modelPropCar4 = std::make_shared<Model>(
-		"models/truck.obj", glm::vec3(1.0f, 1.0f, 1.0f));
+		"models/truck.obj", glm::vec3(.8f, .5f, .6f));
 
 
 	// --- Static Map Models ---
 	auto modelMapRoad = std::make_shared<Model>(
-		"models/cpsMap_PLotPlane.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_PLotPlane.obj", glm::vec3(.0f, .0f, .0f));
 
 	auto modelMapMall = std::make_shared<Model>(
-		"models/cpsMap_Mall.obj", glm::vec3(1.0f, 1.0f, 1.0f));
-
+		"models/cpsMap_Mall.obj", glm::vec3(.5f, .1f, .2f));
+	
 	auto modelMapMallText = std::make_shared<Model>(
-		"models/cpsMap_MallText.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_MallText.obj", glm::vec3(.5f, .7f, .2f));
 
 	auto modelMapWall1 = std::make_shared<Model>(
 		"models/cpsMap_BWall1.obj", glm::vec3(.5f, .1f, .2f));
@@ -226,49 +228,49 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		"models/cpsMap_BWall3.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelMapGrass = std::make_shared<Model>(
-		"models/cpsMap_BGGrass.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_BGGrass.obj", glm::vec3(.1f, .1f, .1f));
 
 
 	// --- Instantiated Map Models ---
 	auto modelMapMetalFence = std::make_shared<Model>(
-		"models/cpsMap_MetalFence.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_MetalFence.obj", glm::vec3(.9f, .5f, .1f));
 
 	auto modelMapCurb = std::make_shared<Model>(
-		"models/cpsMap_Curb.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_Curb.obj", glm::vec3(.2f, .5f, .5f));
 
 	auto modelMapHedge = std::make_shared<Model>(
-		"models/cpsMap_Hedge.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_Hedge.obj", glm::vec3(.6f, .8f, .5f));
 
 	auto modelMapWoodFence = std::make_shared<Model>(
-		"models/cpsMap_Woodfence.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_Woodfence.obj", glm::vec3(.3, .5, 1.0f));
 
 	auto modelMapWoodFencePole = std::make_shared<Model>(
-		"models/cpsMap_WoodfencePole.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_WoodfencePole.obj", glm::vec3(.3, .5, 1.0f));
 
 	auto modelMapParkingLine = std::make_shared<Model>(
 		"models/cpsMap_ParkingLine.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelMapTreeStump = std::make_shared<Model>(
-		"models/cpsMap_TreeStump.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_TreeStump.obj", glm::vec3(.1f, .4f, .2f));
 
 	auto modelMapTreeLeaves = std::make_shared<Model>(
-		"models/cpsMap_TreeLeaves.obj", glm::vec3(.5f, .1f, .2f));
+		"models/cpsMap_TreeLeaves.obj", glm::vec3(.1f, .4f, .2f));
 
 	auto modelMapWarningWall = std::make_shared<Model>(
-		"models/cpsMap_WarningWall.obj", glm::vec3(.5f, .1f, .2f));
-
+		"models/cpsMap_WarningWall.obj", glm::vec3(.9f, .5f, .1f));
+	
 	auto modelMapBGRoad = std::make_shared<Model>(
 		"models/cpsMap_BGRoad.obj", glm::vec3(.5f, .1f, .2f));
 
 
 	// --- Directional light ---
-	environmentalLight->addComponent<LightingComponent>();
-	environmentalLight->getComponent<LightingComponent>()->setAmbient(glm::vec3(0.1f, 0.1f, 0.1f));
-	environmentalLight->getComponent<LightingComponent>()->setDirectionalLight(glm::vec3(0.7f, 0.7f, 0.7f));
+	environmentalLight->addComponent<LightingComponent>(); 
+	environmentalLight->getComponent<LightingComponent>()->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
+	environmentalLight->getComponent<LightingComponent>()->setDirectionalLight(glm::vec3(0.3f, 0.3f, 0.3f));
 
 	// --- Main camera ---
 	auto mainCameraTransform = mainCamera->getComponent<TransformComponent>();
-	mainCameraTransform->setLocalPosition(0.0f, 10.0f, -3.5f);
+	mainCameraTransform->setLocalPosition(0.0f, 12.0f, -2.0f);
 	mainCameraTransform->setLocalRotation(glm::radians(-60.0f), glm::vec3(1.f, 0.f, 0.f));
 	mainCameraTransform->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
 
@@ -286,7 +288,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	shadowCameraTransform->setLocalRotation(q1);
 
 	auto shadowCameraCam = shadowCamera->addComponent<CameraComponent>();
-	shadowCameraCam->setOrthographicCamera(300.f, 150.f, 10.f, 300.f);
+	shadowCameraCam->setOrthographicCamera(200.f, 150.f, 10.f, 300.f);
 
 	auto shadowCameraDesc = shadowCamera->addComponent<DescriptionComponent>();
 	shadowCameraDesc->setInteger("Ignore parent rotations in render", 1);
@@ -313,6 +315,9 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	auto playerRender = playerCar->addComponent<RendererComponent>();
 	playerRender->enableRender();
 
+	auto playerLight = playerCar->addComponent<LightingComponent>();
+	playerLight->setSpotLight(glm::vec3(0.94, 0.89, 0.54), glm::vec3(1.0f, 0.f, 0.f), glm::radians(15.f), glm::radians(30.f));
+	
 	playerCar->addComponent<VehicleComponent>();
 
 	auto playerController = playerCar->addComponent<ControllerComponent>();
@@ -323,6 +328,9 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	playerController->bindInput(GLFW_KEY_F, &Events::GameReset);
 	playerController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
 	playerController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
+
+	auto playerAudio = playerCar->addComponent<AudioComponent>();
+	playerAudio->addEngineSound("audio/engine.wav", playerCar->getComponent<VehicleComponent>());
 
 	auto playerDescription = playerCar->addComponent<DescriptionComponent>();
 	playerDescription->setVec3("Forward", glm::vec3(0.f, 0.f, 1.f));
@@ -357,7 +365,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 		aiCar->addComponent<VehicleComponent>();
 		aiCar->addComponent<AiComponent>();
-
+		auto audioComponent = aiCar->addComponent<AudioComponent>();
+		audioComponent->addSound(AudioTrigger::Collision, "audio/oof.wav");
 		aiCars.push_back(aiCar);
 	}
 
@@ -594,39 +603,31 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		mapTreeLeavesRender->enableRender();
 	}
 
-	/* -----------------------------------------------
-	  SEGMENTATION FAULT WITH PARKING LINES PAST 120???
-	   vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
 
 	   // --- Map Parking Lines ---
 	parkingLineLocation = collectGLMVecFromFile("../../res/modelTransformations/parkingLinesLocation.txt", parkingLineLocation);
 	parkingLineRotation = collectfloatFromFile("../../res/modelTransformations/parkingLinesRotation.txt", parkingLineRotation);
 
-	for (int i = 0; i < parkingLineLocation.size(); i++) {
-		if (i < 120) {
-			auto mapParkingLine = scene->addEntity();
-			auto mapParkingLineTransform = mapParkingLine->getComponent<TransformComponent>();
-			mapParkingLineTransform->localTranslate(parkingLineLocation.at(i).x, parkingLineLocation.at(i).y, parkingLineLocation.at(i).z);
-			mapParkingLineTransform->localRotate(glm::radians(parkingLineRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
+	for(int i = 0; i < parkingLineLocation.size(); i++){
+		auto mapParkingLine = scene->addEntity();
+		auto mapParkingLineTransform = mapParkingLine->getComponent<TransformComponent>();
+		mapParkingLineTransform->localTranslate(parkingLineLocation.at(i).x, parkingLineLocation.at(i).y, parkingLineLocation.at(i).z);
+		mapParkingLineTransform->localRotate(glm::radians(parkingLineRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
 
 			auto mapParkingLineModel = mapParkingLine->addComponent<ModelComponent>();
 			mapParkingLineModel->setModel(modelMapParkingLine);
 
-			auto mapParkingLineRender = mapParkingLine->addComponent<RendererComponent>();
-			mapParkingLineRender->enableRender();
-		}
+		auto mapParkingLineRender = mapParkingLine->addComponent<RendererComponent>();
+		mapParkingLineRender->enableRender();
 	}
 
-	/* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	  SEGMENTATION FAULT WITH PARKING LINES PAST 120???
-	   ----------------------------------------------- */
-
-	   /*
-		   Here is where we will collect Parking spot locations & rotations (Vector/Float to File Functions)
-		   Choose random spots for empty parking spots and put in separate vector (2 less than the AI + Player ( for(int i = 0; i < g_numAICars-1; i++) ))
-
-		   Instantiate prop cars in rest of parking spots that aren't gameplay spots (check empty parking spot vector through nested for loop)
-			   - Randomly choose between 4 different prop cars (car3, car4, sedan, truck)
+	
+	/*
+		Here is where we will collect Parking spot locations & rotations (Vector/Float to File Functions)
+		Choose random spots for empty parking spots and put in separate vector (2 less than the AI + Player ( for(int i = 0; i < g_numAICars-1; i++) ))
+		
+		Instantiate prop cars in rest of parking spots that aren't gameplay spots (check empty parking spot vector through nested for loop)
+			- Randomly choose between 4 different prop cars (car3, car4, sedan, truck)
 
 		   Create the trigger boxes and particles for empty parking spots here (for loop using size of empty parking spot location vector)
 	   */
@@ -715,7 +716,38 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 	audio->setListener(mainCamera->getComponent<TransformComponent>());
-	audio->car = playerCar->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor();
+}
+
+int Application::play() {
+
+	// Invoke observers of the GameStart event
+	Events::GameStart.broadcast();
+
+	//Game loop
+	while (!window->shouldClose()) {
+
+		// Process input
+		input->processInput();
+
+		// Update time-related values
+		Time::update();
+	
+		// Fixed time step game loop
+		while (Time::takeNextStep()) {
+			if (scores[playerId] >= 5){//|| scores[aiList[0]] >= 5) {
+			}
+			else {
+				gameplay->update();	// Gameplay / AI update
+				physics->update();	// Physics update
+				audio->update();	// Audio update
+			}
+		}
+
+		// Render the current scene
+		render->update();
+	}
+
+	return 0;
 }
 
 Application::~Application() {

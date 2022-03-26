@@ -3,7 +3,7 @@
  */
 
 #define DOPPLER_SCALE_FACTOR 0.3    // Scale up/down doppler effect
-
+#define DEBUG
 #ifdef DEBUG
     #define debug_log(s)\
     std::cerr << "> " << s << "\n";

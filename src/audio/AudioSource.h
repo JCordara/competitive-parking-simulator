@@ -10,6 +10,8 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "Common.h"
 #include "TimeInfo.h"
 
 #include "Audio.h"
@@ -26,10 +28,12 @@ public:
     AudioSource& operator=(const AudioSource& other);
     ~AudioSource();
 
-    void playAudio(const Audio& audio);
+    void playAudio(shared_ptr<Audio> audio);
     bool isPlaying();
+    bool isStatic() { return isStatic_; }
+    void setStatic(bool value) { isStatic_ = value; }
 
-    void setPosition(const glm::vec3& _position);
+    void setPosition(const glm::vec3& position);
     //void setVelocity(const glm::vec3 vel);
     glm::vec3 position() const;
     glm::vec3 velocity() const;
@@ -51,10 +55,9 @@ private:
     float pitch;
     float gain;
     bool looping;
-    bool _isStatic;
+    bool isStatic_;
     
-    const Audio* currAudio;
-    Audio _null;
+    shared_ptr<Audio> currAudio;
 
 };
 

@@ -448,7 +448,7 @@ void PostProcessingRenderer::setSpotLights(std::vector<std::shared_ptr<SpotLight
 		ret[2][3 * i + 0] = temp[0];
 		ret[2][3 * i + 1] = temp[1];
 		ret[2][3 * i + 2] = temp[2];
-		temp4 = glm::vec4(1.f, 0.f, 0.f, 0.f);
+		temp4 = glm::vec4(0.f, 0.f, 1.f, 0.f);
 		temp = glm::vec3(transforms[i] * temp4);
 		ret[3][3 * i + 0] = temp[0];
 		ret[3][3 * i + 1] = temp[1];

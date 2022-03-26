@@ -16,6 +16,8 @@ GuiScene::GuiScene(shared_ptr<Window> window):
 		ImGuiWindowFlags_NoMove 	  |
 		ImGuiWindowFlags_NoBackground |
 		ImGuiWindowFlags_AlwaysAutoResize;
+	
+	ImGui::StyleColorsClassic();
 }
 
 void GuiScene::draw() {
@@ -45,7 +47,7 @@ void GuiScene::draw() {
 
 		for (auto& button : buttons) {
 			// Calculate button size
-			float btnWidth = std::max(100.0f, (button.text.length() * 20.0f) ) * ((button.emphasisLevel + 1) * 0.5);
+			float btnWidth = std::max(100.0f, (button.text.length() * 20.0f) ) * ((button.emphasisLevel + 1) * 0.5f);
 			float btnHeight = std::max(30.0f, (button.emphasisLevel * 35.0f) + 15);
 			// Render button
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * button.x, window->getHeight() * button.y));
@@ -59,6 +61,22 @@ void GuiScene::draw() {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * checkbox.x, window->getHeight() * checkbox.y));
 			if (ImGui::Checkbox(checkbox.text.c_str(), &checkbox.v))
 				checkbox.event.broadcast(checkbox.v);
+		}
+
+		for (auto& slider : floatSliders) {
+			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * slider.x, window->getHeight() * slider.y));
+			ImGui::PushItemWidth(window->getWidth() * 0.15f);
+			if (ImGui::SliderFloat(slider.text.c_str(), &slider.v, slider.min, slider.max, "%.2f"))
+				slider.event.broadcast(slider.v);
+			ImGui::PopItemWidth();
+		}
+
+		for (auto& slider : intSliders) {
+			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * slider.x, window->getHeight() * slider.y));
+			ImGui::PushItemWidth(window->getWidth() * 0.15f);
+			if (ImGui::SliderInt(slider.text.c_str(), &slider.v, slider.min, slider.max))
+				slider.event.broadcast(slider.v);
+			ImGui::PopItemWidth();
 		}
 
 		ImGui::End();
@@ -83,4 +101,11 @@ void GuiScene::addCheckbox(float x, float y, std::string text, Event<bool>& even
 	checkboxes.emplace_back(x, y, text, event, initialValue);
 }
 
+void GuiScene::addSlider(float x, float y, std::string text, Event<float>& event, float initialValue, float min, float max) {
+	floatSliders.emplace_back(x, y, text, event, initialValue, min, max);
+}
+
+void GuiScene::addSlider(float x, float y, std::string text, Event<int>& event, int initialValue, int min, int max) {
+	intSliders.emplace_back(x, y, text, event, initialValue, min, max);
+}
 
