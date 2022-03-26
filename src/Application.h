@@ -70,7 +70,7 @@ private:
 
 	std::stack<shared_ptr<Menu>> menuStack;
 	std::queue<shared_ptr<Scene>> sceneQueue;
-	void setupMainMenu(shared_ptr<Scene> scene);
+	void setupMainMenu(shared_ptr<Menu> menu);
 	void setupBaseLevel(shared_ptr<Scene> scene);
 };
 

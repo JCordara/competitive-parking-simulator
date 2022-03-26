@@ -100,7 +100,7 @@ Application::Application(appSettings& settings):
 	audio    = std::make_shared<AudioSystem>();
 
 	// Scene and Menu Logic
-	//setupMainMenu(menu);
+	setupMainMenu(menu);
 	setupBaseLevel(scene);// Can change later with appsettings logic
 	sceneQueue.push(scene);
 
@@ -122,8 +122,11 @@ int Application::play() {
 	
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
-			if (menuStack.size() > 0) { // Can change to one with 
+			// The 1 is the game gui
+			if (menuStack.size() > 1) { // Can change to one with
+				
 
+				//render->changeGui(guiScene);
 			}
 			else {
 				if (scores[playerId] >= 5) {//|| scores[aiList[0]] >= 5) {
@@ -143,13 +146,15 @@ int Application::play() {
 	return 0;
 }
 
-void Application::setupMainMenu(shared_ptr<Scene> scene) {
-	
+void Application::setupMainMenu(shared_ptr<Menu> menu) {
+
+	menuStack.push(menu);
 }
 
 void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 /* --------------------- Game World Description ------------------------ */
 	// Example gui creation
+	
 	guiScene->addLabel(0.5f, 0.0f, "Test label em0", 0);
 	guiScene->addLabel(0.5f, 0.2f, "Test label em1", 1);
 	guiScene->addLabel(0.5f, 0.4f, "Test label em2", 2);
@@ -158,6 +163,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	guiScene->addButton(0.4f, 0.7f, "Button em1", Events::GameStart, 1);
 	guiScene->addButton(0.7f, 0.7f, "Button em2", Events::GameStart, 2);
 	guiScene->addCheckbox(0.3f, 0.3f, "Test checkbox", Events::TestUiEvent);
+	
 
 // --- Entities ---
 	playerCar = scene->addEntity();
