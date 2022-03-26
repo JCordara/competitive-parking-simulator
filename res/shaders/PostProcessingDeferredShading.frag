@@ -151,8 +151,8 @@ void main() {
 			attenuateFactor = attenuate(spotLightAttenuationConstaints[i], distanceToLight);
 			spotlightFactor = spotLightEdgeFactor(spotLightCosAngles[i][1], spotLightCosAngles[i][0], cosAngle);
 			diffuseFactor =  diffuse(lightDir, norm, diff);
-			specularFactor = spotlightFactor * specular(lightDir, norm, vDir, specShinny.rgb, specShinny.a);
-			phonglightAccumulator += attenuateFactor * (diffuseFactor + specularFactor) * spotLightColours[i];
+			specularFactor = specular(lightDir, norm, vDir, specShinny.rgb, specShinny.a);
+			phonglightAccumulator += spotlightFactor * attenuateFactor * (diffuseFactor + specularFactor) * spotLightColours[i];
 		}
 	}
 	
