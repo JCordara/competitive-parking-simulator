@@ -31,6 +31,8 @@ public:
     enable_if_t<is_base_of_v<BaseComponent, C>, sp<C>>
     // ^ Assert that C is derived from BaseComponent
     addComponent(Args&&... args) {
+        // If component already exists, return existing component
+        if (auto _c = getComponent<C>()) return _c;
         // Construct the component
         auto self = shared_from_this();
         sp<C> component = make_shared<C>(self, args...);
