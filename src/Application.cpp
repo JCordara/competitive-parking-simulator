@@ -253,6 +253,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	auto environmentalLight = scene->addEntity();
 	auto mainCamera = playerCar->addChild();
 	auto shadowCamera = playerCar->addChild();
+	auto menuCamera = scene->addChild();
 
 	// --- Car Models ---
 	auto modelPlayerCar = std::make_shared<Model>(
@@ -345,10 +346,19 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 	auto mainCamerCam = mainCamera->addComponent<CameraComponent>();
 	mainCamerCam->setPerspectiveCamera(glm::radians(100.f), 1.f /*Will be modified to the window*/, 1.f, 130.f);
+	mainCamerCam->setPurpose(CameraPurpose::render);
 
 	auto MainDescription = mainCamera->addComponent<DescriptionComponent>();
 	MainDescription->setInteger("Parent Global Y-Plane Forward Direction Projection", 1);
+	// --- Menu camera ---
+	auto menuCameraTransform = menuCamera->getComponent<TransformComponent>();
+	menuCameraTransform->setLocalPosition(0.0f, 30.0f, 0.0f);
+	menuCameraTransform->setLocalRotation(glm::radians(-90.0f), glm::vec3(1.f, 0.f, 0.f));
+	//menuCameraTransform->localRotate(glm::radians(.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate to face the other way
 
+	auto menuCamerCam = menuCamera->addComponent<CameraComponent>();
+	menuCamerCam->setPerspectiveCamera(glm::radians(110.f), 1.f /*Will be modified to the window*/, 10.f, 60.f);
+	menuCamerCam->setPurpose(CameraPurpose::menu);
 	// --- Shadow map camera ---
 	auto shadowCameraTransform = shadowCamera->getComponent<TransformComponent>();
 	auto q1 = physx::PxQuat(glm::radians(-45.f), physx::PxVec3(1.f, 0.f, 0.f));
@@ -358,6 +368,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 	auto shadowCameraCam = shadowCamera->addComponent<CameraComponent>();
 	shadowCameraCam->setOrthographicCamera(200.f, 150.f, 10.f, 300.f);
+	shadowCameraCam->setPurpose(CameraPurpose::shadowMap);
 
 	auto shadowCameraDesc = shadowCamera->addComponent<DescriptionComponent>();
 	shadowCameraDesc->setInteger("Ignore parent rotations in render", 1);

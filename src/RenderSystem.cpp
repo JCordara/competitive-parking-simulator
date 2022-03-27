@@ -49,7 +49,7 @@ void RenderSystem::update() {
 		glm::mat4 localToGlobaltransform = getLocalToGlobalTransformation(e);
 		glm::vec3 pos = glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, 0.f, 1.f));
 		CameraPurpose purpose = cc->getPurpose();
-		if (purpose == CameraPurpose::render) {
+		if ( (playing && purpose == CameraPurpose::render ) || ((!playing) && purpose == CameraPurpose::menu) ) {//render in game mode
 			cc->windowSizeChanged(window->getWidth(), window->getHeight());
 			renderPipeline->setCamera(
 				pos,

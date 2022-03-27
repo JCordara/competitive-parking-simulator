@@ -32,6 +32,8 @@ private:
 
 	std::shared_ptr<GameRenderPipeline> renderPipeline;
 
+	bool playing = true;
+
 };
 
 
