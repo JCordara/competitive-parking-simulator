@@ -11,28 +11,62 @@ std::shared_ptr<Entity> playerCar;
 
 std::vector<glm::vec3> hedgeLocation;
 std::vector<float> hedgeRotation;
-
 std::vector<glm::vec3> curbLocation;
 std::vector<float> curbRotation;
-
 std::vector<glm::vec3> metalFenceLocation;
 std::vector<float> metalFenceRotation;
-
 std::vector<glm::vec3> warningWallLocation;
 std::vector<float> warningWallRotation;
-
 std::vector<glm::vec3> woodFenceLocation;
 std::vector<float> woodFenceRotation;
-
 std::vector<glm::vec3> woodFencePoleLocation;
 std::vector<float> woodFencePoleRotation;
-
 std::vector<glm::vec3> treeLocation;
-
 std::vector<glm::vec3> parkingLineLocation;
 std::vector<float> parkingLineRotation;
-
 std::vector<glm::vec3> roadLocation;
+
+std::vector<glm::vec3> aiNodeLocation;
+std::vector<std::string> aiNodeType;
+std::vector<int> aiNodeArea;
+
+void collectAINodeVectors(){
+	std::ifstream file("../../res/modelTransformations/aiNodeLocation.txt");
+	std::string str;
+	std::string space = " ";
+	std::string unsc = "_";
+	size_t pos = 0;
+
+	float x, y, z;
+
+	while(std::getline(file, str)) {
+		int counter = 0;
+
+		if((pos = str.find(unsc)) != string::npos){
+			aiNodeType.push_back(str.substr(0, pos));
+			str.erase(0, pos + unsc.length());
+		}
+		
+		while((pos = str.find(space)) != string::npos) {
+			counter++;
+			if(counter == 1){
+				aiNodeArea.push_back(std::stoi(str.substr(0, pos)));
+			} else if(counter == 2){
+				x = std::stof(str.substr(0, pos));
+			} else if(counter == 3){
+				y = std::stof(str.substr(0, pos));
+			}
+
+			str.erase(0, pos + space.length());
+		}
+
+		z = std::stof(str);
+
+		aiNodeLocation.push_back(glm::vec3(x,y,z));
+	}
+
+	file.close();
+}
 
 vector<glm::vec3> collectGLMVecFromFile(string filepath, vector<glm::vec3> vec){
 	std::ifstream file(filepath);
@@ -417,6 +451,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		aiCars.push_back(aiCar);
 	}
 
+	collectAINodeVectors();
 
 	// --- Map road ---
 	auto mapRoadTransform = mapRoad->getComponent<TransformComponent>();
