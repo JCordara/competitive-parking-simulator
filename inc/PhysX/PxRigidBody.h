@@ -528,7 +528,7 @@ public:
 
 	@see PxForceMode addTorque
 	*/
-	virtual		void			addForce(const PxVec3& force, PxForceMode::Enum mode = PxForceMode::eFORCE, bool autowake = true) = 0;
+	virtual		void			addForce(const PxVec3& force, PxForceMode::Enum mode = PxForceMode::eVELOCITY_CHANGE, bool autowake = true) = 0;
 
 	/**
 	\brief Applies an impulsive torque defined in the global coordinate frame to the actor.

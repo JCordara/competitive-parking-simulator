@@ -13,6 +13,7 @@ Event<shared_ptr<Entity>, float> Events::VehicleAccelerate;
 Event<shared_ptr<Entity>, float> Events::VehicleSteer;
 Event<shared_ptr<Entity>, float> Events::VehicleBrake;
 Event<shared_ptr<Entity>, float> Events::VehicleHandbrake;
+Event<shared_ptr<Entity>, float> Events::VehicleFlip;
 
 Event<double, double> Events::CameraRotate;
 Event<double, double> Events::CameraZoom;

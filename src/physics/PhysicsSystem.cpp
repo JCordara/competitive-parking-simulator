@@ -34,6 +34,9 @@ PhysicsSystem::PhysicsSystem(
 
 	Events::VehicleHandbrake.registerHandler<
 		PhysicsSystem, &PhysicsSystem::vehicleHandbrakeMode>(this);
+
+	Events::VehicleFlip.registerHandler<
+		PhysicsSystem, &PhysicsSystem::vehicleFlipMode>(this);
 }
 
 /* PhysX per-frame updates */
@@ -304,6 +307,18 @@ void PhysicsSystem::vehicleHandbrakeMode(shared_ptr<Entity> entity, float v)
 	vc->inputData.setAnalogHandbrake(v);
 }
 
+void PhysicsSystem::vehicleFlipMode(shared_ptr<Entity> entity, float v)
+{
+	
+	auto vc = entity->getComponent<VehicleComponent>();
+	if (!vc) return;
+	PxTransform pos = vc->vehicle->getRigidDynamicActor()->getGlobalPose();
+	std::cout << pos.p.y << std::endl;
+	auto flip = entity->getComponent<TransformComponent>();
+	flip->localRotate(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	
+	
+}
 
 void PhysicsSystem::initPhysX()
 {
