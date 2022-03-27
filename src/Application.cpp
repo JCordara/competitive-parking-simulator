@@ -754,6 +754,12 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		mapParkingLineRender->enableRender();
 	}
 
+	// AI nodes
+	for (int i = 0; i < aiNodeLocation.size(); i++) {
+		gameplay->addAINode(aiNodeType[i], aiNodeArea[i], aiNodeLocation[i]);
+	}
+	gameplay->testPrintAINodes();
+
 	// --- Parking Spots ---
 	parkingSpotLocation = collectGLMVecFromFile("../../res/modelTransformations/parkingSpotLocation.txt", parkingSpotLocation);
 	parkingSpotRotation = collectfloatFromFile("../../res/modelTransformations/parkingSpotRotation.txt", parkingSpotRotation);
