@@ -235,7 +235,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	setupBaseLevelGUI();
 
 	/* --------------------- Game World Description ------------------------ */
-
+	render->setPlaying(true);
 // --- Entities ---
 	playerCar = scene->addEntity();
 	vector<sp<Entity>> aiCars;
