@@ -871,18 +871,15 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		testparkingspace->getComponent<ModelComponent>()->setModel(modelMapParkingIndicator);
 	}
 
-
-	// --- TriggerBox ---
+	// --- TriggerBox for Parking Space ---
 	auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
 	for (int i = 0; i < emptyParkingSpotLocation.size(); i++) {
 		triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyParkingSpotLocation.at(i).x, emptyParkingSpotLocation.at(i).y, emptyParkingSpotLocation.at(i).z)), PxBoxGeometry(1.f, 1.f, 1.f));
 	};
 
+	/* --------------------- End Game World Description --------------------- */
 
-
-	   /* --------------------- End Game World Description --------------------- */
-
-	   // Hacky stuff
+	// Hacky stuff
 	playerId = playerCar->id();
 	scores[playerId] = 0;
 
