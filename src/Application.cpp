@@ -32,6 +32,7 @@ std::vector<glm::vec3> parkingSpotLocation;
 std::vector<float> parkingSpotRotation;
 std::vector<glm::vec3> emptySubsetLocation;
 std::vector<float> emptySubsetRotation;
+//USE THESE VECTORS FOR EMPTY PARKING SPOTS
 std::vector<glm::vec3> emptyParkingSpotLocation;
 std::vector<float> emptyParkingSpotRotation;
 
@@ -751,8 +752,11 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	//RANDOMLY PICKS EMPTY PARKING SPACES BY 1 LESS THE NUMBER OF AI + PLAYER
 	for(int i = 0; i < /*g_numAiCars*/ 3; i++){
 		int spotChoice = rand() % tempSubsetLocation.size();
+
+		//USE THESE VECTORS FOR EMPTY PARKING SPOTS
 		emptyParkingSpotLocation.push_back(tempSubsetLocation.at(spotChoice));
 		emptyParkingSpotRotation.push_back(tempSubsetRotation.at(spotChoice));
+
 		tempSubsetLocation.erase(tempSubsetLocation.begin() + spotChoice);
 		tempSubsetRotation.erase(tempSubsetRotation.begin() + spotChoice);
 	}
