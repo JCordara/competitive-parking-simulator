@@ -44,7 +44,6 @@
 ### Brayden's tasks
 - Fix AI Nodes with Kaynen
 - Add Ramp, Speedbump, Sweeper and Puddle Models to the Map
-- Make Map Background "Fuller"
 - Setup Randomization for Propcar Instancing
 
 
