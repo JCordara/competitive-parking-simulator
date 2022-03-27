@@ -2,13 +2,14 @@
 #include <Random.h>
 
 #define SPAWN_PROP_CARS 1
-const unsigned int g_numAiCars = 4;
+const unsigned int g_numAiCars = 0;
 
 unsigned int playerId = 0;
 std::vector<unsigned int> aiList;
 std::unordered_map<unsigned int, int> scores;
 std::shared_ptr<Entity> playerCar;
 
+//Model Vectors
 std::vector<glm::vec3> hedgeLocation;
 std::vector<float> hedgeRotation;
 std::vector<glm::vec3> curbLocation;
@@ -26,6 +27,15 @@ std::vector<glm::vec3> parkingLineLocation;
 std::vector<float> parkingLineRotation;
 std::vector<glm::vec3> roadLocation;
 
+//Parking Spot Vectors
+std::vector<glm::vec3> parkingSpotLocation;
+std::vector<float> parkingSpotRotation;
+std::vector<glm::vec3> emptySubsetLocation;
+std::vector<float> emptySubsetRotation;
+std::vector<glm::vec3> emptyParkingSpotLocation;
+std::vector<float> emptyParkingSpotRotation;
+
+//AI Node Vectors
 std::vector<glm::vec3> aiNodeLocation;
 std::vector<std::string> aiNodeType;
 std::vector<int> aiNodeArea;
@@ -711,7 +721,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 
-	   // --- Map Parking Lines ---
+	// --- Map Parking Lines ---
 	parkingLineLocation = collectGLMVecFromFile("../../res/modelTransformations/parkingLinesLocation.txt", parkingLineLocation);
 	parkingLineRotation = collectfloatFromFile("../../res/modelTransformations/parkingLinesRotation.txt", parkingLineRotation);
 
@@ -728,7 +738,87 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		mapParkingLineRender->enableRender();
 	}
 
-	
+	// --- Parking Spots ---
+	parkingSpotLocation = collectGLMVecFromFile("../../res/modelTransformations/parkingSpotLocation.txt", parkingSpotLocation);
+	parkingSpotRotation = collectfloatFromFile("../../res/modelTransformations/parkingSpotRotation.txt", parkingSpotRotation);
+	emptySubsetLocation = collectGLMVecFromFile("../../res/modelTransformations/emptySpotSubsetLocation.txt", emptySubsetLocation);
+	emptySubsetRotation = collectfloatFromFile("../../res/modelTransformations/emptySpotSubsetRotation.txt", emptySubsetRotation);
+
+	std::vector<glm::vec3> tempSubsetLocation = emptySubsetLocation;
+	std::vector<float> tempSubsetRotation = emptySubsetRotation;
+
+	for(int i = 0; i < /*g_numAiCars-1*/3; i++){
+		int spotChoice = rand() % tempSubsetLocation.size();
+		emptyParkingSpotLocation.push_back(tempSubsetLocation.at(spotChoice));
+		emptyParkingSpotRotation.push_back(tempSubsetRotation.at(spotChoice));
+		tempSubsetLocation.erase(tempSubsetLocation.begin() + spotChoice);
+		tempSubsetRotation.erase(tempSubsetRotation.begin() + spotChoice);
+	}
+
+
+	for(int i = 0; i < parkingSpotLocation.size(); i++){
+		bool checkSpot = false;
+		for(auto & x : emptyParkingSpotLocation){
+			if(x == parkingSpotLocation.at(i)){
+				checkSpot = true;
+			}
+		}
+
+		if(!checkSpot){
+			int randomNum = rand() % 2 + 1;
+
+			if(randomNum == 1) {
+				parkingSpotRotation.at(i) += 180.f;
+			}
+
+			auto propCar = scene->addEntity();
+			auto propCarTransform = propCar->getComponent<TransformComponent>();
+
+			propCarTransform->localTranslate(parkingSpotLocation.at(i));
+			propCarTransform->localRotate(Random::randomFloat(glm::radians(parkingSpotRotation.at(i) - 7.5f), glm::radians(parkingSpotRotation.at(i) + 7.5f)), glm::vec3(0.f, 1.f, 0.f));
+
+			randomNum = rand() % 4 + 1;
+
+			if(randomNum == 1){
+				auto propCarModel = propCar->addComponent<ModelComponent>();
+				propCarModel->setModel(modelPropCar1);
+
+				auto propCarRender = propCar->addComponent<RendererComponent>();
+				propCarRender->enableRender();
+
+				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
+				propCarRigidbody->addActorDynamic(*modelPropCar1, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+			} else if(randomNum == 2){
+				auto propCarModel = propCar->addComponent<ModelComponent>();
+				propCarModel->setModel(modelPropCar2);
+
+				auto propCarRender = propCar->addComponent<RendererComponent>();
+				propCarRender->enableRender();
+
+				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
+				propCarRigidbody->addActorDynamic(*modelPropCar2, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+			} else if(randomNum == 3){
+				auto propCarModel = propCar->addComponent<ModelComponent>();
+				propCarModel->setModel(modelPropCar3);
+
+				auto propCarRender = propCar->addComponent<RendererComponent>();
+				propCarRender->enableRender();
+
+				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
+				propCarRigidbody->addActorDynamic(*modelPropCar3, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+			} else if(randomNum == 4){
+				auto propCarModel = propCar->addComponent<ModelComponent>();
+				propCarModel->setModel(modelPropCar4);
+
+				auto propCarRender = propCar->addComponent<RendererComponent>();
+				propCarRender->enableRender();
+
+				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
+				propCarRigidbody->addActorDynamic(*modelPropCar4, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+			}
+		}
+	}
+
 	/*
 		Here is where we will collect Parking spot locations & rotations (Vector/Float to File Functions)
 		Choose random spots for empty parking spots and put in separate vector (2 less than the AI + Player ( for(int i = 0; i < g_numAICars-1; i++) ))
@@ -737,7 +827,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 			- Randomly choose between 4 different prop cars (car3, car4, sedan, truck)
 
 		   Create the trigger boxes and particles for empty parking spots here (for loop using size of empty parking spot location vector)
-	   */
+	*/
 
 	   /*
 	   #if SPAWN_PROP_CARS
