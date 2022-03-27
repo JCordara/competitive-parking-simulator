@@ -744,10 +744,12 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	emptySubsetLocation = collectGLMVecFromFile("../../res/modelTransformations/emptySpotSubsetLocation.txt", emptySubsetLocation);
 	emptySubsetRotation = collectfloatFromFile("../../res/modelTransformations/emptySpotSubsetRotation.txt", emptySubsetRotation);
 
+	// - Temp Vectors -
 	std::vector<glm::vec3> tempSubsetLocation = emptySubsetLocation;
 	std::vector<float> tempSubsetRotation = emptySubsetRotation;
 
-	for(int i = 0; i < /*g_numAiCars-1*/3; i++){
+	//RANDOMLY PICKS EMPTY PARKING SPACES BY 1 LESS THE NUMBER OF AI + PLAYER
+	for(int i = 0; i < /*g_numAiCars*/ 3; i++){
 		int spotChoice = rand() % tempSubsetLocation.size();
 		emptyParkingSpotLocation.push_back(tempSubsetLocation.at(spotChoice));
 		emptyParkingSpotRotation.push_back(tempSubsetRotation.at(spotChoice));
@@ -755,7 +757,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		tempSubsetRotation.erase(tempSubsetRotation.begin() + spotChoice);
 	}
 
-
+	// - Propcar Instancing -
 	for(int i = 0; i < parkingSpotLocation.size(); i++){
 		bool checkSpot = false;
 		for(auto & x : emptyParkingSpotLocation){
@@ -820,85 +822,21 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 	/*
-		Here is where we will collect Parking spot locations & rotations (Vector/Float to File Functions)
-		Choose random spots for empty parking spots and put in separate vector (2 less than the AI + Player ( for(int i = 0; i < g_numAICars-1; i++) ))
-		
-		Instantiate prop cars in rest of parking spots that aren't gameplay spots (check empty parking spot vector through nested for loop)
-			- Randomly choose between 4 different prop cars (car3, car4, sedan, truck)
 
-		   Create the trigger boxes and particles for empty parking spots here (for loop using size of empty parking spot location vector)
+	// --- TriggerBox ---
+	auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
+	for (int i = 0; i < sizeof(emptyparkingVertices) / sizeof(*emptyparkingVertices); i++) {
+		if(emptyparkingVertices[i].x == -148.5f){
+			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
+		}
+
+		else {
+			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
+		}
+
+	};
+
 	*/
-
-	   /*
-	   #if SPAWN_PROP_CARS
-		   // --- Prop car ---
-		   for(int i = 0; i < sizeof(parkingVertices)/sizeof(*parkingVertices); i++){
-			   auto propCar = scene->addEntity();
-			   auto propCarTransform = propCar->getComponent<TransformComponent>();
-			   propCarTransform->setLocalPosition(parkingVertices[i]);
-
-			   if(i < 47){
-				   int randomRotate = rand() % 10;
-				   if(randomRotate <= 4) {
-					   propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(80.f), glm::radians(100.f)), glm::vec3(0.f, 1.f, 0.f));
-				   } else {
-					   propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(260.f), glm::radians(280.f)), glm::vec3(0.f, 1.f, 0.f));
-				   }
-			   } else {
-				   int randomRotate = rand() % 10;
-				   if(randomRotate <= 4) {
-					   propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(170.f), glm::radians(190.f)), glm::vec3(0.f, 1.f, 0.f));
-				   } else {
-					   propCarTransform->setLocalRotation(Random::randomFloat(glm::radians(-10.f), glm::radians(10.f)), glm::vec3(0.f, 1.f, 0.f));
-				   }
-			   }
-			   auto propCarModel = propCar->addComponent<ModelComponent>();
-			   propCarModel->setModel(modelPropCar);
-
-			   auto propCarRender = propCar->addComponent<RendererComponent>();
-			   propCarRender->enableRender();
-
-			   auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-			   propCarRigidbody->addActorDynamic(*modelPropCar, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
-		   }
-	   #endif
-
-		   // --- Rocks ---
-		   sp<ModelComponent>     rockModel     = nullptr;
-		   sp<RendererComponent>  rockRender    = nullptr;
-		   sp<TransformComponent> rockTransform = nullptr;
-		   sp<RigidbodyComponent> rockRigidbody = nullptr;
-
-		   for (int i = 0; i < sizeof(rockPosVertices)/sizeof(*rockPosVertices); i++) {
-			   auto rock = scene->addEntity();
-			   rockTransform = rock->getComponent<TransformComponent>();
-			   rockModel = rock->addComponent<ModelComponent>();
-			   rockRender = rock->addComponent<RendererComponent>();
-			   rockRigidbody = rock->addComponent<RigidbodyComponent>();
-
-			   rockModel->setModel(modelRock);
-			   rockRender->enableRender();
-			   rockTransform->setLocalPosition(rockPosVertices[i]);
-			   rockTransform->setLocalRotation(Random::randomFloat(glm::radians(0.0f), glm::radians(360.0f)), glm::vec3(0.f, 1.f, 0.f));
-
-			   rockRigidbody->addActorStaticSphere(0.6f, convert<physx::PxTransform>(rockTransform->getGlobalMatrix()));
-		   }
-
-
-		   // --- TriggerBox ---
-		   auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
-		   for (int i = 0; i < sizeof(emptyparkingVertices) / sizeof(*emptyparkingVertices); i++) {
-			   if(emptyparkingVertices[i].x == -148.5f){
-				   triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
-			   }
-
-			   else {
-				   triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
-			   }
-
-		   };
-
-	   */
 
 
 	   /* --------------------- End Game World Description --------------------- */
