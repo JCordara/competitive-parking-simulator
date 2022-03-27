@@ -349,6 +349,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		"models/cpsMap_ParkingIndicator.obj", glm::vec3(.5f, .1f, .2f));
 
 
+	/*
 	// --- Test ----
 	auto testparkingspace = scene->addChild();
 	testparkingspace->addComponent<RendererComponent>();
@@ -356,6 +357,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	testparkingspace->getComponent<RendererComponent>()->enableTransparentRendering();
 	testparkingspace->addComponent<ModelComponent>();
 	testparkingspace->getComponent<ModelComponent>()->setModel(modelMapParkingIndicator);
+	*/
 
 	// --- Directional light ---
 	environmentalLight->addComponent<LightingComponent>(); 
@@ -836,6 +838,21 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRigidbody->addActorDynamic(*modelPropCar4, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			}
 		}
+	}
+
+	// --- Test ----
+	for(int i = 0; i < emptyParkingSpotLocation.size(); i++){
+		auto testparkingspace = scene->addEntity();
+		auto testparkingspaceTransform = testparkingspace->getComponent<TransformComponent>();
+
+		testparkingspaceTransform->localTranslate(emptyParkingSpotLocation.at(i));
+		testparkingspaceTransform->localRotate(emptyParkingSpotRotation.at(i), glm::vec3(0.f, 1.f, 0.f));
+
+		testparkingspace->addComponent<RendererComponent>();
+		testparkingspace->getComponent<RendererComponent>()->enableRender();
+		testparkingspace->getComponent<RendererComponent>()->enableTransparentRendering();
+		testparkingspace->addComponent<ModelComponent>();
+		testparkingspace->getComponent<ModelComponent>()->setModel(modelMapParkingIndicator);
 	}
 
 	/*
