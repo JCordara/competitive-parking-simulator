@@ -279,7 +279,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 	// --- Static Map Models ---
 	auto modelMapRoad = std::make_shared<Model>(
-		"models/cpsMap_PLotPlane.obj", glm::vec3(.0f, .0f, .0f));
+		"models/cpsMap_PLotPlane.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelMapMall = std::make_shared<Model>(
 		"models/cpsMap_Mall.obj", glm::vec3(.5f, .1f, .2f));
