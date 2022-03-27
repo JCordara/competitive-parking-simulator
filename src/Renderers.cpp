@@ -510,7 +510,7 @@ void PostProcessingRenderer::render() {
 TransparentRenderer::TransparentRenderer() : shader("shaders/TransparentObject.vert", "shaders/TransparentObject.frag") {
 	//Model Properties
 	modelTextureLocation = glGetUniformLocation(shader, "colourTexture");
-	modelClassificationColourLocation = glGetUniformLocation(shader, "modelColour");
+	translucentIntensityLocation = glGetUniformLocation(shader, "translucentIntensity");
 	modelAmbientConstantLocation = glGetUniformLocation(shader, "uniformPhongAmbient");
 	//Transformations
 	modelTransformationsLocation = glGetUniformLocation(shader, "Ms");
@@ -554,4 +554,8 @@ void TransparentRenderer::render(instancedPair& instancedRender) {
 		instancedRender.model->draw(shader, GL_TEXTURE0, -1, -1, -1, -1, modelAmbientConstantLocation, count);
 		ret1.clear();
 	}
+}
+
+void TransparentRenderer::setColorIntensity(glm::vec3 intensity) {
+	glUniform3fv(translucentIntensityLocation, 1,  &intensity[0]);
 }
