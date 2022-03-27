@@ -717,6 +717,12 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		mapParkingLineRender->enableRender();
 	}
 
+	// AI nodes
+	for (int i = 0; i < aiNodeLocation.size(); i++) {
+		gameplay->addAINode(aiNodeType[i], aiNodeArea[i], aiNodeLocation[i]);
+	}
+	gameplay->testPrintAINodes();
+
 	
 	/*
 		Here is where we will collect Parking spot locations & rotations (Vector/Float to File Functions)

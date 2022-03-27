@@ -53,6 +53,10 @@ public:
 	void addAINode(std::string nodeType, int nodeAreaCode, glm::vec3 nodePos);
 	void setNodeType(std::string nodeType, std::shared_ptr<AiGraphNode> aiNode);
 	int lastNodeID = 0;
+	void testPrintAINodes();
+	void setAINodeNeighbors(std::shared_ptr<AiGraphNode> aiNode1,
+		int id,
+		std::vector<std::shared_ptr<AiGraphNode>> list);
 	
 
 

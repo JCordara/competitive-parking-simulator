@@ -15,7 +15,7 @@ class AiGraphNode {
 public:
 	enum class NodeType {
 		TRAVERSAL = 1,
-		OUTERROAD = 1, // TODO Remove
+		OUTERROAD, // TODO Remove
 		LOTENTRANCE,
 		INNERLOT, // TODO Remove
 		PARKINGSTALL,

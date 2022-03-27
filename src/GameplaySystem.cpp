@@ -140,6 +140,271 @@ void GameplaySystem::addAINode(std::string nodeType, int nodeAreaCode, glm::vec3
 	
 }
 
+void GameplaySystem::testPrintAINodes() {
+	//std::cout << "-----AREA 970-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area970Nodes) {
+		//std::cout << "Node Type: " << static_cast<int>(node->nodeType)
+		//	<< " Position: " << node->position
+		//	<< " ID: " << node->id << std::endl;
+		if (node->id == 109) { // Middle Traversal
+			setAINodeNeighbors(node, 59, area970Nodes); // right entrance
+			setAINodeNeighbors(node, 60, area970Nodes); // Bottom entrance
+			setAINodeNeighbors(node, 61, area970Nodes); // Top entrance
+			setAINodeNeighbors(node, 62, area970Nodes); // Left entrance
+		}
+		else if (node->id == 59) setAINodeNeighbors(node, 8, area952Nodes);
+		else if (node->id == 60) setAINodeNeighbors(node, 17, area954Nodes);
+		else if (node->id == 61) setAINodeNeighbors(node, 4, area950Nodes);
+		else if (node->id == 62) setAINodeNeighbors(node, 24, area956Nodes);
+		else {
+			// All spawn nodes are the same
+			setAINodeNeighbors(node, 59, area970Nodes);
+			setAINodeNeighbors(node, 60, area970Nodes);
+			setAINodeNeighbors(node, 61, area970Nodes);
+			setAINodeNeighbors(node, 62, area970Nodes);
+			setAINodeNeighbors(node, 109, area970Nodes);
+		}
+
+	}
+	//std::cout << "-----AREA 950-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area950Nodes) {
+		//std::cout	<< "Node Type: " << static_cast<int>(node->nodeType)
+		//			<< " Position: " << node->position
+		//			<<" ID: " << node->id << std::endl;
+		//1=Left-Ent,2=Top-Ent,3=Right-Ent,4=Bottom-Ent,115=Top-Tra,116=Bottom-Tra
+		switch (node->id){
+		case 1: setAINodeNeighbors(node, 30, area958Nodes); break;
+		case 2: setAINodeNeighbors(node, 54, area968Nodes); break;
+		case 3: setAINodeNeighbors(node, 7, area951Nodes); break;
+		case 116: setAINodeNeighbors(node, 3, area950Nodes);
+			setAINodeNeighbors(node, 4, area950Nodes); break;
+			setAINodeNeighbors(node, 115, area950Nodes); break; //Push for both
+		case 115: setAINodeNeighbors(node, 1, area950Nodes);
+			setAINodeNeighbors(node, 2, area950Nodes); break;
+		}
+	}
+	//std::cout << "-----AREA 952-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area952Nodes) {
+			//std::cout	<< "Node Type: " << static_cast<int>(node->nodeType)
+			//			<< " Position: " << node->position
+			//			<<" ID: " << node->id << std::endl;
+		//8=Left-Ent,9=BottomLeft-Ent,10=Top-Ent,11=BottomRight-Ent,12=Right-Ent
+		//110=LeftMiddle-Tra,111=Left-Tra,112=RightMiddle-Tra,113=Right-Tra,114=Middle-Tra,
+		//121=Left-Park,122=Right-Park
+		switch (node->id) {
+		case 8: setAINodeNeighbors(node, 111, area952Nodes); break;
+		case 9: setAINodeNeighbors(node, 15, area953Nodes); break;
+		case 10: setAINodeNeighbors(node, 5, area951Nodes); break;
+		case 11: setAINodeNeighbors(node, 13, area953Nodes); break;
+		case 12: setAINodeNeighbors(node, 116, area952Nodes); break;
+		case 110: setAINodeNeighbors(node, 114, area952Nodes); break;
+		case 111: setAINodeNeighbors(node, 8, area952Nodes);
+			setAINodeNeighbors(node, 9, area952Nodes); break;
+			setAINodeNeighbors(node, 110, area952Nodes); break;
+		case 112: setAINodeNeighbors(node, 10, area952Nodes);
+			setAINodeNeighbors(node, 113, area952Nodes); break;
+		case 113: setAINodeNeighbors(node, 12, area952Nodes);
+			setAINodeNeighbors(node, 11, area952Nodes);
+			setAINodeNeighbors(node, 122, area952Nodes); break;
+		case 114: setAINodeNeighbors(node, 112, area952Nodes);
+			setAINodeNeighbors(node, 10, area952Nodes);
+			setAINodeNeighbors(node, 121, area952Nodes); break;
+		}
+	}
+	//std::cout << "-----AREA 954-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area954Nodes) {
+			//std::cout	<< "Node Type: " << static_cast<int>(node->nodeType)
+			//			<< " Position: " << node->position
+			//			<<" ID: " << node->id << std::endl;
+		//17=Top-Ent,18=Right-Ent,19=Bottom-Ent,20=Left-Ent,72=Middle-Tra
+		switch (node->id) {
+		case 17: setAINodeNeighbors(node, 20, area954Nodes);
+			setAINodeNeighbors(node, 18, area954Nodes); break;
+		case 18: setAINodeNeighbors(node, 19, area954Nodes);
+			setAINodeNeighbors(node, 16, area953Nodes); break;
+		case 19: setAINodeNeighbors(node, 20, area954Nodes);
+			setAINodeNeighbors(node, 43, area966Nodes); break;
+		case 20: setAINodeNeighbors(node, 21, area955Nodes); break;
+		case 72: setAINodeNeighbors(node, 17, area954Nodes);
+			setAINodeNeighbors(node, 18, area954Nodes);
+			setAINodeNeighbors(node, 19, area954Nodes);
+			setAINodeNeighbors(node, 20, area954Nodes); break;
+		}
+	}
+	//std::cout << "-----AREA 956-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area956Nodes) {
+		//std::cout << "Node Type: " << static_cast<int>(node->nodeType)
+		//	<< " Position: " << node->position
+		//	<< " ID: " << node->id << std::endl;
+		//24=Right-Ent,23=Bottom-Ent,25=Top-Ent,26=Left-Ent,74=Right-Tra,75=Left-Tra
+		switch (node->id) {
+		case 24: setAINodeNeighbors(node, 23, area954Nodes);
+			setAINodeNeighbors(node, 25, area954Nodes); break;
+		case 23: setAINodeNeighbors(node, 22, area955Nodes); break;
+		case 25: setAINodeNeighbors(node, 28, area958Nodes); break;
+		case 26: setAINodeNeighbors(node, 31, area959Nodes); break;
+		case 74: setAINodeNeighbors(node, 75, area954Nodes);
+			setAINodeNeighbors(node, 24, area954Nodes);
+			setAINodeNeighbors(node, 23, area954Nodes);
+			setAINodeNeighbors(node, 25, area954Nodes); break;
+		case 75:setAINodeNeighbors(node, 26, area954Nodes);
+			setAINodeNeighbors(node, 25, area954Nodes); break;
+		}
+	}
+	//std::cout << "-----AREA 951-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area951Nodes) {
+		//std::cout << "Node Type: " << static_cast<int>(node->nodeType)
+		//	<< " Position: " << node->position
+		//	<< " ID: " << node->id << std::endl;
+		//7=Left-Ent,5=Bottom-Ent,6=Top-Ent,63=Left-Tra,64=LeftMiddle-Tra,65=RightMiddle-Tra,66=Right-Tra
+		//120=Left-Park,119=LeftMiddle-park,117=RightMiddle-Park,118=Right-Park
+		switch (node->id) {
+		case 6: setAINodeNeighbors(node, 53, area968Nodes); break;
+		case 63: setAINodeNeighbors(node, 7, area951Nodes);
+			setAINodeNeighbors(node, 64, area951Nodes);
+			setAINodeNeighbors(node, 120, area951Nodes); break;
+		case 64: setAINodeNeighbors(node, 65, area951Nodes);
+			setAINodeNeighbors(node, 119, area951Nodes);
+			setAINodeNeighbors(node, 120, area951Nodes); break;
+		case 65: setAINodeNeighbors(node, 66, area951Nodes);
+			setAINodeNeighbors(node, 6, area951Nodes);
+			setAINodeNeighbors(node, 5, area951Nodes);
+			setAINodeNeighbors(node, 117, area951Nodes); break;
+		case 66: setAINodeNeighbors(node, 6, area951Nodes);
+			setAINodeNeighbors(node, 5, area951Nodes);
+			setAINodeNeighbors(node, 118, area951Nodes); break;
+		}
+	}
+	//std::cout << "-----AREA 953-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area953Nodes) {
+		//std::cout << "Node Type: " << static_cast<int>(node->nodeType)
+		//	<< " Position: " << node->position
+		//	<< " ID: " << node->id << std::endl;
+		//15=TopLeft-Ent,13=TopRight-Ent,16=Left-Ent,14=Bottom-Ent
+		//67=Left-Tra,68=LeftMiddle-Tra,69=Middle-Tra,70=RightMioddle-Tra,71=Right-Tra
+		//123=Left-Park,124=Right-Park
+		switch (node->id) {
+		case 14: setAINodeNeighbors(node, 124, area953Nodes);
+			setAINodeNeighbors(node, 45, area966Nodes); break;
+		case 67: setAINodeNeighbors(node, 68, area953Nodes);
+			setAINodeNeighbors(node, 15, area953Nodes);
+			setAINodeNeighbors(node, 16, area953Nodes); break;
+		case 68: setAINodeNeighbors(node, 69, area953Nodes); break;
+		case 69: setAINodeNeighbors(node, 70, area953Nodes);
+			setAINodeNeighbors(node, 123, area953Nodes); break;
+		case 70: setAINodeNeighbors(node, 71, area953Nodes);
+			setAINodeNeighbors(node, 14, area953Nodes);
+			setAINodeNeighbors(node, 124, area953Nodes); break;
+		case 71: setAINodeNeighbors(node, 13, area953Nodes);
+			setAINodeNeighbors(node, 14, area953Nodes);
+			setAINodeNeighbors(node, 124, area953Nodes); break;
+		}
+	}
+	//std::cout << "-----AREA 955-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area955Nodes) {
+		//std::cout << "Node Type: " << static_cast<int>(node->nodeType)
+		//	<< " Position: " << node->position
+		//	<< " ID: " << node->id << std::endl;
+		//21=Right-Ent,22=Top-Ent
+		switch (node->id) {
+		case 21: setAINodeNeighbors(node, 125, area955Nodes); break;
+		case 22: setAINodeNeighbors(node, 125, area955Nodes); break;
+		case 73: setAINodeNeighbors(node, 21, area955Nodes);
+			setAINodeNeighbors(node, 22, area955Nodes);
+			setAINodeNeighbors(node, 125, area955Nodes); break;
+		}
+	}
+	//std::cout << "-----AREA 958-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area958Nodes) {
+		//std::cout << "Node Type: " << static_cast<int>(node->nodeType)
+		//	<< " Position: " << node->position
+		//	<< " ID: " << node->id << std::endl;
+		//30=Right-Ent,28=Bottom-Ent,29=Left-Ent,77=Bottom-Tra,78=Top-Tra
+		switch (node->id) {
+		case 29: setAINodeNeighbors(node, 27, area957Nodes); break;
+		case 77: setAINodeNeighbors(node, 78, area958Nodes);
+			setAINodeNeighbors(node, 29, area958Nodes);
+			setAINodeNeighbors(node, 28, area958Nodes); break;
+		case 78: setAINodeNeighbors(node, 30, area958Nodes);
+			setAINodeNeighbors(node, 29, area958Nodes); break;
+		}
+	}
+	std::cout << "-----AREA 957-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area957Nodes) {
+		std::cout << "Node Type: " << static_cast<int>(node->nodeType)
+			<< " Position: " << node->position
+			<< " ID: " << node->id << std::endl;
+		//
+		switch (node->id) {
+		case 4: setAINodeNeighbors(node, 116, area957Nodes); break;
+		case 116: setAINodeNeighbors(node, 3, area957Nodes);
+			setAINodeNeighbors(node, 3, area957Nodes); break;
+		case 115: setAINodeNeighbors(node, 1, area957Nodes);
+			setAINodeNeighbors(node, 2, area957Nodes); break;
+		}
+	}
+	/*std::cout << "-----AREA 959-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area959Nodes) {
+		std::cout << "Node Type: " << static_cast<int>(node->nodeType)
+			<< " Position: " << node->position
+			<< " ID: " << node->id << std::endl;
+		//31=Right-Ent
+		switch (node->id) {
+		case 4: setAINodeNeighbors(node, 116, area959Nodes); break;
+		case 116: setAINodeNeighbors(node, 3, area959Nodes);
+			setAINodeNeighbors(node, 3, area959Nodes); break;
+		case 115: setAINodeNeighbors(node, 1, area959Nodes);
+			setAINodeNeighbors(node, 2, area959Nodes); break;
+		}
+	}*/
+	/*std::cout << "-----AREA 966-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area966Nodes) {
+		std::cout << "Node Type: " << static_cast<int>(node->nodeType)
+			<< " Position: " << node->position
+			<< " ID: " << node->id << std::endl;
+		//43=Middle-Ent,45=RightMiddle-Ent
+		switch (node->id) {
+		case 1: setAINodeNeighbors(node, 116, area966Nodes); break;
+		case 2: setAINodeNeighbors(node, 116, area966Nodes); break;
+		case 3: setAINodeNeighbors(node, 116, area966Nodes); break;
+		case 116: setAINodeNeighbors(node, 3, area966Nodes);
+			setAINodeNeighbors(node, 4, area966Nodes); break;
+		case 115: setAINodeNeighbors(node, 1, area966Nodes);
+			setAINodeNeighbors(node, 2, area966Nodes); break;
+		}
+	}*/
+	/*std::cout << "-----AREA 968-----" << std::endl;
+	for (std::shared_ptr<AiGraphNode> node : area968Nodes) {
+		std::cout << "Node Type: " << static_cast<int>(node->nodeType)
+			<< " Position: " << node->position
+			<< " ID: " << node->id << std::endl;
+		//54=Middle-Ent,53=Right-Ent
+		switch (node->id) {
+		case 1: setAINodeNeighbors(node, 116, area950Nodes); break;
+		case 2: setAINodeNeighbors(node, 116, area950Nodes); break;
+		case 3: setAINodeNeighbors(node, 116, area950Nodes); break;
+		case 116: setAINodeNeighbors(node, 3, area950Nodes);
+			setAINodeNeighbors(node, 4, area950Nodes); break;
+		case 115: setAINodeNeighbors(node, 1, area950Nodes);
+			setAINodeNeighbors(node, 2, area950Nodes); break;
+		}
+	}
+	*/
+}
+
+void GameplaySystem::setAINodeNeighbors(std::shared_ptr<AiGraphNode> aiNode1,
+										int id,
+										std::vector<std::shared_ptr<AiGraphNode>> list) {
+	for (std::shared_ptr<AiGraphNode> aiNode2 : list) {
+		if (aiNode2->id == id) {
+			aiNode1->neighbours.push_back(aiNode2);
+			aiNode2->neighbours.push_back(aiNode1);
+		}
+	}
+	
+	
+}
+
 void GameplaySystem::setupAiNodes() {
 
 
