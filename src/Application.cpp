@@ -444,6 +444,20 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		auto rc = aiCar->addComponent<RendererComponent>();
 		rc->enableRender();
 
+		auto lightChild = aiCar->addChild();
+		auto Lc = lightChild->addComponent<LightingComponent>();
+		Lc->setSpotLight(glm::vec3(0.94f, 0.89f, 0.54f), glm::vec3(1.0f, 0.f, 0.f), glm::radians(30.f), glm::radians(40.f));
+		lightChild->addComponent<TransformComponent>();
+		lightChild->getComponent<TransformComponent>()->setLocalPosition(0.8f, 0.15f, 1.5);
+		lightChild->getComponent<TransformComponent>()->setLocalRotation(glm::radians(5.f), glm::vec3(1.f, 0.022f, 0.0019f));
+
+		lightChild = aiCar->addChild();
+		Lc = lightChild->addComponent<LightingComponent>();
+		Lc->setSpotLight(glm::vec3(0.94f, 0.89f, 0.54f), glm::vec3(1.0f, 0.f, 0.f), glm::radians(30.f), glm::radians(40.f));
+		lightChild->addComponent<TransformComponent>();
+		lightChild->getComponent<TransformComponent>()->setLocalPosition(-0.8f, 0.15f, 1.5);
+		lightChild->getComponent<TransformComponent>()->setLocalRotation(glm::radians(5.f), glm::vec3(1.f, 0.022f, 0.0019f));
+
 		aiCar->addComponent<VehicleComponent>();
 		aiCar->addComponent<AiComponent>();
 		auto audioComponent = aiCar->addComponent<AudioComponent>();
