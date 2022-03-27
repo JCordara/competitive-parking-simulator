@@ -14,11 +14,12 @@ class GameplaySystem;
 class AiGraphNode {
 public:
 	enum class NodeType {
-		OUTERROAD = 1,
+		TRAVERSAL = 1,
+		OUTERROAD = 1, // TODO Remove
 		LOTENTRANCE,
-		INNERLOT,
+		INNERLOT, // TODO Remove
 		PARKINGSTALL,
-		INTERSECTION,
+		INTERSECTION, // TODO Remove
 		SPAWN,
 		RECOVERY
 	};
@@ -36,6 +37,7 @@ public:
 	std::shared_ptr<Entity> spawnAiComponent = nullptr; // Only for Spawn nodes
 	bool nodeTaken = false;
 	int id = 0;
+	int areaCode;
 };
 
 class AiComponent : public BaseComponent {

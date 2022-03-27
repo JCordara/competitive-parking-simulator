@@ -90,6 +90,56 @@ bool GameplaySystem::gameWon(){
 	return true;
 }
 
+void GameplaySystem::setNodeType(std::string nodeType, std::shared_ptr<AiGraphNode> aiNode) {
+	// spawn entrance traversal parking spot
+	if (!nodeType.compare("spawn")) {
+		aiNode->nodeType = AiGraphNode::NodeType::SPAWN;
+	}
+	if (!nodeType.compare("entrance")) {
+		aiNode->nodeType = AiGraphNode::NodeType::LOTENTRANCE;
+	}
+	if (!nodeType.compare("traversal")) {
+		aiNode->nodeType = AiGraphNode::NodeType::TRAVERSAL;
+	}
+	if (!nodeType.compare("parking")) {
+		aiNode->nodeType = AiGraphNode::NodeType::PARKINGSTALL;
+	}
+}
+
+void GameplaySystem::addAINode(std::string nodeType, int nodeAreaCode, glm::vec3 nodePos) {
+	std::shared_ptr<AiGraphNode> aiNode = std::make_shared<AiGraphNode>();
+	setNodeType(nodeType, aiNode);
+	lastNodeID++; aiNode->id = lastNodeID;
+	aiNode->position = nodePos;
+	switch (nodeAreaCode) {
+	case 950: area950Nodes.push_back(aiNode); aiNode->areaCode = 950; break;
+	case 951: area951Nodes.push_back(aiNode); aiNode->areaCode = 951; break;
+	case 952: area952Nodes.push_back(aiNode); aiNode->areaCode = 952; break;
+	case 953: area953Nodes.push_back(aiNode); aiNode->areaCode = 953; break;
+	case 954: area954Nodes.push_back(aiNode); aiNode->areaCode = 954; break;
+	case 955: area955Nodes.push_back(aiNode); aiNode->areaCode = 955; break;
+	case 956: area956Nodes.push_back(aiNode); aiNode->areaCode = 956; break;
+	case 957: area957Nodes.push_back(aiNode); aiNode->areaCode = 957; break;
+	case 958: area958Nodes.push_back(aiNode); aiNode->areaCode = 958; break;
+	case 959: area959Nodes.push_back(aiNode); aiNode->areaCode = 959; break;
+	case 960: area960Nodes.push_back(aiNode); aiNode->areaCode = 960; break;
+	case 961: area961Nodes.push_back(aiNode); aiNode->areaCode = 961; break;
+	case 962: area962Nodes.push_back(aiNode); aiNode->areaCode = 962; break;
+	case 963: area963Nodes.push_back(aiNode); aiNode->areaCode = 963; break;
+	case 964: area964Nodes.push_back(aiNode); aiNode->areaCode = 964; break;
+	case 965: area965Nodes.push_back(aiNode); aiNode->areaCode = 965; break;
+	case 966: area966Nodes.push_back(aiNode); aiNode->areaCode = 966; break;
+	case 967: area967Nodes.push_back(aiNode); aiNode->areaCode = 967; break;
+	case 968: area968Nodes.push_back(aiNode); aiNode->areaCode = 968; break;
+	case 969: area969Nodes.push_back(aiNode); aiNode->areaCode = 969; break;
+	case 970: area970Nodes.push_back(aiNode); aiNode->areaCode = 970; break;
+	default:
+		break;
+	}
+	aiGlobalNodes.push_back(aiNode);
+	
+}
+
 void GameplaySystem::setupAiNodes() {
 
 
