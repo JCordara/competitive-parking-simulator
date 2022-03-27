@@ -26,6 +26,8 @@ std::vector<glm::vec3> treeLocation;
 std::vector<glm::vec3> parkingLineLocation;
 std::vector<float> parkingLineRotation;
 std::vector<glm::vec3> roadLocation;
+std::vector<glm::vec3> rampLocation;
+std::vector<float> rampRotation;
 
 //Parking Spot Vectors
 std::vector<glm::vec3> parkingSpotLocation;
@@ -181,7 +183,7 @@ int Application::play() {
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
 			if (menuStack.size() == 0) {
-				if (scores[playerId] >= 5) {//|| scores[aiList[0]] >= 5) {
+				if (scores[playerId] >= 20) {//|| scores[aiList[0]] >= 5) {
 				}
 				else {
 					//gameplay->update();	// Gameplay / AI update
@@ -348,16 +350,9 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	auto modelMapParkingIndicator= std::make_shared<Model>(
 		"models/cpsMap_ParkingIndicator.obj", glm::vec3(.5f, .1f, .2f));
 
+	auto modelMapRamp= std::make_shared<Model>(
+		"models/cpsMap_Ramp.obj", glm::vec3(.6f, .4f, .6f));
 
-	/*
-	// --- Test ----
-	auto testparkingspace = scene->addChild();
-	testparkingspace->addComponent<RendererComponent>();
-	testparkingspace->getComponent<RendererComponent>()->enableRender();
-	testparkingspace->getComponent<RendererComponent>()->enableTransparentRendering();
-	testparkingspace->addComponent<ModelComponent>();
-	testparkingspace->getComponent<ModelComponent>()->setModel(modelMapParkingIndicator);
-	*/
 
 	// --- Directional light ---
 	environmentalLight->addComponent<LightingComponent>(); 
@@ -583,7 +578,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	for (int i = 0; i < metalFenceLocation.size(); i++) {
 		auto mapMetalFence = scene->addEntity();
 		auto mapMetalFenceTransform = mapMetalFence->getComponent<TransformComponent>();
-		mapMetalFenceTransform->localTranslate(metalFenceLocation.at(i).x, metalFenceLocation.at(i).y, metalFenceLocation.at(i).z);
+		mapMetalFenceTransform->localTranslate(metalFenceLocation.at(i));
 		mapMetalFenceTransform->localRotate(glm::radians(metalFenceRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
 
 		auto mapMetalFenceModel = mapMetalFence->addComponent<ModelComponent>();
@@ -600,7 +595,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	for (int i = 0; i < warningWallLocation.size(); i++) {
 		auto mapwarningWall = scene->addEntity();
 		auto mapwarningWallTransform = mapwarningWall->getComponent<TransformComponent>();
-		mapwarningWallTransform->localTranslate(warningWallLocation.at(i).x, warningWallLocation.at(i).y, warningWallLocation.at(i).z);
+		mapwarningWallTransform->localTranslate(warningWallLocation.at(i));
 		mapwarningWallTransform->localRotate(glm::radians(warningWallRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
 
 		auto mapwarningWallModel = mapwarningWall->addComponent<ModelComponent>();
@@ -617,7 +612,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	for (int i = 0; i < curbLocation.size(); i++) {
 		auto mapCurb = scene->addEntity();
 		auto mapCurbTransform = mapCurb->getComponent<TransformComponent>();
-		mapCurbTransform->localTranslate(curbLocation.at(i).x, curbLocation.at(i).y, curbLocation.at(i).z);
+		mapCurbTransform->localTranslate(curbLocation.at(i));
 		mapCurbTransform->localRotate(glm::radians(curbRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
 
 		auto mapCurbModel = mapCurb->addComponent<ModelComponent>();
@@ -636,7 +631,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	for (int i = 0; i < roadLocation.size(); i++) {
 		auto mapBGRoad = scene->addEntity();
 		auto mapBGRoadTransform = mapBGRoad->getComponent<TransformComponent>();
-		mapBGRoadTransform->localTranslate(roadLocation.at(i).x, roadLocation.at(i).y, roadLocation.at(i).z);
+		mapBGRoadTransform->localTranslate(roadLocation.at(i));
 
 		auto mapBGRoadModel = mapBGRoad->addComponent<ModelComponent>();
 		mapBGRoadModel->setModel(modelMapBGRoad);
@@ -652,7 +647,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	for (int i = 0; i < hedgeLocation.size(); i++) {
 		auto mapHedge = scene->addEntity();
 		auto mapHedgeTransform = mapHedge->getComponent<TransformComponent>();
-		mapHedgeTransform->localTranslate(hedgeLocation.at(i).x, hedgeLocation.at(i).y, hedgeLocation.at(i).z);
+		mapHedgeTransform->localTranslate(hedgeLocation.at(i));
 		mapHedgeTransform->localRotate(glm::radians(hedgeRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
 
 		auto mapHedgeModel = mapHedge->addComponent<ModelComponent>();
@@ -672,7 +667,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	for (int i = 0; i < woodFenceLocation.size(); i++) {
 		auto mapWoodFence = scene->addEntity();
 		auto mapWoodFenceTransform = mapWoodFence->getComponent<TransformComponent>();
-		mapWoodFenceTransform->localTranslate(woodFenceLocation.at(i).x, woodFenceLocation.at(i).y, woodFenceLocation.at(i).z);
+		mapWoodFenceTransform->localTranslate(woodFenceLocation.at(i));
 		mapWoodFenceTransform->localRotate(glm::radians(woodFenceRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
 
 		auto mapWoodFenceModel = mapWoodFence->addComponent<ModelComponent>();
@@ -692,7 +687,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	for (int i = 0; i < woodFencePoleLocation.size(); i++) {
 		auto mapWoodFencePole = scene->addEntity();
 		auto mapWoodFencePoleTransform = mapWoodFencePole->getComponent<TransformComponent>();
-		mapWoodFencePoleTransform->localTranslate(woodFencePoleLocation.at(i).x, woodFencePoleLocation.at(i).y, woodFencePoleLocation.at(i).z);
+		mapWoodFencePoleTransform->localTranslate(woodFencePoleLocation.at(i));
 		mapWoodFencePoleTransform->localRotate(glm::radians(woodFencePoleRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
 
 		auto mapWoodFencePoleModel = mapWoodFencePole->addComponent<ModelComponent>();
@@ -712,7 +707,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		// - Tree Stumps - 
 		auto mapTreeStump = scene->addEntity();
 		auto mapTreeStumpTransform = mapTreeStump->getComponent<TransformComponent>();
-		mapTreeStumpTransform->localTranslate(treeLocation.at(i).x, treeLocation.at(i).y, treeLocation.at(i).z);
+		mapTreeStumpTransform->localTranslate(treeLocation.at(i));
 
 		auto mapTreeStumpModel = mapTreeStump->addComponent<ModelComponent>();
 		mapTreeStumpModel->setModel(modelMapTreeStump);
@@ -726,7 +721,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		// - Tree Leaves - 
 		auto mapTreeLeaves = scene->addEntity();
 		auto mapTreeLeavesTransform = mapTreeLeaves->getComponent<TransformComponent>();
-		mapTreeLeavesTransform->localTranslate(treeLocation.at(i).x, treeLocation.at(i).y, treeLocation.at(i).z);
+		mapTreeLeavesTransform->localTranslate(treeLocation.at(i));
 		mapTreeLeavesTransform->localRotate(Random::randomFloat(glm::radians(0.f), glm::radians(360.f)), glm::vec3(0.f, 1.f, 0.f));
 
 		auto mapTreeLeavesModel = mapTreeLeaves->addComponent<ModelComponent>();
@@ -744,14 +739,35 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	for(int i = 0; i < parkingLineLocation.size(); i++){
 		auto mapParkingLine = scene->addEntity();
 		auto mapParkingLineTransform = mapParkingLine->getComponent<TransformComponent>();
-		mapParkingLineTransform->localTranslate(parkingLineLocation.at(i).x, parkingLineLocation.at(i).y, parkingLineLocation.at(i).z);
+		mapParkingLineTransform->localTranslate(parkingLineLocation.at(i));
 		mapParkingLineTransform->localRotate(glm::radians(parkingLineRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
 
-			auto mapParkingLineModel = mapParkingLine->addComponent<ModelComponent>();
-			mapParkingLineModel->setModel(modelMapParkingLine);
+		auto mapParkingLineModel = mapParkingLine->addComponent<ModelComponent>();
+		mapParkingLineModel->setModel(modelMapParkingLine);
 
 		auto mapParkingLineRender = mapParkingLine->addComponent<RendererComponent>();
 		mapParkingLineRender->enableRender();
+	}
+
+	// --- Map Ramps ---
+	rampLocation = collectGLMVecFromFile("../../res/modelTransformations/rampLocation.txt", rampLocation);
+	rampRotation = collectfloatFromFile("../../res/modelTransformations/rampRotation.txt", rampRotation);
+
+	for(int i = 0; i < rampLocation.size(); i++){
+		auto mapRamp = scene->addEntity();
+		auto mapRampTransform = mapRamp->getComponent<TransformComponent>();
+		//mapRampTransform->localScale(glm::vec3(2.0f, 1.0f, 1.0f));
+		mapRampTransform->localTranslate(rampLocation.at(i));
+		mapRampTransform->localRotate(glm::radians(rampRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
+
+		auto mapRampModel = mapRamp->addComponent<ModelComponent>();
+		mapRampModel->setModel(modelMapRamp);
+
+		auto mapRampRender = mapRamp->addComponent<RendererComponent>();
+		mapRampRender->enableRender();
+
+		auto mapRampRigidbody = mapRamp->addComponent<RigidbodyComponent>();
+		mapRampRigidbody->addActorStaticMesh(*modelMapRamp, convert<physx::PxTransform>(mapRampTransform->getGlobalMatrix()));
 	}
 
 	// --- Parking Spots ---
@@ -855,22 +871,13 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		testparkingspace->getComponent<ModelComponent>()->setModel(modelMapParkingIndicator);
 	}
 
-	/*
 
 	// --- TriggerBox ---
 	auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
-	for (int i = 0; i < sizeof(emptyparkingVertices) / sizeof(*emptyparkingVertices); i++) {
-		if(emptyparkingVertices[i].x == -148.5f){
-			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
-		}
-
-		else {
-			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyparkingVertices[i].x, 0.0f, emptyparkingVertices[i].z)), PxBoxGeometry(1.0f, 1.0f, 1.0f));
-		}
-
+	for (int i = 0; i < emptyParkingSpotLocation.size(); i++) {
+		triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyParkingSpotLocation.at(i).x, emptyParkingSpotLocation.at(i).y, emptyParkingSpotLocation.at(i).z)), PxBoxGeometry(1.f, 1.f, 1.f));
 	};
 
-	*/
 
 
 	   /* --------------------- End Game World Description --------------------- */
