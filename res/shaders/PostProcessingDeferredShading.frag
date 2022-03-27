@@ -42,9 +42,6 @@ uniform vec3 ambientLightColour;
 uniform vec3 cameraPosition;
 uniform vec2 clipDistance;
 
-#define NEAR_CLIP 10.0
-#define FAR_CLIP 130.0
-
 const mat3 sx = mat3( 
     1.0, 2.0, 1.0, 
     0.0, 0.0, 0.0, 
@@ -169,9 +166,9 @@ void main() {
 	float edv = edgeDetection();
 	color = (1.0 - edv) * color + edv * vec4(0.0,0.0,0.0,1.0);//Edge Detection
 	//Depth Fade
-	//float depthfactor =  min(max(2.0*LinearizeDepth(texture(textureDepth,fragUv2).r) / clipDistance[1] - 0.98, 0.0), 1.0);
-	//float a = depthfactor * depthfactor;
-	//color = (1.0 - a) * color + a * vec4(0.1,0.1,0.1,1.0);
+	float depthfactor =  min(max(2.0*LinearizeDepth(texture(textureDepth,fragUv2).r) / clipDistance[1] - 0.98, 0.0), 1.0);
+	float a = depthfactor * depthfactor;
+	color = (1.0 - a) * color + a * vec4(0.52, 0.80, 0.92,1.0);
 #endif
 	color[3] = 1.0; //Alpha Correction
 } 

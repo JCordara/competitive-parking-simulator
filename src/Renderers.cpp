@@ -390,9 +390,7 @@ void PostProcessingRenderer::use(int width, int height) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, width, height);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_ALWAYS);
-	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	//Load the shader for use
 	shader.use();
