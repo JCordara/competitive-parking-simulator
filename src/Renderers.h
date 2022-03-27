@@ -197,6 +197,7 @@ public:
 	}
 	void clearRenderQueue() {
 		renderQueue.clear();
+		renderQueueTransparent.clear();
 	}
 	void flushLists() {
 		clearPointLights();

@@ -184,12 +184,14 @@ int Application::play() {
 				if (scores[playerId] >= 5) {//|| scores[aiList[0]] >= 5) {
 				}
 				else {
-					gameplay->update();	// Gameplay / AI update
+					//gameplay->update();	// Gameplay / AI update
 					physics->update();	// Physics update
 					audio->update();	// Audio update
 				}
 			}
 		}
+		gameplay->update();	// Gameplay / AI update
+		//audio->update();	// Audio update
 		// Render the current scene
 		render->update();
 	}
@@ -343,6 +345,17 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	auto modelMapBGRoad = std::make_shared<Model>(
 		"models/cpsMap_BGRoad.obj", glm::vec3(.5f, .1f, .2f));
 
+	auto modelMapParkingIndicator= std::make_shared<Model>(
+		"models/cpsMap_ParkingIndicator.obj", glm::vec3(.5f, .1f, .2f));
+
+
+	// --- Test ----
+	auto testparkingspace = scene->addChild();
+	testparkingspace->addComponent<RendererComponent>();
+	testparkingspace->getComponent<RendererComponent>()->enableRender();
+	testparkingspace->getComponent<RendererComponent>()->enableTransparentRendering();
+	testparkingspace->addComponent<ModelComponent>();
+	testparkingspace->getComponent<ModelComponent>()->setModel(modelMapParkingIndicator);
 
 	// --- Directional light ---
 	environmentalLight->addComponent<LightingComponent>(); 
