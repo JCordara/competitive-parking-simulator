@@ -12,5 +12,5 @@ uniform vec3 modelColour;
 layout (location = 0) out vec4 col;
   
 void main() {
-	col = vec4(uniformPhongAmbient,1.0) * texture(colourTexture, fragTextureCoordinate);
+	col = vec4(uniformPhongAmbient,1.0) * texture(colourTexture, fragTextureCoordinate);//vec4(texture(colourTexture, fragTextureCoordinate).rgb, 1.0 - fragTextureCoordinate.x);
 }

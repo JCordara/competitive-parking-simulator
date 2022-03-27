@@ -7,6 +7,7 @@
 enum class CameraPurpose {
 	render,
 	shadowMap,
+	menu,
 	unknown
 };
 
@@ -22,6 +23,7 @@ public:
 	float getNearClipPlane() { return camera->getNearPlane(); }
 	float getFarClipPlane() { return camera->getFarPlane(); }
 	void setFov(float fov) { camera->setFov(fov); }
+	void setPurpose(CameraPurpose p);
 	CameraPurpose getPurpose() { return purpose; }
 	glm::mat4 getViewMatrix(glm::mat4 cameraModelTransformation);
 	glm::mat4 getProjectionMatrix();
@@ -32,6 +34,8 @@ public:
 private:
 	std::shared_ptr<Camera> camera;
 	CameraPurpose purpose = CameraPurpose::unknown;
+
+	bool isPerspective = false;
 };
 
 #endif // CAMERA_COMPONENT_H

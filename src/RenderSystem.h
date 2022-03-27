@@ -21,6 +21,7 @@ public:
 
     void changeScene(shared_ptr<Scene> newScene);
     void changeGui(shared_ptr<GuiScene> newGui);
+	void setPlaying(bool b) { playing = b; }
 
     ~RenderSystem();
     
@@ -31,6 +32,8 @@ private:
 	std::shared_ptr<GuiScene> guiScene;
 
 	std::shared_ptr<GameRenderPipeline> renderPipeline;
+
+	bool playing = false;
 
 };
 
