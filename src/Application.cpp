@@ -132,6 +132,7 @@ void Application::gameStart() {
 	std::cout << "TEST" << std::endl;
 	setupBaseLevelGUI();
 	Events::GameStart.broadcast();
+	render->setPlaying(true);
 }
 
 Application::Application(appSettings& settings): 
@@ -226,6 +227,7 @@ void Application::setupMainMenu() {
 						"Options", Events::GameOptions, 1);
 	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY,
 						"Exit", Events::GameExit, 1);
+	render->setPlaying(false);
 	render->changeGui(guiScene);
 }
 
