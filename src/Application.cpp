@@ -846,7 +846,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		auto testparkingspaceTransform = testparkingspace->getComponent<TransformComponent>();
 
 		testparkingspaceTransform->localTranslate(emptyParkingSpotLocation.at(i));
-		testparkingspaceTransform->localRotate(emptyParkingSpotRotation.at(i), glm::vec3(0.f, 1.f, 0.f));
+		testparkingspaceTransform->localRotate(glm::radians(emptyParkingSpotRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
 
 		testparkingspace->addComponent<RendererComponent>();
 		testparkingspace->getComponent<RendererComponent>()->enableRender();
