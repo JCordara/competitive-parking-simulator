@@ -43,6 +43,7 @@ public:
 		GLint textureDirectionalLightPositionID,GLint depthTextureID);
 	void render(instancedPair& instancedRender);
 	void endUse();
+	void copyDepth(GLuint id, int width, int height);
 private:
 	ShaderProgram shader;
 	FrameBuffer frameBuffer;
@@ -148,6 +149,24 @@ private:
 	GLint clipDistanceLocation;
 };
 
+class TransparentRenderer {
+public:
+	TransparentRenderer();
+	void use();
+	void setCameraTransformations(glm::mat4 V, glm::mat4 P);
+	void render(instancedPair& instancedRender);
+private:
+	ShaderProgram shader;
+	//Model Properties
+	GLint modelTextureLocation;
+	GLint modelClassificationColourLocation;
+	GLint modelAmbientConstantLocation;
+	//Transformations
+	GLint modelTransformationsLocation;
+	GLint cameraViewTransformationLocation;
+	GLint cameraProjectionTransformationLocation;
+};
+
 class GameRenderPipeline {
 public:
 
@@ -164,13 +183,21 @@ public:
 	void setCamera(glm::vec3 pos, glm::mat4 V, glm::mat4 P, float nearClip, float farClip);
 	void setWindowDimentions(int width, int height);
 	//Attach Objects to render
-	void attachRender(std::shared_ptr<Model> model, glm::mat4 modelTransformation);
+	void attachRender(std::shared_ptr<Model> model, glm::mat4 modelTransformation, bool isTransparent);
 	//Render the output
 	void executeRender();
 	//Clear functions
-	void clearPointLights() { pointLights.clear(); }
-	void clearSpotLights() { spotLights.clear(); }
-	void clearRenderQueue() { renderQueue.clear(); }
+	void clearPointLights() {
+		pointLights.clear();
+		pointLightTransforms.clear();
+	}
+	void clearSpotLights() {
+		spotLights.clear();
+		spotLightTransforms.clear();
+	}
+	void clearRenderQueue() {
+		renderQueue.clear();
+	}
 	void flushLists() {
 		clearPointLights();
 		clearSpotLights();
@@ -183,6 +210,7 @@ private:
 	DepthRenderer depthRenderer;
 	DeferredRenderer deferredRenderer;
 	PostProcessingRenderer postProcessingRenderer;
+	TransparentRenderer transparentRenderer;
 	//Render textures (framebuffers)
 	Texture directionalLightDepthTexture;
 	Texture textureColour;
@@ -217,5 +245,6 @@ private:
 	int cameraHeight;
 	//Object Queue
 	std::map<Model*, instancedPair> renderQueue;
+	std::map<Model*, instancedPair> renderQueueTransparent;
 
 };

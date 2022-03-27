@@ -218,3 +218,33 @@ bool Scene::removeEntityByID(unsigned int entityID) {
 sp<Entity> Scene::getEntityByID(unsigned int entityID) {
     return getChildByID(entityID);
 }
+
+// Menu
+
+Menu::Menu(int columnNum, int rowNum, float inButtonOffset) {
+	columnMaxNum = columnNum;
+	rowMaxNum = rowNum;
+	buttonOffset = inButtonOffset;
+	calculateElementPositions();
+}
+
+// Type list asserted to be in order
+// If one column, top down order
+// If multiple columns top to bottom, then left to right order, column first
+void Menu::calculateElementPositions() {
+	// The gui positions are 0-1
+	float columnDelimiter = 1.f/(float)columnMaxNum;
+	float rowDelimiter = 1.f/(float)rowMaxNum;
+	// Left to right first
+	for (int i = 0; i < columnMaxNum; i++) {
+		std::vector<Element> innerList;
+		for (int j = 0; j < rowMaxNum; j++) {
+			Element el;
+			// Delimiter is where a column/row begins/ends, middle of it is position
+			el.positionX = ((i * columnDelimiter) + columnDelimiter/2 - buttonOffset);
+			el.positionY = ((j * rowDelimiter) +  rowDelimiter/2);
+			innerList.push_back(el);
+		}
+		layout.push_back(innerList);
+	}
+}

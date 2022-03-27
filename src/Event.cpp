@@ -1,6 +1,9 @@
 #include "Event.h"
 
 Event<void> Events::GameStart;
+Event<void> Events::GamePlay;
+Event<void> Events::GameExit;
+Event<void> Events::GameOptions;
 Event<void> Events::GameWon;
 Event<shared_ptr<Entity>, float> Events::GameReset;
 Event<shared_ptr<Entity>> Events::CarParked;
@@ -18,7 +21,9 @@ Event<shared_ptr<Entity>, float> Events::VehicleFlip;
 Event<double, double> Events::CameraRotate;
 Event<double, double> Events::CameraZoom;
 
-Event<glm::vec3&> Events::Collision;
+Event<int, int> Events::WindowResized;
+
+Event<shared_ptr<Entity>, shared_ptr<Entity>> Events::Collision;
 
 
 Event<RigidbodyComponent&> Events::RigidbodyComponentInit;
@@ -27,5 +32,10 @@ Event<VehicleComponent&> Events::VehicleComponentInit;
 Event<ControllerComponent&> Events::ControllerComponentInit;
 Event<AiComponent&> Events::AiComponentInit;
 Event<AudioComponent&> Events::AudioComponentInit;
+
+Event<bool> Events::TestUiEvent;
+Event<float> Events::ChangeMusicVolume;
+Event<int> Events::ChangeNumAI;
+
 
 

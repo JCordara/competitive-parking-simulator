@@ -3,9 +3,7 @@
 
 
 /** Open default audio device and initialize OpenAL context */
-AudioSystem::AudioSystem(): 
-    calculateEngineSound("scripts/calculateEngineSound.lua") 
-{
+AudioSystem::AudioSystem(shared_ptr<Scene> scene): scene(scene) {
 
     // Get devices
     std::vector<std::string> deviceNames = getDeviceNames();
@@ -31,43 +29,28 @@ AudioSystem::AudioSystem():
         exit(1);
     }
 
+    // Setup music player
+    musicPlayer = createStaticSource();
+    musicPlayer->setGain(0.1f);
+    music = loadAudio("audio/CoconutMall.wav");
+
     // Register self with audio components when they are created
     Events::AudioComponentInit.registerHandler<AudioSystem,
         &AudioSystem::registerAudioComponent>(this);
 
-    // Hacky stuff
-    engineSound = &loadAudio("audio/engine.wav");
-    carSource = &createSource();
-    carSource->setPitch(1.0f);
-    carSource->setGain(0.075f);
-
-    music = &loadAudio("audio/CoconutMall.wav");
-    musicPlayer = &createStaticSource(glm::vec3());
-    musicPlayer->setLooping(true);
-    musicPlayer->setGain(0.5f);
-
-    ding = &loadAudio("audio/ding.wav");
-    oof = &loadAudio("audio/oof.wav");
-    aux = &createSource();
-    aux->setGain(1.0f);
-
-
     Events::GameStart.registerHandler<AudioSystem,
         &AudioSystem::onGameStart>(this);
 
-    Events::CarParked.registerHandler<AudioSystem,
-        &AudioSystem::playDing>(this);
-
     Events::Collision.registerHandler<AudioSystem,
-        &AudioSystem::playOof>(this);
+        &AudioSystem::onCollision>(this);
 
-    calculateEngineSound.capture(enginePitch);
-    calculateEngineSound.capture(engineGain);
-    calculateEngineSound.capture(speed);
+    Events::ChangeMusicVolume.registerHandler<AudioSystem,
+        &AudioSystem::onMusicVolumeChanged>(this);
+
 }
 
 void AudioSystem::update() {
-
+    // Update listener position
     glm::mat4 m = listener->getGlobalMatrix();
     glm::vec3 front = glm::normalize(glm::vec3(-m * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
     glm::vec3 up = glm::normalize(glm::vec3(m * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)));
@@ -75,75 +58,63 @@ void AudioSystem::update() {
     setListenerOrientation(front, up);
     setListenerPosition(m[3]);
 
-    speed = car->getLinearVelocity().magnitude();
+    // Loop through audio components in the scene
+    for (auto c : scene->iterate<AudioComponent>()) {
+        if (!c->isStatic()) {
+            auto transform = c->getEntity()->getComponent<TransformComponent>();
+            c->updatePosition(transform->getGlobalPosition());
+            if (c->hasEngineSound()) c->playEngineSound();
+        }
+    }
 
-    calculateEngineSound.run();
-
-    carSource->setPosition(m[3]);
-    carSource->setPitch(enginePitch);
-    carSource->setGain(engineGain);
-
-    aux->setPosition(m[3]);
+    // printf("%s, (%.2f, %.2f, %.2f)\n", (musicPlayer->isPlaying() ? "true" : "false"), musicPlayer->position().x, musicPlayer->position().y, musicPlayer->position().z);
 }
 
 void AudioSystem::onGameStart() {
-    musicPlayer->playAudio(*music);
-    startEngine();
+    musicPlayer->playAudio(music);
 }
 
-void AudioSystem::startEngine() {
-    carSource->setLooping(true);
-    carSource->playAudio(*engineSound);
+void AudioSystem::onCollision(sp<Entity> e0, sp<Entity> e1) {
+    if (auto c = e0->getComponent<AudioComponent>())
+        c->playSoundVaried(AudioTrigger::Collision);
+    if (auto c = e1->getComponent<AudioComponent>())
+        c->playSoundVaried(AudioTrigger::Collision);
 }
 
-void AudioSystem::stopEngine() {
-    carSource->setLooping(false);
-}
-
-void AudioSystem::playDing(shared_ptr<Entity>) {
-    aux->setPitch(Random::randomFloat(0.9f, 1.1f));
-    aux->setGain(1.0f);
-    aux->playAudio(*ding);
-}
-
-void AudioSystem::playOof(glm::vec3& position) {
-    aux->setPosition(position);
-    aux->setPitch(Random::randomFloat(0.9f, 1.1f));
-    aux->setGain(Random::randomFloat(0.4f, 0.6f));
-    aux->playAudio(*oof);
+void AudioSystem::onMusicVolumeChanged(float gain) {
+    musicPlayer->setGain(gain);
 }
 
 
-
-Audio& AudioSystem::loadAudio(std::string filepath) {
+shared_ptr<Audio> AudioSystem::loadAudio(std::string filepath) {
     audioBuffers.push_back(std::make_shared<Audio>(filepath));
     filepaths.push_back(filepath);
-    return *audioBuffers.back();
+    return audioBuffers.back();
 }
 
-AudioSource& AudioSystem::createSource() {
+shared_ptr<AudioSource> AudioSystem::createSource() {
     audioSources.push_back(std::make_shared<AudioSource>());
-    return *audioSources.back();
+    return audioSources.back();
 }
 
-AudioSource& AudioSystem::createSource(const glm::vec3 position_init) {
+shared_ptr<AudioSource> AudioSystem::createSource(const glm::vec3 position_init) {
     audioSources.push_back(std::make_shared<AudioSource>(position_init));
-    return *audioSources.back();
+    return audioSources.back();
 }
 
-AudioSource& AudioSystem::createStaticSource() {
+shared_ptr<AudioSource> AudioSystem::createStaticSource() {
     audioSources.push_back(std::make_shared<AudioSource>(true));
-    return *audioSources.back();
+    return audioSources.back();
 }
 
-AudioSource& AudioSystem::createStaticSource(const glm::vec3 position_init) {
+shared_ptr<AudioSource> AudioSystem::createStaticSource(const glm::vec3 position_init) {
     audioSources.push_back(std::make_shared<AudioSource>(position_init, true));
-    return *audioSources.back();
+    return audioSources.back();
 }
 
 void AudioSystem::setListenerPosition(const glm::vec3& _position) {
     // Automatically calculate listener velocity
-    // This is possible when this function is called every frame
+    // This is only possible when this function is called every frame
     
     // Get last known position
     glm::vec3 lastPosition;
@@ -173,19 +144,13 @@ void AudioSystem::setListenerOrientation(const glm::vec3& _front, const glm::vec
     alListenerfv(AL_ORIENTATION, ori);
 }
 
-void AudioSystem::setListenerOrientation(const glm::mat4& _vm) {
-    this->setListenerOrientation(
-        glm::vec3(_vm[0][2], _vm[1][2], _vm[2][2]), 
-        glm::vec3(_vm[0][1], _vm[1][1], _vm[2][1])
-    );
-}
 
 
 int AudioSystem::availableDevicesCount() const {
     return static_cast<int>(audioDevices.size());
 }
 
-/** Retrieve a list of string representations of available devices */
+/* Retrieve a list of string representations of available devices */
 std::vector<std::string> AudioSystem::getDeviceNames() {
 
     // Get list of device names as null-terminated strings
@@ -202,11 +167,11 @@ std::vector<std::string> AudioSystem::getDeviceNames() {
     return devices;
 }
 
-AudioDevice& AudioSystem::getDevice(int deviceID) {
+shared_ptr<AudioDevice> AudioSystem::getDevice(int deviceID) {
     if (deviceID == -1)
-        return *audioDevices[currentDevice];
+        return audioDevices[currentDevice];
     else
-        return *audioDevices[deviceID];
+        return audioDevices[deviceID];
 }
 
 /** Opening a new device requires destroying and recreating devices and contexts */
@@ -287,6 +252,5 @@ AudioSystem::~AudioSystem() {
 
     audioDevices.clear();
 
-    
     debug_log("Leaving AudioSystem destructor");
 }

@@ -38,3 +38,10 @@ void FrameBuffer::drawBuffers(std::vector<GLenum> buffers) {
 	glDrawBuffers(buffers.size(), buffers.data());
 	unbind();
 }
+
+void FrameBuffer::copyDepth(GLuint id, int width, int height) {
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, bufferID);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, id);
+	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height,
+		GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+}

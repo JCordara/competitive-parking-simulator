@@ -57,6 +57,7 @@ public:
 	void unbind() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 	void attachTexture(GLenum attachment, GLuint texture);
 	void drawBuffers(std::vector<GLenum> buffers);
+	void copyDepth(GLuint id, int width, int height);
 
 private:
 	FrameBufferHandle bufferID;

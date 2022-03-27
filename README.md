@@ -1,8 +1,9 @@
 # CPSC 585 Project
 ## Tasks to complete:
-- Brainstorm obstacles
-- Map design ideas
-
+- Per Round Reset for Gameplay
+- Kinematic PhysX for Sweeper? (If time)
+- Obstacle triggerbox (Puddle changes car tuning)
+- Drivable on Objects (Curbs, Ramps, Speedbumps)
 
 ### Joseph's tasks
 - WHEELS
@@ -26,7 +27,7 @@
 
 ### Keaton's tasks
 - Flipping cars
-- Create rigidbody component functions to add geometric objects
+- Create rigidbody component functions to add geometric objects (Just Capsule)
 - Wait to assign point until cars are stopped in stall
 
 ### Kaynen's tasks
@@ -36,16 +37,14 @@
 	- GameMode Logic
 		- Game mode for musical chairs style
 		- Game mode for timed score based
-- Talk with Jeff about converting AI Node structure to
-  a heatmap where gradient descent can run
-- Talk to Brayden about getting nodes passed through to
-  AI nodes
+- Modify AI Behaviour logic to sight radius
+- Collapse nodes to Traversal nodes with a float for car speed.
 
 
 ### Brayden's tasks
-- New map
-	- Blender scripts to mark parking stalls
-	- Improve level design (aisles, obstacles, etc.)
+- Fix AI Nodes with Kaynen
+- Add Ramp, Speedbump, Sweeper and Puddle Models to the Map
+- Setup Randomization for Propcar Instancing
 
 
 ### Jeff's tasks

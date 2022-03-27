@@ -13,6 +13,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <PhysX/PxPhysicsAPI.h>
+#include <stack>
+#include <queue>
 
 // C++ standard library includes
 #include "Common.h"
@@ -28,7 +30,7 @@
 // Other stuff
 #include "Renderers.h"
 #include "GLDebug.h"
-#include "GUI.h"
+#include "GuiScene.h"
 #include "Shader.h"
 #include "EditorCamera.h"
 #include "Window.h"
@@ -49,22 +51,29 @@ public:
 	Application(Application&&) = delete;
 	Application& operator= (const Application&) = delete;
 	Application& operator= (Application&&) = delete;
+	void gameStart();
 
 private:
 
 	appSettings settings;
 
 	/* Framework */
-	std::shared_ptr<Scene>             scene;
-	std::shared_ptr<Window>            window;
+	shared_ptr<Scene>          scene;
+	shared_ptr<GuiScene>       guiScene;
+	shared_ptr<Window>         window;
 
 	/* Game systems - update() every frame */
-	std::shared_ptr<GameplaySystem>    gameplay;
-	std::shared_ptr<PhysicsSystem>     physics;
-	std::shared_ptr<RenderSystem>      render;
-	std::shared_ptr<AudioSystem>       audio;
-	std::shared_ptr<InputSystem>  	   input;
+	shared_ptr<GameplaySystem> gameplay;
+	shared_ptr<PhysicsSystem>  physics;
+	shared_ptr<RenderSystem>   render;
+	shared_ptr<AudioSystem>    audio;
+	shared_ptr<InputSystem>    input;
 
+	std::stack<shared_ptr<Menu>> menuStack;
+	std::queue<shared_ptr<Scene>> sceneQueue;
+	void setupBaseLevelGUI();
+	void setupMainMenu();
+	void setupBaseLevel(shared_ptr<Scene> scene);
 };
 
 //Functions to load settings

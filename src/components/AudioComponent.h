@@ -2,34 +2,53 @@
 #define AUDIO_COMPONENT_H
 
 #include "Components.h"
+#include "LuaScript.h"
 
 class AudioSystem;
 class AudioSource;
 class Audio;
 
+enum class AudioTrigger {
+    Collision
+};
+
 class AudioComponent : public BaseComponent {
 public:
+
     AudioComponent(shared_ptr<Entity> parent);
     ~AudioComponent();
     static ComponentEnum getType();
 
+    void playSound(AudioTrigger t);
+    void playSoundVaried(AudioTrigger t);
+    void addSound(AudioTrigger t, const std::string soundFile);
+
+    void playEngineSound();
+    void addEngineSound(const std::string soundFile, sp<VehicleComponent> vehicle);
+    bool hasEngineSound() { return engineSource != nullptr; }
+
+    void updatePosition(glm::vec3 newPos);
+    
+    bool isStatic();
+    void setStatic(bool value);
+
     void setAudioSystem(sp<AudioSystem> as) {
         audioSystem = as;
     }
-
-    void updatePosition(glm::vec3 newPos);
-
-    void playSound(int id);
-
-    void onCrash();
 
 private:
 
     sp<AudioSystem> audioSystem;
     sp<TransformComponent> transform;
 
-    std::vector<Audio*> sounds;
-    AudioSource* source;
+    unordered_map<AudioTrigger, shared_ptr<Audio>> sounds;
+    shared_ptr<AudioSource> source;
+
+    shared_ptr<AudioSource> engineSource;
+    shared_ptr<Audio> engineSound;
+    shared_ptr<VehicleComponent> vehicle;
+    Script calculateEngineSound;
+    float enginePitch, engineGain, engineSpeed;
 };
 
 #endif // AUDIO_COMPONENT_H
