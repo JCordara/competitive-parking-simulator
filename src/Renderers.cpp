@@ -524,8 +524,7 @@ void TransparentRenderer::use() {
 	shader.use();
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_FRAMEBUFFER_SRGB);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	glDisable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);

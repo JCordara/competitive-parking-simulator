@@ -58,6 +58,7 @@ void RigidbodyComponent::addActorStaticBox(PxVec3 halfLen, PxTransform startPos)
 	physicsSystem->pxScene->addActor(*actor);
 	box->release();
 }
+
 void RigidbodyComponent::addActorDynamic(const Model& model, PxTransform startPos) {
 
 	PxTransform mesht = startPos;//PxTransform(PxVec3(0, 20.0f, 0.0f));

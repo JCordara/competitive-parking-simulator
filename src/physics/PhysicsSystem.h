@@ -65,6 +65,8 @@ private:
     void vehicleTurnMode(shared_ptr<Entity> entity, float v);
     void vehicleBrakeMode(shared_ptr<Entity> entity, float v);
     void vehicleHandbrakeMode(shared_ptr<Entity> entity, float v);
+	void vehicleFlipMode(shared_ptr<Entity> entity, float v);
+
 
     void registerRigidbodyComponent(RigidbodyComponent& component);
     void registerVehicleComponent(VehicleComponent& component);

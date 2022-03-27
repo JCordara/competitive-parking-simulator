@@ -40,6 +40,7 @@ namespace Events {
     extern Event<shared_ptr<Entity>, float> VehicleSteer;
     extern Event<shared_ptr<Entity>, float> VehicleBrake;
 	extern Event<shared_ptr<Entity>, float> VehicleHandbrake;
+	extern Event<shared_ptr<Entity>, float> VehicleFlip;
 
     extern Event<double, double> CameraRotate;
     extern Event<double, double> CameraZoom;

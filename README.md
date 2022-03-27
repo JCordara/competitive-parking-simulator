@@ -42,9 +42,7 @@
 
 
 ### Brayden's tasks
-- Fix AI Nodes with Kaynen
 - Add Ramp, Speedbump, Sweeper and Puddle Models to the Map
-- Setup Randomization for Propcar Instancing
 
 
 ### Jeff's tasks
