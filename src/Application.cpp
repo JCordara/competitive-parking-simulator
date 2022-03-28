@@ -502,6 +502,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	playerController->createAxis(GLFW_KEY_RIGHT, GLFW_KEY_LEFT, &Events::VehicleSteer);
 	playerController->createAxis(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::VehicleSteer);
 	playerController->bindInput(GLFW_KEY_F, &Events::VehicleFlip);
+	playerController->bindInput(GLFW_GAMEPAD_BUTTON_CIRCLE, &Events::VehicleFlip);
 	playerController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
 	playerController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
 
