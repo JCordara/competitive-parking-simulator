@@ -316,14 +316,16 @@ void PhysicsSystem::vehicleHandbrakeMode(shared_ptr<Entity> entity, float v)
 
 void PhysicsSystem::vehicleFlipMode(shared_ptr<Entity> entity, float v)
 {
-	
-	auto vc = entity->getComponent<VehicleComponent>();
-	if (!vc) return;
-	PxTransform pos = vc->vehicle->getRigidDynamicActor()->getGlobalPose();
-	std::cout << pos.p.y << std::endl;
-	vc->vehicle->getRigidDynamicActor()->setAngularVelocity(PxVec3(0.0f,0.0f,5.0f));
-	
-	
+	if (auto vc = entity->getComponent<VehicleComponent>()) {
+		PxTransform trans = vc->vehicle->getRigidDynamicActor()->getGlobalPose();
+		// Disallow flipping if car too high or spinning too fast
+		if (trans.p.y > 2.0f || 
+		vc->vehicle->getRigidDynamicActor()->getAngularVelocity().magnitudeSquared() > 10.0f) {
+			return;
+		}
+		vc->vehicle->getRigidDynamicActor()->addForce(PxVec3(0.0f,3.0f,0.0f), PxForceMode::eVELOCITY_CHANGE);
+		vc->vehicle->getRigidDynamicActor()->addTorque(trans.q.rotate(PxVec3(-0.5f,0.0f, 1.5f)), PxForceMode::eVELOCITY_CHANGE);
+	}
 }
 
 void PhysicsSystem::initPhysX()

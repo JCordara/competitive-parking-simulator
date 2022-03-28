@@ -152,20 +152,24 @@ private:
 class TransparentRenderer {
 public:
 	TransparentRenderer();
-	void use();
+	void use(int width, int height);
 	void setCameraTransformations(glm::mat4 V, glm::mat4 P);
 	void setColorIntensity(glm::vec3 intensity);
 	void render(instancedPair& instancedRender);
+	void setTextureLocations(int textureDepthActiveLocation);
 private:
 	ShaderProgram shader;
 	//Model Properties
 	GLint modelTextureLocation;
+	GLint depthTextureLocation;
 	GLint translucentIntensityLocation;
 	GLint modelAmbientConstantLocation;
 	//Transformations
 	GLint modelTransformationsLocation;
 	GLint cameraViewTransformationLocation;
 	GLint cameraProjectionTransformationLocation;
+
+	GLint pixelSizeLocation;
 };
 
 class GameRenderPipeline {

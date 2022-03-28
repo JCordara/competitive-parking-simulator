@@ -206,10 +206,10 @@ namespace fourwheel
             //Set the suspension data.
             for (PxU32 i = 0; i < numWheels; i++)
             {
-                suspensions[i].mMaxCompression = 0.3f;
-                suspensions[i].mMaxDroop = 0.1f;
-                suspensions[i].mSpringStrength = 35000.0f;
-                suspensions[i].mSpringDamperRate = 4500.0f;
+                suspensions[i].mMaxCompression = 0.38f;
+                suspensions[i].mMaxDroop = 0.18f;
+                suspensions[i].mSpringStrength = 37500.0f;
+                suspensions[i].mSpringDamperRate = 3000.0f;
                 suspensions[i].mSprungMass = suspSprungMasses[i];
             }
 
