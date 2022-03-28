@@ -530,6 +530,9 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	auto mapGrassRender = mapGrass->addComponent<RendererComponent>();
 	mapGrassRender->enableRender();
 
+	auto mapGrassRigidbody = mapGrass->addComponent<RigidbodyComponent>();
+	mapGrassRigidbody->addActorStaticBox(PxVec3(200.0f, 0.5f, 100.0f), PxTransform(PxVec3(0.0f, -1.5f, 0.0f)));
+
 	// --- Map Mall ---
 	auto mapMallTransform = mapMall->getComponent<TransformComponent>();
 	mapMallTransform->localTranslate(0.0f, -1.0f, 0.0f);
