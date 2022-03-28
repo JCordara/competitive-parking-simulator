@@ -5,7 +5,6 @@
 unsigned int g_numAiCars = 3;
 int totalScore = 0;
 
-unsigned int g_numAiCars = 1;
 bool g_showHUD = false;
 
 unsigned int playerId = 0;
