@@ -22,8 +22,8 @@ void VolumeTriggerComponent::flush() {
 	attached.clear();
 }
 
-void VolumeTriggerComponent::createVolumeShape(PxTransform startPos, PxBoxGeometry boxGeom) {
-	physicsSystem->createTriggerBox(startPos, boxGeom);
+void VolumeTriggerComponent::createVolumeShape(PxTransform startPos, PxShape* shape) {
+	physicsSystem->createTriggerBox(startPos, shape);
 }
 
 ComponentEnum VolumeTriggerComponent::getType() {

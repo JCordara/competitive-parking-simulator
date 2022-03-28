@@ -837,7 +837,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 			}
 		}
 	}
-
+	
 	/*
 
 	// --- TriggerBox ---

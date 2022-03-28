@@ -14,7 +14,7 @@ public:
 	void attachEntity(std::shared_ptr<Entity> collisionEntity);
 	void removeEntity(std::shared_ptr<Entity> collisionEntity);
 	void flush();
-	void createVolumeShape(PxTransform startPos, PxBoxGeometry boxGeom);
+	void createVolumeShape(PxTransform startPos, PxShape* shape);
     static  ComponentEnum getType();
     ~VolumeTriggerComponent();
 	inline void setPhysicsSystem(shared_ptr<PhysicsSystem> system) {
