@@ -416,9 +416,9 @@ void PhysicsSystem::initPhysX()
 
 
 	//Create a plane to drive on (Should probably be moved out to higher level)
-	// PxFilterData groundPlaneSimFilterData(COLLISION_FLAG_GROUND, COLLISION_FLAG_GROUND_AGAINST, 0, 0);
-	// pxGroundPlane = createDrivablePlane(groundPlaneSimFilterData, gMaterial, pxPhysics);
-	// pxScene->addActor(*pxGroundPlane);
+	 PxFilterData groundPlaneSimFilterData(COLLISION_FLAG_GROUND, COLLISION_FLAG_GROUND_AGAINST, 0, 0);
+	 pxGroundPlane = createDrivablePlane(groundPlaneSimFilterData, gMaterial, pxPhysics);
+	 pxScene->addActor(*pxGroundPlane);
 
 }
 
