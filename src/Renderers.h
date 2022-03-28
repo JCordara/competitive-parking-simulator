@@ -154,12 +154,13 @@ public:
 	TransparentRenderer();
 	void use();
 	void setCameraTransformations(glm::mat4 V, glm::mat4 P);
+	void setColorIntensity(glm::vec3 intensity);
 	void render(instancedPair& instancedRender);
 private:
 	ShaderProgram shader;
 	//Model Properties
 	GLint modelTextureLocation;
-	GLint modelClassificationColourLocation;
+	GLint translucentIntensityLocation;
 	GLint modelAmbientConstantLocation;
 	//Transformations
 	GLint modelTransformationsLocation;
@@ -182,6 +183,9 @@ public:
 	void setDirectionalLightShadowMapProperties(glm::vec3 direction, glm::mat4 V, glm::mat4 P, int width, int height);
 	void setCamera(glm::vec3 pos, glm::mat4 V, glm::mat4 P, float nearClip, float farClip);
 	void setWindowDimentions(int width, int height);
+	void setTranslucentIntensity(glm::vec3 inten) {
+		transparentRenderer.setColorIntensity(inten);
+	}
 	//Attach Objects to render
 	void attachRender(std::shared_ptr<Model> model, glm::mat4 modelTransformation, bool isTransparent);
 	//Render the output

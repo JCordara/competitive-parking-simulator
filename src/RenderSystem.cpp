@@ -70,6 +70,9 @@ void RenderSystem::update() {
 		}
 	}
 
+	//Not sure where to do this
+	renderPipeline->setTranslucentIntensity(glm::vec3(0.3f, 0.3f, 0.3f));
+
 	//Render the output
 	renderPipeline->executeRender();
 	//Flush the render queue

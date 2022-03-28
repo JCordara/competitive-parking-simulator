@@ -42,6 +42,8 @@ void GuiScene::draw() {
 
 	if (ImGui::Begin("GUI LAYER", nullptr, windowFlags)) {
 
+		ImGui::Text("FPS: %.2f", Time::fps());
+
 		// Render the scene's elements
 		for (auto& label : labels) {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * label.x, window->getHeight() * label.y));
