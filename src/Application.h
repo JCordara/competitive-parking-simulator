@@ -53,6 +53,7 @@ public:
 	Application& operator= (Application&&) = delete;
 	void gameStart();
 	void gameClose();
+	void gameOpenOptions();
 
 private:
 

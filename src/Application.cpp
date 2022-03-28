@@ -140,6 +140,25 @@ void Application::gameClose() {
 	
 }
 
+void Application::gameOpenOptions() {
+	int columnNum = 1;
+	int rowNum = 3;
+	float buttonSizeOffset = 0.1;
+	std::shared_ptr<Menu> menu = std::make_shared<Menu>(columnNum, rowNum, buttonSizeOffset);
+	menuStack.push(menu);
+	guiScene = std::make_shared<GuiScene>(window); // Reset gui
+
+	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][0].positionY,
+		"Play", Events::GamePlay, 1);
+	guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY,
+		"Coming Soon", Events::GameOptions, 1);
+	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY,
+		"Exit", Events::GameExit, 1);
+	render->setPlaying(false);
+	render->changeGui(guiScene);
+
+}
+
 Application::Application(appSettings& settings): 
 	settings(settings)
 {
@@ -149,6 +168,9 @@ Application::Application(appSettings& settings):
 
 	Events::GameExit.registerHandler<Application,
 		&Application::gameClose>(this);
+
+	Events::GameOptions.registerHandler<Application,
+		&Application::gameOpenOptions>(this);
 
 	//App initialization
 	glfwInit();
