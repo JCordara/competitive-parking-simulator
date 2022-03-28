@@ -16,6 +16,8 @@ public:
 	PxVehicleDrive4W* vehicle;
     PxShape* wheelShapes[4];
     sp<Entity>  wheelEntities[4];
+	PxShape* triggerShapes[1];
+
 
     friend class PhysicsSystem;
 

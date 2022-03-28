@@ -897,6 +897,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyParkingSpotLocation.at(i).x, emptyParkingSpotLocation.at(i).y, emptyParkingSpotLocation.at(i).z)), PxBoxGeometry(1.f, 1.f, 1.f));
 	};
 
+	
+
 	/* --------------------- End Game World Description --------------------- */
 
 	// Hacky stuff

@@ -34,6 +34,7 @@ void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
 	if (entity->id() == playerId) {
 		
 		if (scene->getEntityByID(playerId)->getComponent<VehicleComponent>()->getSpeed() <= 3.0f) {
+			scene->getEntityByID(playerId)->getComponent<VehicleComponent>()->triggerShapes[0]->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
 			scores[playerId]++;
 			resetPlayer();
 		};

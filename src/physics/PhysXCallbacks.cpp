@@ -48,7 +48,11 @@ void PhysXSimCallback::onTrigger(
 
 		if ((e1->hasComponent<VehicleComponent>() && e1->hasComponent<ControllerComponent>())&& (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)){
 			// std::cout << nbPairs;
+			//if (scene->getEntityByID(playerId)->getComponent<VehicleComponent>()->getSpeed() <= 3.0f) {
+
+			//};
 			Events::CarParked.broadcast(e1->shared_from_this());
+			pairs->triggerActor->getShapes(e1->getComponent<VehicleComponent>()->triggerShapes, 1, 0);
 		}
 	}
 	
