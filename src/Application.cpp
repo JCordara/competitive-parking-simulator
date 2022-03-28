@@ -882,6 +882,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		testparkingspace->getComponent<ModelComponent>()->setModel(modelMapParkingIndicator);
 	}
 
+	//PxShape parkingSpotShape = PxRigidActorExt::createExclusiveShape(*hf, , *gMaterial);
 	// --- TriggerBox for Parking Space ---
 	auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
 	for (int i = 0; i < emptyParkingSpotLocation.size(); i++) {

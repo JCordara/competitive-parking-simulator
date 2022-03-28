@@ -96,10 +96,10 @@ void PhysicsSystem::update() {
 
 }
 
-void PhysicsSystem::createTriggerBox(PxTransform startPos, PxShape* shape) {
+void PhysicsSystem::createTriggerBox(PxTransform startPos, PxBoxGeometry boxGeom) {
 	// test triggerShape
 	PxRigidActor* trigger = pxPhysics->createRigidStatic(startPos);
-	PxShape* triggerShape = shape;
+	PxShape* triggerShape = PxRigidActorExt::createExclusiveShape(*trigger, boxGeom, *gMaterial);
 	//PxFilterFlags Tflags;
 
 	triggerShape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
