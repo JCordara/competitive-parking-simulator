@@ -49,7 +49,7 @@ std::vector<std::string> aiNodeType;
 std::vector<int> aiNodeArea;
 
 void collectAINodeVectors(){
-	std::ifstream file("../../res/modelTransformations/aiNodeLocation.txt");
+	std::ifstream file("modelTransformations/aiNodeLocation.txt");
 	std::string str;
 	std::string space = " ";
 	std::string unsc = "_";
@@ -699,8 +699,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	mapWall3Rigidbody->addActorStaticMesh(*modelMapWall3, convert<physx::PxTransform>(mapWall3Transform->getGlobalMatrix()), 0.5f, 0.5f);
 
 	// --- Map Metal Fence ---
-	metalFenceLocation = collectGLMVecFromFile("../../res/modelTransformations/metalfenceLocation.txt", metalFenceLocation);
-	metalFenceRotation = collectfloatFromFile("../../res/modelTransformations/metalfenceRotation.txt", metalFenceRotation);
+	metalFenceLocation = collectGLMVecFromFile("modelTransformations/metalfenceLocation.txt", metalFenceLocation);
+	metalFenceRotation = collectfloatFromFile("modelTransformations/metalfenceRotation.txt", metalFenceRotation);
 
 	for (int i = 0; i < metalFenceLocation.size(); i++) {
 		auto mapMetalFence = scene->addEntity();
@@ -716,8 +716,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 	// --- Map Warning Wall ---
-	warningWallLocation = collectGLMVecFromFile("../../res/modelTransformations/warningWallLocation.txt", warningWallLocation);
-	warningWallRotation = collectfloatFromFile("../../res/modelTransformations/warningWallRotation.txt", warningWallRotation);
+	warningWallLocation = collectGLMVecFromFile("modelTransformations/warningWallLocation.txt", warningWallLocation);
+	warningWallRotation = collectfloatFromFile("modelTransformations/warningWallRotation.txt", warningWallRotation);
 
 	for (int i = 0; i < warningWallLocation.size(); i++) {
 		auto mapwarningWall = scene->addEntity();
@@ -733,8 +733,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 	// --- Map Curb ---
-	curbLocation = collectGLMVecFromFile("../../res/modelTransformations/curbLocation.txt", curbLocation);
-	curbRotation = collectfloatFromFile("../../res/modelTransformations/curbRotation.txt", curbRotation);
+	curbLocation = collectGLMVecFromFile("modelTransformations/curbLocation.txt", curbLocation);
+	curbRotation = collectfloatFromFile("modelTransformations/curbRotation.txt", curbRotation);
 
 	for (int i = 0; i < curbLocation.size(); i++) {
 		auto mapCurb = scene->addEntity();
@@ -753,7 +753,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 	// --- Map Background Road ---
-	roadLocation = collectGLMVecFromFile("../../res/modelTransformations/roadLocation.txt", roadLocation);
+	roadLocation = collectGLMVecFromFile("modelTransformations/roadLocation.txt", roadLocation);
 
 	for (int i = 0; i < roadLocation.size(); i++) {
 		auto mapBGRoad = scene->addEntity();
@@ -768,8 +768,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 	// --- Map Hedges ---
-	hedgeLocation = collectGLMVecFromFile("../../res/modelTransformations/hedgeLocation.txt", hedgeLocation);
-	hedgeRotation = collectfloatFromFile("../../res/modelTransformations/hedgeRotation.txt", hedgeRotation);
+	hedgeLocation = collectGLMVecFromFile("modelTransformations/hedgeLocation.txt", hedgeLocation);
+	hedgeRotation = collectfloatFromFile("modelTransformations/hedgeRotation.txt", hedgeRotation);
 
 	for (int i = 0; i < hedgeLocation.size(); i++) {
 		auto mapHedge = scene->addEntity();
@@ -788,8 +788,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 	// --- Map Wood Fence ---
-	woodFenceLocation = collectGLMVecFromFile("../../res/modelTransformations/woodfenceLocation.txt", woodFenceLocation);
-	woodFenceRotation = collectfloatFromFile("../../res/modelTransformations/woodfenceRotation.txt", woodFenceRotation);
+	woodFenceLocation = collectGLMVecFromFile("modelTransformations/woodfenceLocation.txt", woodFenceLocation);
+	woodFenceRotation = collectfloatFromFile("modelTransformations/woodfenceRotation.txt", woodFenceRotation);
 
 	for (int i = 0; i < woodFenceLocation.size(); i++) {
 		auto mapWoodFence = scene->addEntity();
@@ -808,8 +808,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 	// --- Map Wood Fence Pole ---
-	woodFencePoleLocation = collectGLMVecFromFile("../../res/modelTransformations/woodfencePoleLocation.txt", woodFencePoleLocation);
-	woodFencePoleRotation = collectfloatFromFile("../../res/modelTransformations/woodfencePoleRotation.txt", woodFencePoleRotation);
+	woodFencePoleLocation = collectGLMVecFromFile("modelTransformations/woodfencePoleLocation.txt", woodFencePoleLocation);
+	woodFencePoleRotation = collectfloatFromFile("modelTransformations/woodfencePoleRotation.txt", woodFencePoleRotation);
 
 	for (int i = 0; i < woodFencePoleLocation.size(); i++) {
 		auto mapWoodFencePole = scene->addEntity();
@@ -828,7 +828,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 	// --- Map Trees ---
-	treeLocation = collectGLMVecFromFile("../../res/modelTransformations/treeLocation.txt", treeLocation);
+	treeLocation = collectGLMVecFromFile("modelTransformations/treeLocation.txt", treeLocation);
 
 	for (int i = 0; i < treeLocation.size(); i++) {
 		// - Tree Stumps - 
@@ -860,8 +860,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 
 	// --- Map Parking Lines ---
-	parkingLineLocation = collectGLMVecFromFile("../../res/modelTransformations/parkingLinesLocation.txt", parkingLineLocation);
-	parkingLineRotation = collectfloatFromFile("../../res/modelTransformations/parkingLinesRotation.txt", parkingLineRotation);
+	parkingLineLocation = collectGLMVecFromFile("modelTransformations/parkingLinesLocation.txt", parkingLineLocation);
+	parkingLineRotation = collectfloatFromFile("modelTransformations/parkingLinesRotation.txt", parkingLineRotation);
 
 	for (int i = 0; i < parkingLineLocation.size(); i++) {
 		auto mapParkingLine = scene->addEntity();
@@ -877,8 +877,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 	// --- Map Ramps ---
-	rampLocation = collectGLMVecFromFile("../../res/modelTransformations/rampLocation.txt", rampLocation);
-	rampRotation = collectfloatFromFile("../../res/modelTransformations/rampRotation.txt", rampRotation);
+	rampLocation = collectGLMVecFromFile("modelTransformations/rampLocation.txt", rampLocation);
+	rampRotation = collectfloatFromFile("modelTransformations/rampRotation.txt", rampRotation);
 
 	for (int i = 0; i < rampLocation.size(); i++) {
 		auto mapRamp = scene->addEntity();
@@ -898,10 +898,10 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 	// --- Parking Spots ---
-	parkingSpotLocation = collectGLMVecFromFile("../../res/modelTransformations/parkingSpotLocation.txt", parkingSpotLocation);
-	parkingSpotRotation = collectfloatFromFile("../../res/modelTransformations/parkingSpotRotation.txt", parkingSpotRotation);
-	emptySubsetLocation = collectGLMVecFromFile("../../res/modelTransformations/emptySpotSubsetLocation.txt", emptySubsetLocation);
-	emptySubsetRotation = collectfloatFromFile("../../res/modelTransformations/emptySpotSubsetRotation.txt", emptySubsetRotation);
+	parkingSpotLocation = collectGLMVecFromFile("modelTransformations/parkingSpotLocation.txt", parkingSpotLocation);
+	parkingSpotRotation = collectfloatFromFile("modelTransformations/parkingSpotRotation.txt", parkingSpotRotation);
+	emptySubsetLocation = collectGLMVecFromFile("modelTransformations/emptySpotSubsetLocation.txt", emptySubsetLocation);
+	emptySubsetRotation = collectfloatFromFile("modelTransformations/emptySpotSubsetRotation.txt", emptySubsetRotation);
 	/*propcars.reserve(emptySubsetLocation.size());
 	std::cout <<"propcars: " << propcars.size() << std::endl;*/
 
