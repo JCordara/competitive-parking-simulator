@@ -1,7 +1,8 @@
 #include "GameplaySystem.h"
 
-GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene)
-    : scene(scene)
+GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene): 
+	scene(scene),
+	lastUpdateTime(Time::now())
 {
     Events::AiComponentInit.registerHandler<GameplaySystem,
         &GameplaySystem::registerAiComponent>(this);
@@ -14,9 +15,13 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene)
 }
     
 void GameplaySystem::update() {
-	for (auto& ai : scene->iterate<AiComponent>()) {
-		ai->update();
-    }
+	double timeSinceLastUpdate = Time::now() - lastUpdateTime;
+	if (timeSinceLastUpdate >= 0.25) {
+		for (auto& ai : scene->iterate<AiComponent>()) {
+			ai->update();
+		}
+		lastUpdateTime = Time::now();
+	}
 }
 
 GameplaySystem::~GameplaySystem() {
