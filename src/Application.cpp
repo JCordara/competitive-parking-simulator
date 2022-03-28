@@ -135,12 +135,20 @@ void Application::gameStart() {
 	render->setPlaying(true);
 }
 
+void Application::gameClose() {
+	glfwSetWindowShouldClose(*window, 1);
+	
+}
+
 Application::Application(appSettings& settings): 
 	settings(settings)
 {
 	//Register the game start event handler
 	Events::GamePlay.registerHandler<Application,
 		&Application::gameStart>(this);
+
+	Events::GameExit.registerHandler<Application,
+		&Application::gameClose>(this);
 
 	//App initialization
 	glfwInit();
