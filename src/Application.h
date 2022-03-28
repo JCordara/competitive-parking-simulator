@@ -55,6 +55,7 @@ public:
 	void gameClose();
 	void gameOpenOptions();
 	void roundWonMenu();
+	
 
 private:
 
@@ -77,6 +78,7 @@ private:
 	void setupBaseLevelGUI();
 	void setupMainMenu();
 	void setupBaseLevel(shared_ptr<Scene> scene);
+	void carReset(std::vector<std::shared_ptr<Entity>> carVec);
 };
 
 //Functions to load settings
