@@ -127,9 +127,11 @@ vector<float> collectfloatFromFile(string filepath, vector<float> vec){
 
 void Application::gameStart() {
 	scores[playerId] = 0;
-	for (int i = 0; i < menuStack.size(); i++) {
+	
+	for (int i = menuStack.size(); i > 0 ; i--) {
 		menuStack.pop();
 	}
+
 	std::cout << "TEST" << std::endl;
 	setupBaseLevelGUI();
 	Events::GameStart.broadcast();
@@ -260,7 +262,6 @@ int Application::play() {
 }
 
 void Application::setupMainMenu() {
-	scores[playerId] = 0;
 	int columnNum = 1;
 	int rowNum = 3;
 	float buttonSizeOffset = 0.1;
