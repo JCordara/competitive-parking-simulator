@@ -2,7 +2,9 @@
 #include <Random.h>
 
 #define SPAWN_PROP_CARS 1
-const unsigned int g_numAiCars = 1;
+
+unsigned int g_numAiCars = 1;
+bool g_showHUD = false;
 
 unsigned int playerId = 0;
 std::vector<unsigned int> aiList;
@@ -139,6 +141,7 @@ void Application::gameStart() {
 	carReset(propcars);
 	Events::GameStart.broadcast();
 	render->setPlaying(true);
+	g_showHUD = true;
 }
 
 void Application::gameClose() {
@@ -325,7 +328,7 @@ void Application::carReset(std::vector<std::shared_ptr<Entity>> carVec) {
 void Application::setupBaseLevelGUI() {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
-	guiScene->addSlider(0.01f, 0.2f, "AI Opponents", Events::ChangeNumAI, 4, 0, 10);
+	// guiScene->addSlider(0.01f, 0.2f, "AI Opponents", Events::ChangeNumAI, 4, 0, 10);
 	render->changeGui(guiScene);
 }
 
