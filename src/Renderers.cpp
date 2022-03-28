@@ -55,7 +55,7 @@ void GameRenderPipeline::setDirectionalLightShadowMapProperties(glm::vec3 direct
 	if (directionalLightCameraWidth != width || directionalLightCameraHeight != height) {
 		directionalLightCameraWidth = width;
 		directionalLightCameraHeight = height;
-		directionalLightDepthTexture.setUpInternal(directionalLightCameraWidth, directionalLightCameraHeight, GL_NEAREST, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+		directionalLightDepthTexture.setUpInternal(directionalLightCameraWidth, directionalLightCameraHeight, GL_NEAREST, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT);
 	}
 }
 
@@ -78,7 +78,7 @@ void GameRenderPipeline::setWindowDimentions(int width, int height) {
 		textureSpecularAndShinnyConstant.setUpInternal(cameraWidth, cameraHeight, GL_LINEAR, GL_RGBA16F, GL_RGBA, GL_FLOAT);
 		textureAmbientConstant.setUpInternal(cameraWidth, cameraHeight, GL_LINEAR, GL_RGB16F, GL_RGB, GL_FLOAT);
 		textureDirectionalLightPosition.setUpInternal(cameraWidth, cameraHeight, GL_LINEAR, GL_RGB16F, GL_RGB, GL_FLOAT);
-		renderdDepthTexture.setUpInternal(cameraWidth, cameraHeight, GL_NEAREST, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+		renderdDepthTexture.setUpInternal(cameraWidth, cameraHeight, GL_NEAREST, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT);
 	}
 }
 
