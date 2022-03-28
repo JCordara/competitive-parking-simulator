@@ -70,6 +70,11 @@ InputSystem::InputSystem(std::shared_ptr<Window> w)
 	Events::ControllerComponentInit.registerHandler<InputSystem, 
 		&InputSystem::registerControllerComponent>(this);
 
+	stickAxes.push_back(GLFW_GAMEPAD_AXIS_LEFT_X);
+	stickAxes.push_back(GLFW_GAMEPAD_AXIS_LEFT_Y);
+	stickAxes.push_back(GLFW_GAMEPAD_AXIS_RIGHT_X);
+	stickAxes.push_back(GLFW_GAMEPAD_AXIS_RIGHT_Y);
+
 }
 
 /* Respond to inputs from the last frame */
@@ -88,20 +93,21 @@ void InputSystem::processInput() {
 
 /* Preprocess controller inputs and invoke appriopriate callbacks */
 void InputSystem::processGamepadInput() {
-	
 	// Iterate through connected controllers
 	for (int g = 0; g < gamepadCount; g++) {
 		
 		// Get their current state
 		glfwGetGamepadState(gamepads[g], &state);
 		
+		// Set joystick deadzones
+		// Joysticks are always jittering in the range [-0.05, 0.05]
+		for (int stick : stickAxes) {
+			if (state.axes[stick] <= 0.1f && state.axes[stick] >= -0.1f) 
+				state.axes[stick] = 0.0f;
+		}
+
 		// Iterate through axes
 		for (int i = 0; i < static_cast<int>(numAxes); i++) {
-			// Set axis deadzones
-			// Joysticks are always jittering in the range [-0.05, 0.05]
-			if (state.axes[i] <= 0.1f && state.axes[i] >= -0.1f) 
-				state.axes[i] = 0.0f;
-			
 			// If an axis' state has changed, invoke the callback
 			if (state.axes[i] != lastState[g].axes[i]) {
 				callbacks->gamepadAxisCallback(state.axes, i, numAxes);

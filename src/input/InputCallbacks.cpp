@@ -79,8 +79,8 @@ void Callbacks::gamepadButtonCallback(
 	}
 
 	// Update axes bound to this key
-	if (controlAxes.count(button)) {
-		auto controlAxis = controlAxes.at(button);
+	if (controlAxesButtons.count(button)) {
+		auto controlAxis = controlAxesButtons.at(button);
 		float v = static_cast<float>(buttons[button]);
 		controlAxis->setInputValue(button, v);
 	}
@@ -90,7 +90,7 @@ void Callbacks::gamepadButtonCallback(
 // Called once per tick when any controller axis is changed
 void Callbacks::gamepadAxisCallback(float axes[], int axis, unsigned int n) {
 
-	// Broadcast float events bound to this key
+	// Broadcast float events bound to this axis
 	if (floatKeyEvents.count(axis)) {	
 		auto floatEvent = floatKeyEvents.at(axis);
 		floatEvent->broadcast(static_cast<float>(axes[axis]));
@@ -123,9 +123,14 @@ void Callbacks::createAxis(
 	// Map both keys to the same pointer
 	// Wish I had a multimap
 	// Trying to figure out how to use the boost library, apparently it has one
-	controlAxes.insert({inputPositive, axis});
-	if (type != ControlAxis::SINGLE)
-		controlAxes.insert({inputNegative, axis});
+	if (type != ControlAxis::KEY) {
+		controlAxes.insert({inputPositive, axis});
+		if (type != ControlAxis::SINGLE)
+			controlAxes.insert({inputNegative, axis});
+	} else {
+		controlAxesButtons.insert({inputPositive, axis});
+		controlAxesButtons.insert({inputNegative, axis});
+	}
 }
 
 void Callbacks::createAxis(
