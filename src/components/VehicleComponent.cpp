@@ -438,8 +438,8 @@ float VehicleComponent::getEngineSpeedNormalized() {
     return vehicle->mDriveDynData.getEngineRotationSpeed() / maxEngineSpeed;
 }
 
-bool VehicleComponent::isInAir() {
-    return isInAir_;
+bool VehicleComponent::isGrounded() {
+    return !isInAir_;
 }
 
 

@@ -27,7 +27,7 @@ public:
     float getEngineSpeed();
     float getEngineSpeedNormalized();
     float getSkidSpeed();
-    bool isInAir();
+    bool isGrounded();
 
     inline void setTransform(PxTransform& transform) {
         vehicle->getRigidDynamicActor()->setGlobalPose(transform);
