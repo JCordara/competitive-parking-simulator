@@ -98,12 +98,12 @@ glm::vec3 AudioSource::velocity() const {
 }
 
 void AudioSource::setGain(const float g) {
-    gain = g;
+    gain = std::max(0.0f, g);
     alSourcef(sourceID, AL_GAIN, gain);
 }
 
 void AudioSource::setPitch(const float p) {
-    pitch = p;
+    pitch = std::max(0.0f, p);
     alSourcef(sourceID, AL_PITCH, pitch);
 }
 

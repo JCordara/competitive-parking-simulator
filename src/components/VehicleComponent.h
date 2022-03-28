@@ -24,6 +24,9 @@ public:
     static ComponentEnum getType();
 
     float getSpeed();
+    float getEngineSpeed();
+    float getEngineSpeedNormalized();
+    float getSkidSpeed();
     bool isInAir();
 
     inline void setTransform(PxTransform& transform) {

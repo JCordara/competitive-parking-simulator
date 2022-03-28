@@ -225,10 +225,17 @@ void PhysicsSystem::vehicleUpdate(shared_ptr<VehicleComponent> vc) {
 
 
 	// Raycasts
+	// PxVehicleWheels* vehicles[1] = { vehicle };
+	// PxRaycastQueryResult* raycastResults = gVehicleSceneQueryData->getRaycastQueryResultBuffer(0);
+	// const PxU32 raycastResultsSize = gVehicleSceneQueryData->getQueryResultBufferSize();
+	// PxVehicleSuspensionRaycasts(gBatchQuery, 1, vehicles, raycastResultsSize, raycastResults);
+
+	//Suspension sweeps (instead of raycasts).
+	//Sweeps provide more information about the geometry under the wheel.
 	PxVehicleWheels* vehicles[1] = { vehicle };
-	PxRaycastQueryResult* raycastResults = gVehicleSceneQueryData->getRaycastQueryResultBuffer(0);
-	const PxU32 raycastResultsSize = gVehicleSceneQueryData->getQueryResultBufferSize();
-	PxVehicleSuspensionRaycasts(gBatchQuery, 1, vehicles, raycastResultsSize, raycastResults);
+	PxSweepQueryResult* sweepResults = gVehicleSceneQueryData->getSweepQueryResultBuffer(0);
+	const PxU32 sweepResultsSize = gVehicleSceneQueryData->getQueryResultBufferSize();
+	PxVehicleSuspensionSweeps(gBatchQuery, 1, vehicles, sweepResultsSize, sweepResults, 3, NULL, 1.0f, 1.01f);
 
 
 	// Vehicle update
@@ -387,6 +394,8 @@ void PhysicsSystem::initPhysX()
 	PxInitVehicleSDK(*pxPhysics);
 	PxVehicleSetBasisVectors(PxVec3(0, 1, 0), PxVec3(0, 0, 1));
 	PxVehicleSetUpdateMode(PxVehicleUpdateMode::eVELOCITY_CHANGE);
+
+	PxVehicleSetSweepHitRejectionAngles(0.9f, 1.5f);
 
 	//Create the batched scene queries for the suspension raycasts.
 	gVehicleSceneQueryData = VehicleSceneQueryData::allocate(

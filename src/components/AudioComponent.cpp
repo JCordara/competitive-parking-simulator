@@ -47,8 +47,8 @@ void AudioComponent::playEngineSound() {
     if (!hasEngineSound()) return;
     engineSpeed = vehicle->getSpeed();
     calculateEngineSound.run();
-    source->setGain(engineGain);
-    source->setPitch(enginePitch);
+    engineSource->setGain(engineGain);
+    engineSource->setPitch(enginePitch);
     if (!engineSource->isPlaying()) engineSource->playAudio(engineSound);
 }
 

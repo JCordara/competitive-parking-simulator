@@ -438,8 +438,10 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 	auto playerController = playerCar->addComponent<ControllerComponent>();
 	playerController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);
+	playerController->createAxis(GLFW_KEY_UP, GLFW_KEY_DOWN, &Events::VehicleAccelerate);
 	playerController->createAxis(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, &Events::VehicleAccelerate, ControlAxis::AXIS);
 	playerController->createAxis(GLFW_KEY_D, GLFW_KEY_A, &Events::VehicleSteer);
+	playerController->createAxis(GLFW_KEY_RIGHT, GLFW_KEY_LEFT, &Events::VehicleSteer);
 	playerController->createAxis(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::VehicleSteer);
 	playerController->bindInput(GLFW_KEY_F, &Events::VehicleFlip);
 	playerController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
@@ -833,7 +835,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRender->enableRender();
 
 				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorDynamic(*modelPropCar1, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+				propCarRigidbody->addActorStaticMesh(*modelPropCar1, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			} else if(randomNum == 2){
 				auto propCarModel = propCar->addComponent<ModelComponent>();
 				propCarModel->setModel(modelPropCar2);
@@ -842,7 +844,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRender->enableRender();
 
 				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorDynamic(*modelPropCar2, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+				propCarRigidbody->addActorStaticMesh(*modelPropCar2, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			} else if(randomNum == 3){
 				auto propCarModel = propCar->addComponent<ModelComponent>();
 				propCarModel->setModel(modelPropCar3);
@@ -851,7 +853,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRender->enableRender();
 
 				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorDynamic(*modelPropCar3, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+				propCarRigidbody->addActorStaticMesh(*modelPropCar3, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			} else if(randomNum == 4){
 				auto propCarModel = propCar->addComponent<ModelComponent>();
 				propCarModel->setModel(modelPropCar4);
@@ -860,7 +862,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRender->enableRender();
 
 				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorDynamic(*modelPropCar4, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+				propCarRigidbody->addActorStaticMesh(*modelPropCar4, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			}
 		}
 	}
