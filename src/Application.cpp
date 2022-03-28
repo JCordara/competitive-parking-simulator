@@ -888,42 +888,23 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 			randomNum = rand() % 4 + 1;
 
-			if(randomNum == 1){
-				auto propCarModel = propCar->addComponent<ModelComponent>();
+			auto propCarModel = propCar->addComponent<ModelComponent>();
+			auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
+			auto propCarRender = propCar->addComponent<RendererComponent>();
+			propCarRender->enableRender();
+
+			if (randomNum == 1) {
 				propCarModel->setModel(modelPropCar1);
-
-				auto propCarRender = propCar->addComponent<RendererComponent>();
-				propCarRender->enableRender();
-
-				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorStaticMesh(*modelPropCar1, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()), 0.5f, 0.5f);
+				propCarRigidbody->addActorDynamic(*modelPropCar1, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			} else if(randomNum == 2){
-				auto propCarModel = propCar->addComponent<ModelComponent>();
 				propCarModel->setModel(modelPropCar2);
-
-				auto propCarRender = propCar->addComponent<RendererComponent>();
-				propCarRender->enableRender();
-
-				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorStaticMesh(*modelPropCar2, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()), 0.5f, 0.5f);
+				propCarRigidbody->addActorDynamic(*modelPropCar2, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			} else if(randomNum == 3){
-				auto propCarModel = propCar->addComponent<ModelComponent>();
 				propCarModel->setModel(modelPropCar3);
-
-				auto propCarRender = propCar->addComponent<RendererComponent>();
-				propCarRender->enableRender();
-
-				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorStaticMesh(*modelPropCar3, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()), 0.5f, 0.5f);
+				propCarRigidbody->addActorDynamic(*modelPropCar3, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			} else if(randomNum == 4){
-				auto propCarModel = propCar->addComponent<ModelComponent>();
 				propCarModel->setModel(modelPropCar4);
-
-				auto propCarRender = propCar->addComponent<RendererComponent>();
-				propCarRender->enableRender();
-
-				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorStaticMesh(*modelPropCar4, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()), 0.5f, 0.5f);
+				propCarRigidbody->addActorDynamic(*modelPropCar4, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			}
 		}
 	}

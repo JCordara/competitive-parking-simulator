@@ -80,10 +80,8 @@ void RigidbodyComponent::addActorDynamic(const Model& model, PxTransform startPo
 	setupDrivableSurface(meshFilterData);
 	aConvexShape->setSimulationFilterData(meshFilterData);
 	aConvexShape->setQueryFilterData(meshFilterData);
-	// actor->is<PxRigidDynamic>()->setMass(0.0f);
-	actor->is<PxRigidDynamic>()->setLinearDamping(175.0f);
-	// actor->is<PxRigidDynamic>()->setMassSpaceInertiaTensor(PxVec3(0.01f, 0.01f, 0.01f));
-	// actor->is<PxRigidDynamic>()->setMaxDepenetrationVelocity(1.0f);
+	
+	PxRigidBodyExt::updateMassAndInertia(*actor->is<PxRigidBody>(), 875.0f);
 	physicsSystem->pxScene->addActor(*actor);
 	aConvexShape->release();
 }
