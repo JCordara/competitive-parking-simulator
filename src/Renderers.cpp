@@ -119,7 +119,7 @@ void GameRenderPipeline::executeRender() {
 	deferredRenderer.setDirectionalLightCameraTransformations(directionalLightViewTransformation, directionalLightProjectionTransformation);
 	for (auto it = renderQueue.begin(); it != renderQueue.end(); it++) deferredRenderer.render(it->second);
 	deferredRenderer.endUse();
-	deferredRenderer.copyDepth(0, renderdDepthTexture.getDimensions().x, renderdDepthTexture.getDimensions().y);
+	//deferredRenderer.copyDepth(0, renderdDepthTexture.getDimensions().x, renderdDepthTexture.getDimensions().y);
 	//Post Processing Pass
 	postProcessingRenderer.use(cameraWidth, cameraHeight);
 	glActiveTexture(GL_TEXTURE0);
@@ -152,7 +152,12 @@ void GameRenderPipeline::executeRender() {
 	postProcessingRenderer.setRenderedCameraClip(nearClip, farClip);
 	postProcessingRenderer.render();
 	//postProcessingRenderer.endUse();
-	transparentRenderer.use();
+	transparentRenderer.use(cameraWidth, cameraHeight);
+
+	glActiveTexture(GL_TEXTURE1);
+	renderdDepthTexture.bind();
+
+	transparentRenderer.setTextureLocations(1);
 	transparentRenderer.setCameraTransformations(cameraViewTransformation, cameraProjectionTransformation);
 	for (auto it = renderQueueTransparent.begin(); it != renderQueueTransparent.end(); it++) transparentRenderer.render(it->second);
 	//transparentRenderer.endUse();
@@ -512,25 +517,29 @@ void PostProcessingRenderer::render() {
 TransparentRenderer::TransparentRenderer() : shader("shaders/TransparentObject.vert", "shaders/TransparentObject.frag") {
 	//Model Properties
 	modelTextureLocation = glGetUniformLocation(shader, "colourTexture");
+	depthTextureLocation = glGetUniformLocation(shader, "depthTexture");
 	translucentIntensityLocation = glGetUniformLocation(shader, "translucentIntensity");
 	modelAmbientConstantLocation = glGetUniformLocation(shader, "uniformPhongAmbient");
 	//Transformations
 	modelTransformationsLocation = glGetUniformLocation(shader, "Ms");
 	cameraViewTransformationLocation = glGetUniformLocation(shader, "cameraV");
 	cameraProjectionTransformationLocation = glGetUniformLocation(shader, "cameraP");
+
+	pixelSizeLocation = glGetUniformLocation(shader, "pixelSize");
 }
 
-void TransparentRenderer::use() {
+void TransparentRenderer::use(int width, int height) {
 	shader.use();
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_FRAMEBUFFER_SRGB);
 	glDisable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_ALWAYS);
+	//glDepthMask(GL_FALSE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glUniform2f(pixelSizeLocation, 1.f / float(width), 1.f / float(height));
 }
 
 void TransparentRenderer::setCameraTransformations(glm::mat4 V, glm::mat4 P) {
@@ -560,4 +569,8 @@ void TransparentRenderer::render(instancedPair& instancedRender) {
 
 void TransparentRenderer::setColorIntensity(glm::vec3 intensity) {
 	glUniform3fv(translucentIntensityLocation, 1,  &intensity[0]);
+}
+
+void TransparentRenderer::setTextureLocations(int textureDepthActiveLocation) {
+	glUniform1i(depthTextureLocation, textureDepthActiveLocation);
 }
