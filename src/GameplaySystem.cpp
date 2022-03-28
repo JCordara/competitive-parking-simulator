@@ -10,7 +10,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene)
 		&GameplaySystem::registerCarParked>(this);
 
 
-	setupAiNodes();
+	//setupAiNodes();
 }
     
 void GameplaySystem::update() {
@@ -137,7 +137,34 @@ void GameplaySystem::addAINode(std::string nodeType, int nodeAreaCode, glm::vec3
 		break;
 	}
 	aiGlobalNodes.push_back(aiNode);
-	
+}
+
+std::vector<std::shared_ptr<AiGraphNode>> GameplaySystem::getAreaNodes(int nodeAreaCode) {
+	switch (nodeAreaCode) {
+	case 950: return area950Nodes; break;
+	case 951: return area951Nodes; break;
+	case 952: return area952Nodes; break;
+	case 953: return area953Nodes; break;
+	case 954: return area954Nodes; break;
+	case 955: return area955Nodes; break;
+	case 956: return area956Nodes; break;
+	case 957: return area957Nodes; break;
+	case 958: return area958Nodes; break;
+	case 959: return area959Nodes; break;
+	case 960: return area960Nodes; break;
+	case 961: return area961Nodes; break;
+	case 962: return area962Nodes; break;
+	case 963: return area963Nodes; break;
+	case 964: return area964Nodes; break;
+	case 965: return area965Nodes; break;
+	case 966: return area966Nodes; break;
+	case 967: return area967Nodes; break;
+	case 968: return area968Nodes; break;
+	case 969: return area969Nodes; break;
+	case 970: return area970Nodes; break;
+	default:
+		break;
+	}
 }
 
 void GameplaySystem::testPrintAINodes() {
@@ -535,10 +562,8 @@ void GameplaySystem::setAINodeNeighbors(std::shared_ptr<AiGraphNode> aiNode1,
 			aiNode2->neighbours.push_back(aiNode1);
 		}
 	}
-	
-	
 }
-
+/*
 void GameplaySystem::setupAiNodes() {
 
 
@@ -687,4 +712,4 @@ void GameplaySystem::setupAiNodes() {
 	aiNode12->neighbours.push_back(aiNode10);
 	aiGlobalNodes.push_back(aiNode12);
 	//
-}
+}*/

@@ -50,7 +50,7 @@ public:
 		RESET
 	};
 
-	float aiSpeed = 0.65f;
+	float aiSpeed = 0.45f;
 	const float NODETHRESHOLD = 2.5f;
 	float sightFrontConeWidth;
 	float sightFrontConeHeight;
@@ -80,6 +80,8 @@ private:
 	int recoveryTimeout = 0; // Count of frames where the vehicle is not moving enough
 	std::vector<Entity> carQueue;
 	std::vector<std::shared_ptr<AiGraphNode>> nodeQueue;
+	std::vector<int> visitedAreas;
+	std::unordered_map<int, std::vector<int>> areaMap;
 
 	void aStar(std::shared_ptr<AiGraphNode> goalNode);
 	float getFValue(std::shared_ptr<AiGraphNode> node);
@@ -89,13 +91,14 @@ private:
 	void recoveryState();
 	float calcDistanceFromCurrentNode();
 	bool inRangeOfNode(float nodeThreshhold);
-	void pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode);
+	bool pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode);
 	void createRecoveryNode();
 	void steerToNextNode();
 	void accelForwards();
 	void accelReverse();
 	glm::vec3 ComputeForwardVector(physx::PxQuat quat) const;
 	float calcAngle2Vec();
+	void setupAreaMap();
 };
 
 #endif // AI_COMPONENT_H

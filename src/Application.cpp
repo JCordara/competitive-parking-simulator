@@ -2,7 +2,7 @@
 #include <Random.h>
 
 #define SPAWN_PROP_CARS 1
-const unsigned int g_numAiCars = 0;
+const unsigned int g_numAiCars = 1;
 
 unsigned int playerId = 0;
 std::vector<unsigned int> aiList;
@@ -451,6 +451,13 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	auto playerDescription = playerCar->addComponent<DescriptionComponent>();
 	playerDescription->setVec3("Forward", glm::vec3(0.f, 0.f, 1.f));
 
+	collectAINodeVectors();
+
+	// AI nodes
+	for (int i = 0; i < aiNodeLocation.size(); i++) {
+		gameplay->addAINode(aiNodeType[i], aiNodeArea[i], aiNodeLocation[i]);
+	}
+	gameplay->testPrintAINodes();
 
 	// --- AI cars ---	
 	for (int i = 0; i < g_numAiCars; i++) {
@@ -499,8 +506,6 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		audioComponent->addSound(AudioTrigger::Collision, "audio/oof.wav");
 		aiCars.push_back(aiCar);
 	}
-
-	collectAINodeVectors();
 
 	// --- Map road ---
 	auto mapRoadTransform = mapRoad->getComponent<TransformComponent>();
@@ -751,12 +756,6 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		auto mapParkingLineRender = mapParkingLine->addComponent<RendererComponent>();
 		mapParkingLineRender->enableRender();
 	}
-
-	// AI nodes
-	for (int i = 0; i < aiNodeLocation.size(); i++) {
-		gameplay->addAINode(aiNodeType[i], aiNodeArea[i], aiNodeLocation[i]);
-	}
-	gameplay->testPrintAINodes();
 
 	// --- Map Ramps ---
 	rampLocation = collectGLMVecFromFile("../../res/modelTransformations/rampLocation.txt", rampLocation);

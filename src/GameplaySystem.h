@@ -58,7 +58,7 @@ public:
 		int id,
 		std::vector<std::shared_ptr<AiGraphNode>> list);
 	
-
+	std::vector<std::shared_ptr<AiGraphNode>> getAreaNodes(int nodeAreaCode);
 
 private:
     std::shared_ptr<Scene> scene;
