@@ -126,6 +126,7 @@ vector<float> collectfloatFromFile(string filepath, vector<float> vec){
 }
 
 void Application::gameStart() {
+	scores[playerId] = 0;
 	for (int i = 0; i < menuStack.size(); i++) {
 		menuStack.pop();
 	}
@@ -139,6 +140,8 @@ void Application::gameClose() {
 	glfwSetWindowShouldClose(*window, 1);
 	
 }
+
+
 
 void Application::gameOpenOptions() {
 	int columnNum = 1;
@@ -159,6 +162,24 @@ void Application::gameOpenOptions() {
 
 }
 
+void Application::roundWonMenu() {
+	int columnNum = 1;
+	int rowNum = 3;
+	float buttonSizeOffset = 0.1;
+	std::shared_ptr<Menu> menu = std::make_shared<Menu>(columnNum, rowNum, buttonSizeOffset);
+	menuStack.push(menu);
+	guiScene = std::make_shared<GuiScene>(window); // Reset gui
+
+	
+	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][1].positionY,
+		"Next Round", Events::GamePlay, 1);
+	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY,
+		"Main Menu", Events::MainMenu , 1);
+	render->setPlaying(false);
+	render->changeGui(guiScene);
+
+}
+
 Application::Application(appSettings& settings): 
 	settings(settings)
 {
@@ -171,6 +192,11 @@ Application::Application(appSettings& settings):
 
 	Events::GameOptions.registerHandler<Application,
 		&Application::gameOpenOptions>(this);
+
+	Events::MainMenu.registerHandler<Application,
+		&Application::setupMainMenu>(this);
+
+	
 
 	//App initialization
 	glfwInit();
@@ -214,7 +240,8 @@ int Application::play() {
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
 			if (menuStack.size() == 0) {
-				if (scores[playerId] >= 20) {//|| scores[aiList[0]] >= 5) {
+				if (scores[playerId] >= 1 ) {//|| scores[aiList[0]] >= 5) {
+					roundWonMenu();
 				}
 				else {
 					//gameplay->update();	// Gameplay / AI update
@@ -233,6 +260,7 @@ int Application::play() {
 }
 
 void Application::setupMainMenu() {
+	scores[playerId] = 0;
 	int columnNum = 1;
 	int rowNum = 3;
 	float buttonSizeOffset = 0.1;

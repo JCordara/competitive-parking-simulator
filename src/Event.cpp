@@ -5,6 +5,7 @@ Event<void> Events::GamePlay;
 Event<void> Events::GameExit;
 Event<void> Events::GameOptions;
 Event<void> Events::GameWon;
+Event<void> Events::MainMenu;
 Event<shared_ptr<Entity>, float> Events::GameReset;
 Event<shared_ptr<Entity>> Events::CarParked;
 Event<void> Events::CarUnParked;

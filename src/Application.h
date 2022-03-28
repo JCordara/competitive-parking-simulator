@@ -54,6 +54,7 @@ public:
 	void gameStart();
 	void gameClose();
 	void gameOpenOptions();
+	void roundWonMenu();
 
 private:
 
