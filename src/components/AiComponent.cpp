@@ -14,7 +14,12 @@ AiGraphNode::AiGraphNode() {
 AiComponent::AiComponent(shared_ptr<Entity> parent) 
     : BaseComponent(parent)
 {
+	//for (std::shared_ptr<AiGraphNode> node : gameplaySystem->area970Nodes) {
+	//	std::cout << "NODE ID" << node->id << std::endl;
+	//	std::cout << "AREA CODE" << node->areaCode << std::endl;
+	//}
 	Events::AiComponentInit.broadcast(*this);
+	setupAreaMap();
 	setSpawnNode();
 	pickRandEntranceNode();
 	accelForwards();
@@ -168,26 +173,26 @@ void AiComponent::switchState(States newState) {
 // Finds the closest parking space node
 // Start node is the entrance to the parking lot
 // Traverses the lot through neighbors to make a list and find a parking stall
-void AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode) {
+bool AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode) {
 	std::vector<std::shared_ptr<AiGraphNode>> parkingLot;
 	std::vector<std::shared_ptr<AiGraphNode>> visited;
 	// First adds the first neighbor in the lot to the
 	for each (std::shared_ptr<AiGraphNode> node in startNode->neighbours) {
-		if (node->nodeType == AiGraphNode::NodeType::INNERLOT) {
+		if (node->nodeType == AiGraphNode::NodeType::TRAVERSAL) {
 			parkingLot.push_back(node);
 			break; // Only need one node to start traversal
 		}
 		// If the only neighbour happens to be a parking stall end there
 		else if (node->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
 			currentNode = node;
-			return;
+			return true;
 		}
 	}
 	visited.push_back(startNode);
 	// Traverse the lot sub-graph from the starting inner lot node
 	for (int i = 0; i < parkingLot.size(); i++) {
 		for each (std::shared_ptr<AiGraphNode> neighbour in parkingLot[i]->neighbours) {
-			bool isInLot = parkingLot[i]->nodeType == AiGraphNode::NodeType::INNERLOT;
+			bool isInLot = parkingLot[i]->nodeType == AiGraphNode::NodeType::TRAVERSAL;
 			bool isPark = parkingLot[i]->nodeType == AiGraphNode::NodeType::PARKINGSTALL;
 			bool isNotTaken = !parkingLot[i]->nodeTaken;
 			if (isInLot) {
@@ -198,11 +203,36 @@ void AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode)
 			else if (isPark && isNotTaken) {
 				nodeQueue.clear(); // clear path for A*
 				aStar(parkingLot[i]); // Sets path
-				return;
+				return true;
 			}
 		}
 		visited.push_back(parkingLot[i]);
 	}
+	return false;
+}
+
+void AiComponent::setupAreaMap() {
+	areaMap[950] = std::vector{951,958,968,970};
+	areaMap[951] = std::vector{950,952,968};
+	areaMap[952] = std::vector{951,953,967,970};
+	areaMap[953] = std::vector{952,954,966};
+	areaMap[954] = std::vector{953,955,966,970};
+	areaMap[955] = std::vector{954,956};
+	areaMap[956] = std::vector{955,958,959,970};
+	areaMap[957] = std::vector{958};
+	areaMap[958] = std::vector{950,956,957};
+	areaMap[959] = std::vector{956,960,961};
+	areaMap[960] = std::vector{959};
+	areaMap[961] = std::vector{959,962,964};
+	areaMap[962] = std::vector{961,963,968};
+	areaMap[963] = std::vector{962};
+	areaMap[964] = std::vector{961};
+	areaMap[965] = std::vector{966,969};
+	areaMap[966] = std::vector{953,954,965,967};
+	areaMap[967] = std::vector{952,966,968};
+	areaMap[968] = std::vector{950,951,962,967,969};
+	areaMap[969] = std::vector{965,968};
+	areaMap[970] = std::vector{950,952,954,956};
 }
 
 // Traverses the global node list to find a random entrance to go to
@@ -210,9 +240,20 @@ void AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode)
 void AiComponent::pickRandEntranceNode() {
 	// Randomly pick a node from the entrances to parking lots
 	std::vector<std::shared_ptr<AiGraphNode>> nodes;
-	for each (std::shared_ptr<AiGraphNode> node in gameplaySystem->aiGlobalNodes) {
-		if (node->nodeType == AiGraphNode::NodeType::LOTENTRANCE) {
-			nodes.push_back(node);
+	for (int area : areaMap[currentNode->areaCode]) {
+		std::cout << currentNode->areaCode<< std::endl;
+		if (std::count(visitedAreas.begin(), visitedAreas.end(), area) == 0) {
+			std::shared_ptr<AiGraphNode> closestNode; float closestDistance;
+			for (std::shared_ptr<AiGraphNode> node : gameplaySystem->getAreaNodes(area)) {
+				if (node->nodeType == AiGraphNode::NodeType::LOTENTRANCE) {
+					if (closestNode == nullptr ||
+						glm::distance(currentNode->position, node->position) < closestDistance) {
+						closestDistance = glm::distance(currentNode->position, node->position);
+						closestNode = node;
+					}
+				}
+			}
+			nodes.push_back(closestNode);
 		}
 	}
 	if (nodes.size() == 0) return;
@@ -221,6 +262,10 @@ void AiComponent::pickRandEntranceNode() {
 	// Should give number between 0 and vector.size()-1
 	int pick = rand() % randIntCeiling;
 	aStar(nodes[pick]);
+	std::cout << "CNODE ID: " << currentNode->id << "CNODE AREA: " << currentNode->areaCode << std::endl;
+	for (std::shared_ptr<AiGraphNode> nde : nodeQueue) {
+		std::cout << "NODE ID: " << nde->id << "NODE AREA: " << nde->areaCode << std::endl;
+	}
 }
 
 // A helper method to calculate the distance from the current node
@@ -244,10 +289,17 @@ void AiComponent::searchState() {
 
 	// Checks if the car has reached the current node
 	if (inBounds) {
-		if (currentNode->nodeType == AiGraphNode::NodeType::LOTENTRANCE) {
-			pickClosestParkingNode(currentNode);
-			currentNode = nodeQueue[0];
-			nodeQueue.erase(nodeQueue.begin()); // Erase lot entrance already reached
+		if (nodeQueue.size() == 1) {
+			if (pickClosestParkingNode(currentNode)) {
+				currentNode = nodeQueue[0];
+			}
+			else {
+				visitedAreas.push_back(currentNode->areaCode);
+				currentNode = nodeQueue[0];
+				nodeQueue.erase(nodeQueue.begin());
+				pickRandEntranceNode();
+			}
+			//nodeQueue.erase(nodeQueue.begin()); // Erase lot entrance already reached
 		}
 		else if(currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
 			Events::CarParked.broadcast(entity);

@@ -2,7 +2,7 @@
 #include <Random.h>
 
 #define SPAWN_PROP_CARS 1
-const unsigned int g_numAiCars = 0;
+const unsigned int g_numAiCars = 1;
 
 unsigned int playerId = 0;
 std::vector<unsigned int> aiList;
@@ -361,7 +361,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		"models/cpsMap_ParkingIndicator.obj", glm::vec3(.5f, .1f, .2f));
 
 	auto modelMapRamp= std::make_shared<Model>(
-		"models/cpsMap_Ramp.obj", glm::vec3(.6f, .4f, .6f));
+		"models/cpsMap_Ramp2.obj", glm::vec3(.6f, .4f, .6f));
 
 
 	// --- Directional light ---
@@ -461,6 +461,13 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	auto playerDescription = playerCar->addComponent<DescriptionComponent>();
 	playerDescription->setVec3("Forward", glm::vec3(0.f, 0.f, 1.f));
 
+	collectAINodeVectors();
+
+	// AI nodes
+	for (int i = 0; i < aiNodeLocation.size(); i++) {
+		gameplay->addAINode(aiNodeType[i], aiNodeArea[i], aiNodeLocation[i]);
+	}
+	gameplay->testPrintAINodes();
 
 	// --- AI cars ---	
 	for (int i = 0; i < g_numAiCars; i++) {
@@ -510,8 +517,6 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		aiCars.push_back(aiCar);
 	}
 
-	collectAINodeVectors();
-
 	// --- Map road ---
 	auto mapRoadTransform = mapRoad->getComponent<TransformComponent>();
 
@@ -530,6 +535,9 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	auto mapGrassRender = mapGrass->addComponent<RendererComponent>();
 	mapGrassRender->enableRender();
 
+	//auto mapGrassRigidbody = mapGrass->addComponent<RigidbodyComponent>();
+	//mapGrassRigidbody->addActorStaticBox(PxVec3(200.0f, 0.5f, 100.0f), PxTransform(PxVec3(0.0f, -1.5f, 0.0f)));
+
 	// --- Map Mall ---
 	auto mapMallTransform = mapMall->getComponent<TransformComponent>();
 	mapMallTransform->localTranslate(0.0f, -1.0f, 0.0f);
@@ -541,7 +549,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	mapMallRender->enableRender();
 
 	auto mapMallRigidbody = mapMall->addComponent<RigidbodyComponent>();
-	mapMallRigidbody->addActorStaticMesh(*modelMapMall, convert<physx::PxTransform>(mapMallTransform->getGlobalMatrix()));
+	mapMallRigidbody->addActorStaticMesh(*modelMapMall, convert<physx::PxTransform>(mapMallTransform->getGlobalMatrix()), 0.5f, 0.5f);
 
 	// --- Map Mall Text ---
 	auto mapMallTextTransform = mapMallText->getComponent<TransformComponent>();
@@ -562,7 +570,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	mapWall1Model->setModel(modelMapWall1);
 
 	auto mapWall1Rigidbody = mapWall1->addComponent<RigidbodyComponent>();
-	mapWall1Rigidbody->addActorStaticMesh(*modelMapWall1, convert<physx::PxTransform>(mapWall1Transform->getGlobalMatrix()));
+	mapWall1Rigidbody->addActorStaticMesh(*modelMapWall1, convert<physx::PxTransform>(mapWall1Transform->getGlobalMatrix()), 0.5f, 0.5f);
 
 	// - Right Wall - 
 	auto mapWall2Transform = mapWall2->getComponent<TransformComponent>();
@@ -572,7 +580,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	mapWall2Model->setModel(modelMapWall2);
 
 	auto mapWall2Rigidbody = mapWall2->addComponent<RigidbodyComponent>();
-	mapWall2Rigidbody->addActorStaticMesh(*modelMapWall2, convert<physx::PxTransform>(mapWall2Transform->getGlobalMatrix()));
+	mapWall2Rigidbody->addActorStaticMesh(*modelMapWall2, convert<physx::PxTransform>(mapWall2Transform->getGlobalMatrix()), 0.5f, 0.5f);
 
 	// - Back Wall - 
 	auto mapWall3Transform = mapWall3->getComponent<TransformComponent>();
@@ -582,7 +590,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	mapWall3Model->setModel(modelMapWall3);
 
 	auto mapWall3Rigidbody = mapWall3->addComponent<RigidbodyComponent>();
-	mapWall3Rigidbody->addActorStaticMesh(*modelMapWall3, convert<physx::PxTransform>(mapWall3Transform->getGlobalMatrix()));
+	mapWall3Rigidbody->addActorStaticMesh(*modelMapWall3, convert<physx::PxTransform>(mapWall3Transform->getGlobalMatrix()), 0.5f, 0.5f);
 
 	// --- Map Metal Fence ---
 	metalFenceLocation = collectGLMVecFromFile("../../res/modelTransformations/metalfenceLocation.txt", metalFenceLocation);
@@ -635,7 +643,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		mapCurbRender->enableRender();
 
 		auto mapCurbRigidbody = mapCurb->addComponent<RigidbodyComponent>();
-		mapCurbRigidbody->addActorStaticMesh(*modelMapCurb, convert<physx::PxTransform>(mapCurbTransform->getGlobalMatrix()));
+		mapCurbRigidbody->addActorStaticMesh(*modelMapCurb, convert<physx::PxTransform>(mapCurbTransform->getGlobalMatrix()), 0.05f, 0.05f);
 	}
 
 	// --- Map Background Road ---
@@ -670,7 +678,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		mapHedgeRender->enableRender();
 
 		auto mapHedgeRigidbody = mapHedge->addComponent<RigidbodyComponent>();
-		mapHedgeRigidbody->addActorStaticBox(physx::PxVec3(7.0f, 1.9f, 0.8f), convert<physx::PxTransform>(mapHedgeTransform->getGlobalMatrix()));
+		mapHedgeRigidbody->addActorStaticBox(physx::PxVec3(7.0f, 1.5f, 0.8f), convert<physx::PxTransform>(mapHedgeTransform->getGlobalMatrix()));
 	}
 
 	// --- Map Wood Fence ---
@@ -690,7 +698,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		mapWoodFenceRender->enableRender();
 
 		auto mapWoodFenceRigidbody = mapWoodFence->addComponent<RigidbodyComponent>();
-		mapWoodFenceRigidbody->addActorStaticMesh(*modelMapWoodFence, convert<physx::PxTransform>(mapWoodFenceTransform->getGlobalMatrix()));
+		mapWoodFenceRigidbody->addActorStaticMesh(*modelMapWoodFence, convert<physx::PxTransform>(mapWoodFenceTransform->getGlobalMatrix()), 0.5f, 0.5f);
 	}
 
 	// --- Map Wood Fence Pole ---
@@ -710,7 +718,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		mapWoodFencePoleRender->enableRender();
 
 		auto mapWoodFencePoleRigidbody = mapWoodFencePole->addComponent<RigidbodyComponent>();
-		mapWoodFencePoleRigidbody->addActorStaticMesh(*modelMapWoodFencePole, convert<physx::PxTransform>(mapWoodFencePoleTransform->getGlobalMatrix()));
+		mapWoodFencePoleRigidbody->addActorStaticMesh(*modelMapWoodFencePole, convert<physx::PxTransform>(mapWoodFencePoleTransform->getGlobalMatrix()), 0.5f, 0.5f);
 	}
 
 	// --- Map Trees ---
@@ -729,7 +737,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		mapTreeStumpRender->enableRender();
 
 		auto mapTreeStumpRigidbody = mapTreeStump->addComponent<RigidbodyComponent>();
-		mapTreeStumpRigidbody->addActorStaticMesh(*modelMapTreeStump, convert<physx::PxTransform>(mapTreeStumpTransform->getGlobalMatrix()));
+		mapTreeStumpRigidbody->addActorStaticMesh(*modelMapTreeStump, convert<physx::PxTransform>(mapTreeStumpTransform->getGlobalMatrix()), 0.5f, 0.5f);
 
 		// - Tree Leaves - 
 		auto mapTreeLeaves = scene->addEntity();
@@ -762,12 +770,6 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		mapParkingLineRender->enableRender();
 	}
 
-	// AI nodes
-	for (int i = 0; i < aiNodeLocation.size(); i++) {
-		gameplay->addAINode(aiNodeType[i], aiNodeArea[i], aiNodeLocation[i]);
-	}
-	gameplay->testPrintAINodes();
-
 	// --- Map Ramps ---
 	rampLocation = collectGLMVecFromFile("../../res/modelTransformations/rampLocation.txt", rampLocation);
 	rampRotation = collectfloatFromFile("../../res/modelTransformations/rampRotation.txt", rampRotation);
@@ -786,7 +788,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		mapRampRender->enableRender();
 
 		auto mapRampRigidbody = mapRamp->addComponent<RigidbodyComponent>();
-		mapRampRigidbody->addActorStaticMesh(*modelMapRamp, convert<physx::PxTransform>(mapRampTransform->getGlobalMatrix()));
+		mapRampRigidbody->addActorStaticMesh(*modelMapRamp, convert<physx::PxTransform>(mapRampTransform->getGlobalMatrix()), 0.05f, 0.05f);
 	}
 
 	// --- Parking Spots ---
@@ -843,7 +845,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRender->enableRender();
 
 				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorStaticMesh(*modelPropCar1, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+				propCarRigidbody->addActorStaticMesh(*modelPropCar1, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()), 0.5f, 0.5f);
 			} else if(randomNum == 2){
 				auto propCarModel = propCar->addComponent<ModelComponent>();
 				propCarModel->setModel(modelPropCar2);
@@ -852,7 +854,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRender->enableRender();
 
 				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorStaticMesh(*modelPropCar2, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+				propCarRigidbody->addActorStaticMesh(*modelPropCar2, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()), 0.5f, 0.5f);
 			} else if(randomNum == 3){
 				auto propCarModel = propCar->addComponent<ModelComponent>();
 				propCarModel->setModel(modelPropCar3);
@@ -861,7 +863,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRender->enableRender();
 
 				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorStaticMesh(*modelPropCar3, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+				propCarRigidbody->addActorStaticMesh(*modelPropCar3, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()), 0.5f, 0.5f);
 			} else if(randomNum == 4){
 				auto propCarModel = propCar->addComponent<ModelComponent>();
 				propCarModel->setModel(modelPropCar4);
@@ -870,7 +872,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRender->enableRender();
 
 				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorStaticMesh(*modelPropCar4, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+				propCarRigidbody->addActorStaticMesh(*modelPropCar4, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()), 0.5f, 0.5f);
 			}
 		}
 	}

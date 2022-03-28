@@ -124,8 +124,8 @@ namespace fourwheel
         const PxF32 deltaZ = (wheelFrontZ - wheelRearZ) / (numLeftWheels - 1.0f);
 
         // Calculate where to put the wheels in order to lift the chassis the specified amount
-        const PxF32 lift = 0.1f;
-        const PxF32 height = (-0.5 * chassisDims.y) + wheelRadius + lift;
+        const PxF32 lift = 0.01f;
+        const PxF32 height = (-0.5 * chassisDims.y) + (wheelRadius * 1.3f) - lift;
 
         //Set the outside of the left and right wheels to be flush with the chassis.
         //Set the top of the wheel to be just touching the underside of the chassis.
