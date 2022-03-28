@@ -29,6 +29,8 @@ std::vector<glm::vec3> roadLocation;
 std::vector<glm::vec3> rampLocation;
 std::vector<float> rampRotation;
 
+std::vector<std::shared_ptr<Entity>> propcars;
+
 //Parking Spot Vectors
 std::vector<glm::vec3> parkingSpotLocation;
 std::vector<float> parkingSpotRotation;
@@ -134,6 +136,7 @@ void Application::gameStart() {
 
 	std::cout << "TEST" << std::endl;
 	setupBaseLevelGUI();
+	carReset(propcars);
 	Events::GameStart.broadcast();
 	render->setPlaying(true);
 }
@@ -290,6 +293,35 @@ void Application::setupMainMenu() {
 	render->changeGui(guiScene);
 }
 
+
+void Application::carReset(std::vector<std::shared_ptr<Entity>> carVec) {
+
+	std::vector<glm::vec3> tempSubsetLocation = emptySubsetLocation;
+	std::vector<float> tempSubsetRotation = emptySubsetRotation;
+
+	for (int i = 0; i < /*g_numAiCars*/ 3; i++) {
+		int spotChoice = rand() % tempSubsetLocation.size();
+
+		//USE THESE VECTORS FOR EMPTY PARKING SPOTS
+		emptyParkingSpotLocation.push_back(tempSubsetLocation.at(spotChoice));
+		emptyParkingSpotRotation.push_back(tempSubsetRotation.at(spotChoice));
+
+		tempSubsetLocation.erase(tempSubsetLocation.begin() + spotChoice);
+		tempSubsetRotation.erase(tempSubsetRotation.begin() + spotChoice);
+	}
+		for (auto& x : emptyParkingSpotLocation) {
+			for (auto& y : carVec) {
+
+				if (y->getComponent<TransformComponent>()->getLocalPosition() == x) {
+					y->getComponent<TransformComponent>()->localTranslate(400.f,100.f,400.f);
+					std::cout << y->getComponent<TransformComponent>()->getLocalPosition() << std::endl;
+				}
+			}
+		}
+	
+}
+
+
 void Application::setupBaseLevelGUI() {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
@@ -298,16 +330,16 @@ void Application::setupBaseLevelGUI() {
 }
 
 void Application::setupBaseLevel(shared_ptr<Scene> scene) {
-/* --------------------- Game World Description ------------------------ */
-	// Example gui creation
-	// guiScene->addLabel(0.5f, 0.0f, "Test label em0", 0);
-	// guiScene->addLabel(0.5f, 0.2f, "Test label em1", 1);
-	// guiScene->addLabel(0.5f, 0.4f, "Test label em2", 2);
-	// guiScene->addLabel(0.05f, 0.6f, "Test label em3", 3);
-	// guiScene->addButton(0.1f, 0.7f, "Button em0", Events::CarUnParked, 0);
-	// guiScene->addButton(0.4f, 0.7f, "Button em1", Events::GameStart, 1);
-	// guiScene->addButton(0.7f, 0.7f, "Button em2", Events::GameStart, 2);
-	// guiScene->addCheckbox(0.3f, 0.3f, "Test checkbox", Events::TestUiEvent);
+	/* --------------------- Game World Description ------------------------ */
+		// Example gui creation
+		// guiScene->addLabel(0.5f, 0.0f, "Test label em0", 0);
+		// guiScene->addLabel(0.5f, 0.2f, "Test label em1", 1);
+		// guiScene->addLabel(0.5f, 0.4f, "Test label em2", 2);
+		// guiScene->addLabel(0.05f, 0.6f, "Test label em3", 3);
+		// guiScene->addButton(0.1f, 0.7f, "Button em0", Events::CarUnParked, 0);
+		// guiScene->addButton(0.4f, 0.7f, "Button em1", Events::GameStart, 1);
+		// guiScene->addButton(0.7f, 0.7f, "Button em2", Events::GameStart, 2);
+		// guiScene->addCheckbox(0.3f, 0.3f, "Test checkbox", Events::TestUiEvent);
 	setupBaseLevelGUI();
 
 	/* --------------------- Game World Description ------------------------ */
@@ -360,7 +392,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 	auto modelMapMall = std::make_shared<Model>(
 		"models/cpsMap_Mall.obj", glm::vec3(.5f, .1f, .2f));
-	
+
 	auto modelMapMallText = std::make_shared<Model>(
 		"models/cpsMap_MallText.obj", glm::vec3(.5f, .7f, .2f));
 
@@ -404,19 +436,19 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 	auto modelMapWarningWall = std::make_shared<Model>(
 		"models/cpsMap_WarningWall.obj", glm::vec3(.9f, .5f, .1f));
-	
+
 	auto modelMapBGRoad = std::make_shared<Model>(
 		"models/cpsMap_BGRoad.obj", glm::vec3(.5f, .1f, .2f));
 
-	auto modelMapParkingIndicator= std::make_shared<Model>(
+	auto modelMapParkingIndicator = std::make_shared<Model>(
 		"models/cpsMap_ParkingIndicator.obj", glm::vec3(.5f, .1f, .2f));
 
-	auto modelMapRamp= std::make_shared<Model>(
+	auto modelMapRamp = std::make_shared<Model>(
 		"models/cpsMap_Ramp2.obj", glm::vec3(.6f, .4f, .6f));
 
 
 	// --- Directional light ---
-	environmentalLight->addComponent<LightingComponent>(); 
+	environmentalLight->addComponent<LightingComponent>();
 	environmentalLight->getComponent<LightingComponent>()->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
 	environmentalLight->getComponent<LightingComponent>()->setDirectionalLight(glm::vec3(0.3f, 0.3f, 0.3f));
 
@@ -492,7 +524,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	lightEntity2->getComponent<TransformComponent>()->setLocalPosition(0.8f, 0.15f, 1.5);
 	lightEntity2->getComponent<TransformComponent>()->setLocalRotation(glm::radians(10.f), glm::vec3(1.f, 0.f, 0.f));
 	//-------------------
-	
+
 	playerCar->addComponent<VehicleComponent>();
 
 	auto playerController = playerCar->addComponent<ControllerComponent>();
@@ -809,7 +841,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	parkingLineLocation = collectGLMVecFromFile("../../res/modelTransformations/parkingLinesLocation.txt", parkingLineLocation);
 	parkingLineRotation = collectfloatFromFile("../../res/modelTransformations/parkingLinesRotation.txt", parkingLineRotation);
 
-	for(int i = 0; i < parkingLineLocation.size(); i++){
+	for (int i = 0; i < parkingLineLocation.size(); i++) {
 		auto mapParkingLine = scene->addEntity();
 		auto mapParkingLineTransform = mapParkingLine->getComponent<TransformComponent>();
 		mapParkingLineTransform->localTranslate(parkingLineLocation.at(i));
@@ -826,7 +858,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	rampLocation = collectGLMVecFromFile("../../res/modelTransformations/rampLocation.txt", rampLocation);
 	rampRotation = collectfloatFromFile("../../res/modelTransformations/rampRotation.txt", rampRotation);
 
-	for(int i = 0; i < rampLocation.size(); i++){
+	for (int i = 0; i < rampLocation.size(); i++) {
 		auto mapRamp = scene->addEntity();
 		auto mapRampTransform = mapRamp->getComponent<TransformComponent>();
 		//mapRampTransform->localScale(glm::vec3(2.0f, 1.0f, 1.0f));
@@ -848,13 +880,16 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	parkingSpotRotation = collectfloatFromFile("../../res/modelTransformations/parkingSpotRotation.txt", parkingSpotRotation);
 	emptySubsetLocation = collectGLMVecFromFile("../../res/modelTransformations/emptySpotSubsetLocation.txt", emptySubsetLocation);
 	emptySubsetRotation = collectfloatFromFile("../../res/modelTransformations/emptySpotSubsetRotation.txt", emptySubsetRotation);
+	/*propcars.reserve(emptySubsetLocation.size());
+	std::cout <<"propcars: " << propcars.size() << std::endl;*/
+
 
 	// - Temp Vectors -
 	std::vector<glm::vec3> tempSubsetLocation = emptySubsetLocation;
 	std::vector<float> tempSubsetRotation = emptySubsetRotation;
 
 	//RANDOMLY PICKS EMPTY PARKING SPACES BY 1 LESS THE NUMBER OF AI + PLAYER
-	for(int i = 0; i < /*g_numAiCars*/ 3; i++){
+	for (int i = 0; i < /*g_numAiCars*/ 3; i++) {
 		int spotChoice = rand() % tempSubsetLocation.size();
 
 		//USE THESE VECTORS FOR EMPTY PARKING SPOTS
@@ -866,18 +901,18 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	}
 
 	// - Propcar Instancing -
-	for(int i = 0; i < parkingSpotLocation.size(); i++){
+	for (int i = 0; i < parkingSpotLocation.size(); i++) {
 		bool checkSpot = false;
-		for(auto & x : emptyParkingSpotLocation){
+		/*for (auto& x : emptyParkingSpotLocation) {
 			if(x == parkingSpotLocation.at(i)){
 				checkSpot = true;
 			}
-		}
+		}*/
 
-		if(!checkSpot){
+		if (!checkSpot) {
 			int randomNum = rand() % 2 + 1;
 
-			if(randomNum == 1) {
+			if (randomNum == 1) {
 				parkingSpotRotation.at(i) += 180.f;
 			}
 
@@ -897,56 +932,70 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 			if (randomNum == 1) {
 				propCarModel->setModel(modelPropCar1);
 				propCarRigidbody->addActorDynamic(*modelPropCar1, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
-			} else if(randomNum == 2){
+			}
+			else if (randomNum == 2) {
 				propCarModel->setModel(modelPropCar2);
 				propCarRigidbody->addActorDynamic(*modelPropCar2, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
-			} else if(randomNum == 3){
+			}
+			else if (randomNum == 3) {
 				propCarModel->setModel(modelPropCar3);
 				propCarRigidbody->addActorDynamic(*modelPropCar3, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
-			} else if(randomNum == 4){
+			}
+			else if (randomNum == 4) {
 				propCarModel->setModel(modelPropCar4);
 				propCarRigidbody->addActorDynamic(*modelPropCar4, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			}
+			for (auto& x : emptySubsetLocation) {
+				if (x == parkingSpotLocation.at(i)) {
+					propcars.push_back(propCar);
+				}
+
+
+			}
+
+
 		}
 	}
+		std::cout << "propcars: " << propcars.size() << std::endl;
+		carReset(propcars);
 
-	// --- Test ----
-	for(int i = 0; i < emptyParkingSpotLocation.size(); i++){
-		auto testparkingspace = scene->addEntity();
-		auto testparkingspaceTransform = testparkingspace->getComponent<TransformComponent>();
+		// --- Test ----
+		for (int i = 0; i < emptyParkingSpotLocation.size(); i++) {
+			auto testparkingspace = scene->addEntity();
+			auto testparkingspaceTransform = testparkingspace->getComponent<TransformComponent>();
 
-		testparkingspaceTransform->localTranslate(emptyParkingSpotLocation.at(i));
-		testparkingspaceTransform->localRotate(glm::radians(emptyParkingSpotRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
+			testparkingspaceTransform->localTranslate(emptyParkingSpotLocation.at(i));
+			testparkingspaceTransform->localRotate(glm::radians(emptyParkingSpotRotation.at(i)), glm::vec3(0.f, 1.f, 0.f));
 
-		testparkingspace->addComponent<RendererComponent>();
-		testparkingspace->getComponent<RendererComponent>()->enableRender();
-		testparkingspace->getComponent<RendererComponent>()->enableTransparentRendering();
-		testparkingspace->addComponent<ModelComponent>();
-		testparkingspace->getComponent<ModelComponent>()->setModel(modelMapParkingIndicator);
+			testparkingspace->addComponent<RendererComponent>();
+			testparkingspace->getComponent<RendererComponent>()->enableRender();
+			testparkingspace->getComponent<RendererComponent>()->enableTransparentRendering();
+			testparkingspace->addComponent<ModelComponent>();
+			testparkingspace->getComponent<ModelComponent>()->setModel(modelMapParkingIndicator);
+		}
+
+		//PxShape parkingSpotShape = PxRigidActorExt::createExclusiveShape(*hf, , *gMaterial);
+		// --- TriggerBox for Parking Space ---
+		auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
+		for (int i = 0; i < emptyParkingSpotLocation.size(); i++) {
+			triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyParkingSpotLocation.at(i).x, emptyParkingSpotLocation.at(i).y, emptyParkingSpotLocation.at(i).z)), PxBoxGeometry(1.f, 1.f, 1.f));
+		}
+
+
+
+		/* --------------------- End Game World Description --------------------- */
+
+		// Hacky stuff
+		playerId = playerCar->id();
+		scores[playerId] = 0;
+
+		for (auto aiCar : aiCars) {
+			gameplay->addAiId(aiCar->id());
+			scores[aiCar->id()] = 0;
+		}
+
+		audio->setListener(mainCamera->getComponent<TransformComponent>());
 	}
-
-	//PxShape parkingSpotShape = PxRigidActorExt::createExclusiveShape(*hf, , *gMaterial);
-	// --- TriggerBox for Parking Space ---
-	auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
-	for (int i = 0; i < emptyParkingSpotLocation.size(); i++) {
-		triggerBoxComponent->createVolumeShape(PxTransform(PxVec3(emptyParkingSpotLocation.at(i).x, emptyParkingSpotLocation.at(i).y, emptyParkingSpotLocation.at(i).z)), PxBoxGeometry(1.f, 1.f, 1.f));
-	};
-
-	
-
-	/* --------------------- End Game World Description --------------------- */
-
-	// Hacky stuff
-	playerId = playerCar->id();
-	scores[playerId] = 0;
-
-	for (auto aiCar : aiCars) {
-		gameplay->addAiId(aiCar->id());
-		scores[aiCar->id()] = 0;
-	}
-
-	audio->setListener(mainCamera->getComponent<TransformComponent>());
-}
 
 
 
