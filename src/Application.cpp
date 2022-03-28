@@ -2,8 +2,8 @@
 #include <Random.h>
 
 #define SPAWN_PROP_CARS 1
-const unsigned int g_numAiCars = 1;
-
+unsigned int g_numAiCars = 3;
+int totalScore = 0;
 unsigned int playerId = 0;
 std::vector<unsigned int> aiList;
 std::unordered_map<unsigned int, int> scores;
@@ -136,7 +136,7 @@ void Application::gameStart() {
 
 	std::cout << "TEST" << std::endl;
 	setupBaseLevelGUI();
-	carReset(propcars);
+	//carReset(propcars);
 	Events::GameStart.broadcast();
 	render->setPlaying(true);
 }
@@ -175,7 +175,6 @@ void Application::roundWonMenu() {
 	menuStack.push(menu);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 
-	
 	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][1].positionY,
 		"Next Round", Events::GamePlay, 1);
 	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY,
@@ -184,7 +183,21 @@ void Application::roundWonMenu() {
 	render->changeGui(guiScene);
 
 }
+void Application::gameWonGui() {
+	int columnNum = 1;
+	int rowNum = 3;
+	float buttonSizeOffset = 0.1;
+	std::shared_ptr<Menu> menu = std::make_shared<Menu>(columnNum, rowNum, buttonSizeOffset);
+	menuStack.push(menu);
+	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 
+	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][1].positionY, "YOU WON");
+
+	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY,
+		"Main Menu", Events::MainMenu, 1);
+	render->setPlaying(false);
+	render->changeGui(guiScene);
+}
 Application::Application(appSettings& settings): 
 	settings(settings)
 {
@@ -245,7 +258,11 @@ int Application::play() {
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
 			if (menuStack.size() == 0) {
-				if (scores[playerId] >= 1 ) {//|| scores[aiList[0]] >= 5) {
+				if (scores[playerId] >= 1 || scores[aiList[0]] >= 1) {//|| scores[aiList[0]] >= 5) {
+					totalScore++;
+					if (totalScore >= 2) {
+						gameWonGui();
+					}
 					roundWonMenu();
 				}
 				else {
@@ -265,6 +282,7 @@ int Application::play() {
 }
 
 void Application::setupMainMenu() {
+
 	int columnNum = 1;
 	int rowNum = 3;
 	float buttonSizeOffset = 0.1;
@@ -313,7 +331,7 @@ void Application::carReset(std::vector<std::shared_ptr<Entity>> carVec) {
 			for (auto& y : carVec) {
 
 				if (y->getComponent<TransformComponent>()->getLocalPosition() == x) {
-					y->getComponent<TransformComponent>()->localTranslate(400.f,100.f,400.f);
+					y->getComponent<TransformComponent>()->localRotate(23.f, glm::vec3(0.0f,1.0f,0.0f));
 					std::cout << y->getComponent<TransformComponent>()->getLocalPosition() << std::endl;
 				}
 			}
@@ -889,7 +907,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	std::vector<float> tempSubsetRotation = emptySubsetRotation;
 
 	//RANDOMLY PICKS EMPTY PARKING SPACES BY 1 LESS THE NUMBER OF AI + PLAYER
-	for (int i = 0; i < /*g_numAiCars*/ 3; i++) {
+	
+		for (int i = 0; i < g_numAiCars; i++) {
 		int spotChoice = rand() % tempSubsetLocation.size();
 
 		//USE THESE VECTORS FOR EMPTY PARKING SPOTS
@@ -903,11 +922,11 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	// - Propcar Instancing -
 	for (int i = 0; i < parkingSpotLocation.size(); i++) {
 		bool checkSpot = false;
-		/*for (auto& x : emptyParkingSpotLocation) {
+		for (auto& x : emptyParkingSpotLocation) {
 			if(x == parkingSpotLocation.at(i)){
 				checkSpot = true;
 			}
-		}*/
+		}
 
 		if (!checkSpot) {
 			int randomNum = rand() % 2 + 1;
@@ -956,8 +975,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 		}
 	}
-		std::cout << "propcars: " << propcars.size() << std::endl;
-		carReset(propcars);
+		/*std::cout << "propcars: " << propcars.size() << std::endl;
+		carReset(propcars);*/
 
 		// --- Test ----
 		for (int i = 0; i < emptyParkingSpotLocation.size(); i++) {
