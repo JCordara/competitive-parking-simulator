@@ -135,12 +135,20 @@ void Application::gameStart() {
 	render->setPlaying(true);
 }
 
+void Application::gameClose() {
+	glfwSetWindowShouldClose(*window, 1);
+	
+}
+
 Application::Application(appSettings& settings): 
 	settings(settings)
 {
 	//Register the game start event handler
 	Events::GamePlay.registerHandler<Application,
 		&Application::gameStart>(this);
+
+	Events::GameExit.registerHandler<Application,
+		&Application::gameClose>(this);
 
 	//App initialization
 	glfwInit();
@@ -438,8 +446,10 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 	auto playerController = playerCar->addComponent<ControllerComponent>();
 	playerController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);
+	playerController->createAxis(GLFW_KEY_UP, GLFW_KEY_DOWN, &Events::VehicleAccelerate);
 	playerController->createAxis(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, &Events::VehicleAccelerate, ControlAxis::AXIS);
 	playerController->createAxis(GLFW_KEY_D, GLFW_KEY_A, &Events::VehicleSteer);
+	playerController->createAxis(GLFW_KEY_RIGHT, GLFW_KEY_LEFT, &Events::VehicleSteer);
 	playerController->createAxis(GLFW_GAMEPAD_AXIS_LEFT_X, &Events::VehicleSteer);
 	playerController->bindInput(GLFW_KEY_F, &Events::VehicleFlip);
 	playerController->bindInput(GLFW_KEY_LEFT_SHIFT, &Events::VehicleHandbrake);
@@ -524,6 +534,9 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 
 	auto mapGrassRender = mapGrass->addComponent<RendererComponent>();
 	mapGrassRender->enableRender();
+
+	auto mapGrassRigidbody = mapGrass->addComponent<RigidbodyComponent>();
+	mapGrassRigidbody->addActorStaticBox(PxVec3(200.0f, 0.5f, 100.0f), PxTransform(PxVec3(0.0f, -1.5f, 0.0f)));
 
 	// --- Map Mall ---
 	auto mapMallTransform = mapMall->getComponent<TransformComponent>();
@@ -832,7 +845,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRender->enableRender();
 
 				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorDynamic(*modelPropCar1, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+				propCarRigidbody->addActorStaticMesh(*modelPropCar1, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			} else if(randomNum == 2){
 				auto propCarModel = propCar->addComponent<ModelComponent>();
 				propCarModel->setModel(modelPropCar2);
@@ -841,7 +854,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRender->enableRender();
 
 				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorDynamic(*modelPropCar2, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+				propCarRigidbody->addActorStaticMesh(*modelPropCar2, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			} else if(randomNum == 3){
 				auto propCarModel = propCar->addComponent<ModelComponent>();
 				propCarModel->setModel(modelPropCar3);
@@ -850,7 +863,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRender->enableRender();
 
 				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorDynamic(*modelPropCar3, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+				propCarRigidbody->addActorStaticMesh(*modelPropCar3, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			} else if(randomNum == 4){
 				auto propCarModel = propCar->addComponent<ModelComponent>();
 				propCarModel->setModel(modelPropCar4);
@@ -859,7 +872,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 				propCarRender->enableRender();
 
 				auto propCarRigidbody = propCar->addComponent<RigidbodyComponent>();
-				propCarRigidbody->addActorDynamic(*modelPropCar4, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
+				propCarRigidbody->addActorStaticMesh(*modelPropCar4, convert<physx::PxTransform>(propCarTransform->getGlobalMatrix()));
 			}
 		}
 	}
@@ -879,6 +892,7 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		testparkingspace->getComponent<ModelComponent>()->setModel(modelMapParkingIndicator);
 	}
 
+	//PxShape parkingSpotShape = PxRigidActorExt::createExclusiveShape(*hf, , *gMaterial);
 	// --- TriggerBox for Parking Space ---
 	auto triggerBoxComponent = triggerBox->addComponent<VolumeTriggerComponent>();
 	for (int i = 0; i < emptyParkingSpotLocation.size(); i++) {

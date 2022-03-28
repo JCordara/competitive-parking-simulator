@@ -425,8 +425,21 @@ float VehicleComponent::getSpeed() {
     return vehicle->getRigidDynamicActor()->getLinearVelocity().magnitude();
 }
 
-bool VehicleComponent::isInAir() {
-    return isInAir_;
+float VehicleComponent::getSkidSpeed() {
+    return vehicle->computeSidewaysSpeed();
+}
+
+float VehicleComponent::getEngineSpeed() {
+    return vehicle->mDriveDynData.getEngineRotationSpeed();
+}
+
+float VehicleComponent::getEngineSpeedNormalized() {
+    float maxEngineSpeed = vehicle->mDriveSimData.getEngineData().mMaxOmega;
+    return vehicle->mDriveDynData.getEngineRotationSpeed() / maxEngineSpeed;
+}
+
+bool VehicleComponent::isGrounded() {
+    return !isInAir_;
 }
 
 

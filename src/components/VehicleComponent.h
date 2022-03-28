@@ -24,7 +24,10 @@ public:
     static ComponentEnum getType();
 
     float getSpeed();
-    bool isInAir();
+    float getEngineSpeed();
+    float getEngineSpeedNormalized();
+    float getSkidSpeed();
+    bool isGrounded();
 
     inline void setTransform(PxTransform& transform) {
         vehicle->getRigidDynamicActor()->setGlobalPose(transform);

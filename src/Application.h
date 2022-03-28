@@ -52,6 +52,7 @@ public:
 	Application& operator= (const Application&) = delete;
 	Application& operator= (Application&&) = delete;
 	void gameStart();
+	void gameClose();
 
 private:
 

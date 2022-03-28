@@ -1,2 +1,2 @@
-enginePitch = engineSpeed * 0.28 + 0.95
-engineGain  = engineSpeed * 0.008 + 0.076
+enginePitch = engineSpeed * 0.22 + 0.95
+engineGain  = engineSpeed * 0.04 + 0.05

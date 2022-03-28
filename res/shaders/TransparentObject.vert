@@ -13,4 +13,5 @@ out vec2 fragTextureCoordinate;
 void main() {
 	fragTextureCoordinate = vertexTextureCoordinate;
 	gl_Position =  cameraP * cameraV * Ms[gl_InstanceID] * vec4(vertexPos, 1.0);
+	//gl_Position = gl_Position / gl_Position.w;
 }

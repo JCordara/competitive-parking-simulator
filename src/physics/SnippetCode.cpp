@@ -124,8 +124,8 @@ namespace fourwheel
         const PxF32 deltaZ = (wheelFrontZ - wheelRearZ) / (numLeftWheels - 1.0f);
 
         // Calculate where to put the wheels in order to lift the chassis the specified amount
-        const PxF32 lift = 0.1f;
-        const PxF32 height = (-0.5 * chassisDims.y) + wheelRadius + lift;
+        const PxF32 lift = 0.01f;
+        const PxF32 height = (-0.5 * chassisDims.y) + (wheelRadius * 1.3f) - lift;
 
         //Set the outside of the left and right wheels to be flush with the chassis.
         //Set the top of the wheel to be just touching the underside of the chassis.
@@ -206,10 +206,10 @@ namespace fourwheel
             //Set the suspension data.
             for (PxU32 i = 0; i < numWheels; i++)
             {
-                suspensions[i].mMaxCompression = 0.3f;
-                suspensions[i].mMaxDroop = 0.1f;
-                suspensions[i].mSpringStrength = 35000.0f;
-                suspensions[i].mSpringDamperRate = 4500.0f;
+                suspensions[i].mMaxCompression = 0.38f;
+                suspensions[i].mMaxDroop = 0.18f;
+                suspensions[i].mSpringStrength = 37500.0f;
+                suspensions[i].mSpringDamperRate = 3000.0f;
                 suspensions[i].mSprungMass = suspSprungMasses[i];
             }
 

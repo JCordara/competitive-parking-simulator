@@ -23,7 +23,9 @@ void RigidbodyComponent::addActorStaticMesh(const Model& model, PxTransform star
 	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*actor, geom, *gMaterial);
 
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+	setupDrivableSurface(meshFilterData);
 	meshShape->setSimulationFilterData(meshFilterData);
+	meshShape->setQueryFilterData(meshFilterData);
 	physicsSystem->pxScene->addActor(*actor);
 	meshShape->release();
 }
@@ -38,7 +40,9 @@ void RigidbodyComponent::addActorStaticSphere(const float radius, PxTransform st
 	PxShape* sphere = PxRigidActorExt::createExclusiveShape(*actor, sphereGeom, *gMaterial);
 
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+	setupDrivableSurface(meshFilterData);
 	sphere->setSimulationFilterData(meshFilterData);
+	sphere->setQueryFilterData(meshFilterData);
 	physicsSystem->pxScene->addActor(*actor);
 	sphere->release();
 }
@@ -54,7 +58,9 @@ void RigidbodyComponent::addActorStaticBox(PxVec3 halfLen, PxTransform startPos)
 	PxShape* box = PxRigidActorExt::createExclusiveShape(*actor, boxGeom, *gMaterial);
 
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+	setupDrivableSurface(meshFilterData);
 	box->setSimulationFilterData(meshFilterData);
+	box->setQueryFilterData(meshFilterData);
 	physicsSystem->pxScene->addActor(*actor);
 	box->release();
 }
@@ -70,9 +76,14 @@ void RigidbodyComponent::addActorDynamic(const Model& model, PxTransform startPo
 
 	PxShape* aConvexShape = PxRigidActorExt::createExclusiveShape(*actor, geom, *gMaterial);
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+	setupDrivableSurface(meshFilterData);
 	aConvexShape->setSimulationFilterData(meshFilterData);
+	aConvexShape->setQueryFilterData(meshFilterData);
+	// actor->is<PxRigidDynamic>()->setMass(0.0f);
+	actor->is<PxRigidDynamic>()->setLinearDamping(175.0f);
+	// actor->is<PxRigidDynamic>()->setMassSpaceInertiaTensor(PxVec3(0.01f, 0.01f, 0.01f));
+	// actor->is<PxRigidDynamic>()->setMaxDepenetrationVelocity(1.0f);
 	physicsSystem->pxScene->addActor(*actor);
-	//actor->setMass(50.0f);
 	aConvexShape->release();
 }
 
