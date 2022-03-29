@@ -63,6 +63,8 @@ public:
 private:
     std::shared_ptr<Scene> scene;
 
+	double lastUpdateTime;
+
 };
 
 #endif // GAMEPLAY_SYSTEM_H

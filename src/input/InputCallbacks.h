@@ -73,6 +73,7 @@ private:
 
 	/* Mapping of keys to axes */
 	std::unordered_map<int, std::shared_ptr<ControlAxis>> controlAxes;
+	std::unordered_map<int, std::shared_ptr<ControlAxis>> controlAxesButtons;
 
 	/* Keep track of all pressed keys at any given time */
 	std::unordered_set<int> pressedKeys;

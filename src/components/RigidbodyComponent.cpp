@@ -11,7 +11,7 @@ RigidbodyComponent::RigidbodyComponent(shared_ptr<Entity> parent)
 }
 
 
-void RigidbodyComponent::addActorStaticMesh(const Model& model, PxTransform startPos){
+void RigidbodyComponent::addActorStaticMesh(const Model& model, PxTransform startPos, float sFriction, float dFriction){
 
 	PxTransform mesht = startPos;
 	actor = physicsSystem->pxPhysics->createRigidStatic(mesht);
@@ -20,7 +20,8 @@ void RigidbodyComponent::addActorStaticMesh(const Model& model, PxTransform star
 	PxTriangleMesh* mesh = physicsSystem->createStaticMesh(model);
 	PxTriangleMeshGeometry geom(mesh);
 
-	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*actor, geom, *gMaterial);
+	PxMaterial* material = physicsSystem->pxPhysics->createMaterial(sFriction, dFriction, 0.6f);
+	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*actor, geom, *material);
 
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
 	setupDrivableSurface(meshFilterData);
@@ -79,10 +80,8 @@ void RigidbodyComponent::addActorDynamic(const Model& model, PxTransform startPo
 	setupDrivableSurface(meshFilterData);
 	aConvexShape->setSimulationFilterData(meshFilterData);
 	aConvexShape->setQueryFilterData(meshFilterData);
-	// actor->is<PxRigidDynamic>()->setMass(0.0f);
-	actor->is<PxRigidDynamic>()->setLinearDamping(175.0f);
-	// actor->is<PxRigidDynamic>()->setMassSpaceInertiaTensor(PxVec3(0.01f, 0.01f, 0.01f));
-	// actor->is<PxRigidDynamic>()->setMaxDepenetrationVelocity(1.0f);
+	
+	PxRigidBodyExt::updateMassAndInertia(*actor->is<PxRigidBody>(), 875.0f);
 	physicsSystem->pxScene->addActor(*actor);
 	aConvexShape->release();
 }

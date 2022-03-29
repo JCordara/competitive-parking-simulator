@@ -53,6 +53,10 @@ public:
 	Application& operator= (Application&&) = delete;
 	void gameStart();
 	void gameClose();
+	void gameOpenOptions();
+	void roundWonMenu();
+	void gameWonGui();
+	
 
 private:
 
@@ -75,6 +79,7 @@ private:
 	void setupBaseLevelGUI();
 	void setupMainMenu();
 	void setupBaseLevel(shared_ptr<Scene> scene);
+	void carReset(std::vector<std::shared_ptr<Entity>> carVec);
 };
 
 //Functions to load settings

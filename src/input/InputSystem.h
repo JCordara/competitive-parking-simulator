@@ -68,6 +68,8 @@ private:
 	// Number of accessible axes and buttons defined in GLFW
 	const unsigned int numAxes = 6;
 	const unsigned int numButtons = 15;
+
+	vector<int> stickAxes;
 };
 
 #endif // INPUT_MANAGER_H

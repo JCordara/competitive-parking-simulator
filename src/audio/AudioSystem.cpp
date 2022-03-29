@@ -32,6 +32,7 @@ AudioSystem::AudioSystem(shared_ptr<Scene> scene): scene(scene) {
     // Setup music player
     musicPlayer = createStaticSource();
     musicPlayer->setGain(0.1f);
+    musicPlayer->setLooping(true);
     music = loadAudio("audio/CoconutMall.wav");
 
     // Register self with audio components when they are created
