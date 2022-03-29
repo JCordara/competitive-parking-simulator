@@ -37,7 +37,6 @@ void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
 			scores[playerId]++;
 			resetPlayer();
 		};
-		
 	}
 	// Must be AI
 	else {
@@ -219,7 +218,8 @@ void GameplaySystem::testPrintAINodes() {
 		//110=LeftMiddle-Tra,111=Left-Tra,112=RightMiddle-Tra,113=Right-Tra,114=Middle-Tra,
 		//121=Left-Park,122=Right-Park
 		switch (node->id) {
-		case 8: setAINodeNeighbors(node, 111, area952Nodes); break;
+		case 8: setAINodeNeighbors(node, 111, area952Nodes);
+			setAINodeNeighbors(node, 9, area952Nodes); break;
 		case 9: setAINodeNeighbors(node, 15, area953Nodes); break;
 		case 10: setAINodeNeighbors(node, 5, area951Nodes); break;
 		case 11: setAINodeNeighbors(node, 13, area953Nodes); break;
@@ -332,7 +332,7 @@ void GameplaySystem::testPrintAINodes() {
 		//std::cout << "Node Type: " << static_cast<int>(node->nodeType)
 		//	<< " Position: " << node->position
 		//	<< " ID: " << node->id << std::endl;
-		//21=Right-Ent,22=Top-Ent
+		//21=Right-Ent,22=Top-Ent,73=Tra,125=Park
 		switch (node->id) {
 		case 21: setAINodeNeighbors(node, 125, area955Nodes); break;
 		case 22: setAINodeNeighbors(node, 125, area955Nodes); break;

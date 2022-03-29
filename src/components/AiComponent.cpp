@@ -118,7 +118,6 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 			if (tempNode->id != currentNode->id) {
 				nodeQueue.insert(nodeQueue.begin(), tempNode);
 			}
-			
 		}
 		else {
 			break;
@@ -159,6 +158,7 @@ void AiComponent::setSpawnNode() {
 // Resets the AI to a chosen spawn position and search state
 void AiComponent::resetAi() {
 	setSpawnNode();
+	visitedAreas.clear();
 	switchState(States::SEARCH);
 	pickRandEntranceNode();
 }
@@ -202,6 +202,7 @@ bool AiComponent::pickClosestParkingNode(std::shared_ptr<AiGraphNode> startNode)
 			}
 			else if (isPark && isNotTaken) {
 				nodeQueue.clear(); // clear path for A*
+				std::cout << "FOUND PARKING NODE: " << parkingLot[i]->id << "PARKING NODE AREA: " << parkingLot[i]->areaCode << std::endl;
 				aStar(parkingLot[i]); // Sets path
 				return true;
 			}
@@ -240,18 +241,28 @@ void AiComponent::setupAreaMap() {
 void AiComponent::pickRandEntranceNode() {
 	// Randomly pick a node from the entrances to parking lots
 	std::vector<std::shared_ptr<AiGraphNode>> nodes;
+	std::cout << "CURRENT AREA CODE: " << currentNode->areaCode << std::endl;
 	for (int area : areaMap[currentNode->areaCode]) {
-		std::cout << currentNode->areaCode<< std::endl;
+		std::cout << "SEARCH AREA CODE: " << area << std::endl;
 		if (std::count(visitedAreas.begin(), visitedAreas.end(), area) == 0) {
 			std::shared_ptr<AiGraphNode> closestNode; float closestDistance;
-			for (std::shared_ptr<AiGraphNode> node : gameplaySystem->getAreaNodes(area)) {
-				if (node->nodeType == AiGraphNode::NodeType::LOTENTRANCE) {
+			//Find neighboring nodes
+			for (std::shared_ptr<AiGraphNode> node1 : gameplaySystem->getAreaNodes(area)) {
+				for (std::shared_ptr<AiGraphNode> node2 : gameplaySystem->getAreaNodes(currentNode->areaCode)) {
+					if (std::count(node1->neighbours.begin(), node1->neighbours.end(), node2) > 0) {
+						std::cout << "FOUND NEIGHBOR: " << node1->id << std::endl;
+						std::cout << "FOR NODE: " << node2->id << std::endl;
+						std::cout << "CURRENT NODE: " << currentNode->id << " CURRENT AREA CODE: " << currentNode->areaCode << std::endl;
+						closestNode = node1;
+					}
+				}
+				/*if (node->nodeType == AiGraphNode::NodeType::LOTENTRANCE) {
 					if (closestNode == nullptr ||
 						glm::distance(currentNode->position, node->position) < closestDistance) {
 						closestDistance = glm::distance(currentNode->position, node->position);
 						closestNode = node;
 					}
-				}
+				}*/
 			}
 			nodes.push_back(closestNode);
 		}
@@ -261,10 +272,11 @@ void AiComponent::pickRandEntranceNode() {
 	std::srand(Time::now() + (double)entity->id()); // Get AI picking differently
 	// Should give number between 0 and vector.size()-1
 	int pick = rand() % randIntCeiling;
+	std::cout << "PICKED ID: " << nodes[pick]->id << " PICKED AREA: " << nodes[pick]->areaCode << std::endl;
 	aStar(nodes[pick]);
-	std::cout << "CNODE ID: " << currentNode->id << "CNODE AREA: " << currentNode->areaCode << std::endl;
+	std::cout << "CNODE ID: " << currentNode->id << " NODE TYPE: " << static_cast<int>(currentNode->nodeType) << "CNODE AREA: " << currentNode->areaCode << std::endl;
 	for (std::shared_ptr<AiGraphNode> nde : nodeQueue) {
-		std::cout << "NODE ID: " << nde->id << "NODE AREA: " << nde->areaCode << std::endl;
+		std::cout << "NODE ID: " << nde->id << " NODE TYPE: " << static_cast<int>(nde->nodeType) << " NODE AREA: " << nde->areaCode << std::endl;
 	}
 }
 
@@ -290,11 +302,11 @@ void AiComponent::searchState() {
 	// Checks if the car has reached the current node
 	if (inBounds) {
 		if (nodeQueue.size() == 1) {
-			if (pickClosestParkingNode(currentNode)) {
+			if (pickClosestParkingNode(nodeQueue[0])) {
 				currentNode = nodeQueue[0];
+				//nodeQueue.erase(nodeQueue.begin());
 			}
 			else {
-				visitedAreas.push_back(currentNode->areaCode);
 				currentNode = nodeQueue[0];
 				nodeQueue.erase(nodeQueue.begin());
 				pickRandEntranceNode();
@@ -309,6 +321,10 @@ void AiComponent::searchState() {
 			if (currentNode->nodeType == AiGraphNode::NodeType::SPAWN) {
 				currentNode->nodeTaken = false;
 			}
+			if (std::count(visitedAreas.begin(), visitedAreas.end(), currentNode->areaCode) == 0) {
+				visitedAreas.push_back(currentNode->areaCode);
+			}
+			
 			currentNode = nodeQueue[0];
 			nodeQueue.erase(nodeQueue.begin());
 		}
@@ -316,6 +332,7 @@ void AiComponent::searchState() {
 	// Check for stuck status i.e. has not moved for too long
 	else if (recoveryTimeout > MAXSTUCKTIME) {
 		switchState(States::RECOVERY);
+		std::cout << "RECOVERY: CNODE ID: " << currentNode->id << "CNODE AREA: " << currentNode->areaCode << std::endl;
 		stuckPos = entity->getComponent<TransformComponent>()->getGlobalPosition();
 		createRecoveryNode();
 		recoveryTimeout = 0;
