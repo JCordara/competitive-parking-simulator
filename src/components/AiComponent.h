@@ -38,6 +38,7 @@ public:
 	bool nodeTaken = false;
 	int id = 0;
 	int areaCode;
+	float nodeSpeed = 0; // When car hits node, tells to slow down or not
 };
 
 class AiComponent : public BaseComponent {
@@ -50,7 +51,7 @@ public:
 		RESET
 	};
 
-	float aiSpeed = 0.45f;
+	float aiSpeed = 0.55f;
 	const float NODETHRESHOLD = 2.5f;
 	float sightFrontConeWidth;
 	float sightFrontConeHeight;
@@ -60,6 +61,9 @@ public:
 	std::shared_ptr<AiGraphNode> currentNode = std::make_shared<AiGraphNode>();
 
     AiComponent(shared_ptr<Entity> parent);
+	AiComponent(shared_ptr<Entity> parent, std::vector<glm::vec3> nodeLocs);
+	void setParkingNode(std::vector<glm::vec3> nodeLocs);
+	void pickParkingNode();
     ~AiComponent();
     static ComponentEnum getType();
     void update();
@@ -80,6 +84,7 @@ private:
 	int recoveryTimeout = 0; // Count of frames where the vehicle is not moving enough
 	std::vector<Entity> carQueue;
 	std::vector<std::shared_ptr<AiGraphNode>> nodeQueue;
+	std::vector<std::shared_ptr<AiGraphNode>> emptyParkingNodes;
 	std::vector<int> visitedAreas;
 	std::unordered_map<int, std::vector<int>> areaMap;
 

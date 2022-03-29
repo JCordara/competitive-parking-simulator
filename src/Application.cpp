@@ -2,7 +2,7 @@
 #include <Random.h>
 
 #define SPAWN_PROP_CARS 1
-unsigned int g_numAiCars = 3;
+unsigned int g_numAiCars = 1;
 int totalScore = 0;
 
 bool g_showHUD = false;
@@ -617,7 +617,8 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 		lightChild->getComponent<TransformComponent>()->setLocalRotation(glm::radians(10.f), glm::vec3(1.f, 0.f, 0.f));
 
 		aiCar->addComponent<VehicleComponent>();
-		aiCar->addComponent<AiComponent>();
+		//aiCar->addComponent<AiComponent>();
+		
 		auto audioComponent = aiCar->addComponent<AudioComponent>();
 		audioComponent->addSound(AudioTrigger::Collision, "audio/oof.wav");
 		aiCars.push_back(aiCar);
@@ -902,6 +903,12 @@ void Application::setupBaseLevel(shared_ptr<Scene> scene) {
 	parkingSpotRotation = collectfloatFromFile("modelTransformations/parkingSpotRotation.txt", parkingSpotRotation);
 	emptySubsetLocation = collectGLMVecFromFile("modelTransformations/emptySpotSubsetLocation.txt", emptySubsetLocation);
 	emptySubsetRotation = collectfloatFromFile("modelTransformations/emptySpotSubsetRotation.txt", emptySubsetRotation);
+
+	for (auto aiCar : aiCars) {
+		aiCar->addComponent<AiComponent>(emptySubsetLocation);
+		//car->getComponent<AiComponent>()->setParkingNode(emptySubsetLocation);
+	}
+	
 	/*propcars.reserve(emptySubsetLocation.size());
 	std::cout <<"propcars: " << propcars.size() << std::endl;*/
 

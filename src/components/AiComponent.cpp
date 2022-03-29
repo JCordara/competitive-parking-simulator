@@ -21,8 +21,50 @@ AiComponent::AiComponent(shared_ptr<Entity> parent)
 	Events::AiComponentInit.broadcast(*this);
 	setupAreaMap();
 	setSpawnNode();
-	pickRandEntranceNode();
+	//pickRandEntranceNode();
 	accelForwards();
+}
+
+AiComponent::AiComponent(shared_ptr<Entity> parent, std::vector<glm::vec3> nodeLocs)
+	: BaseComponent(parent)
+{
+	Events::AiComponentInit.broadcast(*this);
+	setupAreaMap();
+	setSpawnNode();
+	setParkingNode(nodeLocs);
+	pickParkingNode();
+	//pickRandEntranceNode();
+	accelForwards();
+}
+
+void AiComponent::pickParkingNode() {
+	int randIntCeiling = emptyParkingNodes.size();
+	double now = time(nullptr);
+	std::srand(now + (double)entity->id()); // Get AI picking differently
+	// Should give number between 0 and vector.size()-1
+	int pick = rand() % randIntCeiling;
+	std::cout << "PICKED ID: " << emptyParkingNodes[pick]->id << " PICKED AREA: " << emptyParkingNodes[pick]->areaCode << std::endl;
+	aStar(emptyParkingNodes[pick]);
+	std::cout << "CNODE ID: " << currentNode->id << " NODE TYPE: " << static_cast<int>(currentNode->nodeType) << "CNODE AREA: " << currentNode->areaCode << std::endl;
+	for (std::shared_ptr<AiGraphNode> nde : nodeQueue) {
+		std::cout << "NODE ID: " << nde->id << " NODE TYPE: " << static_cast<int>(nde->nodeType) << " NODE AREA: " << nde->areaCode << std::endl;
+	}
+}
+
+
+void AiComponent::setParkingNode(std::vector<glm::vec3> nodeLocs) {
+	std::vector<std::shared_ptr<AiGraphNode>> nodes;
+	for (glm::vec loc : nodeLocs) {
+		for (std::shared_ptr<AiGraphNode> node: gameplaySystem->aiGlobalNodes) {
+			if (glm::distance(node->position, loc) < 5) {
+				std::cout << "TEST TRUE" << std::endl;
+				nodes.push_back(node);
+			}
+		}
+	}
+	std::cout << "TEST LOOP ENDED" << std::endl;
+	if (nodes.size() == 0) return;
+	emptyParkingNodes = nodes;
 }
 
 // Needed method for Entity typing
@@ -160,7 +202,8 @@ void AiComponent::resetAi() {
 	setSpawnNode();
 	visitedAreas.clear();
 	switchState(States::SEARCH);
-	pickRandEntranceNode();
+	pickParkingNode();
+	//pickRandEntranceNode();
 }
 
 // Simple method for switching states
@@ -301,7 +344,7 @@ void AiComponent::searchState() {
 
 	// Checks if the car has reached the current node
 	if (inBounds) {
-		if (nodeQueue.size() == 1) {
+		/*if (nodeQueue.size() == 1) {
 			if (pickClosestParkingNode(nodeQueue[0])) {
 				currentNode = nodeQueue[0];
 				//nodeQueue.erase(nodeQueue.begin());
@@ -312,8 +355,12 @@ void AiComponent::searchState() {
 				pickRandEntranceNode();
 			}
 			//nodeQueue.erase(nodeQueue.begin()); // Erase lot entrance already reached
+		}*/
+		for (auto neigbor : currentNode->neighbours) {
+			std::cout << "NODE Neightbor ID: " << neigbor->id << std::endl;
 		}
-		else if(currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
+		if(currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
+			currentNode->nodeTaken = true;
 			Events::CarParked.broadcast(entity);
 		}
 		else {
@@ -324,9 +371,14 @@ void AiComponent::searchState() {
 			if (std::count(visitedAreas.begin(), visitedAreas.end(), currentNode->areaCode) == 0) {
 				visitedAreas.push_back(currentNode->areaCode);
 			}
+			if (nodeQueue.size() > 0) {
+				currentNode = nodeQueue[0];
+				nodeQueue.erase(nodeQueue.begin());
+				aiSpeed = currentNode->nodeSpeed; accelForwards();
+				std::cout << "CNODE ID: " << currentNode->id << std::endl;
+			}
+			else std::cout << "ERROR: NODE QUEUE IS EMPTY" << std::endl;
 			
-			currentNode = nodeQueue[0];
-			nodeQueue.erase(nodeQueue.begin());
 		}
 	}
 	// Check for stuck status i.e. has not moved for too long

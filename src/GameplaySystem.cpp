@@ -114,6 +114,9 @@ void GameplaySystem::setNodeType(std::string nodeType, std::shared_ptr<AiGraphNo
 void GameplaySystem::addAINode(std::string nodeType, int nodeAreaCode, glm::vec3 nodePos) {
 	std::shared_ptr<AiGraphNode> aiNode = std::make_shared<AiGraphNode>();
 	setNodeType(nodeType, aiNode);
+	if (aiNode->nodeType == AiGraphNode::NodeType::SPAWN) aiNode->nodeSpeed = 0.45;
+	if (aiNode->nodeType == AiGraphNode::NodeType::LOTENTRANCE) aiNode->nodeSpeed = 0.35;
+	if (aiNode->nodeType == AiGraphNode::NodeType::TRAVERSAL) aiNode->nodeSpeed = 0.55;
 	lastNodeID++; aiNode->id = lastNodeID;
 	aiNode->position = nodePos;
 	switch (nodeAreaCode) {
@@ -209,7 +212,7 @@ void GameplaySystem::testPrintAINodes() {
 		case 2: setAINodeNeighbors(node, 54, area968Nodes); break;
 		case 3: setAINodeNeighbors(node, 7, area951Nodes); break;
 		case 116: setAINodeNeighbors(node, 3, area950Nodes);
-			setAINodeNeighbors(node, 4, area950Nodes); break;
+			setAINodeNeighbors(node, 4, area950Nodes);
 			setAINodeNeighbors(node, 115, area950Nodes); break; //Push for both
 		case 115: setAINodeNeighbors(node, 1, area950Nodes);
 			setAINodeNeighbors(node, 2, area950Nodes); break;
@@ -232,7 +235,7 @@ void GameplaySystem::testPrintAINodes() {
 		case 12: setAINodeNeighbors(node, 49, area967Nodes); break;
 		case 110: setAINodeNeighbors(node, 114, area952Nodes); break;
 		case 111: setAINodeNeighbors(node, 8, area952Nodes);
-			setAINodeNeighbors(node, 9, area952Nodes); break;
+			setAINodeNeighbors(node, 9, area952Nodes);
 			setAINodeNeighbors(node, 110, area952Nodes); break;
 		case 112: setAINodeNeighbors(node, 10, area952Nodes);
 			setAINodeNeighbors(node, 113, area952Nodes); break;
@@ -476,7 +479,7 @@ void GameplaySystem::testPrintAINodes() {
 		//43=Middle-Ent,45=RightMiddle-Ent,46=Right-Ent,44=Left-Ent
 		//98=Left-Tra,94=MiddleLeft-Tra,95=Middle-Tra,96=MiddleRight-Tra,97=Right-Tra
 		switch (node->id) {
-		case 44: setAINodeNeighbors(node, 47, area965Nodes); break; //sdifguhg
+		case 44: setAINodeNeighbors(node, 47, area965Nodes); break;
 		case 98: setAINodeNeighbors(node, 44, area966Nodes); break;
 		case 94: setAINodeNeighbors(node, 98, area966Nodes);
 			setAINodeNeighbors(node, 43, area966Nodes); break;
