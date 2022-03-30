@@ -448,7 +448,7 @@ void  AiComponent::createRecoveryNode() {
 // Then forward and random turns until further away from the point where stuck
 void AiComponent::recoveryState() {
 	const int MAXSTUCKTIME = 20; // 6 Second recovery time allowance
-	float REVERSEMINIMUM = 4.f;
+	float REVERSEMINIMUM = 10.f;
 	float amountMoved = glm::distance(
 		entity->getComponent<TransformComponent>()->getGlobalPosition(), stuckPos);
 	//std::cout << entity->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y << std::endl;
@@ -468,8 +468,8 @@ void AiComponent::recoveryState() {
 		srand(Time::now() + (double)entity->id());
 		int randIntCeiling = 3; // Should give choices of 0 and 1
 		int pick = rand() % randIntCeiling;
-		if(pick == 0) Events::VehicleSteer.broadcast(entity, -1);
-		else if (pick == 1) Events::VehicleSteer.broadcast(entity, 1);
+		if(pick == 0) Events::VehicleSteer.broadcast(entity, -0.2);
+		else if (pick == 1) Events::VehicleSteer.broadcast(entity, 0.2);
 		// Third number would be backing up straight
 	}
 	else {

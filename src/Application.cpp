@@ -2,7 +2,7 @@
 #include <Random.h>
 
 #define SPAWN_PROP_CARS 1
-unsigned int g_numAiCars = 1;
+unsigned int g_numAiCars = 4;
 int totalScore = 0;
 
 bool g_showHUD = false;
