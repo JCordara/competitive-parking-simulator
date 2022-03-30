@@ -1,5 +1,6 @@
 #include "AiComponent.h"
 #include "GameplaySystem.h"
+#include <glm/gtx/vector_angle.hpp>
 
 // Default constructor
 AiGraphNode::AiGraphNode() {
@@ -43,12 +44,12 @@ void AiComponent::pickParkingNode() {
 	std::srand(now + (double)entity->id()); // Get AI picking differently
 	// Should give number between 0 and vector.size()-1
 	int pick = rand() % randIntCeiling;
-	std::cout << "PICKED ID: " << emptyParkingNodes[pick]->id << " PICKED AREA: " << emptyParkingNodes[pick]->areaCode << std::endl;
+	//std::cout << "PICKED ID: " << emptyParkingNodes[pick]->id << " PICKED AREA: " << emptyParkingNodes[pick]->areaCode << std::endl;
 	aStar(emptyParkingNodes[pick]);
-	std::cout << "CNODE ID: " << currentNode->id << " NODE TYPE: " << static_cast<int>(currentNode->nodeType) << "CNODE AREA: " << currentNode->areaCode << std::endl;
-	for (std::shared_ptr<AiGraphNode> nde : nodeQueue) {
-		std::cout << "NODE ID: " << nde->id << " NODE TYPE: " << static_cast<int>(nde->nodeType) << " NODE AREA: " << nde->areaCode << std::endl;
-	}
+	//std::cout << "CNODE ID: " << currentNode->id << " NODE TYPE: " << static_cast<int>(currentNode->nodeType) << "CNODE AREA: " << currentNode->areaCode << std::endl;
+	//for (std::shared_ptr<AiGraphNode> nde : nodeQueue) {
+	//	std::cout << "NODE ID: " << nde->id << " NODE TYPE: " << static_cast<int>(nde->nodeType) << " NODE AREA: " << nde->areaCode << std::endl;
+	//}
 }
 
 
@@ -57,12 +58,10 @@ void AiComponent::setParkingNode(std::vector<glm::vec3> nodeLocs) {
 	for (glm::vec loc : nodeLocs) {
 		for (std::shared_ptr<AiGraphNode> node: gameplaySystem->aiGlobalNodes) {
 			if (glm::distance(node->position, loc) < 5) {
-				std::cout << "TEST TRUE" << std::endl;
 				nodes.push_back(node);
 			}
 		}
 	}
-	std::cout << "TEST LOOP ENDED" << std::endl;
 	if (nodes.size() == 0) return;
 	emptyParkingNodes = nodes;
 }
@@ -184,17 +183,23 @@ float AiComponent::getFValue(std::shared_ptr<AiGraphNode> node) {
 }
 
 // Set the spawn Node for the AI
-// Chooses the first available Node in the global node list
+// Chooses a random available Node in the Starting area node list
 void AiComponent::setSpawnNode() {
-	for each (std::shared_ptr<AiGraphNode> node in gameplaySystem->aiGlobalNodes) {
+	std::vector<std::shared_ptr<AiGraphNode>> possibleNodes;
+	for each (std::shared_ptr<AiGraphNode> node in gameplaySystem->area970Nodes) {
 		if (node->nodeType == AiGraphNode::NodeType::SPAWN && !(node->nodeTaken)) {
-			currentNode = node;
-			node->nodeTaken = true;
-			//node->spawnAiComponent = entity->shared_from_this();
-			entity->getComponent<TransformComponent>()->setLocalPosition(node->position);
-			return;
+			possibleNodes.push_back(node);
 		}
 	}
+	int randIntCeiling = possibleNodes.size();
+	double now = time(nullptr);
+	std::srand(now + (double)entity->id()); // Get AI picking differently
+	// Should give number between 0 and vector.size()-1
+	int pick = rand() % randIntCeiling;
+	currentNode = possibleNodes[pick];
+	currentNode->nodeTaken = true;
+	//node->spawnAiComponent = entity->shared_from_this();
+	entity->getComponent<TransformComponent>()->setLocalPosition(currentNode->position);
 }
 
 // Resets the AI to a chosen spawn position and search state
@@ -315,12 +320,12 @@ void AiComponent::pickRandEntranceNode() {
 	std::srand(Time::now() + (double)entity->id()); // Get AI picking differently
 	// Should give number between 0 and vector.size()-1
 	int pick = rand() % randIntCeiling;
-	std::cout << "PICKED ID: " << nodes[pick]->id << " PICKED AREA: " << nodes[pick]->areaCode << std::endl;
+	//std::cout << "PICKED ID: " << nodes[pick]->id << " PICKED AREA: " << nodes[pick]->areaCode << std::endl;
 	aStar(nodes[pick]);
-	std::cout << "CNODE ID: " << currentNode->id << " NODE TYPE: " << static_cast<int>(currentNode->nodeType) << "CNODE AREA: " << currentNode->areaCode << std::endl;
-	for (std::shared_ptr<AiGraphNode> nde : nodeQueue) {
-		std::cout << "NODE ID: " << nde->id << " NODE TYPE: " << static_cast<int>(nde->nodeType) << " NODE AREA: " << nde->areaCode << std::endl;
-	}
+	//std::cout << "CNODE ID: " << currentNode->id << " NODE TYPE: " << static_cast<int>(currentNode->nodeType) << "CNODE AREA: " << currentNode->areaCode << std::endl;
+	//for (std::shared_ptr<AiGraphNode> nde : nodeQueue) {
+	//	std::cout << "NODE ID: " << nde->id << " NODE TYPE: " << static_cast<int>(nde->nodeType) << " NODE AREA: " << nde->areaCode << std::endl;
+	//}
 }
 
 // A helper method to calculate the distance from the current node
@@ -338,8 +343,8 @@ float AiComponent::calcDistanceFromCurrentNode() {
 // Handling logic for reaching the current node the AI is approaching
 // Handles logic for detecting if the car gets stuck
 void AiComponent::searchState() {
-	const float MINSPEED = 4.f; // minimum speed to be considered moving
-	const int MAXSTUCKTIME = 90; 
+	const float MINSPEED = 3.f; // minimum speed to be considered moving
+	const int MAXSTUCKTIME = 6; 
 	bool inBounds = inRangeOfNode(NODETHRESHOLD);
 
 	// Checks if the car has reached the current node
@@ -356,10 +361,8 @@ void AiComponent::searchState() {
 			}
 			//nodeQueue.erase(nodeQueue.begin()); // Erase lot entrance already reached
 		}*/
-		for (auto neigbor : currentNode->neighbours) {
-			std::cout << "NODE Neightbor ID: " << neigbor->id << std::endl;
-		}
 		if(currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
+			aiSpeed = 0.1; accelForwards();
 			currentNode->nodeTaken = true;
 			Events::CarParked.broadcast(entity);
 		}
@@ -375,16 +378,21 @@ void AiComponent::searchState() {
 				currentNode = nodeQueue[0];
 				nodeQueue.erase(nodeQueue.begin());
 				aiSpeed = currentNode->nodeSpeed; accelForwards();
-				std::cout << "CNODE ID: " << currentNode->id << std::endl;
+				//std::cout << "CNODE ID: " << currentNode->id << std::endl;
+				//for (auto neigbor : currentNode->neighbours) {
+				//	std::cout << "NODE Neightbor ID: " << neigbor->id << std::endl;
+				//}
 			}
-			else std::cout << "ERROR: NODE QUEUE IS EMPTY" << std::endl;
-			
+			else {
+				std::cout << "ERROR: NODE QUEUE IS EMPTY" << std::endl;
+				pickParkingNode();
+			}
 		}
 	}
 	// Check for stuck status i.e. has not moved for too long
 	else if (recoveryTimeout > MAXSTUCKTIME) {
 		switchState(States::RECOVERY);
-		std::cout << "RECOVERY: CNODE ID: " << currentNode->id << "CNODE AREA: " << currentNode->areaCode << std::endl;
+		//std::cout << "RECOVERY: CNODE ID: " << currentNode->id << "CNODE AREA: " << currentNode->areaCode << std::endl;
 		stuckPos = entity->getComponent<TransformComponent>()->getGlobalPosition();
 		createRecoveryNode();
 		recoveryTimeout = 0;
@@ -393,7 +401,7 @@ void AiComponent::searchState() {
 	// If the AI's speed is low, count it as stuck and update the timeout count
 	else if (entity->getComponent<VehicleComponent>()->
 				vehicle->computeForwardSpeed() < MINSPEED) {
-		recoveryTimeout++; // One more frame of not moving enough
+		 recoveryTimeout++; // One more frame of not moving enough
 	}
 	// Normal movement for the AI, just move to the next node
 	else {
@@ -415,32 +423,42 @@ bool AiComponent::inRangeOfNode(const float nodeThreshhold) {
 }
 
 // Creates an extra node when in recovery mode for guidance
+// Can only create a recovery node if the current node is not already a recovery node
 void  AiComponent::createRecoveryNode() {
-	// Make a new temp node to direct AI
-	physx::PxQuat aiCarRotation = entity->
-		getComponent<TransformComponent>()->getLocalRotation();
-	glm::vec3 aiForwardVec = ComputeForwardVector(aiCarRotation);
-	aiForwardVec = glm::normalize(aiForwardVec);
-	glm::vec3 aiSideVec = glm::vec3(-aiForwardVec.z, aiForwardVec.y, aiForwardVec.x);
-	aiSideVec = aiSideVec * 8.f; // Length of 8
-	glm::vec3 newNodePos = stuckPos + aiSideVec;
-	std::shared_ptr<AiGraphNode> stuckNode = std::make_shared<AiGraphNode>();
-	stuckNode->nodeType = AiGraphNode::NodeType::RECOVERY;
-	stuckNode->position = newNodePos;
-	nodeQueue.insert(nodeQueue.begin(), currentNode);
-	currentNode = stuckNode;
+	if (currentNode->nodeType != AiGraphNode::NodeType::RECOVERY) {
+		// Make a new temp node to direct AI
+		physx::PxQuat aiCarRotation = entity->
+			getComponent<TransformComponent>()->getLocalRotation();
+		glm::vec3 aiForwardVec = ComputeForwardVector(aiCarRotation);
+		aiForwardVec = glm::normalize(aiForwardVec);
+		glm::vec3 newNodePos = stuckPos - aiForwardVec;
+		/*glm::vec3 aiSideVec = glm::vec3(-aiForwardVec.z, aiForwardVec.y, aiForwardVec.x);
+		aiSideVec = aiSideVec * 4.f; // Length of 8
+		glm::vec3 newNodePos = stuckPos + aiSideVec;*/
+		std::shared_ptr<AiGraphNode> stuckNode = std::make_shared<AiGraphNode>();
+		stuckNode->nodeType = AiGraphNode::NodeType::RECOVERY;
+		stuckNode->position = newNodePos;
+		nodeQueue.insert(nodeQueue.begin(), currentNode);
+		currentNode = stuckNode;
+	}
 }
 
 // for the AI to test if it is stuck and to recover
 // Reverses and turns randomly until a certain distance
 // Then forward and random turns until further away from the point where stuck
 void AiComponent::recoveryState() {
-	const int MAXSTUCKTIME = 360; // 6 Second recovery time allowance
+	const int MAXSTUCKTIME = 20; // 6 Second recovery time allowance
 	float REVERSEMINIMUM = 4.f;
 	float amountMoved = glm::distance(
 		entity->getComponent<TransformComponent>()->getGlobalPosition(), stuckPos);
-
+	//std::cout << entity->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y << std::endl;
 	if (recoveryTimeout > MAXSTUCKTIME) {
+		if (entity->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y < 0) {
+			Events::VehicleFlip.broadcast(entity, 90.f);
+		}
+		else {
+			resetAi();
+		}
 		//recoveryTimeout = 0;
 		//accelReverse();
 	}
@@ -457,13 +475,13 @@ void AiComponent::recoveryState() {
 	else {
 		state = lastState;
 		recoveryTimeout = 0;
-		accelForwards();
+		aiSpeed = 0.5; accelForwards();
 	}
 }
 
 // Gets angle between goal and current forward, turns towards goal
 void AiComponent::steerToNextNode() {
-	const float ANGLETHRESHOLD = 3.14/10;
+	const float ANGLETHRESHOLD = 3.14/20;
 
 	physx::PxQuat aiCarRotation = entity->
 		getComponent<TransformComponent>()->getLocalRotation();
@@ -474,18 +492,44 @@ void AiComponent::steerToNextNode() {
 		getComponent<TransformComponent>()->getGlobalPosition();
 	nodesVec = glm::normalize(nodesVec);
 
+	//float angleFinal = glm::orientedAngle(glm::vec2(nodesVec.x, nodesVec.z), glm::vec2(aiForwardQuat.x, aiForwardQuat.z));
+	
 	float angle = glm::dot(aiForwardQuat, nodesVec);
 	angle = angle / glm::length(aiForwardQuat);
 	angle = angle / glm::length(nodesVec);
 	angle = glm::acos(angle);
 	glm::vec3 cross = glm::cross(aiForwardQuat, nodesVec);
 	float angleFinal = glm::dot(glm::vec3(0, 1, 0), cross);
-	if (angleFinal < 0) {
+	
+	// If the angle is below around 60 degrees, keep speed and turn in that direction
+	// Turn amounts are negative as the directions are reversed at the moment
+	
+	angleFinal = angleFinal * 3.14;
+	if (angleFinal < -ANGLETHRESHOLD && angleFinal > -1) {
+		if(aiSpeed <= 0.55) aiSpeed = aiSpeed + 0.05; accelForwards(); // Increase speed slowly
+		angleFinal = angleFinal / 3.14;
 		float turnAmount = std::max(-1.f, (angleFinal));
 		//turn left
 		Events::VehicleSteer.broadcast(entity, -turnAmount);
 	}
-	else{
+	// If the is greater than around 60 degrees slow down and turn in that direction
+	else if (angleFinal < -ANGLETHRESHOLD) {
+		if (aiSpeed >= 0.3) aiSpeed = aiSpeed - 0.05; accelForwards();
+		angleFinal = angleFinal / 3.14;
+		float turnAmount = std::max(-1.f, (angleFinal));
+		//turn left
+		Events::VehicleSteer.broadcast(entity, -turnAmount);
+	}
+	else if (angleFinal > ANGLETHRESHOLD && angleFinal < 1) {
+		if (aiSpeed <= 0.55) aiSpeed = aiSpeed + 0.05; accelForwards(); // Increase speed slowly
+		angleFinal = angleFinal / 3.14;
+		float turnAmount = std::min(1.f, (angleFinal));
+		//turn right
+		Events::VehicleSteer.broadcast(entity, -turnAmount);
+	}
+	else if (angleFinal > ANGLETHRESHOLD) {
+		if (aiSpeed >= 0.3) aiSpeed = aiSpeed - 0.05; accelForwards();
+		angleFinal = angleFinal / 3.14;
 		float turnAmount = std::min(1.f, (angleFinal));
 		//turn right
 		Events::VehicleSteer.broadcast(entity, -turnAmount);

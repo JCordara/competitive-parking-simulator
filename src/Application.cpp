@@ -270,13 +270,13 @@ int Application::play() {
 					roundWonMenu();
 				}
 				else {
-					//gameplay->update();	// Gameplay / AI update
+					gameplay->update();	// Gameplay / AI update
 					physics->update();	// Physics update
 					audio->update();	// Audio update
 				}
 			}
 		}
-		gameplay->update();	// Gameplay / AI update
+		//gameplay->update();	// Gameplay / AI update
 		//audio->update();	// Audio update
 		// Render the current scene
 		render->update();

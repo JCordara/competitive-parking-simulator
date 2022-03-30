@@ -38,7 +38,7 @@ public:
 	bool nodeTaken = false;
 	int id = 0;
 	int areaCode;
-	float nodeSpeed = 0; // When car hits node, tells to slow down or not
+	float nodeSpeed = 0.05; // When car hits node, tells to slow down or not
 };
 
 class AiComponent : public BaseComponent {
@@ -52,7 +52,7 @@ public:
 	};
 
 	float aiSpeed = 0.55f;
-	const float NODETHRESHOLD = 2.5f;
+	const float NODETHRESHOLD = 3.5f;
 	float sightFrontConeWidth;
 	float sightFrontConeHeight;
 	float sightBackConeWidth;

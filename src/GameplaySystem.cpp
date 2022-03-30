@@ -114,9 +114,10 @@ void GameplaySystem::setNodeType(std::string nodeType, std::shared_ptr<AiGraphNo
 void GameplaySystem::addAINode(std::string nodeType, int nodeAreaCode, glm::vec3 nodePos) {
 	std::shared_ptr<AiGraphNode> aiNode = std::make_shared<AiGraphNode>();
 	setNodeType(nodeType, aiNode);
-	if (aiNode->nodeType == AiGraphNode::NodeType::SPAWN) aiNode->nodeSpeed = 0.45;
+	if (aiNode->nodeType == AiGraphNode::NodeType::SPAWN) aiNode->nodeSpeed = 0.25;
 	if (aiNode->nodeType == AiGraphNode::NodeType::LOTENTRANCE) aiNode->nodeSpeed = 0.35;
 	if (aiNode->nodeType == AiGraphNode::NodeType::TRAVERSAL) aiNode->nodeSpeed = 0.55;
+	if (aiNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) aiNode->nodeSpeed = 0.35;
 	lastNodeID++; aiNode->id = lastNodeID;
 	aiNode->position = nodePos;
 	switch (nodeAreaCode) {
@@ -181,6 +182,7 @@ void GameplaySystem::testPrintAINodes() {
 		//std::cout << "Node Type: " << static_cast<int>(node->nodeType)
 		//	<< " Position: " << node->position
 		//	<< " ID: " << node->id << std::endl;
+		//59=Right-Ent,60=Bottom-Ent,61=Top-Ent,62=Left-Ent
 		if (node->id == 109) { // Middle Traversal
 			setAINodeNeighbors(node, 59, area970Nodes); // right entrance
 			setAINodeNeighbors(node, 60, area970Nodes); // Bottom entrance
@@ -192,11 +194,11 @@ void GameplaySystem::testPrintAINodes() {
 		else if (node->id == 61) setAINodeNeighbors(node, 4, area950Nodes);
 		else if (node->id == 62) setAINodeNeighbors(node, 24, area956Nodes);
 		else {
-			// All spawn nodes are the same
-			setAINodeNeighbors(node, 59, area970Nodes);
-			setAINodeNeighbors(node, 60, area970Nodes);
-			setAINodeNeighbors(node, 61, area970Nodes);
-			setAINodeNeighbors(node, 62, area970Nodes);
+			//All spawn nodes are the same
+			//setAINodeNeighbors(node, 59, area970Nodes);
+			//setAINodeNeighbors(node, 60, area970Nodes);
+			//setAINodeNeighbors(node, 61, area970Nodes);
+			//setAINodeNeighbors(node, 62, area970Nodes);
 			setAINodeNeighbors(node, 109, area970Nodes);
 		}
 
@@ -274,17 +276,15 @@ void GameplaySystem::testPrintAINodes() {
 		//	<< " ID: " << node->id << std::endl;
 		//24=Right-Ent,23=Bottom-Ent,25=Top-Ent,26=Left-Ent,74=Right-Tra,75=Left-Tra
 		switch (node->id) {
-		case 24: setAINodeNeighbors(node, 23, area954Nodes);
-			setAINodeNeighbors(node, 25, area954Nodes); break;
 		case 23: setAINodeNeighbors(node, 22, area955Nodes); break;
 		case 25: setAINodeNeighbors(node, 28, area958Nodes); break;
 		case 26: setAINodeNeighbors(node, 31, area959Nodes); break;
-		case 74: setAINodeNeighbors(node, 75, area954Nodes);
-			setAINodeNeighbors(node, 24, area954Nodes);
-			setAINodeNeighbors(node, 23, area954Nodes);
-			setAINodeNeighbors(node, 25, area954Nodes); break;
-		case 75:setAINodeNeighbors(node, 26, area954Nodes);
-			setAINodeNeighbors(node, 25, area954Nodes); break;
+		case 74: setAINodeNeighbors(node, 75, area956Nodes);
+			setAINodeNeighbors(node, 24, area956Nodes);
+			setAINodeNeighbors(node, 23, area956Nodes);
+			setAINodeNeighbors(node, 25, area956Nodes); break;
+		case 75:setAINodeNeighbors(node, 26, area956Nodes);
+			setAINodeNeighbors(node, 25, area956Nodes); break;
 		}
 	}
 	//std::cout << "-----AREA 951-----" << std::endl;
@@ -439,7 +439,7 @@ void GameplaySystem::testPrintAINodes() {
 			setAINodeNeighbors(node, 131, area962Nodes); break;
 		case 85: setAINodeNeighbors(node, 84, area962Nodes);
 			setAINodeNeighbors(node, 38, area962Nodes);
-			setAINodeNeighbors(node, 49, area962Nodes);
+			setAINodeNeighbors(node, 39, area962Nodes);
 			setAINodeNeighbors(node, 130, area962Nodes); break;
 		}
 	}
@@ -453,7 +453,7 @@ void GameplaySystem::testPrintAINodes() {
 		case 86: setAINodeNeighbors(node, 87, area963Nodes);
 			setAINodeNeighbors(node, 41, area963Nodes);
 			setAINodeNeighbors(node, 133, area963Nodes); break;
-		case 87: setAINodeNeighbors(node, 133, area963Nodes); break;
+		case 87: setAINodeNeighbors(node, 132, area963Nodes); break;
 		}
 	}
 	//std::cout << "-----AREA 964-----" << std::endl;
