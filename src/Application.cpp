@@ -277,7 +277,7 @@ std::shared_ptr<Entity> Application::addTriggerBoxEntity(string alias, string mo
 	entity->getComponent<TransformComponent>()->localTranslate(transformation.location);
 	entity->getComponent<TransformComponent>()->localRotate(glm::radians(transformation.rotationAxisAngle.y), glm::vec3(0.f, 1.f, 0.f));
 	entity->addComponent<RendererComponent>()->enableRender();
-	entity->addComponent<RendererComponent>()->enableTransparentRendering();
+	entity->getComponent<RendererComponent>()->enableTransparentRendering();
 	entity->addComponent<ModelComponent>()->setModel(getModelOrThrow(modelName));
 	// --- Indicator for ent --- //
 	entity->addComponent<DescriptionComponent>()->setString("Name", alias);
@@ -498,5 +498,6 @@ vector<float> collectfloatFromFile(string filepath, vector<float> vec) {
 }
 
 std::vector<std::shared_ptr<AiGraphNode>> readAiGraph(string filepath) {
+	//TODO: HOW THE F DO WE LOAD THIS
 	return std::vector<std::shared_ptr<AiGraphNode>>();
 }
