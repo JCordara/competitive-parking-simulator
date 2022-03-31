@@ -22,6 +22,7 @@ Application::Application(appSettings& settings):
 	// --- Loading the models our game uses --- //
 	loadModels();
 	aiGraph = readAiGraph("[FILENAME]");
+	gameplay->defineMap(aiGraph, getInstancedTransformationsOrThrow("parkingSpots"), getInstancedTransformationsOrThrow("emptyParkingSpots"));
 	/* --- Set up Constaint entities --- */
 	generateStaticMap();
 	createPlayerEntity(instancedTransformation());
