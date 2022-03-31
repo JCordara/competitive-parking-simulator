@@ -15,6 +15,12 @@ public:
     /* Prepare framework */
     GameplaySystem(std::shared_ptr<Scene> scene);
 
+	void defineMap(
+		std::vector<std::shared_ptr<AiGraphNode>> graph,
+		std::vector<instancedTransformation> parkingSpots,
+		std::vector<instancedTransformation> emptyParkingSpots
+	);
+
     void update();
     ~GameplaySystem();
 	void setupAiNodes();

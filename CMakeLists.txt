@@ -178,6 +178,8 @@ to_binary_dir("res/textures" "/textures")
 
 # Copy all the models to binary output dir on build
 to_binary_dir("res/models" "/models")
+
+# Copy all the modelsTransformations to binary output dir on build
 to_binary_dir("res/modelTransformations" "/modelTransformations")
 
 # Copy all the shared libraries to binary output dir on build

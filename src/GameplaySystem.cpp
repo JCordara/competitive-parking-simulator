@@ -13,6 +13,14 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 
 	//setupAiNodes();
 }
+
+void GameplaySystem::defineMap(
+	std::vector<std::shared_ptr<AiGraphNode>> graph,
+	std::vector<instancedTransformation> parkingSpots,
+	std::vector<instancedTransformation> emptyParkingSpots
+) {
+	//TODO: use this for ai graph, defining prop cars, and defining triggerbox / openparking space
+}
     
 void GameplaySystem::update() {
 	double timeSinceLastUpdate = Time::now() - lastUpdateTime;
@@ -24,9 +32,7 @@ void GameplaySystem::update() {
 	}
 }
 
-GameplaySystem::~GameplaySystem() {
-
-}
+GameplaySystem::~GameplaySystem() {}
 
 void GameplaySystem::registerAiComponent(AiComponent& component) {
 	component.setGameplaySystem(

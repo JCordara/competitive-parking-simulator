@@ -17,17 +17,17 @@ void Time::init() {
 }
 
 void Time::update() {
-
+	double now = Time::now();
     // On first call to update()
     if (Time::updateDelta_ == -1.0) {
         Time::updateDelta_ = Time::timeStep_;
-        Time::lastUpdateTime_ = Time::now();
+        Time::lastUpdateTime_ = now;
         return;
     }
 
     // Calculate new time delta
-    Time::updateDelta_ = Time::now() - Time::lastUpdateTime_;
-    Time::lastUpdateTime_ = Time::now();
+    Time::updateDelta_ = now - Time::lastUpdateTime_;
+    Time::lastUpdateTime_ = now;
 
     // Calculate accumulated lag
     Time::lag_ += Time::updateDelta_;

@@ -302,6 +302,9 @@ auto convert<glm::mat4>(const physx::PxTransform& t) -> glm::mat4 {
 }
 
 
-
+struct instancedTransformation {
+	glm::vec3 location = glm::vec3(0.f, 0.f, 0.f);
+	glm::vec3 rotationAxisAngle = glm::vec3(0.f, 0.f, 0.f);
+};
 
 #endif // C_STD_H

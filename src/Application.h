@@ -39,11 +39,11 @@ struct appSettings {
 	std::string version;
 };
 
-
 class Application {
 public:
 	Application(appSettings& settings);
 	int play();
+	void exitApplication();
 	~Application();
 
 	Application() = delete;
@@ -51,37 +51,55 @@ public:
 	Application(Application&&) = delete;
 	Application& operator= (const Application&) = delete;
 	Application& operator= (Application&&) = delete;
-	void gameStart();
-	void gameClose();
-	void gameOpenOptions();
-	void roundWonMenu();
-	void gameWonGui();
 	
-
 private:
-
-	appSettings settings;
-
-	/* Framework */
+	/* --- Framework --- */
 	shared_ptr<Scene>          scene;
 	shared_ptr<GuiScene>       guiScene;
 	shared_ptr<Window>         window;
-
-	/* Game systems - update() every frame */
+	shared_ptr<Menu>		   menu;
+	bool					   playgame;
+	/* Game systems - update() (at least) every frame */
 	shared_ptr<GameplaySystem> gameplay;
 	shared_ptr<PhysicsSystem>  physics;
 	shared_ptr<RenderSystem>   render;
 	shared_ptr<AudioSystem>    audio;
 	shared_ptr<InputSystem>    input;
-
-	std::stack<shared_ptr<Menu>> menuStack;
-	std::queue<shared_ptr<Scene>> sceneQueue;
-	void setupBaseLevelGUI();
+	/* --- Loaded Data --- */
+	std::vector<std::pair<string, std::shared_ptr<Model>>> loadedModels;
+	std::vector<std::pair<string, std::vector<instancedTransformation>>> loadedInstancedTransformations;
+	std::vector<std::shared_ptr<AiGraphNode>> aiGraph;
+	appSettings settings;
+	void loadModels();
+	void loadModel(string filename, glm::vec3 col);
+	void loadInstancedTransformations(string modelKey, string positionTransformation, string axisAngleRotationTransformation);
+	std::optional<std::vector<instancedTransformation>> retrieveInstancedTransformations(string name);
+	std::vector<instancedTransformation> getInstancedTransformationsOrThrow(string name);
+	std::optional <std::shared_ptr<Model>> retrieveModel(string name);
+	std::shared_ptr<Model> getModelOrThrow(string name);
+	/* --- Level manipulators --- */
+	void generateStaticMap();
+	void createCar(string chassisModelName, std::shared_ptr<Entity> ent);
+	std::shared_ptr<Entity> createPlayerEntity(instancedTransformation transformation);
+	std::shared_ptr<Entity> addAICar(string alias, instancedTransformation transformation);
+	std::shared_ptr<Entity> addDynamicObect(string alias, string modelName, instancedTransformation transformation);
+	std::shared_ptr<Entity> addTriggerBoxEntity(string alias, string modelName, instancedTransformation transformation, PxBoxGeometry boxgeom);
+	/* --- Entity Manipulation Events --- */
+	void addOpenParkingEntity(string alias, instancedTransformation transformation);
+	void addPropCar(string alias, instancedTransformation transformation);
+	void addAICarEvent(string alias, instancedTransformation transformation);
+	/* --- GUI Handlers --- */
 	void setupMainMenu();
-	void setupBaseLevel(shared_ptr<Scene> scene);
-	void carReset(std::vector<std::shared_ptr<Entity>> carVec);
+	void setupBaseLevelGUI();
+	void roundWonMenu();
+	void gameWonGui();
+	void gameLostGui();
 };
 
 //Functions to load settings
 appSettings defaultSettings();
 appSettings loadSettings(std::string filepath);
+vector<glm::vec3> collectGLMVecFromFile(string filepath, vector<glm::vec3> vec);
+vector<float> collectfloatFromFile(string filepath, vector<float> vec);
+std::vector<std::shared_ptr<AiGraphNode>> readAiGraph(string filepath);
+

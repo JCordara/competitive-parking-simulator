@@ -43,15 +43,12 @@ void Callbacks::mouseButtonCallback(int button, int action, int mods) {
 
 // Called once per tick when the mouse moves
 void Callbacks::cursorPosCallback(double xpos, double ypos) {
-	// Move camera with either mouse button
-	if (pressedKeys.count(GLFW_MOUSE_BUTTON_1) != 0 ||
-		pressedKeys.count(GLFW_MOUSE_BUTTON_2) != 0)
-		Events::CameraRotate.broadcast(mouseDelta[0], mouseDelta[1]);
+	// Nobody's home
 }
 
 // Called once per tick when the scroll wheel scrolls
 void Callbacks::scrollCallback(double xoffset, double yoffset) {
-	Events::CameraZoom.broadcast(xoffset, yoffset);
+	// Nobody's home
 }
 
 // Called once per tick when any controller button is pressed

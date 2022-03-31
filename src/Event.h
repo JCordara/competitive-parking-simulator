@@ -15,6 +15,7 @@
 #include "EventTypes.h" // Defines event framework
 
 #include "Components/Entity.h"
+#include "Common.h"
 
 // Forward declaration of Event parameter types
 class RigidbodyComponent;
@@ -25,48 +26,46 @@ class AudioComponent;
 class VolumeTriggerComponent;
 
 namespace Events {
-    extern Event<void> GameStart;
-	extern Event<void> GamePlay;
-	extern Event<void> GameExit;
-	extern Event<void> GameOptions;
-	extern Event<void> GameWon;
+	/* --- Application Framework Events --- */
+	extern Event<void> ExitApplication;
+	extern Event<int, int> WindowResized;
+	/* --- GUI Swap Events --- */
 	extern Event<void> MainMenu;
-	extern Event<shared_ptr<Entity>, float> GameReset;
-    extern Event<shared_ptr<Entity>> CarParked;
-    extern Event<void> CarUnParked;
-
-    extern Event<void> RecompileScripts;
-
-    extern Event<shared_ptr<Entity>, float> VehicleAccelerate;
-    extern Event<shared_ptr<Entity>, float> VehicleSteer;
-    extern Event<shared_ptr<Entity>, float> VehicleBrake;
+	extern Event<void> GameGUI;
+	extern Event<void> RoundEndGUI;
+	extern Event<void> GameWonGUI;
+	extern Event<void> GameLostGUI;
+	/* --- Entity Manipulation Events--- */
+	extern Event<string, instancedTransformation> AddPropCar;
+	extern Event<string, instancedTransformation> AddParkingSpace;
+	extern Event<string, instancedTransformation> AddAICar;
+	/* --- Player Controller Events --- */
+	extern Event<shared_ptr<Entity>, float> VehicleAccelerate;
+	extern Event<shared_ptr<Entity>, float> VehicleSteer;
+	extern Event<shared_ptr<Entity>, float> VehicleBrake;
 	extern Event<shared_ptr<Entity>, float> VehicleHandbrake;
 	extern Event<shared_ptr<Entity>, float> VehicleFlip;
-
-    extern Event<double, double> CameraRotate;
-    extern Event<double, double> CameraZoom;
-
-    extern Event<int, int> WindowResized;
-
-    extern Event<shared_ptr<Entity>, shared_ptr<Entity>> Collision;
-
-    // Broadcast by rigidbody components when they are initalized
-    extern Event<RigidbodyComponent&> RigidbodyComponentInit;
-    // Broadcast by vehicle components when they are initalized
-    extern Event<VehicleComponent&> VehicleComponentInit;
-    // Broadcast by controller components when they are initalized
-    extern Event<ControllerComponent&> ControllerComponentInit;
-    // Broadcast by ai components when they are initalized
-    extern Event<AiComponent&> AiComponentInit;
-    // Broadcast by audio components when they are initalized
-    extern Event<AudioComponent&> AudioComponentInit;
-	// Broadcast by volumetrigger components when they are initalized
+	/* --- Physx --- */
+	extern Event<shared_ptr<Entity>, shared_ptr<Entity>> Collision;
+	/* --- Components --- */
+	extern Event<RigidbodyComponent&> RigidbodyComponentInit;
+	extern Event<VehicleComponent&> VehicleComponentInit;
+	extern Event<ControllerComponent&> ControllerComponentInit;
+	extern Event<AiComponent&> AiComponentInit;
+	extern Event<AudioComponent&> AudioComponentInit;
 	extern Event<VolumeTriggerComponent&> VolumeTriggerComponentInit;
-
-    extern Event<bool> TestUiEvent;
+	/* --- Game Logic Events --- */
+	extern Event<void> GameStart;
+	extern Event<void> GamePlay;
+	extern Event<void> GameOptions;
+	extern Event<void> GameWon;
+	extern Event<shared_ptr<Entity>, float> GameReset;
+	extern Event<shared_ptr<Entity>> CarParked;
+	extern Event<void> CarUnParked;
+	/* --- Script Events --- */
+	extern Event<void> RecompileScripts;
+	/* --- miscellaneous Events --- */
     extern Event<float> ChangeMusicVolume;
-    extern Event<int> ChangeNumAI;
-
 };
 
 #endif // EVENT_H
