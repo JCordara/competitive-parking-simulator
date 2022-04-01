@@ -18,6 +18,7 @@ public:
 
     friend class RigidbodyComponent;
     friend class VehicleComponent;
+	friend class VolumeTriggerComponent;
 
     /* Prepare framework */
     PhysicsSystem(shared_ptr<Scene> scene);
@@ -28,7 +29,7 @@ public:
     PxSphereGeometry* createStaticSphere(const float radius);
     PxConvexMesh*   createDynamicMesh(const Model& model);
     PxConvexMesh*   createDynamicMesh(const PxVec3* v, const PxU32 n);
-	void createTriggerBox(PxTransform startPos, PxBoxGeometry boxGeom);
+	PxRigidActor* createTriggerBox(PxTransform startPos, PxBoxGeometry boxGeom);
 	
 
     ~PhysicsSystem();

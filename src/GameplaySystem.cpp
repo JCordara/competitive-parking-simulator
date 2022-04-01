@@ -10,9 +10,13 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 	Events::CarParked.registerHandler<GameplaySystem,
 		&GameplaySystem::registerCarParked>(this);
 
-
+	
+	
+	 
 	//setupAiNodes();
 }
+
+int numOfAI = 3;
 
 void GameplaySystem::defineMap(
 	std::string graph,
@@ -20,6 +24,53 @@ void GameplaySystem::defineMap(
 	std::vector<instancedTransformation> emptyParkingSpots
 ) {
 	//TODO: use this for ai graph, defining prop cars, and defining triggerbox / openparking space
+	int propCarNum = 0;
+	int emptyParkingSpotNum = 0;
+	for (auto parkingSpot = parkingSpots.begin(); parkingSpot != parkingSpots.end(); parkingSpot++) {
+		Events::AddPropCar.broadcast("propcar "+propCarNum, *parkingSpot);
+		propCarNum++;
+	}
+
+	for (auto emptyParkingSpot = emptyParkingSpots.begin(); emptyParkingSpot != emptyParkingSpots.end(); emptyParkingSpot++) {
+		Events::AddParkingSpace.broadcast("emptyParkingSpot " + emptyParkingSpotNum, *emptyParkingSpot);
+		emptyParkingSpotNum++;
+
+
+
+	}
+}
+
+
+void GameplaySystem::setRoundEmptyParkingSpots(std::vector<instancedTransformation> emptyParkingSpots){
+	std::vector<int> spotChoice;
+	for (int i = 0; i < numOfAI; i++) {
+		 spotChoice.push_back( rand() % emptyParkingSpots.size());
+		//USE THESE VECTORS FOR EMPTY PARKING SPOTS
+	}
+	int dynamicPropCarNum = 0;
+	for (int i = 0; i < emptyParkingSpots.size();i++){
+		for (int y = 0; y < spotChoice.size(); y++) {
+
+			if (i == y) {
+				continue;
+			}
+			else {
+				for (auto& vtc : scene->iterate<VolumeTriggerComponent>()) {
+					auto parkingSpotEnt = vtc->getEntity();
+					string val = *parkingSpotEnt->getComponent<DescriptionComponent>()->getString("Name");
+
+					if (val == "emptyParkingSpot " + i) {
+						parkingSpotEnt->removeComponent<VolumeTriggerComponent>(); //REMOVE ENTITIY???
+						Events::AddPropCar.broadcast("dynamicPropCar " + dynamicPropCarNum, emptyParkingSpots[i]);
+					}
+
+				}
+			}
+		}
+		dynamicPropCarNum++;
+	}
+
+}
 
 	// AI Section
 	readAiGraph(graph);
