@@ -10,7 +10,9 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 	Events::CarParked.registerHandler<GameplaySystem,
 		&GameplaySystem::registerCarParked>(this);
 
-
+	
+	int numOfAI =3 ;
+	 
 	//setupAiNodes();
 }
 
@@ -20,8 +22,23 @@ void GameplaySystem::defineMap(
 	std::vector<instancedTransformation> emptyParkingSpots
 ) {
 	//TODO: use this for ai graph, defining prop cars, and defining triggerbox / openparking space
+	int propCarNum = 0;
+	int emptyParkingSpotNum = 0;
+	for (auto parkingSpot = parkingSpots.begin(); parkingSpot != parkingSpots.end(); parkingSpot++) {
+		Events::AddPropCar.broadcast("propcar "+propCarNum, *parkingSpot);
+		propCarNum++;
+	}
+
+	for (auto emptyParkingSpot = emptyParkingSpots.begin(); emptyParkingSpot != emptyParkingSpots.end(); emptyParkingSpot++) {
+		Events::AddParkingSpace.broadcast("emptyParkingSpot " + emptyParkingSpotNum, *emptyParkingSpot);
+		emptyParkingSpotNum++;
+	}
 }
-    
+
+
+void GameplaySystem::setRoundEmptyParkingSpots(){
+	
+}
 void GameplaySystem::update() {
 	double timeSinceLastUpdate = Time::now() - lastUpdateTime;
 	if (timeSinceLastUpdate >= 0.25) {

@@ -21,6 +21,7 @@ public:
 		std::vector<instancedTransformation> emptyParkingSpots
 	);
 
+	void setRoundEmptyParkingSpots();
     void update();
     ~GameplaySystem();
 	void setupAiNodes();
