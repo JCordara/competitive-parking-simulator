@@ -101,5 +101,4 @@ appSettings defaultSettings();
 appSettings loadSettings(std::string filepath);
 vector<glm::vec3> collectGLMVecFromFile(string filepath, vector<glm::vec3> vec);
 vector<float> collectfloatFromFile(string filepath, vector<float> vec);
-std::vector<std::shared_ptr<AiGraphNode>> readAiGraph(string filepath);
 

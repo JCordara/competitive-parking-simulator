@@ -15,11 +15,17 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 }
 
 void GameplaySystem::defineMap(
-	std::vector<std::shared_ptr<AiGraphNode>> graph,
+	std::string graph,
 	std::vector<instancedTransformation> parkingSpots,
 	std::vector<instancedTransformation> emptyParkingSpots
 ) {
 	//TODO: use this for ai graph, defining prop cars, and defining triggerbox / openparking space
+
+	// AI Section
+	readAiGraph(graph);
+	// Prop Car
+
+	// Open Parking Spaces
 }
     
 void GameplaySystem::update() {
@@ -69,20 +75,22 @@ void GameplaySystem::setPlayerId(unsigned int playerId) {
 	scores[playerId] = 0;
 }
 
-void GameplaySystem::addAiId(unsigned int aiId) {
+/*void GameplaySystem::addAiId(unsigned int aiId) {
 	aiList.push_back(aiId);
 	scores[aiId] = 0;
-}
+}*/
 
 void GameplaySystem::resetPlayer() {
-	scene->getEntityByID(playerId)->
-	getComponent<TransformComponent>()->
-	setLocalPosition(glm::vec3(0, 0.1, 0));
-	scene->getEntityByID(playerId)->
-		getComponent<TransformComponent>()->
-		setLocalRotation(Random::randomFloat(0.0f,6.28f), glm::vec3(0.0f, 1.0f, 0.0f));
-	scene->getEntityByID(playerId)->
-		getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->setLinearVelocity(PxVec3(0.0f));
+	shared_ptr<TransformComponent> transform;
+	physx::PxRigidDynamic* actor;
+	transform = scene->getEntityByID(playerId)->getComponent<TransformComponent>();
+	actor = scene->getEntityByID(playerId)->getComponent<VehicleComponent>()
+		->vehicle->getRigidDynamicActor();
+	transform->setLocalPosition(glm::vec3(0, 0.1, 0));
+	transform->setLocalRotation(Random::randomFloat(0.0f,6.28f),
+								glm::vec3(0.0f, 1.0f, 0.0f));
+	actor->setLinearVelocity(PxVec3(0.0f));
+	actor->setAngularVelocity(PxVec3(0.0f));
 }
 
 bool GameplaySystem::gameWon(){
@@ -105,54 +113,87 @@ void GameplaySystem::setNodeType(std::string nodeType, std::shared_ptr<AiGraphNo
 	// spawn entrance traversal parking spot
 	if (!nodeType.compare("spawn")) {
 		aiNode->nodeType = AiGraphNode::NodeType::SPAWN;
+		aiNode->nodeSpeed = 0.25;
 	}
 	if (!nodeType.compare("entrance")) {
 		aiNode->nodeType = AiGraphNode::NodeType::LOTENTRANCE;
+		aiNode->nodeSpeed = 0.35;
 	}
 	if (!nodeType.compare("traversal")) {
 		aiNode->nodeType = AiGraphNode::NodeType::TRAVERSAL;
+		aiNode->nodeSpeed = 0.55;
 	}
 	if (!nodeType.compare("parking")) {
 		aiNode->nodeType = AiGraphNode::NodeType::PARKINGSTALL;
+		aiNode->nodeSpeed = 0.35;
 	}
 }
 
-void GameplaySystem::addAINode(std::string nodeType, int nodeAreaCode, glm::vec3 nodePos) {
+std::shared_ptr<AiGraphNode> GameplaySystem::addAINode(std::string nodeType, int inId, glm::vec3 nodePos) {
 	std::shared_ptr<AiGraphNode> aiNode = std::make_shared<AiGraphNode>();
 	setNodeType(nodeType, aiNode);
-	if (aiNode->nodeType == AiGraphNode::NodeType::SPAWN) aiNode->nodeSpeed = 0.25;
-	if (aiNode->nodeType == AiGraphNode::NodeType::LOTENTRANCE) aiNode->nodeSpeed = 0.35;
-	if (aiNode->nodeType == AiGraphNode::NodeType::TRAVERSAL) aiNode->nodeSpeed = 0.55;
-	if (aiNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) aiNode->nodeSpeed = 0.35;
-	lastNodeID++; aiNode->id = lastNodeID;
+	aiNode->id = inId;
 	aiNode->position = nodePos;
-	switch (nodeAreaCode) {
-	case 950: area950Nodes.push_back(aiNode); aiNode->areaCode = 950; break;
-	case 951: area951Nodes.push_back(aiNode); aiNode->areaCode = 951; break;
-	case 952: area952Nodes.push_back(aiNode); aiNode->areaCode = 952; break;
-	case 953: area953Nodes.push_back(aiNode); aiNode->areaCode = 953; break;
-	case 954: area954Nodes.push_back(aiNode); aiNode->areaCode = 954; break;
-	case 955: area955Nodes.push_back(aiNode); aiNode->areaCode = 955; break;
-	case 956: area956Nodes.push_back(aiNode); aiNode->areaCode = 956; break;
-	case 957: area957Nodes.push_back(aiNode); aiNode->areaCode = 957; break;
-	case 958: area958Nodes.push_back(aiNode); aiNode->areaCode = 958; break;
-	case 959: area959Nodes.push_back(aiNode); aiNode->areaCode = 959; break;
-	case 960: area960Nodes.push_back(aiNode); aiNode->areaCode = 960; break;
-	case 961: area961Nodes.push_back(aiNode); aiNode->areaCode = 961; break;
-	case 962: area962Nodes.push_back(aiNode); aiNode->areaCode = 962; break;
-	case 963: area963Nodes.push_back(aiNode); aiNode->areaCode = 963; break;
-	case 964: area964Nodes.push_back(aiNode); aiNode->areaCode = 964; break;
-	case 965: area965Nodes.push_back(aiNode); aiNode->areaCode = 965; break;
-	case 966: area966Nodes.push_back(aiNode); aiNode->areaCode = 966; break;
-	case 967: area967Nodes.push_back(aiNode); aiNode->areaCode = 967; break;
-	case 968: area968Nodes.push_back(aiNode); aiNode->areaCode = 968; break;
-	case 969: area969Nodes.push_back(aiNode); aiNode->areaCode = 969; break;
-	case 970: area970Nodes.push_back(aiNode); aiNode->areaCode = 970; break;
-	default:
-		break;
-	}
 	aiGlobalNodes.push_back(aiNode);
+	return aiNode;
 }
+
+void GameplaySystem::readAiGraph(string filepath) {
+
+	std::ifstream file(filepath);
+	std::string str;
+	std::vector<std::string> tokenizedLine;
+	std::unordered_map<std::shared_ptr<AiGraphNode>, std::vector<int>> nodeNeighboursMap;
+	size_t pos = 0;
+	std::string delimiter = " ";
+
+	while (std::getline(file, str)) {
+		tokenizedLine.clear();
+		std::vector<int> lineNodeNeighbours;
+		while ((pos = str.find(delimiter)) != string::npos) {
+			tokenizedLine.push_back(str.substr(0, pos));
+			str.erase(0, pos + delimiter.length());
+		}
+
+		std::string delimiter = ",";
+		while ((pos = str.find(delimiter)) != string::npos) {
+			lineNodeNeighbours.push_back(std::stoi(str.substr(0, pos)));
+			str.erase(0, pos + delimiter.length());
+		}
+		lineNodeNeighbours.push_back(std::stoi(str));
+
+		std::shared_ptr<AiGraphNode> nde = addAINode(
+			tokenizedLine[0],
+			std::stoi(tokenizedLine[1]),
+			glm::vec3(
+				std::stof(tokenizedLine[2]),
+				std::stof(tokenizedLine[3]),
+				std::stof(tokenizedLine[4])
+			)
+		);
+		nodeNeighboursMap[nde] = lineNodeNeighbours;
+	}
+
+	for (auto it : nodeNeighboursMap) {
+		setNeigbours(it.first, it.second);
+	}
+
+}
+
+void GameplaySystem::setNeigbours(std::shared_ptr<AiGraphNode> nodePrime, std::vector<int> nodeNeighbours) {
+	for (int nodeId : nodeNeighbours) {
+		nodePrime->neighbours.push_back(retrieveNode(nodeId));
+	}
+}
+
+std::shared_ptr<AiGraphNode> GameplaySystem::retrieveNode(int inId) {
+	for (std::shared_ptr<AiGraphNode> node : aiGlobalNodes) {
+		if (node->id == inId) {
+			return node;
+		}
+	}
+}
+
 
 std::vector<std::shared_ptr<AiGraphNode>> GameplaySystem::getAreaNodes(int nodeAreaCode) {
 	switch (nodeAreaCode) {

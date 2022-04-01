@@ -1,4 +1,4 @@
-entrance_950 -20.408f -1.0f -69.039f
+entrance 950 -20.408f -1.0f -69.039f
 entrance_950 0.043f -1.0f -76.6f
 entrance_950 17.024f -1.0f -38.973f
 entrance_950 -0.829f -1.0f -17.456f

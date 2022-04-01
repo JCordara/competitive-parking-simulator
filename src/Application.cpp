@@ -21,8 +21,7 @@ Application::Application(appSettings& settings):
 	audio = std::make_shared<AudioSystem>(scene);
 	// --- Loading the models our game uses --- //
 	loadModels();
-	aiGraph = readAiGraph("[FILENAME]");
-	gameplay->defineMap(aiGraph, getInstancedTransformationsOrThrow("parkingSpots"), getInstancedTransformationsOrThrow("emptyParkingSpots"));
+	gameplay->defineMap("aiNodeLocation", getInstancedTransformationsOrThrow("parkingSpots"), getInstancedTransformationsOrThrow("emptyParkingSpots"));
 	/* --- Set up Constaint entities --- */
 	generateStaticMap();
 	createPlayerEntity(instancedTransformation());
@@ -497,7 +496,4 @@ vector<float> collectfloatFromFile(string filepath, vector<float> vec) {
 	return vec;
 }
 
-std::vector<std::shared_ptr<AiGraphNode>> readAiGraph(string filepath) {
-	//TODO: HOW THE F DO WE LOAD THIS
-	return std::vector<std::shared_ptr<AiGraphNode>>();
-}
+

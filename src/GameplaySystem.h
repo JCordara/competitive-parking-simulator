@@ -16,7 +16,7 @@ public:
     GameplaySystem(std::shared_ptr<Scene> scene);
 
 	void defineMap(
-		std::vector<std::shared_ptr<AiGraphNode>> graph,
+		std::string graph,
 		std::vector<instancedTransformation> parkingSpots,
 		std::vector<instancedTransformation> emptyParkingSpots
 	);
@@ -56,7 +56,10 @@ public:
 	void resetPlayer();
 	void resetAi(unsigned int);
 	bool gameWon();
-	void addAINode(std::string nodeType, int nodeAreaCode, glm::vec3 nodePos);
+	std::shared_ptr<AiGraphNode> addAINode(std::string nodeType, int id, glm::vec3 nodePos);
+	void readAiGraph(string filepath);
+	void setNeigbours(std::shared_ptr<AiGraphNode> nodePrime, std::vector<int> nodeNeighbours);
+	std::shared_ptr<AiGraphNode> retrieveNode(int inId);
 	void setNodeType(std::string nodeType, std::shared_ptr<AiGraphNode> aiNode);
 	int lastNodeID = 0;
 	void testPrintAINodes();
