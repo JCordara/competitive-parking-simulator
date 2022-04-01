@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include <random>
+#include <algorithm>
 
 namespace RandomConstants {
 	static const double inverseRandMaxD = 1. / static_cast <double> (RAND_MAX);
@@ -29,6 +30,16 @@ public:
 	static int randomInt(int LO, int HI) {
 		if (LO == HI) return LO;
 		return rand() % (HI - LO) + LO;
+	}
+
+	static std::vector<int> permutationInt(int LO, int HI, unsigned int number) {
+		if (number > (unsigned int)(HI - LO))
+			throw std::exception("Unable to do permutationInt");
+		std::vector<int> ret = std::vector<int>(HI - LO);
+		for (int i = LO; i < HI; i++)
+			ret[i] = i;
+		std::shuffle(std::begin(ret), std::end(ret), std::default_random_engine{});
+		return std::vector<int>(ret.begin(), ret.begin() + number);
 	}
 
 	static glm::vec3 randomVec3(float xLO, float xHI, float yLO, float yHI, float zLO, float zHI) {

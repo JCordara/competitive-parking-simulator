@@ -9,11 +9,21 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 
 	Events::CarParked.registerHandler<GameplaySystem,
 		&GameplaySystem::registerCarParked>(this);
-
-	
-	
-	 
+	gamestate = GameState::MainMenu;
 	//setupAiNodes();
+}
+
+void GameplaySystem::update() {
+	// Score check
+	// Update AI pathing
+	double timeSinceLastUpdate = Time::now() - lastUpdateTime;
+	if (timeSinceLastUpdate >= 0.25) {
+		for (auto& ai : scene->iterate<AiComponent>()) {
+			ai->update();
+		}
+		lastUpdateTime = Time::now();
+	}
+	//
 }
 
 int numOfAI = 3;
@@ -23,71 +33,71 @@ void GameplaySystem::defineMap(
 	std::vector<instancedTransformation> parkingSpots,
 	std::vector<instancedTransformation> emptyParkingSpots
 ) {
-	//TODO: use this for ai graph, defining prop cars, and defining triggerbox / openparking space
-	int propCarNum = 0;
-	int emptyParkingSpotNum = 0;
-	for (auto parkingSpot = parkingSpots.begin(); parkingSpot != parkingSpots.end(); parkingSpot++) {
-		Events::AddPropCar.broadcast("propcar "+propCarNum, *parkingSpot);
-		propCarNum++;
-	}
-
-	for (auto emptyParkingSpot = emptyParkingSpots.begin(); emptyParkingSpot != emptyParkingSpots.end(); emptyParkingSpot++) {
-		Events::AddParkingSpace.broadcast("emptyParkingSpot " + emptyParkingSpotNum, *emptyParkingSpot);
-		emptyParkingSpotNum++;
-
-
-
-	}
+	//Saving data for later:
+	//AI graph ?????
+	possibleParkingSpots = emptyParkingSpots;
+	// Adding in the propcars to parking spaces (Only ones that cant be a destonation space)
+	for (auto parkingSpot = parkingSpots.begin(); parkingSpot != parkingSpots.end(); parkingSpot++)
+		Events::AddPropCar.broadcast("Constaint propcar", *parkingSpot);
 }
 
-
-void GameplaySystem::setRoundEmptyParkingSpots(std::vector<instancedTransformation> emptyParkingSpots){
-	std::vector<int> spotChoice;
-	for (int i = 0; i < numOfAI; i++) {
-		 spotChoice.push_back( rand() % emptyParkingSpots.size());
-		//USE THESE VECTORS FOR EMPTY PARKING SPOTS
-	}
-	int dynamicPropCarNum = 0;
-	for (int i = 0; i < emptyParkingSpots.size();i++){
-		for (int y = 0; y < spotChoice.size(); y++) {
-
-			if (i == y) {
-				continue;
-			}
-			else {
-				for (auto& vtc : scene->iterate<VolumeTriggerComponent>()) {
-					auto parkingSpotEnt = vtc->getEntity();
-					string val = *parkingSpotEnt->getComponent<DescriptionComponent>()->getString("Name");
-
-					if (val == "emptyParkingSpot " + i) {
-						parkingSpotEnt->removeComponent<VolumeTriggerComponent>(); //REMOVE ENTITIY???
-						Events::AddPropCar.broadcast("dynamicPropCar " + dynamicPropCarNum, emptyParkingSpots[i]);
+void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberOfParkingSpots) {
+	//Generate random nodes
+	std::vector<int> spotChoice = Random::permutationInt(0, possibleParkingSpots.size(), numberOfParkingSpots);
+	std::vector<bool> parking = std::vector<bool>(possibleParkingSpots.size());
+	for (int i = 0; i < spotChoice.size(); i++) parking[spotChoice[i]] = true;
+	std::vector<bool> parkingUpdated = std::vector<bool>(possibleParkingSpots.size());
+	// Reset or delete the cars
+	for (auto rb : scene->iterate<RigidbodyComponent>()) {
+		auto ent = rb->getEntity();
+		if (auto des = ent->getComponent<DescriptionComponent>()) {
+			if (auto name = des->getString("Name")) {
+				if (name.value() == "Constaint propcar") {// Needs to be placed back to its og transform
+					ent->getComponent<TransformComponent>()->setLocalPosition(des->getVec3("Spawn Position").value());
+					ent->getComponent<TransformComponent>()->setLocalRotation(des->getRealNumber("Spawn Y-Rotation").value(), glm::vec3(0.f,1.f,0.f));
+				}
+				else if (prefix("Temporary propcar : ", name.value())) {
+					int number = std::stoi(name.value().substr(string("Temporary propcar : ").length()));
+					if (parking[number]) // Needs to be removed
+						ent->parent()->removeChild(ent);
+					else { //Just needs to be placed back to its og transform
+						ent->getComponent<TransformComponent>()->setLocalPosition(des->getVec3("Spawn Position").value());
+						ent->getComponent<TransformComponent>()->setLocalRotation(des->getRealNumber("Spawn Y-Rotation").value(), glm::vec3(0.f, 1.f, 0.f));
+						parkingUpdated[number] = true;
 					}
-
 				}
 			}
 		}
-		dynamicPropCarNum++;
 	}
-
-}
-
-	// AI Section
-	readAiGraph(graph);
-	// Prop Car
-
-	// Open Parking Spaces
-}
-    
-void GameplaySystem::update() {
-	double timeSinceLastUpdate = Time::now() - lastUpdateTime;
-	if (timeSinceLastUpdate >= 0.25) {
-		for (auto& ai : scene->iterate<AiComponent>()) {
-			ai->update();
+	//Delete Parking Spots
+	for (auto rb : scene->iterate<VolumeTriggerComponent>()) {
+		auto ent = rb->getEntity();
+		if (auto des = ent->getComponent<DescriptionComponent>()) {
+			if (auto name = des->getString("Name")) {
+				if (prefix("Temporary parkingspot : ", name.value())) {
+					int number = std::stoi(name.value().substr(string("Temporary propcar : ").length()));
+					if (parking[number]) // Needs to be removed
+						ent->parent()->removeChild(ent);
+					else //Do nothing
+						parkingUpdated[number] = true;
+				}
+			}
 		}
-		lastUpdateTime = Time::now();
 	}
+
+	//Fill the spots will either a triggerbox or a car
+	for (int i = 0, index = 0; i < parkingUpdated.size(); i++) {
+		if ((!parkingUpdated[i])) {
+			if (parking[i]) // Add a trigger box
+				Events::AddParkingSpace.broadcast("Temporary parkingspot : " + i, possibleParkingSpots[i]);
+			else //Add a car
+				Events::AddPropCar.broadcast("Temporary propcar : " + i, possibleParkingSpots[i]);
+		}	
+	}
+
 }
+
+
 
 GameplaySystem::~GameplaySystem() {}
 
@@ -98,24 +108,13 @@ void GameplaySystem::registerAiComponent(AiComponent& component) {
 
 
 void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
-	std::cout << entity->id() << " , " << playerId << endl;
-	if (entity->id() == playerId) {
-		
-		if (scene->getEntityByID(playerId)->getComponent<VehicleComponent>()->getSpeed() <= 3.0f) {
-			scene->getEntityByID(playerId)->getComponent<VehicleComponent>()->triggerShapes[0]->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
-			scores[playerId]++;
-			resetPlayer();
-		};
-	}
-	// Must be AI
-	else {
-		unordered_map<unsigned int, int>::iterator it;
-		for (it = scores.begin(); it != scores.end(); it++)
-		{
-			if (it->first == entity->id()) {
-				scores[it->first]++;
-				//resetAi(it->first);
-				entity->getComponent<AiComponent>()->resetAi();
+	if (auto des = entity->getComponent<DescriptionComponent>()) {
+		if (auto name = des->getString("Name")) {
+			if (name.value() == "Player Car") {
+
+			}
+			else if (prefix("AI Car : ", name.value())) {
+
 			}
 		}
 	}
@@ -130,19 +129,6 @@ void GameplaySystem::setPlayerId(unsigned int playerId) {
 	aiList.push_back(aiId);
 	scores[aiId] = 0;
 }*/
-
-void GameplaySystem::resetPlayer() {
-	shared_ptr<TransformComponent> transform;
-	physx::PxRigidDynamic* actor;
-	transform = scene->getEntityByID(playerId)->getComponent<TransformComponent>();
-	actor = scene->getEntityByID(playerId)->getComponent<VehicleComponent>()
-		->vehicle->getRigidDynamicActor();
-	transform->setLocalPosition(glm::vec3(0, 0.1, 0));
-	transform->setLocalRotation(Random::randomFloat(0.0f,6.28f),
-								glm::vec3(0.0f, 1.0f, 0.0f));
-	actor->setLinearVelocity(PxVec3(0.0f));
-	actor->setAngularVelocity(PxVec3(0.0f));
-}
 
 bool GameplaySystem::gameWon(){
 	if (scores[playerId] >= 5 || scores[aiList[0]] >= 5) {

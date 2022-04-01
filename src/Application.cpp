@@ -238,6 +238,8 @@ std::shared_ptr<Entity> Application::createPlayerEntity(instancedTransformation 
 	playerController->bindInput(GLFW_GAMEPAD_BUTTON_SQUARE, &Events::VehicleHandbrake);
 	// --- Indicator for player car --- //
 	playerCar->addComponent<DescriptionComponent>()->setString("Name", "Player Car");
+	playerCar->getComponent<DescriptionComponent>()->setVec3("Spawn Position", transformation.location);
+	playerCar->getComponent<DescriptionComponent>()->setRealNumber("Spawn Y-Rotation", transformation.rotationAxisAngle.y);
 	// --- Audio --- //
 	playerCar->addComponent<AudioComponent>()->addEngineSound("audio/engine.wav", playerCar->getComponent<VehicleComponent>());
 	audio->setListener(mainCamera->getComponent<TransformComponent>());
@@ -251,6 +253,8 @@ std::shared_ptr<Entity> Application::addAICar(string alias, instancedTransformat
 	aiCar->addComponent<AudioComponent>()->addSound(AudioTrigger::Collision, "audio/oof.wav");
 	// --- Indicator for Ai car --- //
 	aiCar->addComponent<DescriptionComponent>()->setString("Name", alias);
+	aiCar->getComponent<DescriptionComponent>()->setVec3("Spawn Position", transformation.location);
+	aiCar->getComponent<DescriptionComponent>()->setRealNumber("Spawn Y-Rotation", transformation.rotationAxisAngle.y);
 	// --- Ai Component --- //
 	aiCar->addComponent<AiComponent>();
 	return aiCar;

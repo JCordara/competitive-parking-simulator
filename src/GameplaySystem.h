@@ -3,8 +3,6 @@
 
 #include "GameSystem.h"
 
-extern std::unordered_map<unsigned int, int> scores;
-extern unsigned int playerId;
 extern std::vector<unsigned int> aiList;
 
 class GameplaySystem : public GameSystem {
@@ -14,14 +12,15 @@ public:
 
     /* Prepare framework */
     GameplaySystem(std::shared_ptr<Scene> scene);
-
+	//Only Called once
 	void defineMap(
 		std::string graph,
 		std::vector<instancedTransformation> parkingSpots,
 		std::vector<instancedTransformation> emptyParkingSpots
 	);
+	//When this is called, the map will resent with numberOfParkingSpots empty for play
+	void resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberOfParkingSpots);
 
-	void setRoundEmptyParkingSpots(std::vector<instancedTransformation> emptyParkingSpots);
     void update();
     ~GameplaySystem();
 	void setupAiNodes();
@@ -71,10 +70,19 @@ public:
 	std::vector<std::shared_ptr<AiGraphNode>> getAreaNodes(int nodeAreaCode);
 
 private:
-    std::shared_ptr<Scene> scene;
+	enum class GameState {
+		MainMenu,
+		Playing,
+		RoundWon,
+		GameWon
+	};
+	GameState gamestate;
 
+    std::shared_ptr<Scene> scene;
 	double lastUpdateTime;
 
+	std::vector<instancedTransformation> possibleParkingSpots;
+	std::vector<int> scores;
 };
 
 #endif // GAMEPLAY_SYSTEM_H
