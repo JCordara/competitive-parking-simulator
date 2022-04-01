@@ -23,7 +23,7 @@ void VolumeTriggerComponent::flush() {
 }
 
 void VolumeTriggerComponent::createVolumeShape(PxTransform startPos, PxBoxGeometry boxGeom) {
-	physicsSystem->createTriggerBox(startPos, boxGeom);
+	actor = physicsSystem->createTriggerBox(startPos, boxGeom);
 }
 
 ComponentEnum VolumeTriggerComponent::getType() {
@@ -31,5 +31,6 @@ ComponentEnum VolumeTriggerComponent::getType() {
 }
 
 VolumeTriggerComponent::~VolumeTriggerComponent() {
+	 physicsSystem->pxScene->removeActor(*actor, true);
     // Nothing to do here yet
 }

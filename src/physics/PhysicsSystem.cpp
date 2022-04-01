@@ -96,7 +96,7 @@ void PhysicsSystem::update() {
 
 }
 
-void PhysicsSystem::createTriggerBox(PxTransform startPos, PxBoxGeometry boxGeom) {
+PxRigidActor* PhysicsSystem::createTriggerBox(PxTransform startPos, PxBoxGeometry boxGeom) {
 	// test triggerShape
 	PxRigidActor* trigger = pxPhysics->createRigidStatic(startPos);
 	PxShape* triggerShape = PxRigidActorExt::createExclusiveShape(*trigger, boxGeom, *gMaterial);
@@ -107,6 +107,7 @@ void PhysicsSystem::createTriggerBox(PxTransform startPos, PxBoxGeometry boxGeom
 
 	pxScene->addActor(*trigger);
 	triggerShape->release();
+	return trigger;
 
 }
 PxTriangleMesh* PhysicsSystem::createStaticMesh(const Model& model) {

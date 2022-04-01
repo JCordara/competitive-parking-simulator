@@ -5,7 +5,8 @@
 #include <set>
 #include "Model.h"
 #include <PhysX/PxPhysicsAPI.h>
-
+class PhysicsSystem;
+using namespace physx;
 class VolumeTriggerComponent : public BaseComponent {
 public:
 
@@ -24,6 +25,7 @@ public:
 private:
 	std::set<std::shared_ptr<Entity>> attached;
 	shared_ptr<PhysicsSystem> physicsSystem;
+	PxRigidActor *actor;
 };
 
 #endif // VOLUME_TRIGGER_COMPONENT_H
