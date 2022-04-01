@@ -73,9 +73,10 @@ private:
 	enum class GameState {
 		MainMenu,
 		Playing,
-		RoundWon,
-		GameWon
+		RoundEnd,
+		GameEnd
 	};
+	bool updateMenu;
 	GameState gamestate;
 
     std::shared_ptr<Scene> scene;

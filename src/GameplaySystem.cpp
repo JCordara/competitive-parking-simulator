@@ -14,16 +14,31 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 }
 
 void GameplaySystem::update() {
-	// Score check
-	// Update AI pathing
-	double timeSinceLastUpdate = Time::now() - lastUpdateTime;
-	if (timeSinceLastUpdate >= 0.25) {
-		for (auto& ai : scene->iterate<AiComponent>()) {
-			ai->update();
-		}
-		lastUpdateTime = Time::now();
+	switch (gamestate) {
+		case GameState::MainMenu :
+			if (updateMenu) Events::MainMenu.broadcast();
+		break;
+		case GameState::Playing:
+			if (updateMenu) Events::GameGUI.broadcast();
+			// Update AI pathing
+			double timeSinceLastUpdate = Time::now() - lastUpdateTime;
+			if (timeSinceLastUpdate >= 0.25) {
+				for (auto& ai : scene->iterate<AiComponent>()) {
+					ai->update();
+				}
+				lastUpdateTime = Time::now();
+			}
+		break;
+		case GameState::RoundEnd:
+			if (updateMenu) Events::RoundEndGUI.broadcast();
+		break;
+		case GameState::GameEnd:
+			if (updateMenu) {
+				if(true) Events::GameEndGUI.broadcast("YOU WIN");
+				else Events::GameEndGUI.broadcast("YOU LOSE");
+			}
+		break;
 	}
-	//
 }
 
 int numOfAI = 3;

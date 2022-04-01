@@ -31,8 +31,7 @@ Application::Application(appSettings& settings):
 	Events::MainMenu.registerHandler<Application, &Application::setupMainMenu>(this);
 	Events::GameGUI.registerHandler<Application, &Application::setupBaseLevelGUI>(this);
 	Events::RoundEndGUI.registerHandler<Application, &Application::roundWonMenu>(this);
-	Events::GameWonGUI.registerHandler<Application, &Application::gameWonGui>(this);
-	Events::GameLostGUI.registerHandler<Application, &Application::gameLostGui>(this);
+	Events::GameEndGUI.registerHandler<Application, &Application::gameEndGui>(this);
 	/* --- Entity Manipulation Events --- */
 	Events::AddPropCar.registerHandler<Application, &Application::addPropCar>(this);
 	Events::AddParkingSpace.registerHandler<Application, &Application::addOpenParkingEntity>(this);
@@ -437,17 +436,10 @@ void Application::roundWonMenu() {
 		"Main Menu", Events::MainMenu, 1);
 	render->changeGui(guiScene);
 }
-void Application::gameWonGui() {
+void Application::gameEndGui(string message) {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 2, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][1].positionY, "YOU WON");
-	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::MainMenu, 1);
-	render->changeGui(guiScene);
-}
-void Application::gameLostGui() {
-	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 2, 0.1f);
-	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][1].positionY, "YOU LOST");
+	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][1].positionY, message);
 	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::MainMenu, 1);
 	render->changeGui(guiScene);
 }

@@ -92,8 +92,7 @@ private:
 	void setupMainMenu();
 	void setupBaseLevelGUI();
 	void roundWonMenu();
-	void gameWonGui();
-	void gameLostGui();
+	void gameEndGui(string message);
 };
 
 //Functions to load settings

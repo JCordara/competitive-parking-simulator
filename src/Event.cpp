@@ -7,8 +7,7 @@ Event<int, int> WindowResized;
 Event<void> MainMenu;
 Event<void> GameGUI;
 Event<void> RoundEndGUI;
-Event<void> GameWonGUI;
-Event<void> GameLostGUI;
+Event<string> GameEndGUI;
 /* --- Entity Manipulation Events--- */
 Event<string, instancedTransformation> AddPropCar;
 Event<string, instancedTransformation> AddParkingSpace;
