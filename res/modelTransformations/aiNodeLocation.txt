@@ -1,146 +1,146 @@
-entrance 0 14.46f -1.0f 1.964f
-entrance 1 -0.739f -1.0f 18.41f
-entrance 10 115.803f -1.0f -73.963f
-entrance 11 20.003f -1.0f -38.965f
-entrance 12 25.581f -1.0f 16.714f
-entrance 13 115.924f -1.0f -14.238f
-entrance 14 145.468f -1.0f 17.679f
-entrance 15 151.761f -1.0f 8.484f
-entrance 16 145.468f -1.0f 23.68f
-entrance 17 115.572f -1.0f 60.158f
-entrance 18 25.599f -1.0f 23.962f
-entrance 19 -0.739f -1.0f 24.68f
-entrance 2 -0.809f -1.0f -14.029f
-entrance 20 -0.949f -1.0f 58.997f
-entrance 21 -27.657f -1.0f 18.067f
-entrance 22 -27.657f -1.0f 11.915f
-entrance 23 -23.464f -1.0f 1.971f
-entrance 24 -27.851f -1.0f -10.657f
-entrance 25 -61.836f -1.0f -4.62f
-entrance 26 -38.854f -1.0f -35.988f
-entrance 27 -27.851f -1.0f -15.29f
-entrance 28 -32.208f -1.0f -35.988f
-entrance 29 -23.612f -1.0f -69.039f
-entrance 3 -17.28f -1.0f 1.964f
-entrance 30 -68.137f -1.0f -4.62f
-entrance 31 -85.905f -1.0f -10.049f
-entrance 32 -117.114f -1.0f -12.131f
-entrance 33 -85.905f -1.0f -16.255f
-entrance 34 -117.114f -1.0f -18.238f
-entrance 35 -117.114f -1.0f -41.548f
-entrance 36 -132.234f -1.0f -29.269f
-entrance 37 -117.114f -1.0f -48.383f
-entrance 38 -117.207f -1.0f -73.81f
-entrance 39 -81.42f -1.0f -67.442f
-entrance 4 -0.829f -1.0f -20.573f
-entrance 40 -74.71f -1.0f -67.442f
-entrance 41 -138.346f -1.0f -29.269f
-entrance 42 -117.017f -1.0f 59.71f
-entrance 43 -178.289f -1.0f 17.291f
-entrance 44 -0.949f -1.0f 66.781f
-entrance 45 -117.017f -1.0f 65.746f
-entrance 46 115.583f -1.0f 65.255f
-entrance 47 165.422f -1.0f 65.771f
-entrance 48 158.273f -1.0f 8.484f
-entrance 49 165.06f -1.0f -73.888f
-entrance 5 21.269f -1.0f 1.975f
-entrance 50 165.413f -1.0f 60.999f
-entrance 51 165.06f -1.0f -80.303f
-entrance 52 115.818f -1.0f -79.564f
-entrance 53 -0.013f -1.0f -80.071f
-entrance 54 -117.227f -1.0f -79.619f
-entrance 55 -178.004f -1.0f -79.527f
-entrance 56 -178.004f -1.0f -74.037f
-entrance 57 -178.289f -1.0f 11.781f
-entrance 6 -17.391f -1.0f -69.039f
-entrance 7 0.043f -1.0f -73.648f
-entrance 8 14.329f -1.0f -38.973f
-entrance 9 115.924f -1.0f -19.621f
-traversal 100 -24.909f -1.0f -88.609f
-traversal 101 -99.32f -1.0f -88.609f
-traversal 102 -133.873f -1.0f -88.609f
-traversal 103 -162.712f -1.0f -88.609f
-traversal 104 -117.015f -1.0f 26.53f
-traversal 105 -130.755f -1.0f 39.59f
-traversal 106 -158.234f -1.0f 39.59f
-traversal 107 -102.46f -1.0f 39.59f
-traversal 108 -83.687f -1.0f -28.156f
-traversal 109 -89.563f -1.0f -1.361f
-traversal 110 -103.891f -1.0f -1.361f
-traversal 111 -117.195f -1.0f -3.722f
-traversal 112 -117.032f -1.0f 4.113f
-traversal 113 -115.128f -1.0f -62.136f
-traversal 114 -56.089f -1.0f -59.143f
-traversal 115 -149.272f -1.0f -40.37f
-traversal 116 -149.272f -1.0f -11.803f
-traversal 58 -0.586f -1.0f -32.364f
-traversal 59 -0.586f -1.0f -47.668f
-traversal 60 -0.586f -1.0f -63.255f
-traversal 61 38.902f -1.0f -38.977f
-traversal 62 55.441f -1.0f -38.977f
-traversal 63 83.491f -1.0f -38.977f
-traversal 64 100.117f -1.0f -38.977f
-traversal 65 59.496f -1.0f -57.681f
-traversal 66 74.517f -1.0f -57.681f
-traversal 67 39.771f -1.0f -57.681f
-traversal 68 100.023f -1.0f -57.681f
-traversal 69 127.003f -1.0f -57.681f
-traversal 70 127.003f -1.0f -39.43f
-traversal 71 140.153f -1.0f 0.247f
-traversal 72 125.87f -1.0f 0.247f
-traversal 73 104.557f -1.0f 0.247f
-traversal 74 84.152f -1.0f 0.247f
-traversal 75 39.125f -1.0f 0.247f
-traversal 76 137.523f -1.0f 40.876f
-traversal 77 122.446f -1.0f 34.414f
-traversal 78 105.215f -1.0f 40.876f
-traversal 79 82.429f -1.0f 40.876f
-traversal 80 35.837f -1.0f 40.876f
-traversal 81 -20.154f -1.0f 40.876f
-traversal 82 -50.327f -1.0f 36.958f
-traversal 83 -38.492f -1.0f -0.452f
-traversal 84 -25.433f -1.0f -43.302f
-traversal 85 -25.569f -1.0f -28.747f
-traversal 86 -62.162f -1.0f -29.835f
-traversal 87 -78.851f -1.0f 36.958f
-traversal 88 166.246f -1.0f -9.156f
-traversal 89 166.246f -1.0f 25.634f
-traversal 90 132.396f -1.0f 73.024f
-traversal 91 153.552f -1.0f 73.024f
-traversal 92 99.682f -1.0f 73.024f
-traversal 93 27.399f -1.0f 73.024f
-traversal 94 -32.739f -1.0f 73.024f
-traversal 95 -95.816f -1.0f 73.024f
-traversal 96 152.847f -1.0f -88.609f
-traversal 97 131.926f -1.0f -88.609f
-traversal 98 99.016f -1.0f -88.609f
-traversal 99 24.97f -1.0f -88.609f
-parking 117 91.9f -1.0f -26.1f
-parking 118 134.485f -1.0f -68.11f
-parking 119 67.699f -1.0f -68.205f
-parking 120 47.75f -1.0f -24.957f
-parking 121 93.9f -1.0f 11.9f
-parking 122 146.496f -1.0f -8.941f
-parking 123 91.9f -1.0f 54.9f
-parking 124 125.798f -1.0f 28.283f
-parking 125 -29.1f -1.0f 54.9f
-parking 126 -68.847f -1.0f -21.073f
-parking 127 -95.7f -1.0f 7.0f
-parking 128 -127.1f -1.0f -0.1f
-parking 129 -92.686f -1.0f -31.435f
-parking 130 -127.845f -1.0f -54.96f
-parking 131 -103.542f -1.0f -53.053f
-parking 132 -49.559f -1.0f -68.312f
-parking 133 -68.1f -1.0f -53.1f
-parking 134 -160.96f -1.0f -46.96f
-parking 135 -161.24f -1.0f -2.891f
-parking 136 -143.891f -1.0f 22.853f
-parking 137 -171.267f -1.0f 54.989f
-spawn 138 13.0f 0.0f 14.0f
-spawn 139 -15.0f 0.0f -11.0f
-spawn 140 -7.0f 0.0f -11.0f
-spawn 141 4.0f 0.0f -11.0f
-spawn 142 13.0f 0.0f -11.0f
-spawn 143 -15.0f 0.0f 14.0f
-spawn 144 -7.0f 0.0f 14.0f
-spawn 145 4.0f 0.0f 14.0f
+entrance 0 14.46f -1.0f 1.964f 5,2,1,3
+entrance 1 -0.739f -1.0f 18.41f 19,0,2,3
+entrance 10 115.803f -1.0f -73.963f 68,69,52
+entrance 11 20.003f -1.0f -38.965f 8,67,61
+entrance 12 25.581f -1.0f 16.714f 18,5,75
+entrance 13 115.924f -1.0f -14.238f 9,73,72
+entrance 14 145.468f -1.0f 17.679f 16,15,71
+entrance 15 151.761f -1.0f 8.484f 14,71,48
+entrance 16 145.468f -1.0f 23.68f 14,76
+entrance 17 115.572f -1.0f 60.158f 46,78,76,77
+entrance 18 25.599f -1.0f 23.962f 12,80,19,20,81
+entrance 19 -0.739f -1.0f 24.68f 1,18,80,20,81
+entrance 2 -0.809f -1.0f -14.029f 4,0,1,3
+entrance 20 -0.949f -1.0f 58.997f 80,18,19,81,44
+entrance 21 -27.657f -1.0f 18.067f 82,81,125,22
+entrance 22 -27.657f -1.0f 11.915f 21,23,83,24
+entrance 23 -23.464f -1.0f 1.971f 3,22,24,83
+entrance 24 -27.851f -1.0f -10.657f 83,23,22,27
+entrance 25 -61.836f -1.0f -4.62f 30,83
+entrance 26 -38.854f -1.0f -35.988f 28,86
+entrance 27 -27.851f -1.0f -15.29f 24,85
+entrance 28 -32.208f -1.0f -35.988f 26,84,85
+entrance 29 -23.612f -1.0f -69.039f 84,6
+entrance 3 -17.28f -1.0f 1.964f 23,0,1,2
+entrance 30 -68.137f -1.0f -4.62f 25,31,109
+entrance 31 -85.905f -1.0f -10.049f 109,30,33
+entrance 32 -117.114f -1.0f -12.131f 111,34
+entrance 33 -85.905f -1.0f -16.255f 31,108
+entrance 34 -117.114f -1.0f -18.238f 32,36,35
+entrance 35 -117.114f -1.0f -41.548f 36,34,37
+entrance 36 -132.234f -1.0f -29.269f 34,35,41
+entrance 37 -117.114f -1.0f -48.383f 35,130,113
+entrance 38 -117.207f -1.0f -73.81f 113,131,54
+entrance 39 -81.42f -1.0f -67.442f 113,40
+entrance 4 -0.829f -1.0f -20.573f 2,58
+entrance 40 -74.71f -1.0f -67.442f 39,114,133
+entrance 41 -138.346f -1.0f -29.269f 36,115,116
+entrance 42 -117.017f -1.0f 59.71f 104,105,107,45
+entrance 43 -178.289f -1.0f 17.291f 57,137,106
+entrance 44 -0.949f -1.0f 66.781f 20,94,93
+entrance 45 -117.017f -1.0f 65.746f 42,95
+entrance 46 115.583f -1.0f 65.255f 17,92,90
+entrance 47 165.422f -1.0f 65.771f 91,50
+entrance 48 158.273f -1.0f 8.484f 15,88,89
+entrance 49 165.06f -1.0f -73.888f 88,51
+entrance 5 21.269f -1.0f 1.975f 0,12,75
+entrance 50 165.413f -1.0f 60.999f 47,89
+entrance 51 165.06f -1.0f -80.303f 49,96
+entrance 52 115.818f -1.0f -79.564f 10,98,97
+entrance 53 -0.013f -1.0f -80.071f 7,100,99
+entrance 54 -117.227f -1.0f -79.619f 101,102,38
+entrance 55 -178.004f -1.0f -79.527f 103,56
+entrance 56 -178.004f -1.0f -74.037f 55,57
+entrance 57 -178.289f -1.0f 11.781f 56,43
+entrance 6 -17.391f -1.0f -69.039f 29,7,60
+entrance 7 0.043f -1.0f -73.648f 53,60,6
+entrance 8 14.329f -1.0f -38.973f 11
+entrance 9 115.924f -1.0f -19.621f 64,70,13
+traversal 100 -24.909f -1.0f -88.609f 99,53,101
+traversal 101 -99.32f -1.0f -88.609f 100,54,102
+traversal 102 -133.873f -1.0f -88.609f 54,101,103
+traversal 103 -162.712f -1.0f -88.609f 102,55
+traversal 104 -117.015f -1.0f 26.53f 105,107,112
+traversal 105 -130.755f -1.0f 39.59f 106,136,104,107,42
+traversal 106 -158.234f -1.0f 39.59f 137,43,136,105
+traversal 107 -102.46f -1.0f 39.59f 42,105,104,87
+traversal 108 -83.687f -1.0f -28.156f 33,129
+traversal 109 -89.563f -1.0f -1.361f 30,31,127,110
+traversal 110 -103.891f -1.0f -1.361f 127,109,111
+traversal 111 -117.195f -1.0f -3.722f 110,112,128,32
+traversal 112 -117.032f -1.0f 4.113f 104,111,128,110
+traversal 113 -115.128f -1.0f -62.136f 130,37,131,38,39
+traversal 114 -56.089f -1.0f -59.143f 133,40,132
+traversal 115 -149.272f -1.0f -40.37f 41,134
+traversal 116 -149.272f -1.0f -11.803f 41,135
+traversal 58 -0.586f -1.0f -32.364f 4,8,59
+traversal 59 -0.586f -1.0f -47.668f 8,58,60
+traversal 60 -0.586f -1.0f -63.255f 59,6,7
+traversal 61 38.902f -1.0f -38.977f 11,120,62
+traversal 62 55.441f -1.0f -38.977f 61,120,63
+traversal 63 83.491f -1.0f -38.977f 62,117,64
+traversal 64 100.117f -1.0f -38.977f 63,117,68,9,70
+traversal 65 59.496f -1.0f -57.681f 66,67,119
+traversal 66 74.517f -1.0f -57.681f 68,65,119
+traversal 67 39.771f -1.0f -57.681f 11,65
+traversal 68 100.023f -1.0f -57.681f 10,69,64,66
+traversal 69 127.003f -1.0f -57.681f 70,68,118,10
+traversal 70 127.003f -1.0f -39.43f 64,9,69
+traversal 71 140.153f -1.0f 0.247f 72,122,15,14
+traversal 72 125.87f -1.0f 0.247f 73,13,71
+traversal 73 104.557f -1.0f 0.247f 121,13,72,74
+traversal 74 84.152f -1.0f 0.247f 121,73,75
+traversal 75 39.125f -1.0f 0.247f 74,5,12
+traversal 76 137.523f -1.0f 40.876f 16,124,77
+traversal 77 122.446f -1.0f 34.414f 76,124,78,17
+traversal 78 105.215f -1.0f 40.876f 77,79,123,17
+traversal 79 82.429f -1.0f 40.876f 78,80,123
+traversal 80 35.837f -1.0f 40.876f 79,18,20,19,81
+traversal 81 -20.154f -1.0f 40.876f 19,18,80,20,125,82,21
+traversal 82 -50.327f -1.0f 36.958f 87,125,81,21
+traversal 83 -38.492f -1.0f -0.452f 25,22,23,24
+traversal 84 -25.433f -1.0f -43.302f 28,85,29
+traversal 85 -25.569f -1.0f -28.747f 27,28,84
+traversal 86 -62.162f -1.0f -29.835f 26,126
+traversal 87 -78.851f -1.0f 36.958f 107,82
+traversal 88 166.246f -1.0f -9.156f 48,89,49
+traversal 89 166.246f -1.0f 25.634f 50,48,88
+traversal 90 132.396f -1.0f 73.024f 46,92,91
+traversal 91 153.552f -1.0f 73.024f 90,47
+traversal 92 99.682f -1.0f 73.024f 93,46,90
+traversal 93 27.399f -1.0f 73.024f 44,94,92
+traversal 94 -32.739f -1.0f 73.024f 95,44,93
+traversal 95 -95.816f -1.0f 73.024f 45,94
+traversal 96 152.847f -1.0f -88.609f 51,97
+traversal 97 131.926f -1.0f -88.609f 96,52,98
+traversal 98 99.016f -1.0f -88.609f 52,97,99
+traversal 99 24.97f -1.0f -88.609f 53,98,100
+parking 117 91.9f -1.0f -26.1f 63,64
+parking 118 134.485f -1.0f -68.11f 69
+parking 119 67.699f -1.0f -68.205f 65,66
+parking 120 47.75f -1.0f -24.957f 61,62
+parking 121 93.9f -1.0f 11.9f 74,73
+parking 122 146.496f -1.0f -8.941f 71
+parking 123 91.9f -1.0f 54.9f 78,79
+parking 124 125.798f -1.0f 28.283f 77,76
+parking 125 -29.1f -1.0f 54.9f 81,21,82
+parking 126 -68.847f -1.0f -21.073f 86
+parking 127 -95.7f -1.0f 7.0f 109,110
+parking 128 -127.1f -1.0f -0.1f 111,112
+parking 129 -92.686f -1.0f -31.435f 108
+parking 130 -127.845f -1.0f -54.96f 37,113
+parking 131 -103.542f -1.0f -53.053f 113
+parking 132 -49.559f -1.0f -68.312f 114
+parking 133 -68.1f -1.0f -53.1f 40,114
+parking 134 -160.96f -1.0f -46.96f 115
+parking 135 -161.24f -1.0f -2.891f 116
+parking 136 -143.891f -1.0f 22.853f 106,105
+parking 137 -171.267f -1.0f 54.989f 43,106
+spawn 138 13.0f 0.0f 14.0f 0,1,2,3
+spawn 139 -15.0f 0.0f -11.0f 0,1,2,3
+spawn 140 -7.0f 0.0f -11.0f 0,1,2,3
+spawn 141 4.0f 0.0f -11.0f 0,1,2,3
+spawn 142 13.0f 0.0f -11.0f 0,1,2,3
+spawn 143 -15.0f 0.0f 14.0f 0,1,2,3
+spawn 144 -7.0f 0.0f 14.0f 0,1,2,3
+spawn 145 4.0f 0.0f 14.0f 0,1,2,3
