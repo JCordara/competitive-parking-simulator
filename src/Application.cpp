@@ -245,17 +245,14 @@ std::shared_ptr<Entity> Application::createPlayerEntity(instancedTransformation 
 	return playerCar;
 }
 
-std::shared_ptr<Entity> Application::addAICar(string alias, instancedTransformation transformation) {
+std::shared_ptr<Entity> Application::addAICar(string alias) {
 	auto aiCar = scene->addEntity();
-	aiCar->getComponent<TransformComponent>()->setLocalRotation(transformation.rotationAxisAngle.y, glm::vec3(0.0f, 1.0f, 0.0f));
 	createCar("car2chassis.obj", aiCar);
 	aiCar->addComponent<AudioComponent>()->addSound(AudioTrigger::Collision, "audio/oof.wav");
 	// --- Indicator for Ai car --- //
 	aiCar->addComponent<DescriptionComponent>()->setString("Name", alias);
-	aiCar->getComponent<DescriptionComponent>()->setVec3("Spawn Position", transformation.location);
-	aiCar->getComponent<DescriptionComponent>()->setRealNumber("Spawn Y-Rotation", transformation.rotationAxisAngle.y);
 	// --- Ai Component --- //
-	aiCar->addComponent<AiComponent>();
+	aiCar->addComponent<AiComponent>()->resetAi();
 	return aiCar;
 }
 
@@ -310,8 +307,8 @@ void Application::addPropCar(string alias, instancedTransformation transformatio
 	car->getComponent<DescriptionComponent>()->setVec3("Spawn Position", transformation.location);
 	car->getComponent<DescriptionComponent>()->setRealNumber("Spawn Y-Rotation", transformation.rotationAxisAngle.y);
 }
-void Application::addAICarEvent(string alias, instancedTransformation transformation) {
-	addAICar(alias, transformation);
+void Application::addAICarEvent(string alias) {
+	addAICar(alias);
 }
 // --- Model Loading --------------------------------------------------------------
 void Application::loadModels() {
@@ -414,12 +411,10 @@ void Application::setupMainMenu() {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 3, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	std::vector<string> names = { "Play","Options","Exit" };
-	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][0].positionY,
-		"Play", Events::GamePlay, 1);
-	guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY,
-		"Options", Events::GameOptions, 1);
-	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY,
-		"Exit", Events::ExitApplication, 1);
+	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][0].positionY,"Play", Events::NewGame, 1);
+	//guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY,
+		//"Options", Events::GameOptions, 1);
+	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY,"Exit", Events::ExitApplication, 1);
 	render->changeGui(guiScene);
 }
 void Application::setupBaseLevelGUI() {
@@ -430,17 +425,15 @@ void Application::setupBaseLevelGUI() {
 void Application::roundWonMenu() {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 2, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][1].positionY,
-		"Next Round", Events::GamePlay, 1);
-	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY,
-		"Main Menu", Events::MainMenu, 1);
+	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][1].positionY, "Next Round", Events::NextRound, 1);
+	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::EndGame, 1);
 	render->changeGui(guiScene);
 }
 void Application::gameEndGui(string message) {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 2, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][1].positionY, message);
-	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::MainMenu, 1);
+	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::EndGame, 1);
 	render->changeGui(guiScene);
 }
 // --- Destructor --------------------------------------------------------------

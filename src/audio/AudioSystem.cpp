@@ -39,7 +39,7 @@ AudioSystem::AudioSystem(shared_ptr<Scene> scene): scene(scene) {
     Events::AudioComponentInit.registerHandler<AudioSystem,
         &AudioSystem::registerAudioComponent>(this);
 
-    Events::GameStart.registerHandler<AudioSystem,
+    Events::NewGame.registerHandler<AudioSystem,
         &AudioSystem::onGameStart>(this);
 
     Events::Collision.registerHandler<AudioSystem,
