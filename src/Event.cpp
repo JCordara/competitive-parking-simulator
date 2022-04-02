@@ -1,43 +1,43 @@
 #include "Event.h"
 
 /* --- Application Framework Events --- */
-Event<void> ExitApplication;
-Event<int, int> WindowResized;
+Event<void> Events::ExitApplication;
+Event<int, int> Events::WindowResized;
 /* --- GUI Swap Events --- */
-Event<void> MainMenu;
-Event<void> GameGUI;
-Event<void> RoundEndGUI;
-Event<string> GameEndGUI;
+Event<void> Events::MainMenu;
+Event<void> Events::GameGUI;
+Event<void> Events::RoundEndGUI;
+Event<string> Events::GameEndGUI;
 /* --- Entity Manipulation Events--- */
-Event<string, instancedTransformation> AddPropCar;
-Event<string, instancedTransformation> AddParkingSpace;
-Event<string> AddAICar;
+Event<string, instancedTransformation> Events::AddPropCar;
+Event<string, instancedTransformation> Events::AddParkingSpace;
+Event<string> Events::AddAICar;
 /* --- Player Controller Events --- */
-Event<shared_ptr<Entity>, float> VehicleAccelerate;
-Event<shared_ptr<Entity>, float> VehicleSteer;
-Event<shared_ptr<Entity>, float> VehicleBrake;
-Event<shared_ptr<Entity>, float> VehicleHandbrake;
-Event<shared_ptr<Entity>, float> VehicleFlip;
+Event<shared_ptr<Entity>, float> Events::VehicleAccelerate;
+Event<shared_ptr<Entity>, float> Events::VehicleSteer;
+Event<shared_ptr<Entity>, float> Events::VehicleBrake;
+Event<shared_ptr<Entity>, float> Events::VehicleHandbrake;
+Event<shared_ptr<Entity>, float> Events::VehicleFlip;
 /* --- Physx --- */
-Event<shared_ptr<Entity>, shared_ptr<Entity>> Collision;
+Event<shared_ptr<Entity>, shared_ptr<Entity>> Events::Collision;
 /* --- Components --- */
-Event<RigidbodyComponent&> RigidbodyComponentInit;
-Event<VehicleComponent&> VehicleComponentInit;
-Event<ControllerComponent&> ControllerComponentInit;
-Event<AiComponent&> AiComponentInit;
-Event<AudioComponent&> AudioComponentInit;
-Event<VolumeTriggerComponent&> VolumeTriggerComponentInit;
+Event<RigidbodyComponent&> Events::RigidbodyComponentInit;
+Event<VehicleComponent&> Events::VehicleComponentInit;
+Event<ControllerComponent&> Events::ControllerComponentInit;
+Event<AiComponent&> Events::AiComponentInit;
+Event<AudioComponent&> Events::AudioComponentInit;
+Event<VolumeTriggerComponent&> Events::VolumeTriggerComponentInit;
 /* --- Game Logic Events --- */
-Event<void> NewGame;
-Event<void> NextRound;
-Event<void> EndGame;
-Event<shared_ptr<Entity>, float> GameReset;
-Event<shared_ptr<Entity>> CarParked;
-Event<void> CarUnParked;
+Event<void> Events::NewGame;
+Event<void> Events::NextRound;
+Event<void> Events::EndGame;
+Event<shared_ptr<Entity>, float> Events::GameReset;
+Event<shared_ptr<Entity>> Events::CarParked;
+Event<void> Events::CarUnParked;
 /* --- Script Events --- */
-Event<void> RecompileScripts;
+Event<void> Events::RecompileScripts;
 /* --- Miscellaneous Events --- */
-Event<float> ChangeMusicVolume;
+Event<float> Events::ChangeMusicVolume;
 
 
 

@@ -1,7 +1,7 @@
 #include "GuiScene.h"
 
-extern unsigned int g_numAiCars;
-extern bool g_showHUD;
+unsigned int g_numAiCars = 4;
+bool g_showHUD = true;
 extern std::unordered_map<unsigned int, int> scores;
 extern unsigned int playerId;
 extern std::vector<unsigned int> aiList;
