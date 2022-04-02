@@ -21,7 +21,7 @@ Application::Application(appSettings& settings):
 	audio = std::make_shared<AudioSystem>(scene);
 	// --- Loading the models our game uses --- //
 	loadModels();
-	gameplay->defineMap("aiNodeLocation", getInstancedTransformationsOrThrow("parkingSpots"), getInstancedTransformationsOrThrow("emptyParkingSpots"));
+	gameplay->defineMap("aiNodeLocation.txt", getInstancedTransformationsOrThrow("parkingSpots"), getInstancedTransformationsOrThrow("emptyParkingSpots"));
 	/* --- Set up Constaint entities --- */
 	generateStaticMap();
 	createPlayerEntity(instancedTransformation());
