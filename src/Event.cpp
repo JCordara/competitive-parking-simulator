@@ -11,7 +11,7 @@ Event<string> GameEndGUI;
 /* --- Entity Manipulation Events--- */
 Event<string, instancedTransformation> AddPropCar;
 Event<string, instancedTransformation> AddParkingSpace;
-Event<string, instancedTransformation> AddAICar;
+Event<string> AddAICar;
 /* --- Player Controller Events --- */
 Event<shared_ptr<Entity>, float> VehicleAccelerate;
 Event<shared_ptr<Entity>, float> VehicleSteer;
@@ -28,10 +28,9 @@ Event<AiComponent&> AiComponentInit;
 Event<AudioComponent&> AudioComponentInit;
 Event<VolumeTriggerComponent&> VolumeTriggerComponentInit;
 /* --- Game Logic Events --- */
-Event<void> GameStart;
-Event<void> GamePlay;
-Event<void> GameOptions;
-Event<void> GameWon;
+Event<void> NewGame;
+Event<void> NextRound;
+Event<void> EndGame;
 Event<shared_ptr<Entity>, float> GameReset;
 Event<shared_ptr<Entity>> CarParked;
 Event<void> CarUnParked;

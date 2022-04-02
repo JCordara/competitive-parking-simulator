@@ -37,7 +37,7 @@ namespace Events {
 	/* --- Entity Manipulation Events--- */
 	extern Event<string, instancedTransformation> AddPropCar;
 	extern Event<string, instancedTransformation> AddParkingSpace;
-	extern Event<string, instancedTransformation> AddAICar;
+	extern Event<string> AddAICar;
 	/* --- Player Controller Events --- */
 	extern Event<shared_ptr<Entity>, float> VehicleAccelerate;
 	extern Event<shared_ptr<Entity>, float> VehicleSteer;
@@ -54,10 +54,9 @@ namespace Events {
 	extern Event<AudioComponent&> AudioComponentInit;
 	extern Event<VolumeTriggerComponent&> VolumeTriggerComponentInit;
 	/* --- Game Logic Events --- */
-	extern Event<void> GameStart;
-	extern Event<void> GamePlay;
-	extern Event<void> GameOptions;
-	extern Event<void> GameWon;
+	extern Event<void> NewGame;
+	extern Event<void> NextRound;
+	extern Event<void> EndGame;
 	extern Event<shared_ptr<Entity>, float> GameReset;
 	extern Event<shared_ptr<Entity>> CarParked;
 	extern Event<void> CarUnParked;

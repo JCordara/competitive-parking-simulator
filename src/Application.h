@@ -18,6 +18,7 @@
 
 // C++ standard library includes
 #include "Common.h"
+#include "Event.h"
 
 // Engine sub-system includes
 #include "Framework.h"
@@ -81,13 +82,13 @@ private:
 	void generateStaticMap();
 	void createCar(string chassisModelName, std::shared_ptr<Entity> ent);
 	std::shared_ptr<Entity> createPlayerEntity(instancedTransformation transformation);
-	std::shared_ptr<Entity> addAICar(string alias, instancedTransformation transformation);
+	std::shared_ptr<Entity> addAICar(string alias);
 	std::shared_ptr<Entity> addDynamicObect(string alias, string modelName, instancedTransformation transformation);
 	std::shared_ptr<Entity> addTriggerBoxEntity(string alias, string modelName, instancedTransformation transformation, PxBoxGeometry boxgeom);
 	/* --- Entity Manipulation Events --- */
 	void addOpenParkingEntity(string alias, instancedTransformation transformation);
 	void addPropCar(string alias, instancedTransformation transformation);
-	void addAICarEvent(string alias, instancedTransformation transformation);
+	void addAICarEvent(string alias);
 	/* --- GUI Handlers --- */
 	void setupMainMenu();
 	void setupBaseLevelGUI();

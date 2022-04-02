@@ -307,10 +307,5 @@ struct instancedTransformation {
 	glm::vec3 rotationAxisAngle = glm::vec3(0.f, 0.f, 0.f);
 };
 
-bool prefix(const string& prefix, const string& base) {
-	auto res = std::mismatch(prefix.begin(), prefix.end(), base.begin());
-	return ( res.first == prefix.end() );
-}
-
 
 #endif // C_STD_H

@@ -21,6 +21,7 @@
 #include "Audio.h"
 
 #include "GameSystem.h"
+#include "Event.h"
 
 #include <memory>   // Smart pointers
 #include <iostream> // Degubbing

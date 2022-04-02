@@ -1,7 +1,7 @@
 #ifndef GAMEPLAY_SYSTEM_H
 #define GAMEPLAY_SYSTEM_H
-
 #include "GameSystem.h"
+#include "Event.h"
 
 extern std::vector<unsigned int> aiList;
 
@@ -20,6 +20,12 @@ public:
 	);
 	//When this is called, the map will resent with numberOfParkingSpots empty for play
 	void resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberOfParkingSpots);
+	void cleanMap();
+
+	//Game Events
+	void setupNewGame();
+	void setupNewRound();
+	void cleanUpGame();
 
     void update();
     ~GameplaySystem();
@@ -48,14 +54,7 @@ public:
 	std::vector<std::shared_ptr<AiGraphNode>> area970Nodes;
     void registerAiComponent(AiComponent& component);
 	void registerCarParked(shared_ptr<Entity> entity);
-	
-	void setPlayerId(unsigned int);
-	
-	void addAiId(unsigned int);
-	
-	void resetPlayer();
-	void resetAi(unsigned int);
-	bool gameWon();
+
 	std::shared_ptr<AiGraphNode> addAINode(std::string nodeType, int id, glm::vec3 nodePos);
 	void readAiGraph(string filepath);
 	void setNeigbours(std::shared_ptr<AiGraphNode> nodePrime, std::vector<int> nodeNeighbours);
@@ -70,6 +69,7 @@ public:
 	std::vector<std::shared_ptr<AiGraphNode>> getAreaNodes(int nodeAreaCode);
 
 private:
+	// --- Gui Control unit --- //
 	enum class GameState {
 		MainMenu,
 		Playing,
@@ -78,12 +78,18 @@ private:
 	};
 	bool updateMenu;
 	GameState gamestate;
-
+	// --- ---------------- --- //
     std::shared_ptr<Scene> scene;
 	double lastUpdateTime;
 
 	std::vector<instancedTransformation> possibleParkingSpots;
+	std::vector<bool> parking;
 	std::vector<int> scores;
+	unsigned int nextAI_ID;
+	unsigned int startingAi_number;
+	unsigned int currentAi_number;
 };
+
+bool prefix(const string& prefix, const string& base);
 
 #endif // GAMEPLAY_SYSTEM_H
