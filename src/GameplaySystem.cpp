@@ -27,28 +27,53 @@ void GameplaySystem::update() {
 	switch (gamestate) {
 		case GameState::MainMenu :
 			if (updateMenu) Events::MainMenu.broadcast();
+			updateMenu = false;
 		break;
 		case GameState::Playing:
 			if (updateMenu) Events::GameGUI.broadcast();
+			updateMenu = false;
+			// Parking Spot Logic
+			//
+			// Game State logic
+			if (scores.find(-1)->second > 0) { // Player has scored
+				updateMenu = true;
+				if (currentAi_number > 1) {
+					updateMenu = true;
+					gamestate = GameState::RoundEnd;
+				}
+				else {
+					updateMenu = true;
+					gamestate = GameState::GameEnd;
+					win = true;
+				}
+			}
+			else {
+				bool end = true;
+				for (auto& it : scores) if (it.first != -1 && it.second < 1) end = false;
+				if (end) {
+					updateMenu = true;
+					gamestate = GameState::GameEnd;
+					win = false;
+				}
+			}
 			// Update AI pathing
 			if (Time::now() - lastUpdateTime >= 0.25) {
-				for (auto& ai : scene->iterate<AiComponent>()) {
-					ai->update();
-				}
+				for (auto& ai : scene->iterate<AiComponent>()) ai->update();
 				lastUpdateTime = Time::now();
 			}
 		break;
 		case GameState::RoundEnd:
 			if (updateMenu) Events::RoundEndGUI.broadcast();
+			updateMenu = false;
 		break;
 		case GameState::GameEnd:
 			if (updateMenu) {
-				if(true) Events::GameEndGUI.broadcast("YOU WIN");
+				if(win) Events::GameEndGUI.broadcast("YOU WIN");
 				else Events::GameEndGUI.broadcast("YOU LOSE");
 			}
+			updateMenu = false;
 		break;
 	}
-	updateMenu = false;
 }
 
 void GameplaySystem::defineMap(

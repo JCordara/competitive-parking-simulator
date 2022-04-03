@@ -79,6 +79,7 @@ private:
 		GameEnd
 	};
 	bool updateMenu;
+	bool win;
 	GameState gamestate;
 	// --- ---------------- --- //
     std::shared_ptr<Scene> scene;
@@ -92,6 +93,7 @@ private:
 	unsigned int nextAI_ID;
 	unsigned int startingAi_number;
 	unsigned int currentAi_number;
+
 };
 
 bool prefix(const string& prefix, const string& base);
