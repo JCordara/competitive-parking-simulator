@@ -37,11 +37,11 @@ void GameplaySystem::update() {
 			// Game State logic
 			if (scores.find(-1)->second > 0) { // Player has scored
 				updateMenu = true;
-				if (currentAi_number > 1) {
+				if (currentAi_number > 1) {//Round 
 					updateMenu = true;
 					gamestate = GameState::RoundEnd;
 				}
-				else {
+				else {//Win
 					updateMenu = true;
 					gamestate = GameState::GameEnd;
 					win = true;
@@ -49,8 +49,9 @@ void GameplaySystem::update() {
 			}
 			else {
 				bool end = true;
-				for (auto& it : scores) if (it.first != -1 && it.second < 1) end = false;
-				if (end) {
+				//If any ai hasnt made it, then game is not over
+				for (auto& it : scores) if (it.first != -1 && it.second < 1) end = false; 
+				if (end) {//Every single one has parked
 					updateMenu = true;
 					gamestate = GameState::GameEnd;
 					win = false;
