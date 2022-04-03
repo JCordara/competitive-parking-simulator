@@ -88,8 +88,8 @@ void GameplaySystem::defineMap(
 	// Parking Spots
 	possibleParkingSpots = emptyParkingSpots;
 	// Adding in the propcars to parking spaces (Only ones that cant be a destonation space)
-	for (auto parkingSpot = parkingSpots.begin(); parkingSpot != parkingSpots.end(); parkingSpot++)
-		Events::AddPropCar.broadcast("Constaint propcar", *parkingSpot);
+	//for (auto parkingSpot = parkingSpots.begin(); parkingSpot != parkingSpots.end(); parkingSpot++)
+		//Events::AddPropCar.broadcast("Constaint propcar", *parkingSpot);
 	cleanMap();
 }
 
@@ -141,8 +141,8 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		if ((!parkingUpdated[i])) {
 			if (parking[i]) // Add a trigger box
 				Events::AddParkingSpace.broadcast("Temporary parkingspot : " + std::to_string(i), possibleParkingSpots[i]);
-			//else //Add a car
-				//Events::AddPropCar.broadcast("Temporary propcar : " + std::to_string(i), possibleParkingSpots[i]);
+			else //Add a car
+				Events::AddPropCar.broadcast("Temporary propcar : " + std::to_string(i), possibleParkingSpots[i]);
 		}	
 	}
 //---------------------------------------------------------------------------------------------------------------------
