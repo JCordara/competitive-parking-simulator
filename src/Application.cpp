@@ -11,14 +11,15 @@ Application::Application(appSettings& settings):
 	/* Framework - used by systems*/
 	window = std::make_shared<Window>(1200, 800, "Competitive Parking Simulator");
 	scene = std::make_shared<Scene>();
-	setupMainMenu();
-	playgame = false;
 	/* Game systems - update() every frame */
 	input = std::make_shared<InputSystem>(window);
 	gameplay = std::make_shared<GameplaySystem>(scene);
 	physics = std::make_shared<PhysicsSystem>(scene);
 	render = std::make_shared<RenderSystem>(scene, guiScene, window);
 	audio = std::make_shared<AudioSystem>(scene);
+
+	setupMainMenu();
+	playgame = false;
 	// --- Loading the models our game uses --- //
 	loadModels();
 	gameplay->defineMap("aiNodeLocation.txt", getInstancedTransformationsOrThrow("parkingSpots"), getInstancedTransformationsOrThrow("emptyParkingSpots"));

@@ -2,6 +2,7 @@
 #define GAMEPLAY_SYSTEM_H
 #include "GameSystem.h"
 #include "Event.h"
+#include <vector>
 
 extern std::vector<unsigned int> aiList;
 
@@ -21,6 +22,7 @@ public:
 	//When this is called, the map will resent with numberOfParkingSpots empty for play
 	void resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberOfParkingSpots);
 	void cleanMap();
+	void removeBottomAI(unsigned int num);
 
 	//Game Events
 	void setupNewGame();
@@ -82,9 +84,11 @@ private:
     std::shared_ptr<Scene> scene;
 	double lastUpdateTime;
 
-	std::vector<instancedTransformation> possibleParkingSpots;
-	std::vector<bool> parking;
-	std::vector<int> scores;
+	/* --- Parking Data --- */
+	std::vector<instancedTransformation>	possibleParkingSpots;
+	std::vector<bool>						parking;
+	/* --- Player Scores --- */
+	std::unordered_map<int, int> scores;
 	unsigned int nextAI_ID;
 	unsigned int startingAi_number;
 	unsigned int currentAi_number;
