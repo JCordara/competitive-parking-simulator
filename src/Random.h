@@ -38,8 +38,14 @@ public:
 		std::vector<int> ret = std::vector<int>(HI - LO);
 		for (int i = LO; i < HI; i++)
 			ret[i] = i;
-		std::shuffle(std::begin(ret), std::end(ret), std::default_random_engine{});
+		randomShuffle(ret);
 		return std::vector<int>(ret.begin(), ret.begin() + number);
+	}
+
+	template< typename T>
+	static void randomShuffle(std::vector<T>& v) {
+		for (int i = 0; i < v.size(); i++)
+			std::swap(v[i], v[randomInt(0, v.size())]);
 	}
 
 	static glm::vec3 randomVec3(float xLO, float xHI, float yLO, float yHI, float zLO, float zHI) {

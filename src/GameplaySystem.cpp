@@ -111,7 +111,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 				else if (prefix("Temporary propcar : ", name.value())) {
 					int number = std::stoi(name.value().substr(string("Temporary propcar : ").length()));
 					if (parking[number]) // Needs to be removed
-						ent->parent()->removeChild(ent);
+						scene->removeEntity(ent);
 					else { //Just needs to be placed back to its og transform
 						ent->getComponent<TransformComponent>()->setLocalPosition(des->getVec3("Spawn Position").value());
 						ent->getComponent<TransformComponent>()->setLocalRotation(glm::radians(des->getRealNumber("Spawn Y-Rotation").value()), glm::vec3(0.f, 1.f, 0.f));
@@ -129,7 +129,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 				if (prefix("Temporary parkingspot : ", name.value())) {
 					int number = std::stoi(name.value().substr(string("Temporary parkingspot : ").length()));
 					if (!parking[number]) // Needs to be removed
-						ent->parent()->removeChild(ent);
+						scene->removeEntity(ent);
 					else //Do nothing
 						parkingUpdated[number] = true;
 				}
@@ -146,7 +146,6 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		}	
 	}
 //---------------------------------------------------------------------------------------------------------------------
-	removeBottomAI(1); //remove an AI with the lowest score
 	//reset Vechicles
 	int numberOfAI = 0;
 	for (auto rb : scene->iterate<VehicleComponent>()) {
@@ -237,7 +236,7 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 	}
 	int i = 0;
 	for (std::vector<type>::iterator it = listOfAIs.begin(); i < num && it != listOfAIs.end(); it++, i++)
-		it->first->parent()->removeChild(it->first);
+		scene->removeEntity(it->first);
 
 }
 
@@ -250,6 +249,7 @@ void GameplaySystem::setupNewGame() {
 void GameplaySystem::setupNewRound() {
 	gamestate = GameState::Playing;
 	updateMenu = true;
+	removeBottomAI(1);
 	resetMapWithNumberOfEmptyParkingSpaces(--currentAi_number);
 }
 void GameplaySystem::cleanUpGame() {
@@ -271,7 +271,8 @@ void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
 	if (auto des = entity->getComponent<DescriptionComponent>()) {
 		if (auto name = des->getString("Name")) {
 			if (name.value() == "Player Car") {
-
+				gamestate = GameState::RoundEnd;
+				updateMenu = true;
 			}
 			else if (prefix("AI Car : ", name.value())) {
 

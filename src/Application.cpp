@@ -429,16 +429,16 @@ void Application::setupBaseLevelGUI() {
 void Application::roundWonMenu() {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 2, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][1].positionY, "Next Round", Events::NextRound, 1);
-	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::EndGame, 1);
+	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][0].positionY, "Next Round", Events::NextRound, 1);
+	guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "Main Menu", Events::EndGame, 1);
 	render->changeGui(guiScene);
 	playgame = false;
 }
 void Application::gameEndGui(string message) {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 2, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][1].positionY, message);
-	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::EndGame, 1);
+	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][0].positionY, message);
+	guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "Main Menu", Events::EndGame, 1);
 	render->changeGui(guiScene);
 	playgame = false;
 }
