@@ -418,11 +418,13 @@ void Application::setupMainMenu() {
 		//"Options", Events::GameOptions, 1);
 	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY,"Exit", Events::ExitApplication, 1);
 	render->changeGui(guiScene);
+	playgame = false;
 }
 void Application::setupBaseLevelGUI() {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
 	render->changeGui(guiScene);
+	playgame = true;
 }
 void Application::roundWonMenu() {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 2, 0.1f);
@@ -430,6 +432,7 @@ void Application::roundWonMenu() {
 	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][1].positionY, "Next Round", Events::NextRound, 1);
 	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::EndGame, 1);
 	render->changeGui(guiScene);
+	playgame = false;
 }
 void Application::gameEndGui(string message) {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 2, 0.1f);
@@ -437,6 +440,7 @@ void Application::gameEndGui(string message) {
 	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][1].positionY, message);
 	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::EndGame, 1);
 	render->changeGui(guiScene);
+	playgame = false;
 }
 // --- Destructor --------------------------------------------------------------
 void Application::exitApplication() {

@@ -16,8 +16,8 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 		&GameplaySystem::cleanUpGame>(this);
 
 	gamestate = GameState::MainMenu;
-	nextAI_ID = 0;
-	startingAi_number = 4;
+	nextAI_ID = 2;
+	startingAi_number = 0;
 	currentAi_number = 0;
 	
 	//setupAiNodes();
