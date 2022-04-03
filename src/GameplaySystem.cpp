@@ -220,8 +220,12 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 				if (prefix("AI Car : ", name.value())) {
 					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
 					auto score = scores.find(number);
+
+					printf("ur mum");
 					if (score == scores.end())
 						throw std::exception("Player Score Not Found");
+					printf(" gae\n");
+					
 					type element = type(ent, score->second);
 					// Insertion Sort
 					for (std::vector<type>::iterator it = listOfAIs.begin(); it < listOfAIs.end(); it++)
