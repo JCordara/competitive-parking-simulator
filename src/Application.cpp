@@ -22,7 +22,7 @@ Application::Application(appSettings& settings):
 	playgame = false;
 	// --- Loading the models our game uses --- //
 	loadModels();
-	gameplay->defineMap("aiNodeLocation.txt", getInstancedTransformationsOrThrow("parkingSpots"), getInstancedTransformationsOrThrow("emptyParkingSpots"));
+	gameplay->defineMap("modelTransformations/aiNodeLocation.txt", getInstancedTransformationsOrThrow("parkingSpots"), getInstancedTransformationsOrThrow("emptyParkingSpots"));
 	/* --- Set up Constaint entities --- */
 	generateStaticMap();
 	createPlayerEntity(instancedTransformation());

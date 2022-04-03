@@ -192,9 +192,10 @@ float AiComponent::getFValue(std::shared_ptr<AiGraphNode> node) {
 // Set the spawn Node for the AI
 // Chooses a random available Node in the Starting area node list
 void AiComponent::setSpawnNode() {
+
 	std::vector<std::shared_ptr<AiGraphNode>> possibleNodes;
-	for each (std::shared_ptr<AiGraphNode> node in gameplaySystem->aiGlobalNodes) {
-		if (node->nodeType == AiGraphNode::NodeType::SPAWN && !(node->nodeTaken)) {
+	for (shared_ptr<AiGraphNode> node : gameplaySystem->aiGlobalNodes) {
+		if ((node->nodeType == AiGraphNode::NodeType::SPAWN) && !(node->nodeTaken)) {
 			possibleNodes.push_back(node);
 		}
 	}
@@ -202,8 +203,12 @@ void AiComponent::setSpawnNode() {
 	double now = time(nullptr);
 	std::srand(now + (double)entity->id()); // Get AI picking differently
 	// Should give number between 0 and vector.size()-1
-	int pick = rand() % randIntCeiling;
-	currentNode = possibleNodes[pick];
+	if (randIntCeiling != 0) {
+		int pick = rand() % randIntCeiling;
+		currentNode = possibleNodes[pick];
+		// Or if you want to save a few lines of code
+		// currentNode = possibleNodes[Random::randomInt(0, possibleNodes.size() - 1)];
+	}
 	currentNode->nodeTaken = true;
 	//node->spawnAiComponent = entity->shared_from_this();
 	entity->getComponent<TransformComponent>()->setLocalPosition(currentNode->position);

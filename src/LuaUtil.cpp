@@ -42,7 +42,7 @@ namespace lua {
     int binaryWriter(lua_State *L, const void* p, size_t n, void* user_data)
     {
         Buffer* binary = static_cast<Buffer*>(user_data);
-        int pos = binary->size();
+        size_t pos = binary->size();
         binary->resize(pos + n);
         char* data = binary->data();
         memcpy(&data[pos], p, n);

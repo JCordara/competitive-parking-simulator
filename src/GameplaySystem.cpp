@@ -101,7 +101,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (prefix("Temporary parkingspot : ", name.value())) {
-					int number = std::stoi(name.value().substr(string("Temporary propcar : ").length()));
+					int number = std::stoi(name.value().substr(string("Temporary parkingspot : ").length()));
 					if (!parking[number]) // Needs to be removed
 						ent->parent()->removeChild(ent);
 					else //Do nothing
@@ -110,14 +110,13 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 			}
 		}
 	}
-
 	//Fill the spots will either a triggerbox or a car
 	for (int i = 0, index = 0; i < parkingUpdated.size(); i++) {
 		if ((!parkingUpdated[i])) {
 			if (parking[i]) // Add a trigger box
-				Events::AddParkingSpace.broadcast("Temporary parkingspot : " + i, possibleParkingSpots[i]);
+				Events::AddParkingSpace.broadcast("Temporary parkingspot : " + std::to_string(i), possibleParkingSpots[i]);
 			else //Add a car
-				Events::AddPropCar.broadcast("Temporary propcar : " + i, possibleParkingSpots[i]);
+				Events::AddPropCar.broadcast("Temporary propcar : " + std::to_string(i), possibleParkingSpots[i]);
 		}	
 	}
 //---------------------------------------------------------------------------------------------------------------------
@@ -140,7 +139,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		}
 	}
 	for (; numberOfAI < numberOfParkingSpots; numberOfAI++) {
-		Events::AddAICar.broadcast("AI Car : " + nextAI_ID);
+		Events::AddAICar.broadcast("AI Car : " + std::to_string(nextAI_ID));
 		scores.insert(std::pair<int, int>(nextAI_ID, 0));
 		nextAI_ID++;
 	}
@@ -151,26 +150,35 @@ void GameplaySystem::cleanMap() {
 	//Delete the cars
 	for (auto rb : scene->iterate<RigidbodyComponent>()) {
 		auto ent = rb->getEntity();
-		if (auto des = ent->getComponent<DescriptionComponent>())
-			if (auto name = des->getString("Name"))
-				if (prefix("Temporary propcar : ", name.value()))
-					ent->parent()->removeChild(ent);
+		if (auto des = ent->getComponent<DescriptionComponent>()) {
+			if (auto name = des->getString("Name")) {
+				if (prefix("Temporary propcar : ", name.value())) {
+					scene->removeEntity(ent);
+				}
+			}
+		}
 	}
 	//Delete Parking Spots
 	for (auto rb : scene->iterate<VolumeTriggerComponent>()) {
 		auto ent = rb->getEntity();
-		if (auto des = ent->getComponent<DescriptionComponent>())
-			if (auto name = des->getString("Name"))
-				if (prefix("Temporary parkingspot : ", name.value()))
-					ent->parent()->removeChild(ent);
+		if (auto des = ent->getComponent<DescriptionComponent>()) {
+			if (auto name = des->getString("Name")) {
+				if (prefix("Temporary parkingspot : ", name.value())) {
+					scene->removeEntity(ent);
+				}
+			}
+		}
 	}
 	//Delete the cars
 	for (auto rb : scene->iterate<VehicleComponent>()) {
 		auto ent = rb->getEntity();
-		if (auto des = ent->getComponent<DescriptionComponent>())
-			if (auto name = des->getString("Name"))
-				if (prefix("AI Car : ", name.value()))
-					ent->parent()->removeChild(ent);
+		if (auto des = ent->getComponent<DescriptionComponent>()) {
+			if (auto name = des->getString("Name")) {
+				if (prefix("AI Car : ", name.value())) {
+					scene->removeEntity(ent);
+				}
+			}
+		}
 	}
 	scores.clear();
 	scores.insert(std::pair<int, int>(-1, 0));
@@ -181,10 +189,10 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 	std::vector<type> listOfAIs;
 	for (auto rb : scene->iterate<VehicleComponent>()) {
 		auto ent = rb->getEntity();
-		if (auto des = ent->getComponent<DescriptionComponent>())
-			if (auto name = des->getString("Name"))
+		if (auto des = ent->getComponent<DescriptionComponent>()) {
+			if (auto name = des->getString("Name")) {
 				if (prefix("AI Car : ", name.value())) {
-					int number = std::stoi(name.value().substr(string("Temporary propcar : ").length()));
+					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
 					auto score = scores.find(number);
 					if (score == scores.end())
 						throw std::exception("Player Score Not Found");
@@ -194,6 +202,8 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 						if (it->second > element.second)
 							listOfAIs.insert(it, element);
 				}
+			}
+		}
 	}
 	int i = 0;
 	for (std::vector<type>::iterator it = listOfAIs.begin(); i < num && it != listOfAIs.end(); it++, i++)
@@ -260,7 +270,7 @@ void GameplaySystem::setNodeType(std::string nodeType, std::shared_ptr<AiGraphNo
 	}
 }
 
-std::shared_ptr<AiGraphNode> GameplaySystem::addAINode(std::string nodeType, int inId, glm::vec3 nodePos) {
+std::shared_ptr<AiGraphNode> GameplaySystem::addAINode(const std::string nodeType, int inId, glm::vec3 nodePos) {
 	std::shared_ptr<AiGraphNode> aiNode = std::make_shared<AiGraphNode>();
 	setNodeType(nodeType, aiNode);
 	aiNode->id = inId;
@@ -272,20 +282,23 @@ std::shared_ptr<AiGraphNode> GameplaySystem::addAINode(std::string nodeType, int
 void GameplaySystem::readAiGraph(string filepath) {
 
 	std::ifstream file(filepath);
-	std::string str;
-	std::vector<std::string> tokenizedLine;
-	std::unordered_map<std::shared_ptr<AiGraphNode>, std::vector<int>> nodeNeighboursMap;
+	string str;
+	vector<string> tokenizedLine;
+	unordered_map<shared_ptr<AiGraphNode>, vector<int>> nodeNeighboursMap;
 	size_t pos = 0;
-	std::string delimiter = " ";
+	string delimiter = " ";
 
 	while (std::getline(file, str)) {
 		tokenizedLine.clear();
 		std::vector<int> lineNodeNeighbours;
+
+		// Tokenize input string
 		while ((pos = str.find(delimiter)) != string::npos) {
 			tokenizedLine.push_back(str.substr(0, pos));
 			str.erase(0, pos + delimiter.length());
 		}
 
+		// Node neighbors are remaining in input string
 		std::string delimiter = ",";
 		while ((pos = str.find(delimiter)) != string::npos) {
 			lineNodeNeighbours.push_back(std::stoi(str.substr(0, pos)));
@@ -305,6 +318,7 @@ void GameplaySystem::readAiGraph(string filepath) {
 		nodeNeighboursMap[nde] = lineNodeNeighbours;
 	}
 
+	// Second pass to set neighbors
 	for (auto it : nodeNeighboursMap) {
 		setNeigbours(it.first, it.second);
 	}
@@ -323,6 +337,7 @@ std::shared_ptr<AiGraphNode> GameplaySystem::retrieveNode(int inId) {
 			return node;
 		}
 	}
+	return nullptr;
 }
 
 
@@ -901,8 +916,9 @@ void GameplaySystem::setupAiNodes() {
 	//
 }*/
 
-
+// Wasn't working, so now it's just a "contains" function as a quick fix
 bool prefix(const string& prefix, const string& base) {
-	auto res = std::mismatch(prefix.begin(), prefix.end(), base.begin());
-	return (res.first == prefix.end());
+	return (base.find(prefix) != string::npos);
+	// auto res = std::mismatch(prefix.begin(), prefix.end(), base.begin());
+	// return (res.first == prefix.end());
 }

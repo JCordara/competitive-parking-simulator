@@ -57,7 +57,7 @@ public:
     void registerAiComponent(AiComponent& component);
 	void registerCarParked(shared_ptr<Entity> entity);
 
-	std::shared_ptr<AiGraphNode> addAINode(std::string nodeType, int id, glm::vec3 nodePos);
+	std::shared_ptr<AiGraphNode> addAINode(const std::string nodeType, int id, glm::vec3 nodePos);
 	void readAiGraph(string filepath);
 	void setNeigbours(std::shared_ptr<AiGraphNode> nodePrime, std::vector<int> nodeNeighbours);
 	std::shared_ptr<AiGraphNode> retrieveNode(int inId);
