@@ -8,6 +8,17 @@ Application::Application(appSettings& settings):
 	glfwInit();
 	Time::init();
 	Random::init();
+	/* --- Application Framework Events--- */
+	Events::ExitApplication.registerHandler<Application, &Application::exitApplication>(this);
+	/* --- GUI Swap Events --- */
+	Events::MainMenu.registerHandler<Application, &Application::setupMainMenu>(this);
+	Events::GameGUI.registerHandler<Application, &Application::setupBaseLevelGUI>(this);
+	Events::RoundEndGUI.registerHandler<Application, &Application::roundWonMenu>(this);
+	Events::GameEndGUI.registerHandler<Application, &Application::gameEndGui>(this);
+	/* --- Entity Manipulation Events --- */
+	Events::AddPropCar.registerHandler<Application, &Application::addPropCar>(this);
+	Events::AddParkingSpace.registerHandler<Application, &Application::addOpenParkingEntity>(this);
+	Events::AddAICar.registerHandler<Application, &Application::addAICarEvent>(this);
 	/* Framework - used by systems*/
 	window = std::make_shared<Window>(1200, 800, "Competitive Parking Simulator");
 	scene = std::make_shared<Scene>();
@@ -26,17 +37,7 @@ Application::Application(appSettings& settings):
 	/* --- Set up Constaint entities --- */
 	generateStaticMap();
 	createPlayerEntity(instancedTransformation());
-	/* --- Application Framework Events--- */
-	Events::ExitApplication.registerHandler<Application, &Application::exitApplication>(this);
-	/* --- GUI Swap Events --- */
-	Events::MainMenu.registerHandler<Application, &Application::setupMainMenu>(this);
-	Events::GameGUI.registerHandler<Application, &Application::setupBaseLevelGUI>(this);
-	Events::RoundEndGUI.registerHandler<Application, &Application::roundWonMenu>(this);
-	Events::GameEndGUI.registerHandler<Application, &Application::gameEndGui>(this);
-	/* --- Entity Manipulation Events --- */
-	Events::AddPropCar.registerHandler<Application, &Application::addPropCar>(this);
-	Events::AddParkingSpace.registerHandler<Application, &Application::addOpenParkingEntity>(this);
-	Events::AddAICar.registerHandler<Application, &Application::addAICarEvent>(this);
+
 	
 }
 
@@ -51,10 +52,10 @@ int Application::play() {
 		render->setPlaying(playgame);
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
-				if(playgame) physics->update();	// Physics update
+				physics->update();	// Physics update
 				audio->update();	// Audio update
 		}
-		if(playgame) gameplay->update();	// Gameplay / AI update
+		gameplay->update();	// Gameplay / AI update
 		render->update(); // Render the current scene
 	}
 	return 0;
