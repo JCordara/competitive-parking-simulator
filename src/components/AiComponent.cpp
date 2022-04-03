@@ -20,9 +20,10 @@ AiComponent::AiComponent(shared_ptr<Entity> parent)
 	//	std::cout << "AREA CODE" << node->areaCode << std::endl;
 	//}
 	Events::AiComponentInit.broadcast(*this);
-	setupAreaMap();
+	//setupAreaMap();
 	setSpawnNode();
 	//pickRandEntranceNode();
+	pickParkingNode();
 	accelForwards();
 }
 
@@ -39,13 +40,19 @@ AiComponent::AiComponent(shared_ptr<Entity> parent, std::vector<glm::vec3> nodeL
 }
 
 void AiComponent::pickParkingNode() {
-	int randIntCeiling = emptyParkingNodes.size();
+	std::vector<std::shared_ptr<AiGraphNode>> possibleNodes;
+	for each (std::shared_ptr<AiGraphNode> node in gameplaySystem->aiGlobalNodes) {
+		if (node->nodeType == AiGraphNode::NodeType::PARKINGSTALL && !(node->nodeTaken)) {
+			possibleNodes.push_back(node);
+		}
+	}
+	int randIntCeiling = possibleNodes.size();
 	double now = time(nullptr);
 	std::srand(now + (double)entity->id()); // Get AI picking differently
 	// Should give number between 0 and vector.size()-1
 	int pick = rand() % randIntCeiling;
 	//std::cout << "PICKED ID: " << emptyParkingNodes[pick]->id << " PICKED AREA: " << emptyParkingNodes[pick]->areaCode << std::endl;
-	aStar(emptyParkingNodes[pick]);
+	aStar(possibleNodes[pick]);
 	//std::cout << "CNODE ID: " << currentNode->id << " NODE TYPE: " << static_cast<int>(currentNode->nodeType) << "CNODE AREA: " << currentNode->areaCode << std::endl;
 	//for (std::shared_ptr<AiGraphNode> nde : nodeQueue) {
 	//	std::cout << "NODE ID: " << nde->id << " NODE TYPE: " << static_cast<int>(nde->nodeType) << " NODE AREA: " << nde->areaCode << std::endl;
@@ -186,7 +193,7 @@ float AiComponent::getFValue(std::shared_ptr<AiGraphNode> node) {
 // Chooses a random available Node in the Starting area node list
 void AiComponent::setSpawnNode() {
 	std::vector<std::shared_ptr<AiGraphNode>> possibleNodes;
-	for each (std::shared_ptr<AiGraphNode> node in gameplaySystem->area970Nodes) {
+	for each (std::shared_ptr<AiGraphNode> node in gameplaySystem->aiGlobalNodes) {
 		if (node->nodeType == AiGraphNode::NodeType::SPAWN && !(node->nodeTaken)) {
 			possibleNodes.push_back(node);
 		}
