@@ -106,7 +106,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 			if (auto name = des->getString("Name")) {
 				if (name.value() == "Constaint propcar") {// Needs to be placed back to its og transform
 					ent->getComponent<TransformComponent>()->setLocalPosition(des->getVec3("Spawn Position").value());
-					ent->getComponent<TransformComponent>()->setLocalRotation(des->getRealNumber("Spawn Y-Rotation").value(), glm::vec3(0.f,1.f,0.f));
+					ent->getComponent<TransformComponent>()->setLocalRotation(glm::radians(des->getRealNumber("Spawn Y-Rotation").value()), glm::vec3(0.f,1.f,0.f));
 				}
 				else if (prefix("Temporary propcar : ", name.value())) {
 					int number = std::stoi(name.value().substr(string("Temporary propcar : ").length()));
@@ -114,7 +114,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 						ent->parent()->removeChild(ent);
 					else { //Just needs to be placed back to its og transform
 						ent->getComponent<TransformComponent>()->setLocalPosition(des->getVec3("Spawn Position").value());
-						ent->getComponent<TransformComponent>()->setLocalRotation(des->getRealNumber("Spawn Y-Rotation").value(), glm::vec3(0.f, 1.f, 0.f));
+						ent->getComponent<TransformComponent>()->setLocalRotation(glm::radians(des->getRealNumber("Spawn Y-Rotation").value()), glm::vec3(0.f, 1.f, 0.f));
 						parkingUpdated[number] = true;
 					}
 				}
@@ -141,8 +141,8 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		if ((!parkingUpdated[i])) {
 			if (parking[i]) // Add a trigger box
 				Events::AddParkingSpace.broadcast("Temporary parkingspot : " + std::to_string(i), possibleParkingSpots[i]);
-			else //Add a car
-				Events::AddPropCar.broadcast("Temporary propcar : " + std::to_string(i), possibleParkingSpots[i]);
+			//else //Add a car
+				//Events::AddPropCar.broadcast("Temporary propcar : " + std::to_string(i), possibleParkingSpots[i]);
 		}	
 	}
 //---------------------------------------------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 			if (auto name = des->getString("Name")) {
 				if ("Player Car" == name.value()) {
 					ent->getComponent<TransformComponent>()->setLocalPosition(des->getVec3("Spawn Position").value());
-					ent->getComponent<TransformComponent>()->setLocalRotation(des->getRealNumber("Spawn Y-Rotation").value(), glm::vec3(0.f, 1.f, 0.f));
+					ent->getComponent<TransformComponent>()->setLocalRotation(glm::radians(des->getRealNumber("Spawn Y-Rotation").value()), glm::vec3(0.f, 1.f, 0.f));
 				}
 				else if(prefix("AI Car : ", name.value())) {
 					ent->getComponent<AiComponent>()->resetAi();
