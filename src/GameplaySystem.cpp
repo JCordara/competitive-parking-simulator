@@ -238,9 +238,9 @@ void GameplaySystem::setupNewRound() {
 	setGameState(GameState::Playing);
 }
 void GameplaySystem::cleanUpGame() {
-	setGameState(GameState::MainMenu);
-	Events::MainMenu.broadcast();
 	cleanMap();
+	Events::MainMenu.broadcast();
+	setGameState(GameState::MainMenu);
 }
 
 GameplaySystem::~GameplaySystem() {}
