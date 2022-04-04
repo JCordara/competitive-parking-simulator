@@ -105,12 +105,15 @@ glm::vec3 VectorVectorProjection(glm::vec3 vec, glm::vec3 vec0) {
 	return dot(vec, vec0) * vec0;
 }
 
-glm::mat4 getLocalToGlobalTransformation(sp<Entity> e) {
+glm::mat4 getLocalToGlobalTransformation(weak_ptr<Entity> wp_e) {
+	auto e = wp_e.lock();// Try to get shared pointer to entity
+	if (!e) return glm::mat4(1.0f);
 	std::shared_ptr<TransformComponent> transformComponent = e->getComponent<TransformComponent>();
 	if (!transformComponent) return glm::mat4(1.0f);
 	std::shared_ptr<DescriptionComponent> descriptionComponent = e->getComponent<DescriptionComponent>();
-	if(!e->parent()) return transformComponent->getLocalMatrix();
-	if (!e->parent()->hasComponent<TransformComponent>()) return transformComponent->getLocalMatrix();
+	auto parent = e->parent().lock();
+	if(!parent) return transformComponent->getLocalMatrix();
+	if(!parent->hasComponent<TransformComponent>()) return transformComponent->getLocalMatrix();
 	bool ignoreParentRotations = false;
 	bool projectionOfParentOntoYPlane = false;
 	if (descriptionComponent) {
@@ -118,18 +121,18 @@ glm::mat4 getLocalToGlobalTransformation(sp<Entity> e) {
 		projectionOfParentOntoYPlane = descriptionComponent->getInteger("Parent Global Y-Plane Forward Direction Projection").has_value();
 	}
 	if (ignoreParentRotations) {
-		glm::vec3 temp = glm::vec3(e->parent()->getComponent<TransformComponent>()->getGlobalMatrix()[3]);
+		glm::vec3 temp = glm::vec3(parent->getComponent<TransformComponent>()->getGlobalMatrix()[3]);
 		return glm::translate(glm::mat4(1.f), temp) * transformComponent->getLocalMatrix();
 	}
 	else if (projectionOfParentOntoYPlane) {
 		// Get the default forward direction
 		glm::vec3 Forward = glm::vec3(1.f, 0.f, 0.f);
-		if (e->parent()->hasComponent<DescriptionComponent>()) {
-			auto f = e->parent()->getComponent<DescriptionComponent>()->getVec3("Forward");
+		if (parent->hasComponent<DescriptionComponent>()) {
+			auto f = parent->getComponent<DescriptionComponent>()->getVec3("Forward");
 			if (f.has_value()) Forward = f.value();
 		}
 		//Get new forward direction
-		glm::vec3 nForward = normalize(glm::vec3(e->parent()->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(Forward, 0.f)));
+		glm::vec3 nForward = normalize(glm::vec3(parent->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(Forward, 0.f)));
 		//Get the error correction vector mag
 		float magnatude_a = abs(dot(nForward, glm::vec3(0.f, 1.f, 0.f)));
 		magnatude_a = (magnatude_a < 0.258f) ? 0.f : magnatude_a - 0.258f;
@@ -148,7 +151,7 @@ glm::mat4 getLocalToGlobalTransformation(sp<Entity> e) {
 			else rot = glm::mat4(1.f);
 		}
 		else rot = convert<glm::mat4>(physx::PxQuat(angle, convert<PxVec3>(normalize(normal))));
-		glm::vec3 temp = glm::vec3(e->parent()->getComponent<TransformComponent>()->getGlobalMatrix()[3]);
+		glm::vec3 temp = glm::vec3(parent->getComponent<TransformComponent>()->getGlobalMatrix()[3]);
 		return glm::translate(glm::mat4(1.f), temp) * rot * transformComponent->getLocalMatrix();
 	}
 	return transformComponent->getGlobalMatrix();

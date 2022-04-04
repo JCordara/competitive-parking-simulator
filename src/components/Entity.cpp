@@ -21,15 +21,19 @@ weak_ptr<Entity> Entity::addChild() {
 }
 
 bool Entity::removeChild(weak_ptr<Entity> doomedEntity) {
+printf("In removeChild()!\n");
     
     // Copy weak pointer to shared pointer
     auto dm = doomedEntity.lock();
     if (!dm) return false; // Entity is already deleted
-
+printf("Got a shared pointer!\n");
     for (auto it = _children.begin(); it != _children.end(); it++) {
-        if ((*it) == dm) {
-            dm->killurself();
+printf("boutta check for a match!\n");
+        if ((*it).get() == dm.get()) {
+            // dm->killurself();
+printf("found a match! boutta erase!\n");
             _children.erase(it);
+printf("erased!\n");
             return true;
         }
     }
@@ -45,7 +49,7 @@ std::vector<sp<Entity>>& Entity::directChildren() {
 bool Entity::removeChildByID(unsigned int entityID) {
     for (auto it = _children.begin(); it != _children.end(); it++) {
         if ((*it)->id() == entityID) {
-            (*it)->killurself();
+            // (*it)->killurself();
             _children.erase(it);
             return true;
         }
