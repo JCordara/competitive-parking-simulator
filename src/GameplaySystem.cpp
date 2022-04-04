@@ -18,7 +18,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 	//Events::MainMenu.broadcast();
 	gamestate = GameState::MainMenu;
 	nextAI_ID = 0;
-	startingAi_number = 2;
+	startingAi_number = 3;
 	currentAi_number = 0;
 }
 
@@ -113,11 +113,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (prefix("Temporary parkingspot : ", name.value())) {
-					int number = std::stoi(name.value().substr(string("Temporary parkingspot : ").length()));
-					if (!parking[number]) // Needs to be removed
-						scene->removeEntity(ent);
-					else //Do nothing
-						parkingUpdated[number] = true;
+					scene->removeEntity(ent);
 				}
 			}
 		}
@@ -251,16 +247,18 @@ void GameplaySystem::registerAiComponent(AiComponent& component) {
 }
 
 
-void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
+void GameplaySystem::registerCarParked(shared_ptr<Entity> VehcleEntity, shared_ptr<Entity> TriggerEntity) {
 	if (gamestate == GameState::Playing) {
-		if (auto des = entity->getComponent<DescriptionComponent>()) {
+		if (auto des = VehcleEntity->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (name.value() == "Player Car") {
 					scores.find(-1)->second = 1;
+					scene->removeChild(TriggerEntity);
 				}
 				else if (prefix("AI Car : ", name.value())) {
 					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
 					scores.find(number)->second = 1;
+					scene->removeChild(TriggerEntity);
 				}
 			}
 		}
