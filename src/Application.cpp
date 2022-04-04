@@ -254,7 +254,7 @@ std::shared_ptr<Entity> Application::addAICar(string alias) {
 	// --- Indicator for Ai car --- //
 	aiCar->addComponent<DescriptionComponent>()->setString("Name", alias);
 	// --- Ai Component --- //
-	aiCar->addComponent<AiComponent>()->resetAi();
+	aiCar->addComponent<AiComponent>();
 	return aiCar;
 }
 

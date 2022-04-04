@@ -88,8 +88,8 @@ void GameplaySystem::defineMap(
 	// Parking Spots
 	possibleParkingSpots = emptyParkingSpots;
 	// Adding in the propcars to parking spaces (Only ones that cant be a destonation space)
-	//for (auto parkingSpot = parkingSpots.begin(); parkingSpot != parkingSpots.end(); parkingSpot++)
-		//Events::AddPropCar.broadcast("Constaint propcar", *parkingSpot);
+	for (auto parkingSpot = parkingSpots.begin(); parkingSpot != parkingSpots.end(); parkingSpot++)
+		Events::AddPropCar.broadcast("Constaint propcar", *parkingSpot);
 	cleanMap();
 }
 
@@ -168,6 +168,8 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		scores.insert(std::pair<int, int>(nextAI_ID, 0));
 		nextAI_ID++;
 	}
+	for (auto s : scores)
+		s.second = 0;
 //---------------------------------------------------------------------------------------------------------------------
 }
 
@@ -219,12 +221,8 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 				if (prefix("AI Car : ", name.value())) {
 					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
 					auto score = scores.find(number);
-
-					printf("ur mum");
 					if (score == scores.end())
 						throw std::exception("Player Score Not Found");
-					printf(" gae\n");
-					
 					type element = type(ent, score->second);
 					// Insertion Sort
 					for (std::vector<type>::iterator it = listOfAIs.begin(); it < listOfAIs.end(); it++)
@@ -273,6 +271,7 @@ void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
 			if (name.value() == "Player Car") {
 				gamestate = GameState::RoundEnd;
 				updateMenu = true;
+				win = true;
 			}
 			else if (prefix("AI Car : ", name.value())) {
 
