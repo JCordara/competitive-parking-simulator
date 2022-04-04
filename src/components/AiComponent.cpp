@@ -27,6 +27,7 @@ AiComponent::AiComponent(shared_ptr<Entity> parent)
 	accelForwards();
 }
 
+/*
 AiComponent::AiComponent(shared_ptr<Entity> parent, std::vector<glm::vec3> nodeLocs)
 	: BaseComponent(parent)
 {
@@ -37,7 +38,7 @@ AiComponent::AiComponent(shared_ptr<Entity> parent, std::vector<glm::vec3> nodeL
 	pickParkingNode();
 	//pickRandEntranceNode();
 	accelForwards();
-}
+}*/
 
 void AiComponent::pickParkingNode() {
 	std::vector<std::shared_ptr<AiGraphNode>> possibleNodes;
@@ -99,7 +100,7 @@ void AiComponent::update() {
 // Traverses the graph via neighbours from the currentNode to the goalNode
 // AI Car belongs to whatever node it is currently going to, i.e. currentNode
 void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
-
+	nodeQueue.clear(); // Make sure path is clear
 	std::vector<std::shared_ptr<AiGraphNode>> openList;
 	std::vector<std::shared_ptr<AiGraphNode>> closedList;
 
@@ -171,6 +172,11 @@ void AiComponent::aStar(std::shared_ptr<AiGraphNode> goalNode) {
 			break;
 		}
 	}
+	std::cout << "A STAR FINISHED" << std::endl;
+	std::cout << "CNODE ID: " << currentNode->id << " NODE TYPE: " << static_cast<int>(currentNode->nodeType) << "CNODE AREA: " << currentNode->areaCode << std::endl;
+	for (std::shared_ptr<AiGraphNode> nde : nodeQueue) {
+		std::cout << "NODE ID: " << nde->id << " NODE TYPE: " << static_cast<int>(nde->nodeType) << " NODE AREA: " << nde->areaCode << std::endl;
+	}
 }
 
 // Helper function for A*
@@ -217,7 +223,7 @@ void AiComponent::setSpawnNode() {
 // Resets the AI to a chosen spawn position and search state
 void AiComponent::resetAi() {
 	setSpawnNode();
-	visitedAreas.clear();
+	//visitedAreas.clear();
 	switchState(States::SEARCH);
 	pickParkingNode();
 	//pickRandEntranceNode();
@@ -360,6 +366,8 @@ void AiComponent::searchState() {
 	bool inBounds = inRangeOfNode(NODETHRESHOLD);
 
 	// Checks if the car has reached the current node
+	std::cout << "Entity Position" << entity->getComponent<TransformComponent>()->getGlobalPosition() << std::endl;
+	std::cout << "Node Position" << currentNode->position << std::endl;
 	if (inBounds) {
 		/*if (nodeQueue.size() == 1) {
 			if (pickClosestParkingNode(nodeQueue[0])) {
@@ -406,7 +414,7 @@ void AiComponent::searchState() {
 		switchState(States::RECOVERY);
 		//std::cout << "RECOVERY: CNODE ID: " << currentNode->id << "CNODE AREA: " << currentNode->areaCode << std::endl;
 		stuckPos = entity->getComponent<TransformComponent>()->getGlobalPosition();
-		createRecoveryNode();
+		//createRecoveryNode();
 		recoveryTimeout = 0;
 		accelReverse();
 	}
@@ -493,30 +501,36 @@ void AiComponent::recoveryState() {
 
 // Gets angle between goal and current forward, turns towards goal
 void AiComponent::steerToNextNode() {
-	const float ANGLETHRESHOLD = 3.14/20;
-
+	const float ANGLETHRESHOLD = 0;
+	std::cout << "CURRENT NODE: " << currentNode->id << std::endl;
 	physx::PxQuat aiCarRotation = entity->
 		getComponent<TransformComponent>()->getLocalRotation();
 	glm::vec3 aiForwardQuat = ComputeForwardVector(aiCarRotation);
 	aiForwardQuat = glm::normalize(aiForwardQuat);
+	std::cout << "Forward Vec: " << aiForwardQuat << std::endl;
 	// Vec between car and next node
 	glm::vec3 nodesVec = currentNode->position - entity->
 		getComponent<TransformComponent>()->getGlobalPosition();
 	nodesVec = glm::normalize(nodesVec);
+	std::cout << "Node Vec: " << nodesVec << std::endl;
 
 	//float angleFinal = glm::orientedAngle(glm::vec2(nodesVec.x, nodesVec.z), glm::vec2(aiForwardQuat.x, aiForwardQuat.z));
+	//std::cout << "Final Angle: " << angleFinal << std::endl;
 	
 	float angle = glm::dot(aiForwardQuat, nodesVec);
 	angle = angle / glm::length(aiForwardQuat);
 	angle = angle / glm::length(nodesVec);
 	angle = glm::acos(angle);
+	std::cout << "Original Angle: " << angle << std::endl;
 	glm::vec3 cross = glm::cross(aiForwardQuat, nodesVec);
 	float angleFinal = glm::dot(glm::vec3(0, 1, 0), cross);
-	
+	std::cout << "Final Angle: " << angleFinal << std::endl;
 	// If the angle is below around 60 degrees, keep speed and turn in that direction
 	// Turn amounts are negative as the directions are reversed at the moment
-	
-	angleFinal = angleFinal * 3.14;
+	if (angleFinal < 0) angleFinal = angle*-1;
+	if (angleFinal > 0) angleFinal = angle;
+	std::cout << "Final Angle2: " << angleFinal << std::endl;
+	//angleFinal = angleFinal * 3.14;
 	if (angleFinal < -ANGLETHRESHOLD && angleFinal > -1) {
 		if(aiSpeed <= 0.55) aiSpeed = aiSpeed + 0.05; accelForwards(); // Increase speed slowly
 		angleFinal = angleFinal / 3.14;

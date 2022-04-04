@@ -17,7 +17,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 
 	gamestate = GameState::MainMenu;
 	nextAI_ID = 0;
-	startingAi_number = 2;
+	startingAi_number = 1;
 	currentAi_number = 0;
 	
 	//setupAiNodes();
