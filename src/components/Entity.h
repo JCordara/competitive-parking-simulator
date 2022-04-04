@@ -22,6 +22,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
 public:
 
     Entity(sp<Entity> parent);
+    ~Entity();
     sp<Entity> parent() { return _parent; }
 
     // Return this entity's unique ID
@@ -146,6 +147,13 @@ protected:
     // Instance counter used for unique IDs
     static unsigned int instanceCounter;
 
+private:
+
+    template<class C>
+    void untrackComponentFromScene(sp<BaseComponent> component) {
+        sp<C> derived = dynamic_pointer_cast<C>(component);
+        getScene()->untrackComponent<C>(derived);
+    }
     
 };
 

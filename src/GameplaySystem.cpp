@@ -15,46 +15,37 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 	Events::EndGame.registerHandler<GameplaySystem,
 		&GameplaySystem::cleanUpGame>(this);
 
+	//Events::MainMenu.broadcast();
 	gamestate = GameState::MainMenu;
 	nextAI_ID = 0;
 	startingAi_number = 1;
 	currentAi_number = 0;
-	
-	//setupAiNodes();
 }
 
 void GameplaySystem::update() {
 	switch (gamestate) {
 		case GameState::MainMenu :
-			if (updateMenu) Events::MainMenu.broadcast();
-			updateMenu = false;
+			//Do nothing
 		break;
 		case GameState::Playing:
-			if (updateMenu) Events::GameGUI.broadcast();
-			updateMenu = false;
-			// Parking Spot Logic
-			//
 			// Game State logic
 			if (scores.find(-1)->second > 0) { // Player has scored
-				updateMenu = true;
 				if (currentAi_number > 1) {//Round 
-					updateMenu = true;
-					gamestate = GameState::RoundEnd;
+					setGameState(GameState::RoundEnd);
+					Events::RoundEndGUI.broadcast();
 				}
 				else {//Win
-					updateMenu = true;
-					gamestate = GameState::GameEnd;
-					win = true;
+					setGameState(GameState::GameEnd);
+					Events::GameEndGUI.broadcast("YOU WIN");
 				}
 			}
 			else {
 				bool end = true;
-				//If any ai hasnt made it, then game is not over
-				for (auto& it : scores) if (it.first != -1 && it.second < 1) end = false; 
+					//If any ai hasnt made it, then game is not over
+				for (auto& it : scores) if (it.first != -1 && it.second < 1) end = false;
 				if (end) {//Every single one has parked
-					updateMenu = true;
-					gamestate = GameState::GameEnd;
-					win = false;
+					setGameState(GameState::GameEnd);
+					Events::GameEndGUI.broadcast("YOU LOSE");
 				}
 			}
 			// Update AI pathing
@@ -64,15 +55,10 @@ void GameplaySystem::update() {
 			}
 		break;
 		case GameState::RoundEnd:
-			if (updateMenu) Events::RoundEndGUI.broadcast();
-			updateMenu = false;
+			// Do nothing
 		break;
 		case GameState::GameEnd:
-			if (updateMenu) {
-				if(win) Events::GameEndGUI.broadcast("YOU WIN");
-				else Events::GameEndGUI.broadcast("YOU LOSE");
-			}
-			updateMenu = false;
+			//Do nothing
 		break;
 	}
 }
@@ -127,11 +113,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (prefix("Temporary parkingspot : ", name.value())) {
-					int number = std::stoi(name.value().substr(string("Temporary parkingspot : ").length()));
-					if (!parking[number]) // Needs to be removed
-						scene->removeEntity(ent);
-					else //Do nothing
-						parkingUpdated[number] = true;
+					scene->removeEntity(ent);
 				}
 			}
 		}
@@ -168,8 +150,8 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		scores.insert(std::pair<int, int>(nextAI_ID, 0));
 		nextAI_ID++;
 	}
-	for (auto s : scores)
-		s.second = 0;
+	for (auto s = scores.begin(); s != scores.end(); s++)
+		s->second = 0;
 //---------------------------------------------------------------------------------------------------------------------
 }
 
@@ -239,23 +221,23 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 }
 
 void GameplaySystem::setupNewGame() {
-	gamestate = GameState::Playing;
-	updateMenu = true;
-	cleanMap();
-	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number = startingAi_number);
+	currentAi_number = startingAi_number;
+	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number);
+	Events::GameGUI.broadcast();
+	setGameState(GameState::Playing);
 }
 void GameplaySystem::setupNewRound() {
-	gamestate = GameState::Playing;
-	updateMenu = true;
 	removeBottomAI(1);
-	resetMapWithNumberOfEmptyParkingSpaces(--currentAi_number);
+	currentAi_number = currentAi_number - 1;
+	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number);
+	Events::GameGUI.broadcast();
+	setGameState(GameState::Playing);
 }
 void GameplaySystem::cleanUpGame() {
-	gamestate = GameState::MainMenu;
-	updateMenu = true;
 	cleanMap();
+	Events::MainMenu.broadcast();
+	setGameState(GameState::MainMenu);
 }
-
 
 GameplaySystem::~GameplaySystem() {}
 
@@ -265,16 +247,19 @@ void GameplaySystem::registerAiComponent(AiComponent& component) {
 }
 
 
-void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
-	if (auto des = entity->getComponent<DescriptionComponent>()) {
-		if (auto name = des->getString("Name")) {
-			if (name.value() == "Player Car") {
-				gamestate = GameState::RoundEnd;
-				updateMenu = true;
-				win = true;
-			}
-			else if (prefix("AI Car : ", name.value())) {
-
+void GameplaySystem::registerCarParked(shared_ptr<Entity> VehcleEntity, shared_ptr<Entity> TriggerEntity) {
+	if (gamestate == GameState::Playing) {
+		if (auto des = VehcleEntity->getComponent<DescriptionComponent>()) {
+			if (auto name = des->getString("Name")) {
+				if (name.value() == "Player Car") {
+					scores.find(-1)->second = 1;
+					scene->removeChild(TriggerEntity);
+				}
+				else if (prefix("AI Car : ", name.value())) {
+					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
+					scores.find(number)->second = 1;
+					scene->removeChild(TriggerEntity);
+				}
 			}
 		}
 	}

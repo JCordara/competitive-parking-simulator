@@ -24,6 +24,7 @@ void VolumeTriggerComponent::flush() {
 
 void VolumeTriggerComponent::createVolumeShape(PxTransform startPos, PxBoxGeometry boxGeom) {
 	actor = physicsSystem->createTriggerBox(startPos, boxGeom);
+	actor->userData = static_cast<void*>(entity.get());
 }
 
 ComponentEnum VolumeTriggerComponent::getType() {

@@ -52,10 +52,10 @@ int Application::play() {
 		render->setPlaying(playgame);
 		// Fixed time step game loop
 		while (Time::takeNextStep()) {
+				gameplay->update();	// Gameplay / AI update
 				physics->update();	// Physics update
 				audio->update();	// Audio update
 		}
-		gameplay->update();	// Gameplay / AI update
 		render->update(); // Render the current scene
 	}
 	return 0;

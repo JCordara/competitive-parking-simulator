@@ -55,7 +55,7 @@ public:
 	std::vector<std::shared_ptr<AiGraphNode>> area969Nodes;
 	std::vector<std::shared_ptr<AiGraphNode>> area970Nodes;
     void registerAiComponent(AiComponent& component);
-	void registerCarParked(shared_ptr<Entity> entity);
+	void registerCarParked(shared_ptr<Entity> VehicleEntity, shared_ptr<Entity> TriggerEntity);
 
 	std::shared_ptr<AiGraphNode> addAINode(const std::string nodeType, int id, glm::vec3 nodePos);
 	void readAiGraph(string filepath);
@@ -78,9 +78,10 @@ private:
 		RoundEnd,
 		GameEnd
 	};
-	bool updateMenu;
-	bool win;
 	GameState gamestate;
+	void setGameState(GameState gs) {
+		gamestate = gs;
+	}
 	// --- ---------------- --- //
     std::shared_ptr<Scene> scene;
 	double lastUpdateTime;
