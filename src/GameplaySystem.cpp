@@ -20,8 +20,6 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 	nextAI_ID = 0;
 	startingAi_number = 2;
 	currentAi_number = 0;
-	
-	//setupAiNodes();
 }
 
 void GameplaySystem::update() {
@@ -227,17 +225,17 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 }
 
 void GameplaySystem::setupNewGame() {
-	setGameState(GameState::Playing);
-	Events::GameGUI.broadcast();
 	currentAi_number = startingAi_number;
 	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number);
+	Events::GameGUI.broadcast();
+	setGameState(GameState::Playing);
 }
 void GameplaySystem::setupNewRound() {
-	setGameState(GameState::Playing);
-	Events::GameGUI.broadcast();
 	removeBottomAI(1);
 	currentAi_number = currentAi_number - 1;
 	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number);
+	Events::GameGUI.broadcast();
+	setGameState(GameState::Playing);
 }
 void GameplaySystem::cleanUpGame() {
 	setGameState(GameState::MainMenu);
@@ -254,14 +252,16 @@ void GameplaySystem::registerAiComponent(AiComponent& component) {
 
 
 void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
-	if (auto des = entity->getComponent<DescriptionComponent>()) {
-		if (auto name = des->getString("Name")) {
-			if (name.value() == "Player Car") {
-				scores.find(-1)->second = 1;
-			}
-			else if (prefix("AI Car : ", name.value())) {
-				int number = std::stoi(name.value().substr(string("AI Car : ").length()));
-				scores.find(number)->second = 1;
+	if (gamestate == GameState::Playing) {
+		if (auto des = entity->getComponent<DescriptionComponent>()) {
+			if (auto name = des->getString("Name")) {
+				if (name.value() == "Player Car") {
+					scores.find(-1)->second = 1;
+				}
+				else if (prefix("AI Car : ", name.value())) {
+					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
+					scores.find(number)->second = 1;
+				}
 			}
 		}
 	}
