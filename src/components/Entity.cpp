@@ -70,6 +70,59 @@ sp<Scene> Entity::getScene() {
 }
 
 
+Entity::~Entity() {
+
+    // Call child destructors
+    _children.clear();
+
+    // Delete components
+    for (auto keyValue : _components) {
+    
+        // Get component type enum
+        ComponentEnum type = keyValue.first;
+
+        // Untrack component from scene
+        switch(type) {
+            case ComponentEnum::ai:
+                untrackComponentFromScene<AiComponent>(keyValue.second);
+                break;
+            case ComponentEnum::audio:
+                untrackComponentFromScene<AudioComponent>(keyValue.second);
+                break;
+            case ComponentEnum::camera:
+                untrackComponentFromScene<CameraComponent>(keyValue.second);
+                break;
+            case ComponentEnum::controller:
+                untrackComponentFromScene<ControllerComponent>(keyValue.second);
+                break;
+            case ComponentEnum::description:
+                untrackComponentFromScene<DescriptionComponent>(keyValue.second);
+                break;
+            case ComponentEnum::lighting:
+                untrackComponentFromScene<LightingComponent>(keyValue.second);
+                break;
+            case ComponentEnum::model:
+                untrackComponentFromScene<ModelComponent>(keyValue.second);
+                break;
+            case ComponentEnum::renderer:
+                untrackComponentFromScene<RendererComponent>(keyValue.second);
+                break;
+            case ComponentEnum::rigidbody:
+                untrackComponentFromScene<RigidbodyComponent>(keyValue.second);
+                break;
+            case ComponentEnum::transform:
+                untrackComponentFromScene<TransformComponent>(keyValue.second);
+                break;
+            case ComponentEnum::vehicle:
+                untrackComponentFromScene<VehicleComponent>(keyValue.second);
+                break;
+            case ComponentEnum::volumeTrigger:
+                untrackComponentFromScene<VolumeTriggerComponent>(keyValue.second);
+                break;
+        }
+    }
+}
+
 
 // --- Entity Iterator ---
 Entity::Iterator Entity::begin() {
