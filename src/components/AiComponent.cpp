@@ -217,7 +217,15 @@ void AiComponent::setSpawnNode() {
 	}
 	currentNode->nodeTaken = true;
 	//node->spawnAiComponent = entity->shared_from_this();
+	std::cout << "BEFORE" << std::endl;
+	std::cout << "Entity Local Position" << entity->getComponent<TransformComponent>()->getLocalPosition() << std::endl;
+	std::cout << "Entity Global Position" << entity->getComponent<TransformComponent>()->getGlobalPosition() << std::endl;
+	std::cout << "CNODE: " << currentNode->id << " Node Position: " << currentNode->position << std::endl;
 	entity->getComponent<TransformComponent>()->setLocalPosition(currentNode->position);
+	std::cout << "AFTER" << std::endl;
+	std::cout << "Entity Local Position" << entity->getComponent<TransformComponent>()->getLocalPosition() << std::endl;
+	std::cout << "Entity Global Position" << entity->getComponent<TransformComponent>()->getGlobalPosition() << std::endl;
+	std::cout << "CNODE: " << currentNode->id << " Node Position: " << currentNode->position << std::endl;
 }
 
 // Resets the AI to a chosen spawn position and search state
@@ -366,8 +374,9 @@ void AiComponent::searchState() {
 	bool inBounds = inRangeOfNode(NODETHRESHOLD);
 
 	// Checks if the car has reached the current node
-	std::cout << "Entity Position" << entity->getComponent<TransformComponent>()->getGlobalPosition() << std::endl;
-	std::cout << "Node Position" << currentNode->position << std::endl;
+	std::cout << "Entity Local Position" << entity->getComponent<TransformComponent>()->getLocalPosition() << std::endl;
+	std::cout << "Entity Global Position" << entity->getComponent<TransformComponent>()->getGlobalPosition() << std::endl;
+	std::cout << "CNODE: " << currentNode->id << " Node Position" << currentNode->position << std::endl;
 	if (inBounds) {
 		/*if (nodeQueue.size() == 1) {
 			if (pickClosestParkingNode(nodeQueue[0])) {

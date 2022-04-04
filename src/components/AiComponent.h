@@ -52,7 +52,7 @@ public:
 	};
 
 	float aiSpeed = 0.55f;
-	const float NODETHRESHOLD = 5.5f;
+	const float NODETHRESHOLD = 3.5f;
 	float sightFrontConeWidth;
 	float sightFrontConeHeight;
 	float sightBackConeWidth;
