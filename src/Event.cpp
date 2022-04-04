@@ -32,7 +32,7 @@ Event<void> Events::NewGame;
 Event<void> Events::NextRound;
 Event<void> Events::EndGame;
 Event<shared_ptr<Entity>, float> Events::GameReset;
-Event<shared_ptr<Entity>> Events::CarParked;
+Event<shared_ptr<Entity>, shared_ptr<Entity>> Events::CarParked;
 Event<void> Events::CarUnParked;
 /* --- Script Events --- */
 Event<void> Events::RecompileScripts;

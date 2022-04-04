@@ -58,7 +58,7 @@ namespace Events {
 	extern Event<void> NextRound;
 	extern Event<void> EndGame;
 	extern Event<shared_ptr<Entity>, float> GameReset;
-	extern Event<shared_ptr<Entity>> CarParked;
+	extern Event<shared_ptr<Entity>, shared_ptr<Entity>> CarParked;
 	extern Event<void> CarUnParked;
 	/* --- Script Events --- */
 	extern Event<void> RecompileScripts;

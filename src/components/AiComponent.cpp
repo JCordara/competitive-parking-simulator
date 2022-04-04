@@ -376,7 +376,7 @@ void AiComponent::searchState() {
 		if(currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
 			aiSpeed = 0.1; accelForwards();
 			currentNode->nodeTaken = true;
-			Events::CarParked.broadcast(entity);
+			// Events::CarParked.broadcast(entity);
 		}
 		else {
 			// Reset spawn node once first node is reached
