@@ -165,51 +165,51 @@ Entity::~Entity() {
         switch(type) {
             case ComponentEnum::ai:
                 untrackComponentFromScene<AiComponent>(keyValue.second);
-                removeComponent<AiComponent>();
+                // removeComponent<AiComponent>();
                 break;
             case ComponentEnum::audio:
                 untrackComponentFromScene<AudioComponent>(keyValue.second);
-                removeComponent<AudioComponent>();
+                // removeComponent<AudioComponent>();
                 break;
             case ComponentEnum::camera:
                 untrackComponentFromScene<CameraComponent>(keyValue.second);
-                removeComponent<CameraComponent>();
+                // removeComponent<CameraComponent>();
                 break;
             case ComponentEnum::controller:
                 untrackComponentFromScene<ControllerComponent>(keyValue.second);
-                removeComponent<ControllerComponent>();
+                // removeComponent<ControllerComponent>();
                 break;
             case ComponentEnum::description:
                 untrackComponentFromScene<DescriptionComponent>(keyValue.second);
-                removeComponent<DescriptionComponent>();
+                // removeComponent<DescriptionComponent>();
                 break;
             case ComponentEnum::lighting:
                 untrackComponentFromScene<LightingComponent>(keyValue.second);
-                removeComponent<LightingComponent>();
+                // removeComponent<LightingComponent>();
                 break;
             case ComponentEnum::model:
                 untrackComponentFromScene<ModelComponent>(keyValue.second);
-                removeComponent<ModelComponent>();
+                // removeComponent<ModelComponent>();
                 break;
             case ComponentEnum::renderer:
                 untrackComponentFromScene<RendererComponent>(keyValue.second);
-                removeComponent<RendererComponent>();
+                // removeComponent<RendererComponent>();
                 break;
             case ComponentEnum::rigidbody:
                 untrackComponentFromScene<RigidbodyComponent>(keyValue.second);
-                removeComponent<RigidbodyComponent>();
+                // removeComponent<RigidbodyComponent>();
                 break;
             case ComponentEnum::transform:
                 untrackComponentFromScene<TransformComponent>(keyValue.second);
-                removeComponent<TransformComponent>();
+                // removeComponent<TransformComponent>();
                 break;
             case ComponentEnum::vehicle:
                 untrackComponentFromScene<VehicleComponent>(keyValue.second);
-                removeComponent<VehicleComponent>();
+                // removeComponent<VehicleComponent>();
                 break;
             case ComponentEnum::volumeTrigger:
                 untrackComponentFromScene<VolumeTriggerComponent>(keyValue.second);
-                removeComponent<VolumeTriggerComponent>();
+                // removeComponent<VolumeTriggerComponent>();
                 break;
         }
     }
