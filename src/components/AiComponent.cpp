@@ -12,7 +12,7 @@ AiGraphNode::AiGraphNode() {
 // Sets the AI's spawn node, picks a parking lot entrance to go to
 // then starts accelerating
 // The pickRandGoalNode() call, calls A* on its own
-AiComponent::AiComponent(shared_ptr<Entity> parent) 
+AiComponent::AiComponent(weak_ptr<Entity> parent)
     : BaseComponent(parent)
 {
 	//for (std::shared_ptr<AiGraphNode> node : gameplaySystem->area970Nodes) {
@@ -27,7 +27,7 @@ AiComponent::AiComponent(shared_ptr<Entity> parent)
 	accelForwards();
 }
 
-AiComponent::AiComponent(shared_ptr<Entity> parent, std::vector<glm::vec3> nodeLocs)
+AiComponent::AiComponent(weak_ptr<Entity> parent, std::vector<glm::vec3> nodeLocs)
 	: BaseComponent(parent)
 {
 	Events::AiComponentInit.broadcast(*this);
@@ -48,7 +48,7 @@ void AiComponent::pickParkingNode() {
 	}
 	int randIntCeiling = possibleNodes.size();
 	double now = time(nullptr);
-	std::srand(now + (double)entity->id()); // Get AI picking differently
+	std::srand(now + (double)getEntity()->id()); // Get AI picking differently
 	// Should give number between 0 and vector.size()-1
 	int pick = rand() % randIntCeiling;
 	//std::cout << "PICKED ID: " << emptyParkingNodes[pick]->id << " PICKED AREA: " << emptyParkingNodes[pick]->areaCode << std::endl;
@@ -201,7 +201,7 @@ void AiComponent::setSpawnNode() {
 	}
 	int randIntCeiling = possibleNodes.size();
 	double now = time(nullptr);
-	std::srand(now + (double)entity->id()); // Get AI picking differently
+	std::srand(now + (double)getEntity()->id()); // Get AI picking differently
 	// Should give number between 0 and vector.size()-1
 	if (randIntCeiling != 0) {
 		int pick = rand() % randIntCeiling;
@@ -211,7 +211,7 @@ void AiComponent::setSpawnNode() {
 	}
 	currentNode->nodeTaken = true;
 	//node->spawnAiComponent = entity->shared_from_this();
-	entity->getComponent<TransformComponent>()->setLocalPosition(currentNode->position);
+	getEntity()->getComponent<TransformComponent>()->setLocalPosition(currentNode->position);
 }
 
 // Resets the AI to a chosen spawn position and search state
@@ -329,7 +329,7 @@ void AiComponent::pickRandEntranceNode() {
 	}
 	if (nodes.size() == 0) return;
 	int randIntCeiling = nodes.size();
-	std::srand(Time::now() + (double)entity->id()); // Get AI picking differently
+	std::srand(Time::now() + (double)getEntity()->id()); // Get AI picking differently
 	// Should give number between 0 and vector.size()-1
 	int pick = rand() % randIntCeiling;
 	//std::cout << "PICKED ID: " << nodes[pick]->id << " PICKED AREA: " << nodes[pick]->areaCode << std::endl;
@@ -344,8 +344,8 @@ void AiComponent::pickRandEntranceNode() {
 float AiComponent::calcDistanceFromCurrentNode() {
 	float nodeX = currentNode->position.x; // Direction, don't count Y
 	float nodeZ = currentNode->position.z;
-	float carX = entity->getComponent<TransformComponent>()->getGlobalPosition().x;
-	float carZ = entity->getComponent<TransformComponent>()->getGlobalPosition().z;
+	float carX = getEntity()->getComponent<TransformComponent>()->getGlobalPosition().x;
+	float carZ = getEntity()->getComponent<TransformComponent>()->getGlobalPosition().z;
 
 	float dSquared = std::pow((nodeX - carX), 2) + std::pow((nodeZ - carZ), 2);
 	return std::sqrt(dSquared); // POSSIBLE OPTIMIZATION, REMOVE SQRT
@@ -405,13 +405,13 @@ void AiComponent::searchState() {
 	else if (recoveryTimeout > MAXSTUCKTIME) {
 		switchState(States::RECOVERY);
 		//std::cout << "RECOVERY: CNODE ID: " << currentNode->id << "CNODE AREA: " << currentNode->areaCode << std::endl;
-		stuckPos = entity->getComponent<TransformComponent>()->getGlobalPosition();
+		stuckPos = getEntity()->getComponent<TransformComponent>()->getGlobalPosition();
 		createRecoveryNode();
 		recoveryTimeout = 0;
 		accelReverse();
 	}
 	// If the AI's speed is low, count it as stuck and update the timeout count
-	else if (entity->getComponent<VehicleComponent>()->
+	else if (getEntity()->getComponent<VehicleComponent>()->
 				vehicle->computeForwardSpeed() < MINSPEED) {
 		 recoveryTimeout++; // One more frame of not moving enough
 	}
@@ -425,8 +425,8 @@ void AiComponent::searchState() {
 // Helper method for calculating if the AI car has reached an area around a node
 bool AiComponent::inRangeOfNode(const float nodeThreshhold) {
 	// COULD USE ABSOLUTE DISTANCE HERE
-	float currentX = entity->getComponent<TransformComponent>()->getGlobalPosition().x;
-	float currentZ = entity->getComponent<TransformComponent>()->getGlobalPosition().z;
+	float currentX = getEntity()->getComponent<TransformComponent>()->getGlobalPosition().x;
+	float currentZ = getEntity()->getComponent<TransformComponent>()->getGlobalPosition().z;
 	bool withinXBounds = currentX <= currentNode->position.x + nodeThreshhold &&
 		currentX >= currentNode->position.x - nodeThreshhold;
 	bool withinZBounds = currentZ <= currentNode->position.z + nodeThreshhold &&
@@ -439,7 +439,7 @@ bool AiComponent::inRangeOfNode(const float nodeThreshhold) {
 void  AiComponent::createRecoveryNode() {
 	if (currentNode->nodeType != AiGraphNode::NodeType::RECOVERY) {
 		// Make a new temp node to direct AI
-		physx::PxQuat aiCarRotation = entity->
+		physx::PxQuat aiCarRotation = getEntity()->
 			getComponent<TransformComponent>()->getLocalRotation();
 		glm::vec3 aiForwardVec = ComputeForwardVector(aiCarRotation);
 		aiForwardVec = glm::normalize(aiForwardVec);
@@ -462,11 +462,11 @@ void AiComponent::recoveryState() {
 	const int MAXSTUCKTIME = 20; // 6 Second recovery time allowance
 	float REVERSEMINIMUM = 10.f;
 	float amountMoved = glm::distance(
-		entity->getComponent<TransformComponent>()->getGlobalPosition(), stuckPos);
+		getEntity()->getComponent<TransformComponent>()->getGlobalPosition(), stuckPos);
 	//std::cout << entity->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y << std::endl;
 	if (recoveryTimeout > MAXSTUCKTIME) {
-		if (entity->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y < 0) {
-			Events::VehicleFlip.broadcast(entity, 90.f);
+		if (getEntity()->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y < 0) {
+			Events::VehicleFlip.broadcast(getEntity(), 90.f);
 		}
 		else {
 			resetAi();
@@ -477,11 +477,11 @@ void AiComponent::recoveryState() {
 	if (amountMoved < REVERSEMINIMUM) {
 		// Randomly steer left or right
 		recoveryTimeout++;
-		srand(Time::now() + (double)entity->id());
+		srand(Time::now() + (double)getEntity()->id());
 		int randIntCeiling = 3; // Should give choices of 0 and 1
 		int pick = rand() % randIntCeiling;
-		if(pick == 0) Events::VehicleSteer.broadcast(entity, -0.2);
-		else if (pick == 1) Events::VehicleSteer.broadcast(entity, 0.2);
+		if(pick == 0) Events::VehicleSteer.broadcast(getEntity(), -0.2);
+		else if (pick == 1) Events::VehicleSteer.broadcast(getEntity(), 0.2);
 		// Third number would be backing up straight
 	}
 	else {
@@ -495,12 +495,12 @@ void AiComponent::recoveryState() {
 void AiComponent::steerToNextNode() {
 	const float ANGLETHRESHOLD = 3.14/20;
 
-	physx::PxQuat aiCarRotation = entity->
+	physx::PxQuat aiCarRotation = getEntity()->
 		getComponent<TransformComponent>()->getLocalRotation();
 	glm::vec3 aiForwardQuat = ComputeForwardVector(aiCarRotation);
 	aiForwardQuat = glm::normalize(aiForwardQuat);
 	// Vec between car and next node
-	glm::vec3 nodesVec = currentNode->position - entity->
+	glm::vec3 nodesVec = currentNode->position - getEntity()->
 		getComponent<TransformComponent>()->getGlobalPosition();
 	nodesVec = glm::normalize(nodesVec);
 
@@ -522,7 +522,7 @@ void AiComponent::steerToNextNode() {
 		angleFinal = angleFinal / 3.14;
 		float turnAmount = std::max(-1.f, (angleFinal));
 		//turn left
-		Events::VehicleSteer.broadcast(entity, -turnAmount);
+		Events::VehicleSteer.broadcast(getEntity(), -turnAmount);
 	}
 	// If the is greater than around 60 degrees slow down and turn in that direction
 	else if (angleFinal < -ANGLETHRESHOLD) {
@@ -530,32 +530,32 @@ void AiComponent::steerToNextNode() {
 		angleFinal = angleFinal / 3.14;
 		float turnAmount = std::max(-1.f, (angleFinal));
 		//turn left
-		Events::VehicleSteer.broadcast(entity, -turnAmount);
+		Events::VehicleSteer.broadcast(getEntity(), -turnAmount);
 	}
 	else if (angleFinal > ANGLETHRESHOLD && angleFinal < 1) {
 		if (aiSpeed <= 0.55) aiSpeed = aiSpeed + 0.05; accelForwards(); // Increase speed slowly
 		angleFinal = angleFinal / 3.14;
 		float turnAmount = std::min(1.f, (angleFinal));
 		//turn right
-		Events::VehicleSteer.broadcast(entity, -turnAmount);
+		Events::VehicleSteer.broadcast(getEntity(), -turnAmount);
 	}
 	else if (angleFinal > ANGLETHRESHOLD) {
 		if (aiSpeed >= 0.3) aiSpeed = aiSpeed - 0.05; accelForwards();
 		angleFinal = angleFinal / 3.14;
 		float turnAmount = std::min(1.f, (angleFinal));
 		//turn right
-		Events::VehicleSteer.broadcast(entity, -turnAmount);
+		Events::VehicleSteer.broadcast(getEntity(), -turnAmount);
 	}
 	
 }
 
 // Method for accelerating forwards
 void AiComponent::accelForwards() {
-	Events::VehicleAccelerate.broadcast(entity, aiSpeed);
+	Events::VehicleAccelerate.broadcast(getEntity(), aiSpeed);
 }
 // Method for accelerating backwards i.e. reversing
 void AiComponent::accelReverse() {
-	Events::VehicleAccelerate.broadcast(entity, -aiSpeed);
+	Events::VehicleAccelerate.broadcast(getEntity(), -aiSpeed);
 }
 
 // Helper method for getting the forward vector of the AI car

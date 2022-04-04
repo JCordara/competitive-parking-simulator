@@ -12,7 +12,7 @@ using namespace physx;
 class RigidbodyComponent : public BaseComponent {
 public:
 
-    RigidbodyComponent(shared_ptr<Entity> parent);
+    RigidbodyComponent(weak_ptr<Entity> parent);
     ~RigidbodyComponent();
     static ComponentEnum getType();
     

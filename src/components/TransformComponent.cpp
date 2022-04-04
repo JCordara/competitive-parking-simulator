@@ -1,6 +1,6 @@
 #include "TransformComponent.h"
 
-TransformComponent::TransformComponent(shared_ptr<Entity> e) 
+TransformComponent::TransformComponent(weak_ptr<Entity> e)
     : BaseComponent(e)
     , _position(glm::vec3(0.f))
     , _rotation(physx::PxQuat(0.f, physx::PxVec3(1.f, 0.f, 0.f)))
@@ -31,7 +31,7 @@ glm::mat4 TransformComponent::getNestedMatrix(int depth) {
 
     // Check that entity has parent
 	shared_ptr<TransformComponent> t;
-	shared_ptr<Entity> nextParent = entity;
+	shared_ptr<Entity> nextParent = getEntity();
 	do {
 		nextParent = nextParent->parent();
 		if (nextParent == nullptr) return getLocalMatrix();
@@ -134,10 +134,10 @@ glm::mat4 TransformComponent::getLocalMatrix() {
 
 
 void TransformComponent::updateComponents() {
-	if (auto vc = entity->getComponent<VehicleComponent>()) {
+	if (auto vc = getEntity()->getComponent<VehicleComponent>()) {
 		vc->setTransform(convert<physx::PxTransform>(getGlobalMatrix()));
 	}
-	if (auto ac = entity->getComponent<AudioComponent>()) {
+	if (auto ac = getEntity()->getComponent<AudioComponent>()) {
 		ac->updatePosition(getGlobalPosition());
 	}
 }

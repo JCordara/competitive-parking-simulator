@@ -10,10 +10,10 @@ using namespace physx;
 class VolumeTriggerComponent : public BaseComponent {
 public:
 
-    VolumeTriggerComponent(shared_ptr<Entity> e);
+    VolumeTriggerComponent(weak_ptr<Entity> e);
 
-	void attachEntity(std::shared_ptr<Entity> collisionEntity);
-	void removeEntity(std::shared_ptr<Entity> collisionEntity);
+	void attachEntity(std::weak_ptr<Entity> collisionEntity);
+	void removeEntity(std::weak_ptr<Entity> collisionEntity);
 	void flush();
 	void createVolumeShape(PxTransform startPos, PxBoxGeometry boxGeom);
     static  ComponentEnum getType();
@@ -23,7 +23,7 @@ public:
 	}
 
 private:
-	std::set<std::shared_ptr<Entity>> attached;
+	std::set<std::weak_ptr<Entity>> attached;
 	shared_ptr<PhysicsSystem> physicsSystem;
 	PxRigidActor *actor;
 };

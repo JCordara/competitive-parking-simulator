@@ -8,7 +8,7 @@ class InputSystem;
 
 class ControllerComponent : public BaseComponent {
 public:
-    ControllerComponent(shared_ptr<Entity> parent);
+    ControllerComponent(weak_ptr<Entity> parent);
     ~ControllerComponent();
     static ComponentEnum getType();
 
@@ -20,20 +20,20 @@ public:
 	void createAxis(
 		int inputPositive, 
 		int inputNegative, 
-		Event<shared_ptr<Entity>, float>* event, 
+		Event<weak_ptr<Entity>, float>* event,
 		ControlAxis::TypeEnum type = ControlAxis::KEY
 	);
 
 	void createAxis(
 		int input, 
-		Event<shared_ptr<Entity>, float>* event
+		Event<weak_ptr<Entity>, float>* event
 	);
 
 	/* Remove an axis bound to the keys */
 	void removeAxis(int inputA, int inputB);
 
 	/* Bind a input (key/button) to a float event */
-	void bindInput(int input, Event<shared_ptr<Entity>, float>* event);
+	void bindInput(int input, Event<weak_ptr<Entity>, float>* event);
 
 private:
     shared_ptr<InputSystem> inputSystem;

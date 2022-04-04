@@ -60,8 +60,8 @@ public:
 	// Node the AI car currently belongs to
 	std::shared_ptr<AiGraphNode> currentNode = std::make_shared<AiGraphNode>();
 
-    AiComponent(shared_ptr<Entity> parent);
-	AiComponent(shared_ptr<Entity> parent, std::vector<glm::vec3> nodeLocs);
+    AiComponent(weak_ptr<Entity> parent);
+	AiComponent(weak_ptr<Entity> parent, std::vector<glm::vec3> nodeLocs);
 	void setParkingNode(std::vector<glm::vec3> nodeLocs);
 	void pickParkingNode();
     ~AiComponent();

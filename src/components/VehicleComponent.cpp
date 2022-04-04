@@ -4,7 +4,7 @@
 #include "Physics/VehicleDesc.h"
 
 
-VehicleComponent::VehicleComponent(shared_ptr<Entity> parent): 
+VehicleComponent::VehicleComponent(weak_ptr<Entity> parent):
     BaseComponent(parent),
     numWheels(0),
     chassisMass(1500.0f),
@@ -18,7 +18,7 @@ VehicleComponent::VehicleComponent(shared_ptr<Entity> parent):
 	// Get position of parent entity
 	PxTransform entityPose = PxTransform(PxIdentity);
 
-	if (auto tc = entity->getComponent<TransformComponent>()) {
+	if (auto tc = getEntity()->getComponent<TransformComponent>()) {
 		entityPose.p.x = tc->getLocalPosition().x;
 		entityPose.p.y = tc->getLocalPosition().y;
 		entityPose.p.z = tc->getLocalPosition().z;
@@ -26,7 +26,7 @@ VehicleComponent::VehicleComponent(shared_ptr<Entity> parent):
 	}
 
 	// Create chassis from entity's model if it has one
-	if (auto mc = entity->getComponent<ModelComponent>()) {
+	if (auto mc = getEntity()->getComponent<ModelComponent>()) {
 		chassisMesh = physicsSystem->createDynamicMesh(*mc->getModel());
 	} else {
 		// Default chassis dimensions
@@ -45,7 +45,7 @@ VehicleComponent::VehicleComponent(shared_ptr<Entity> parent):
 	}
 
     // Get wheel children on component creation
-    for (auto& child : entity->directChildren()) {
+    for (auto& child : getEntity()->directChildren()) {
         if (auto desc = child->getComponent<DescriptionComponent>()) {
             if (desc->getInteger("wheel").has_value()) wheelEntities[numWheels++] = child;
         }
@@ -388,7 +388,7 @@ PxVehicleDrive4W* VehicleComponent::createVehicle4W(const VehicleDesc& vehicle4W
     //Configure the userdata
     configureUserData(vehDrive4W, vehicle4WDesc.actorUserData, vehicle4WDesc.shapeUserDatas);
 
-    vehDrive4W->getRigidDynamicActor()->userData = static_cast<void*>(entity.get());
+    vehDrive4W->getRigidDynamicActor()->userData = static_cast<void*>(getEntity().get());
 
     //Free the sim data because we don't need that any more.
     wheelsSimData->free();

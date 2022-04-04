@@ -41,11 +41,11 @@ enum class ComponentEnum {
  */
 class BaseComponent {
 public:
-    BaseComponent(shared_ptr<Entity> e) : entity(e) {}
-	shared_ptr<Entity> getEntity() { return entity; }
+    BaseComponent(weak_ptr<Entity> e) : entity(e) {}
+	sp<Entity> getEntity() { return entity.lock(); }
     virtual ~BaseComponent() {};
 protected:
-    shared_ptr<Entity> entity;
+	weak_ptr<Entity> entity;
 };
 
 

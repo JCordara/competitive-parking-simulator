@@ -7,7 +7,7 @@
 
 class ModelComponent : public BaseComponent {
 public:
-	ModelComponent(shared_ptr<Entity> parent);
+	ModelComponent(weak_ptr<Entity> parent);
 	void setModel(std::shared_ptr<Model> model);
 	std::shared_ptr<Model> getModel();
     ~ModelComponent();

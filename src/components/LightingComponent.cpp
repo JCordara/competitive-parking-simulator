@@ -1,7 +1,7 @@
 #include "LightingComponent.h"
 
 
-LightingComponent::LightingComponent(shared_ptr<Entity> parent)
+LightingComponent::LightingComponent(weak_ptr<Entity> parent)
 	: BaseComponent(parent)
 {}
 

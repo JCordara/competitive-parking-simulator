@@ -1,19 +1,19 @@
 #include "VolumeTriggerComponent.h"
 #include "Physics/PhysicsSystem.h"
 
-VolumeTriggerComponent::VolumeTriggerComponent(shared_ptr<Entity> e)
+VolumeTriggerComponent::VolumeTriggerComponent(weak_ptr<Entity> e)
 	: BaseComponent(e)
 	
 {
 	Events::VolumeTriggerComponentInit.broadcast(*this);
 }
 
-void VolumeTriggerComponent::attachEntity(std::shared_ptr<Entity> collisionEntity) {
+void VolumeTriggerComponent::attachEntity(std::weak_ptr<Entity> collisionEntity) {
 	auto it = attached.find(collisionEntity);
 	if (it != attached.end())
 		attached.insert(collisionEntity);
 }
-void VolumeTriggerComponent::removeEntity(std::shared_ptr<Entity> collisionEntity) {
+void VolumeTriggerComponent::removeEntity(std::weak_ptr<Entity> collisionEntity) {
 	auto it = attached.find(collisionEntity);
 	if (it != attached.end())
 		attached.erase(it);
@@ -24,7 +24,7 @@ void VolumeTriggerComponent::flush() {
 
 void VolumeTriggerComponent::createVolumeShape(PxTransform startPos, PxBoxGeometry boxGeom) {
 	actor = physicsSystem->createTriggerBox(startPos, boxGeom);
-	actor->userData = static_cast<void*>(entity.get());
+	actor->userData = static_cast<void*>(getEntity().get());
 }
 
 ComponentEnum VolumeTriggerComponent::getType() {

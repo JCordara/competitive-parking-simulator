@@ -9,7 +9,7 @@
 class TransformComponent : public BaseComponent {
 public:
     
-    TransformComponent(shared_ptr<Entity> entity);
+    TransformComponent(weak_ptr<Entity> entity);
     static  ComponentEnum getType();
     ~TransformComponent();
 

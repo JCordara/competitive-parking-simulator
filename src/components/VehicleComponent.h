@@ -21,7 +21,7 @@ public:
 
     friend class PhysicsSystem;
 
-    VehicleComponent(shared_ptr<Entity> parent);
+    VehicleComponent(weak_ptr<Entity> parent);
     ~VehicleComponent();
     static ComponentEnum getType();
 
