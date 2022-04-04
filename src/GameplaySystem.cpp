@@ -260,8 +260,6 @@ void GameplaySystem::registerCarParked(weak_ptr<Entity> VehcleEntity, weak_ptr<E
 				if (name.value() == "Player Car") {
 					scores.find(-1)->second = 1;
 					printf("trigger entity use count before deletion: %d\n", trigger.use_count());
-					printf("hello\n");
-					printf("&scene = %p\n", scene.get());
 					scene->removeEntity(trigger);
 					printf("trigger entity use count after deletion: %d\n\n", trigger.use_count());
 				}

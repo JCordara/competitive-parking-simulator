@@ -21,19 +21,15 @@ weak_ptr<Entity> Entity::addChild() {
 }
 
 bool Entity::removeChild(weak_ptr<Entity> doomedEntity) {
-printf("In removeChild()!\n");
     
     // Copy weak pointer to shared pointer
     auto dm = doomedEntity.lock();
     if (!dm) return false; // Entity is already deleted
-printf("Got a shared pointer!\n");
+
     for (auto it = _children.begin(); it != _children.end(); it++) {
-printf("boutta check for a match!\n");
         if ((*it).get() == dm.get()) {
             // dm->killurself();
-printf("found a match! boutta erase!\n");
             _children.erase(it);
-printf("erased!\n");
             return true;
         }
     }
