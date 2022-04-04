@@ -78,12 +78,8 @@ private:
 		RoundEnd,
 		GameEnd
 	};
-	bool updateMenu;
-	bool win;
-	bool WeParked;
 	GameState gamestate;
 	void setGameState(GameState gs) {
-		updateMenu = true;
 		gamestate = gs;
 	}
 	// --- ---------------- --- //

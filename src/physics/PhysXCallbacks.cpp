@@ -44,14 +44,15 @@ void PhysXSimCallback::onTrigger(
 			continue;
 
 		Entity* e1 = static_cast<Entity*>(pairs->otherActor->userData);
-		if (!e1) return;
+		//Entity* e0 = static_cast<Entity*>(pairs->triggerActor->userData);
+		if (!e1 /* || !e0*/) return;
 
 		if ((e1->hasComponent<VehicleComponent>() && e1->hasComponent<ControllerComponent>())&& (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)){
 			// std::cout << nbPairs;
 			//if (scene->getEntityByID(playerId)->getComponent<VehicleComponent>()->getSpeed() <= 3.0f) {
 
 			//};
-			Events::CarParked.broadcast(e1->shared_from_this());
+			Events::CarParked.broadcast(e1->shared_from_this());//, e0->shared_from_this());
 			pairs->triggerActor->getShapes(e1->getComponent<VehicleComponent>()->triggerShapes, 1, 0);
 		}
 	}

@@ -15,6 +15,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 	Events::EndGame.registerHandler<GameplaySystem,
 		&GameplaySystem::cleanUpGame>(this);
 
+	//Events::MainMenu.broadcast();
 	gamestate = GameState::MainMenu;
 	nextAI_ID = 0;
 	startingAi_number = 2;
@@ -26,33 +27,27 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 void GameplaySystem::update() {
 	switch (gamestate) {
 		case GameState::MainMenu :
-			if (updateMenu) Events::MainMenu.broadcast();
-			updateMenu = false;
+			//Do nothing
 		break;
 		case GameState::Playing:
-			if (updateMenu) Events::GameGUI.broadcast();
-			updateMenu = false;
-			// Parking Spot Logic
-			
 			// Game State logic
 			if (scores.find(-1)->second > 0) { // Player has scored
-				updateMenu = true;
 				if (currentAi_number > 1) {//Round 
 					setGameState(GameState::RoundEnd);
+					Events::RoundEndGUI.broadcast();
 				}
 				else {//Win
 					setGameState(GameState::GameEnd);
-					win = true;
+					Events::GameEndGUI.broadcast("YOU WIN");
 				}
 			}
 			else {
 				bool end = true;
-				//If any ai hasnt made it, then game is not over
-				for (auto& it : scores) if (it.first != -1 && it.second < 1) end = false; 
+					//If any ai hasnt made it, then game is not over
+				for (auto& it : scores) if (it.first != -1 && it.second < 1) end = false;
 				if (end) {//Every single one has parked
-					updateMenu = true;
-					gamestate = GameState::GameEnd;
-					win = false;
+					setGameState(GameState::GameEnd);
+					Events::GameEndGUI.broadcast("YOU LOSE");
 				}
 			}
 			// Update AI pathing
@@ -62,15 +57,10 @@ void GameplaySystem::update() {
 			}
 		break;
 		case GameState::RoundEnd:
-			if (updateMenu) Events::RoundEndGUI.broadcast();
-			updateMenu = false;
+			// Do nothing
 		break;
 		case GameState::GameEnd:
-			if (updateMenu) {
-				if(win) Events::GameEndGUI.broadcast("YOU WIN");
-				else Events::GameEndGUI.broadcast("YOU LOSE");
-			}
-			updateMenu = false;
+			//Do nothing
 		break;
 	}
 }
@@ -166,8 +156,8 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		scores.insert(std::pair<int, int>(nextAI_ID, 0));
 		nextAI_ID++;
 	}
-	for (auto s : scores)
-		s.second = 0;
+	for (auto s = scores.begin(); s != scores.end(); s++)
+		s->second = 0;
 //---------------------------------------------------------------------------------------------------------------------
 }
 
@@ -238,16 +228,18 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 
 void GameplaySystem::setupNewGame() {
 	setGameState(GameState::Playing);
-	cleanMap();
+	Events::GameGUI.broadcast();
 	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number = startingAi_number);
 }
 void GameplaySystem::setupNewRound() {
 	setGameState(GameState::Playing);
+	Events::GameGUI.broadcast();
 	removeBottomAI(1);
 	resetMapWithNumberOfEmptyParkingSpaces(--currentAi_number);
 }
 void GameplaySystem::cleanUpGame() {
 	setGameState(GameState::MainMenu);
+	Events::MainMenu.broadcast();
 	cleanMap();
 }
 
