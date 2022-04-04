@@ -75,7 +75,10 @@ void AudioSystem::onGameStart() {
     musicPlayer->playAudio(music);
 }
 
-void AudioSystem::onCollision(sp<Entity> e0, sp<Entity> e1) {
+void AudioSystem::onCollision(weak_ptr<Entity> wpe0, weak_ptr<Entity> wpe1) {
+    auto e0 = wpe0.lock(); auto e1 = wpe1.lock();
+    if (!e0 || !e1) return;
+
     if (auto c = e0->getComponent<AudioComponent>())
         c->playSoundVaried(AudioTrigger::Collision);
     if (auto c = e1->getComponent<AudioComponent>())

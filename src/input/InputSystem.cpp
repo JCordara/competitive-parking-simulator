@@ -136,7 +136,7 @@ void InputSystem::bindInput(int input, Event<float>* event) {
 	callbacks->bindInput(input, event);
 }
 
-void InputSystem::bindInput(int input, Event<shared_ptr<Entity>, float>* event, shared_ptr<Entity> e) {
+void InputSystem::bindInput(int input, Event<weak_ptr<Entity>, float>* event, weak_ptr<Entity> e) {
 	callbacks->bindInput(input, event, e);
 }
 
@@ -153,8 +153,8 @@ void InputSystem::createAxis(
 void InputSystem::createAxis(
 	int inputPositive, 
 	int inputNegative, 
-	Event<shared_ptr<Entity>, float>* event, 
-	shared_ptr<Entity> e,
+	Event<weak_ptr<Entity>, float>* event, 
+	weak_ptr<Entity> e,
 	ControlAxis::TypeEnum type) 
 {
 	callbacks->createAxis(inputPositive, inputNegative, event, e, type);
@@ -166,7 +166,7 @@ void InputSystem::createAxis(int input, Event<float>* event) {
 	callbacks->createAxis(input, -1, event, ControlAxis::SINGLE);
 }
 
-void InputSystem::createAxis(int input, Event<shared_ptr<Entity>, float>* event, shared_ptr<Entity> e) {
+void InputSystem::createAxis(int input, Event<weak_ptr<Entity>, float>* event, weak_ptr<Entity> e) {
 	callbacks->createAxis(input, -1, event, e, ControlAxis::SINGLE);
 }
 

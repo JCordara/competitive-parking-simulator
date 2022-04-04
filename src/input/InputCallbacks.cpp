@@ -133,8 +133,8 @@ void Callbacks::createAxis(
 void Callbacks::createAxis(
 	int inputPositive, 
 	int inputNegative, 
-	Event<shared_ptr<Entity>, float>* event, 
-	shared_ptr<Entity> e,
+	Event<weak_ptr<Entity>, float>* event, 
+	weak_ptr<Entity> e,
 	ControlAxis::TypeEnum type) 
 {
 	// Make a pointer to a new axis
@@ -194,7 +194,7 @@ void Callbacks::bindInput(int input, Event<float>* event) {
 	floatKeyEvents[input] = event;
 }
 
-void Callbacks::bindInput(int input, Event<shared_ptr<Entity>, float>* event, shared_ptr<Entity> e) {
+void Callbacks::bindInput(int input, Event<weak_ptr<Entity>, float>* event, weak_ptr<Entity> e) {
 	entityFloatKeyEvents.try_emplace(input, event, e);
 }
 

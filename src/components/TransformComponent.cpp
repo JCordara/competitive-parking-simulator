@@ -33,7 +33,7 @@ glm::mat4 TransformComponent::getNestedMatrix(int depth) {
 	shared_ptr<TransformComponent> t;
 	shared_ptr<Entity> nextParent = getEntity();
 	do {
-		nextParent = nextParent->parent();
+		nextParent = nextParent->parent().lock();
 		if (nextParent == nullptr) return getLocalMatrix();
 		t = nextParent->getComponent<TransformComponent>();
 		// Check that parent has transform component, if not move to the next parent

@@ -3,6 +3,8 @@
 
 #include "Common.h"
 
+#define ENTITY_ITERATOR 0
+
 #define NULL_ID UINT_MAX - 1
 
 template<class T> using sp = std::shared_ptr<T>; // Shorter alias for shared_ptr
@@ -22,8 +24,9 @@ class Entity : public std::enable_shared_from_this<Entity> {
 public:
 
     Entity(sp<Entity> parent);
+    void killurself();
     ~Entity();
-    sp<Entity> parent() { return _parent; }
+    weak_ptr<Entity> parent() { return _parent; }
 
     // Return this entity's unique ID
     unsigned int id() { return _entityID; }
@@ -77,8 +80,8 @@ public:
         return static_cast<bool>(_components.count(C::getType()));
     }
 
-    sp<Entity> addChild();
-    bool removeChild(sp<Entity> doomedChild);
+    weak_ptr<Entity> addChild();
+    bool removeChild(weak_ptr<Entity> doomedChild);
 
     std::vector<sp<Entity>>& directChildren();
 
@@ -86,9 +89,9 @@ public:
     virtual sp<Scene> getScene();
     
     bool removeChildByID(unsigned int entityID);
-    sp<Entity> getChildByID(unsigned int entityID);
+    weak_ptr<Entity> getChildByID(unsigned int entityID);
 
-
+#if ENTITY_ITERATOR
     /* --- Entity iterator implementation --- */
 
     class Iterator {
@@ -101,7 +104,7 @@ public:
         Iterator& operator--();    // Traverse iterator to previous entity
         Iterator  operator--(int); // Same (pre/postfix current behave the same)
         shared_ptr<Entity>&   operator*();     // Access the entity at current iteration
-        sp<Entity> operator->();   // Overload class member access operator
+        weak_ptr<Entity> operator->();   // Overload class member access operator
         bool operator!=(Iterator); // Inequality comparison for iteration
 
 
@@ -110,13 +113,13 @@ public:
         Iterator(sp<Entity>);
         
         // The entity currently being pointed to
-        sp<Entity> _current;
+        weak_ptr<Entity> _current;
 
         // A list of entities visited to allow for quick reverse traversal
-        std::vector<sp<Entity>> _visited;
+        std::vector<weak_ptr<Entity>> _visited;
 
         // Pointer to the root entity of the (sub-)tree being traversed
-        sp<Entity> _root;
+        weak_ptr<Entity> _root;
     };
 
     // Constructs an iterator at the beginning of the children tree
@@ -124,7 +127,7 @@ public:
     
     // Constructs an iterator at the end of the children tree
 	Entity::Iterator end();
-
+#endif
 
 
 protected:
@@ -133,7 +136,7 @@ protected:
     unordered_map<ComponentEnum, sp<BaseComponent>> _components;
 
     // Reference to parent entity
-    sp<Entity> _parent;
+    weak_ptr<Entity> _parent;
 
     // List of child entities
     std::vector<sp<Entity>> _children;
@@ -209,13 +212,13 @@ public:
 
     sp<Scene> getScene();
 
-    sp<Entity> addEntity();
-    bool removeEntity(sp<Entity> doomedChild);
+    weak_ptr<Entity> addEntity();
+    bool removeEntity(weak_ptr<Entity> doomedChild);
 
     std::vector<sp<Entity>>& topLevelEntities();
     
     bool removeEntityByID(unsigned int entityID);
-    sp<Entity> getEntityByID(unsigned int entityID);
+    weak_ptr<Entity> getEntityByID(unsigned int entityID);
 
 private:
 

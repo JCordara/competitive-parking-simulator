@@ -62,11 +62,11 @@ private:
     void simulateScene();
 	void cleanupPhysics();
 
-    void vehicleAccelerateMode(shared_ptr<Entity> entity, float v);
-    void vehicleTurnMode(shared_ptr<Entity> entity, float v);
-    void vehicleBrakeMode(shared_ptr<Entity> entity, float v);
-    void vehicleHandbrakeMode(shared_ptr<Entity> entity, float v);
-	void vehicleFlipMode(shared_ptr<Entity> entity, float v);
+    void vehicleAccelerateMode(weak_ptr<Entity> entity, float v);
+    void vehicleTurnMode(weak_ptr<Entity> entity, float v);
+    void vehicleBrakeMode(weak_ptr<Entity> entity, float v);
+    void vehicleHandbrakeMode(weak_ptr<Entity> entity, float v);
+	void vehicleFlipMode(weak_ptr<Entity> entity, float v);
 
 
     void registerRigidbodyComponent(RigidbodyComponent& component);

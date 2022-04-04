@@ -273,8 +273,14 @@ void PhysicsSystem::simulateScene()
 }
 
 
-void PhysicsSystem::vehicleAccelerateMode(shared_ptr<Entity> entity, float v) 
+void PhysicsSystem::vehicleAccelerateMode(weak_ptr<Entity> wpEntity, float v) 
 {
+
+	// Get shared ptr to entity
+	auto entity = wpEntity.lock();
+	if (!entity) return;
+
+	// Get vehicle component of entity
 	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
 
@@ -291,32 +297,48 @@ void PhysicsSystem::vehicleAccelerateMode(shared_ptr<Entity> entity, float v)
 	vc->inputData.setAnalogAccel(v);
 }
 
-void PhysicsSystem::vehicleTurnMode(shared_ptr<Entity> entity, float v) 
+void PhysicsSystem::vehicleTurnMode(weak_ptr<Entity> wpEntity, float v) 
 {
+	// Get shared ptr to entity
+	auto entity = wpEntity.lock();
+	if (!entity) return;
+
 	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
 
 	vc->inputData.setAnalogSteer(-v);
 }
 
-void PhysicsSystem::vehicleBrakeMode(shared_ptr<Entity> entity, float v) 
+void PhysicsSystem::vehicleBrakeMode(weak_ptr<Entity> wpEntity, float v) 
 {
+	// Get shared ptr to entity
+	auto entity = wpEntity.lock();
+	if (!entity) return;
+
 	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
 
 	vc->inputData.setAnalogBrake(v);
 }
 
-void PhysicsSystem::vehicleHandbrakeMode(shared_ptr<Entity> entity, float v) 
+void PhysicsSystem::vehicleHandbrakeMode(weak_ptr<Entity> wpEntity, float v) 
 {
+	// Get shared ptr to entity
+	auto entity = wpEntity.lock();
+	if (!entity) return;
+
 	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
 
 	vc->inputData.setAnalogHandbrake(v);
 }
 
-void PhysicsSystem::vehicleFlipMode(shared_ptr<Entity> entity, float v)
+void PhysicsSystem::vehicleFlipMode(weak_ptr<Entity> wpEntity, float v)
 {
+	// Get shared ptr to entity
+	auto entity = wpEntity.lock();
+	if (!entity) return;
+	
 	if (auto vc = entity->getComponent<VehicleComponent>()) {
 		PxTransform trans = vc->vehicle->getRigidDynamicActor()->getGlobalPose();
 		// Disallow flipping if car too high or spinning too fast

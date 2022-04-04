@@ -64,7 +64,7 @@ public:
     ~AudioSystem();
 
     void onGameStart();
-    void onCollision(sp<Entity> e0, sp<Entity> s1);
+    void onCollision(weak_ptr<Entity> e0, weak_ptr<Entity> s1);
     void onMusicVolumeChanged(float gain);
 
 private:

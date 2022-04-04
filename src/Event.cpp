@@ -13,13 +13,13 @@ Event<string, instancedTransformation> Events::AddPropCar;
 Event<string, instancedTransformation> Events::AddParkingSpace;
 Event<string> Events::AddAICar;
 /* --- Player Controller Events --- */
-Event<shared_ptr<Entity>, float> Events::VehicleAccelerate;
-Event<shared_ptr<Entity>, float> Events::VehicleSteer;
-Event<shared_ptr<Entity>, float> Events::VehicleBrake;
-Event<shared_ptr<Entity>, float> Events::VehicleHandbrake;
-Event<shared_ptr<Entity>, float> Events::VehicleFlip;
+Event<weak_ptr<Entity>, float> Events::VehicleAccelerate;
+Event<weak_ptr<Entity>, float> Events::VehicleSteer;
+Event<weak_ptr<Entity>, float> Events::VehicleBrake;
+Event<weak_ptr<Entity>, float> Events::VehicleHandbrake;
+Event<weak_ptr<Entity>, float> Events::VehicleFlip;
 /* --- Physx --- */
-Event<shared_ptr<Entity>, shared_ptr<Entity>> Events::Collision;
+Event<weak_ptr<Entity>, weak_ptr<Entity>> Events::Collision;
 /* --- Components --- */
 Event<RigidbodyComponent&> Events::RigidbodyComponentInit;
 Event<VehicleComponent&> Events::VehicleComponentInit;
@@ -31,8 +31,8 @@ Event<VolumeTriggerComponent&> Events::VolumeTriggerComponentInit;
 Event<void> Events::NewGame;
 Event<void> Events::NextRound;
 Event<void> Events::EndGame;
-Event<shared_ptr<Entity>, float> Events::GameReset;
-Event<shared_ptr<Entity>, shared_ptr<Entity>> Events::CarParked;
+Event<weak_ptr<Entity>, float> Events::GameReset;
+Event<weak_ptr<Entity>, weak_ptr<Entity>> Events::CarParked;
 Event<void> Events::CarUnParked;
 /* --- Script Events --- */
 Event<void> Events::RecompileScripts;

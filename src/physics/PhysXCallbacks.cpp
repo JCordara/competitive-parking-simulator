@@ -15,14 +15,17 @@ void PhysXSimCallback::onContact(
             
             Entity* e1 = static_cast<Entity*>(pairHeader.actors[0]->userData);
             Entity* e2 = static_cast<Entity*>(pairHeader.actors[1]->userData);
-
             if (!e1 || !e2) return;
 
-            if ((e1->hasComponent<VehicleComponent>()   && e2->hasComponent<RigidbodyComponent>())
-            ||  (e1->hasComponent<RigidbodyComponent>() && e2->hasComponent<VehicleComponent>())
-            ||  (e1->hasComponent<VehicleComponent>()   && e2->hasComponent<VehicleComponent>())) {
-                glm::vec3 pos = e1->getComponent<TransformComponent>()->getGlobalPosition();
-                Events::Collision.broadcast(e1->shared_from_this(), e2->shared_from_this());
+			// Get shared pointers to entities
+			shared_ptr<Entity> car1 = e1->shared_from_this();
+			shared_ptr<Entity> car2 = e2->shared_from_this();
+
+            if ((car1->hasComponent<VehicleComponent>()   && car2->hasComponent<RigidbodyComponent>())
+            ||  (car1->hasComponent<RigidbodyComponent>() && car2->hasComponent<VehicleComponent>())
+            ||  (car1->hasComponent<VehicleComponent>()   && car2->hasComponent<VehicleComponent>())) {
+                glm::vec3 pos = car1->getComponent<TransformComponent>()->getGlobalPosition();
+                Events::Collision.broadcast(car1, car2);
             }
 
         }
@@ -35,8 +38,7 @@ void PhysXSimCallback::onTrigger(
 	PxU32 nbPairs)
 {
 	
-	for (PxU32 i = 0; i < nbPairs; i++)
-	{
+	for (PxU32 i = 0; i < nbPairs; i++) {
 
 		// ignore pairs when shapes have been deleted
 		if (pairs[i].flags & (PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER 
@@ -70,17 +72,12 @@ void PhysXSimCallback::onTrigger(
 			//if (scene->getEntityByID(playerId)->getComponent<VehicleComponent>()->getSpeed() <= 3.0f) {
 
 			//};
-<<<<<<< Updated upstream
-			Events::CarParked.broadcast(e1->shared_from_this());//, e0->shared_from_this());
-			pairs->triggerActor->getShapes(e1->getComponent<VehicleComponent>()->triggerShapes, 1, 0);
-=======
 			// pairs->triggerActor->getShapes(car->getComponent<VehicleComponent>()->triggerShapes, 1, 0);
 		}
 
 		// Activated when an AI collides with triggerbox
 		if ((car->hasComponent<VehicleComponent>() && car->hasComponent<AiComponent>()) && (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)) {
 			Events::CarParked.broadcast(car, trigger);
->>>>>>> Stashed changes
 		}
 		*/
 	}

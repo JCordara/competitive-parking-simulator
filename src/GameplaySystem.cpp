@@ -247,18 +247,26 @@ void GameplaySystem::registerAiComponent(AiComponent& component) {
 }
 
 
-void GameplaySystem::registerCarParked(shared_ptr<Entity> VehcleEntity, shared_ptr<Entity> TriggerEntity) {
+void GameplaySystem::registerCarParked(weak_ptr<Entity> VehcleEntity, weak_ptr<Entity> TriggerEntity) {
+	
+	// Get shared pointers
+	auto vehicle = VehcleEntity.lock();
+	auto trigger = TriggerEntity.lock();
+	if (!vehicle || !trigger) return;
+
 	if (gamestate == GameState::Playing) {
-		if (auto des = VehcleEntity->getComponent<DescriptionComponent>()) {
+		if (auto des = vehicle->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (name.value() == "Player Car") {
 					scores.find(-1)->second = 1;
-					scene->removeChild(TriggerEntity);
+					printf("trigger entity use count before deletion: %d\n", trigger.use_count());
+					scene->removeEntity(trigger);
+					printf("trigger entity use count after deletion: %d\n\n", trigger.use_count());
 				}
 				else if (prefix("AI Car : ", name.value())) {
 					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
 					scores.find(number)->second = 1;
-					scene->removeChild(TriggerEntity);
+					scene->removeEntity(trigger);
 				}
 			}
 		}
