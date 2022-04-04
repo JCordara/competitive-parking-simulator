@@ -229,20 +229,21 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 void GameplaySystem::setupNewGame() {
 	setGameState(GameState::Playing);
 	Events::GameGUI.broadcast();
-	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number = startingAi_number);
+	currentAi_number = startingAi_number;
+	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number);
 }
 void GameplaySystem::setupNewRound() {
 	setGameState(GameState::Playing);
 	Events::GameGUI.broadcast();
 	removeBottomAI(1);
-	resetMapWithNumberOfEmptyParkingSpaces(--currentAi_number);
+	currentAi_number = currentAi_number - 1;
+	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number);
 }
 void GameplaySystem::cleanUpGame() {
 	setGameState(GameState::MainMenu);
 	Events::MainMenu.broadcast();
 	cleanMap();
 }
-
 
 GameplaySystem::~GameplaySystem() {}
 
