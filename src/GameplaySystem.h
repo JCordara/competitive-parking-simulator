@@ -80,7 +80,12 @@ private:
 	};
 	bool updateMenu;
 	bool win;
+	bool WeParked;
 	GameState gamestate;
+	void setGameState(GameState gs) {
+		updateMenu = true;
+		gamestate = gs;
+	}
 	// --- ---------------- --- //
     std::shared_ptr<Scene> scene;
 	double lastUpdateTime;

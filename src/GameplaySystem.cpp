@@ -33,17 +33,15 @@ void GameplaySystem::update() {
 			if (updateMenu) Events::GameGUI.broadcast();
 			updateMenu = false;
 			// Parking Spot Logic
-			//
+			
 			// Game State logic
 			if (scores.find(-1)->second > 0) { // Player has scored
 				updateMenu = true;
 				if (currentAi_number > 1) {//Round 
-					updateMenu = true;
-					gamestate = GameState::RoundEnd;
+					setGameState(GameState::RoundEnd);
 				}
 				else {//Win
-					updateMenu = true;
-					gamestate = GameState::GameEnd;
+					setGameState(GameState::GameEnd);
 					win = true;
 				}
 			}
@@ -239,20 +237,17 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 }
 
 void GameplaySystem::setupNewGame() {
-	gamestate = GameState::Playing;
-	updateMenu = true;
+	setGameState(GameState::Playing);
 	cleanMap();
 	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number = startingAi_number);
 }
 void GameplaySystem::setupNewRound() {
-	gamestate = GameState::Playing;
-	updateMenu = true;
+	setGameState(GameState::Playing);
 	removeBottomAI(1);
 	resetMapWithNumberOfEmptyParkingSpaces(--currentAi_number);
 }
 void GameplaySystem::cleanUpGame() {
-	gamestate = GameState::MainMenu;
-	updateMenu = true;
+	setGameState(GameState::MainMenu);
 	cleanMap();
 }
 
@@ -269,12 +264,11 @@ void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
 	if (auto des = entity->getComponent<DescriptionComponent>()) {
 		if (auto name = des->getString("Name")) {
 			if (name.value() == "Player Car") {
-				gamestate = GameState::RoundEnd;
-				updateMenu = true;
-				win = true;
+				scores.find(-1)->second = 1;
 			}
 			else if (prefix("AI Car : ", name.value())) {
-
+				int number = std::stoi(name.value().substr(string("AI Car : ").length()));
+				scores.find(number)->second = 1;
 			}
 		}
 	}
