@@ -53,15 +53,21 @@ void PhysXSimCallback::onTrigger(
 		Entity* pTrigger = static_cast<Entity*>(pairs->triggerActor->userData);
 		if (!pTrigger) return;
 
-		// Get shared pointers to entities
-		shared_ptr<Entity> car = pCar->shared_from_this();
-		shared_ptr<Entity> trigger = pTrigger->shared_from_this();
-
-		// Broadcast when any vehicle collides with a triggerbox
-		if ((car->hasComponent<VehicleComponent>()) 
-		&& (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)) {
-			Events::CarParked.broadcast(car, trigger);
+		if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND) {
+			try {
+				// Broadcast when any vehicle collides with a triggerbox
+				if (pCar->hasComponent<VehicleComponent>()) {
+					// Get shared pointers to entities
+					weak_ptr<Entity> wp_car = pCar->weak_from_this();
+					weak_ptr<Entity> wp_trigger = pTrigger->weak_from_this();
+					Events::CarParked.broadcast(wp_car, wp_trigger);
+				}
+			} catch (std::exception) {
+				std::cerr << "[PhysXSimCallback::onTrigger] Failed to convert "
+					"colliding PhysX actors to Entities\n";
+			}
 		}
+
 
 		/*
 		// Activated when player collides with triggerbox

@@ -95,6 +95,8 @@ private:
 	unsigned int startingAi_number;
 	unsigned int currentAi_number;
 
+	vector<weak_ptr<Entity>> entitiesToDelete;
+
 };
 
 bool prefix(const string& prefix, const string& base);

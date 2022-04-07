@@ -79,7 +79,7 @@ private:
     std::vector<std::string> filepaths;
 
     shared_ptr<Scene> scene;
-    shared_ptr<TransformComponent> listener;
+    weak_ptr<TransformComponent> listener;
 
     shared_ptr<AudioSource> musicPlayer;
     shared_ptr<Audio> music;

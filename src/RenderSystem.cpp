@@ -19,7 +19,8 @@ void RenderSystem::update() {
 	renderPipeline->setWindowDimentions(window->getWidth(), window->getHeight());
 
 	//All rendering objects
-	for (auto& rc : scene->iterate<RendererComponent>()) {
+	for (auto& wp_rc : scene->iterate<RendererComponent>()) {
+		auto rc = wp_rc.lock(); if (!rc) continue;
 		auto e = rc->getEntity();
 		auto mc = e->getComponent<ModelComponent>();
 		glm::mat4 localToGlobaltransform = getLocalToGlobalTransformation(e);
@@ -30,7 +31,8 @@ void RenderSystem::update() {
 	}
 
 	//All Lighting objects
-	for (auto& lc : scene->iterate<LightingComponent>()) {
+	for (auto& wp_lc : scene->iterate<LightingComponent>()) {
+		auto lc = wp_lc.lock(); if (!lc) continue;
 		auto e = lc->getEntity();
 		glm::mat4 localToGlobaltransform = getLocalToGlobalTransformation(e);
 		std::shared_ptr<PointLight> pointlight = lc->getPointLight();
@@ -44,7 +46,8 @@ void RenderSystem::update() {
 	}
 
 	//All Camera Objects
-	for (auto& cc : scene->iterate<CameraComponent>()) {
+	for (auto& wp_cc : scene->iterate<CameraComponent>()) {
+		auto cc = wp_cc.lock(); if (!cc) continue;
 		auto e = cc->getEntity();
 		glm::mat4 localToGlobaltransform = getLocalToGlobalTransformation(e);
 		glm::vec3 pos = glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, 0.f, 1.f));

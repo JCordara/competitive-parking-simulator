@@ -42,8 +42,8 @@ PhysicsSystem::PhysicsSystem(
 /* PhysX per-frame updates */
 void PhysicsSystem::update() {
 	// Update each vehicle given it's input values
-	for (auto& vc : gameScene->iterate<VehicleComponent>()) {
-		vehicleUpdate(vc);
+	for (auto& wp_vc : gameScene->iterate<VehicleComponent>()) {
+		vehicleUpdate(wp_vc);
 	}
 
     simulateScene();
@@ -198,9 +198,10 @@ PxConvexMesh* PhysicsSystem::createDynamicMesh(const PxVec3* verts, const PxU32 
 }
 
 
-void PhysicsSystem::vehicleUpdate(shared_ptr<VehicleComponent> vc) {
+void PhysicsSystem::vehicleUpdate(weak_ptr<VehicleComponent> wp_vc) {
 
 	// Get reference to vehicle
+	auto vc = wp_vc.lock(); if (!vc) return;
 	PxVehicleDrive4W* vehicle = vc->vehicle;
 
 	// Smooth inputs

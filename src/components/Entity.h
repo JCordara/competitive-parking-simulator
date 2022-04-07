@@ -24,7 +24,6 @@ class Entity : public std::enable_shared_from_this<Entity> {
 public:
 
     Entity(sp<Entity> parent);
-    void killurself();
     ~Entity();
     weak_ptr<Entity> parent() { return _parent; }
 
@@ -169,40 +168,40 @@ public:
     Scene();
 
     template<class C>
-    vector<sp<C>>& iterate() {
+    vector<weak_ptr<C>>& iterate() {
         // If no components of this type are currently being tracked
         if (!static_cast<bool>(componentMap.count(C::getType()))) {
             // Create an empty list of components
-            componentMap[C::getType()] = vector<sp<C>>();
+            componentMap[C::getType()] = vector<weak_ptr<C>>();
         }
         // Return the vector of components
-        return std::any_cast<vector<sp<C>>&>(componentMap.at(C::getType()));
+        return std::any_cast<vector<weak_ptr<C>>&>(componentMap.at(C::getType()));
     }
 
     template<class C>
-    void trackComponent(sp<C> c) {
+    void trackComponent(weak_ptr<C> c) {
         // If no components of this type are currently being tracked
         if (!static_cast<bool>(componentMap.count(C::getType()))) {
             // Create an empty list of components
-            componentMap[C::getType()] = vector<sp<C>>();
+            componentMap[C::getType()] = vector<weak_ptr<C>>();
         }
         // Get the vector of components
-        vector<sp<C>>& components = std::any_cast<vector<sp<C>>&>(componentMap.at(C::getType()));
+        vector<weak_ptr<C>>& components = std::any_cast<vector<weak_ptr<C>>&>(componentMap.at(C::getType()));
         // Add the passed component to the vector
         components.push_back(c);
     }
 
     template<class C>
-    bool untrackComponent(sp<C> c) {
+    bool untrackComponent(weak_ptr<C> c) {
         // If no components of this type are currently being tracked
         if (!static_cast<bool>(componentMap.count(C::getType()))) {
             return false; // Do nothing
         }
         // Get the vector of components
-        vector<sp<C>>& components = std::any_cast<vector<sp<C>>&>(componentMap.at(C::getType()));
+        vector<weak_ptr<C>>& components = std::any_cast<vector<weak_ptr<C>>&>(componentMap.at(C::getType()));
         // Search the vector for a matching component (by underlying shared_ptr address)
         for (auto it = components.begin(); it != components.end(); it++) {
-            if (it->get() == c.get()) {
+            if (it->lock().get() == c.lock().get()) {
                 components.erase(it);   // Erase matching component
                 return true;
             }

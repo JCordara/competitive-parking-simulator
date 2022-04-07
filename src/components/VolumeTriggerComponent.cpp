@@ -24,7 +24,8 @@ VolumeTriggerComponent::VolumeTriggerComponent(weak_ptr<Entity> e)
 
 void VolumeTriggerComponent::createVolumeShape(PxTransform startPos, PxBoxGeometry boxGeom) {
 	actor = physicsSystem->createTriggerBox(startPos, boxGeom);
-	actor->userData = static_cast<void*>(getEntity().get());
+	auto e = getEntity(); if (!e) return;
+	actor->userData = static_cast<void*>(e.get());
 }
 
 ComponentEnum VolumeTriggerComponent::getType() {

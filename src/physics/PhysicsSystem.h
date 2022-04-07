@@ -58,7 +58,7 @@ private:
 
     void initPhysX();
 
-    void vehicleUpdate(shared_ptr<VehicleComponent>);
+    void vehicleUpdate(weak_ptr<VehicleComponent>);
     void simulateScene();
 	void cleanupPhysics();
 

@@ -51,8 +51,9 @@ AudioSystem::AudioSystem(shared_ptr<Scene> scene): scene(scene) {
 }
 
 void AudioSystem::update() {
+    auto l = listener.lock(); if (!l) return;
     // Update listener position
-    glm::mat4 m = listener->getGlobalMatrix();
+    glm::mat4 m = l->getGlobalMatrix();
     glm::vec3 front = glm::normalize(glm::vec3(-m * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
     glm::vec3 up = glm::normalize(glm::vec3(m * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)));
 
@@ -60,7 +61,8 @@ void AudioSystem::update() {
     setListenerPosition(m[3]);
 
     // Loop through audio components in the scene
-    for (auto c : scene->iterate<AudioComponent>()) {
+    for (auto wp_c : scene->iterate<AudioComponent>()) {
+        auto c = wp_c.lock(); if(!c) continue;
         if (!c->isStatic()) {
             auto transform = c->getEntity()->getComponent<TransformComponent>();
             c->updatePosition(transform->getGlobalPosition());
