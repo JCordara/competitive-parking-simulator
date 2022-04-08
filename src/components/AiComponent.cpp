@@ -86,8 +86,9 @@ void AiComponent::pickParkingNode() {
 	}
 	std::vector<std::shared_ptr<AiGraphNode>> possibleParkingSpaces;
 	// Assumes only parking spots have a trigger box, not ideal
-	for (auto it = gameplaySystem->scene->begin(); it != gameplaySystem->scene->end(); it++) {
-		auto trig = it->getComponent<VolumeTriggerComponent>();
+	for (auto wp : gameplaySystem->scene->iterate<VolumeTriggerComponent>()) {
+		auto trig = wp.lock();
+		//auto trig = it->getComponent<VolumeTriggerComponent>();
 		if (trig) {
 			for (auto node : possibleNodes) {
 				// Assumes only one node will be withing 8 distance
