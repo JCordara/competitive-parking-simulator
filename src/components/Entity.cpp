@@ -47,6 +47,11 @@ std::vector<sp<Entity>>& Entity::directChildren() {
 
 
 bool Entity::removeChildByID(unsigned int entityID) {
+	auto e = getChildByID(entityID).lock();
+	if (!e) return false; // Entity is already deleted
+	for (int i = e->_children.size() - 1; i >= 0; i--)
+		e->removeChild(e->_children[i]);
+
     for (auto it = _children.begin(); it != _children.end(); it++) {
         if ((*it)->id() == entityID) {
             // (*it)->killurself();
@@ -95,7 +100,7 @@ Entity::~Entity() {
     _components.clear();
 
     // Untrack components from scene
-    getScene()->untrackDeletedComponents();
+   // getScene()->untrackDeletedComponents();
 
 }
 

@@ -24,51 +24,55 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 
 void GameplaySystem::update() {
 	switch (gamestate) {
-		case GameState::MainMenu :
-			//Do nothing
+	case GameState::MainMenu:
+		//Do nothing
 		break;
-		case GameState::Playing:
-			// Game State logic
-			if (scores.find(-1)->second > 0) { // Player has scored
-				if (currentAi_number > 1) {//Round 
-					setGameState(GameState::RoundEnd);
-					Events::RoundEndGUI.broadcast();
-				}
-				else {//Win
-					setGameState(GameState::GameEnd);
-					Events::GameEndGUI.broadcast("YOU WIN");
-				}
+	case GameState::Playing:
+		// Game State logic
+		if (scores.find(-1)->second > 0) { // Player has scored
+			if (currentAi_number > 1) {//Round 
+				setGameState(GameState::RoundEnd);
+				Events::RoundEndGUI.broadcast();
 			}
-			else {
-				bool end = true;
-					//If any ai hasnt made it, then game is not over
-				for (auto& it : scores) if (it.first != -1 && it.second < 1) end = false;
-				if (end) {//Every single one has parked
-					setGameState(GameState::GameEnd);
-					Events::GameEndGUI.broadcast("YOU LOSE");
-				}
+			else {//Win
+				setGameState(GameState::GameEnd);
+				Events::GameEndGUI.broadcast("YOU WIN");
 			}
-			// Update AI pathing
-			if (Time::now() - lastUpdateTime >= 0.25) {
-				for (auto& ai : scene->iterate<AiComponent>()) ai.lock()->update();
-				lastUpdateTime = Time::now();
+		}
+		else {
+			bool end = true;
+			//If any ai hasnt made it, then game is not over
+			for (auto& it : scores) if (it.first != -1 && it.second < 1) end = false;
+			if (end) {//Every single one has parked
+				setGameState(GameState::GameEnd);
+				Events::GameEndGUI.broadcast("YOU LOSE");
 			}
+		}
+		// Update AI pathing
+		if (Time::now() - lastUpdateTime >= 0.25) {
+			for (auto& ai : scene->iterate<AiComponent>()) ai.lock()->update();
+			lastUpdateTime = Time::now();
+		}
 		break;
-		case GameState::RoundEnd:
-			// Do nothing
+	case GameState::RoundEnd:
+		// Do nothing
 		break;
-		case GameState::GameEnd:
-			//Do nothing
+	case GameState::GameEnd:
+		//Do nothing
 		break;
 	}
 
 	// Defer entity deletion so it doesn't occur during PhysX callback
-	for (auto wp : entitiesToDelete) {
-		auto e = wp.lock(); if (!e) continue;
-		auto p = e->parent().lock(); if (!p) return;
-		p->removeChild(e);
+	if (entitiesToDelete.size() > 0) {
+		for (auto wp : entitiesToDelete) {
+			auto e = wp.lock(); if (!e) continue;
+			auto p = e->parent().lock(); if (!p) return;
+			p->removeChild(e);
+		}
+		entitiesToDelete.clear();
+		scene->untrackDeletedComponents();
 	}
-	entitiesToDelete.clear();
+
 }
 
 void GameplaySystem::defineMap(
