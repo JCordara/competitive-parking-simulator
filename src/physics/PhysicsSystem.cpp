@@ -63,6 +63,13 @@ void PhysicsSystem::update() {
 		Entity* entity = static_cast<Entity*>(actor->userData);
 		if (!entity) continue; // If no associated entity, go to next actor
 
+		try {
+			auto sp_entity = entity->shared_from_this();
+		} catch (std::exception) {
+			printf("actor userdata invalid @ location (%.1f, %.1f)\n", actor->getGlobalPose().p.x, actor->getGlobalPose().p.z);
+			continue;
+		}
+
 		// If entity has a transform component, set position/orientation
 		if (auto tc = entity->getComponent<TransformComponent>()) {
 			// Get the actor's transform
@@ -92,7 +99,6 @@ void PhysicsSystem::update() {
 		}
 
 	}
-	// printf("\n");
 
 }
 

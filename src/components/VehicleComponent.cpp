@@ -448,5 +448,6 @@ ComponentEnum VehicleComponent::getType() {
 }
 
 VehicleComponent::~VehicleComponent() {
-    // Nothing to do here yet
+	printf("VehicleComponent dtor\n");
+    physicsSystem->pxScene->removeActor(*vehicle->getRigidDynamicActor(), true);
 }

@@ -50,7 +50,10 @@ void GameplaySystem::update() {
 		}
 		// Update AI pathing
 		if (Time::now() - lastUpdateTime >= 0.25) {
-			for (auto& ai : scene->iterate<AiComponent>()) ai.lock()->update();
+			for (auto& ai : scene->iterate<AiComponent>()) {
+				auto p = ai.lock(); if (!p) continue;
+				p->update();
+			}
 			lastUpdateTime = Time::now();
 		}
 		break;

@@ -80,6 +80,7 @@ weak_ptr<Entity> Entity::getChildByID(unsigned int entityID) {
 sp<Scene> Entity::getScene() {
     // p = direct parent
     sp<Entity> p = _parent.lock();
+    if (!p) return dynamic_pointer_cast<Scene>(shared_from_this()); // If no parent then this must be the scene
 
     // Get top level parent
     while(!p->parent().expired()) {
