@@ -18,7 +18,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 	//Events::MainMenu.broadcast();
 	gamestate = GameState::MainMenu;
 	nextAI_ID = 0;
-	startingAi_number = 3;
+	startingAi_number = 2;
 	currentAi_number = 0;
 }
 
@@ -106,7 +106,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 				else if (prefix("Temporary propcar : ", name.value())) {
 					int number = std::stoi(name.value().substr(string("Temporary propcar : ").length()));
 					if (parking[number]) // Needs to be removed
-						scene->removeEntity(ent);
+						entitiesToDelete.push_back(ent);//scene->removeEntity(ent);
 					else { //Just needs to be placed back to its og transform
 						ent->getComponent<TransformComponent>()->setLocalPosition(des->getVec3("Spawn Position").value());
 						ent->getComponent<TransformComponent>()->setLocalRotation(glm::radians(des->getRealNumber("Spawn Y-Rotation").value()), glm::vec3(0.f, 1.f, 0.f));
@@ -123,7 +123,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (prefix("Temporary parkingspot : ", name.value())) {
-					scene->removeEntity(ent);
+					entitiesToDelete.push_back(ent);//scene->removeEntity(ent);
 				}
 			}
 		}
@@ -174,7 +174,7 @@ void GameplaySystem::cleanMap() {
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (prefix("Temporary propcar : ", name.value())) {
-					scene->removeEntity(ent);
+					entitiesToDelete.push_back(ent);//scene->removeEntity(ent);
 				}
 			}
 		}
@@ -186,7 +186,7 @@ void GameplaySystem::cleanMap() {
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (prefix("Temporary parkingspot : ", name.value())) {
-					scene->removeEntity(ent);
+					entitiesToDelete.push_back(ent);//scene->removeEntity(ent);
 				}
 			}
 		}
@@ -198,7 +198,7 @@ void GameplaySystem::cleanMap() {
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (prefix("AI Car : ", name.value())) {
-					scene->removeEntity(ent);
+					entitiesToDelete.push_back(ent); //scene->removeEntity(ent);
 				}
 			}
 		}
@@ -222,16 +222,19 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 						throw std::exception("Player Score Not Found");
 					type element = type(ent, score->second);
 					// Insertion Sort
-					for (std::vector<type>::iterator it = listOfAIs.begin(); it < listOfAIs.end(); it++)
+					bool inserted = false;
+					for (std::vector<type>::iterator it = listOfAIs.begin(); it < listOfAIs.end() && (!inserted); it++)
 						if (it->second > element.second)
 							listOfAIs.insert(it, element);
+					if (!inserted)
+						listOfAIs.push_back(element);
 				}
 			}
 		}
 	}
 	int i = 0;
 	for (std::vector<type>::iterator it = listOfAIs.begin(); i < num && it != listOfAIs.end(); it++, i++)
-		scene->removeEntity(it->first);
+		entitiesToDelete.push_back(it->first);//scene->removeEntity(it->first);
 
 }
 
