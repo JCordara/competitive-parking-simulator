@@ -3,9 +3,9 @@
 
 #include "GameSystem.h"
 #include "Window.h"
-#include <Renderers.h>
-#include <Entity.h>
-#include <GuiScene.h>
+#include "Renderers.h"
+#include "Entity.h"
+#include "GuiScene.h"
 
 class RenderSystem : public GameSystem {
 public:
@@ -42,4 +42,4 @@ private:
 
 glm::vec3 VectorPlaneProjection(glm::vec3 vec, glm::vec3 normal);
 glm::vec3 VectorVectorProjection(glm::vec3 vec, glm::vec3 vec0);
-glm::mat4 getLocalToGlobalTransformation(sp<Entity> e);
+glm::mat4 getLocalToGlobalTransformation(weak_ptr<Entity> e);

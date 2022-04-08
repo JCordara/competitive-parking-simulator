@@ -6,7 +6,7 @@
 
 class RendererComponent : public BaseComponent {
 public:
-	RendererComponent(shared_ptr<Entity> parent);
+	RendererComponent(weak_ptr<Entity> parent);
 	void enableRender() { render = true; }
 	void disableRender() { render = false; }
 	bool toBeRendered() { return render; }

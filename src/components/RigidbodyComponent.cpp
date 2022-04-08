@@ -2,7 +2,7 @@
 #include "Physics/PhysicsSystem.h"
 
 
-RigidbodyComponent::RigidbodyComponent(shared_ptr<Entity> parent) 
+RigidbodyComponent::RigidbodyComponent(weak_ptr<Entity> parent)
     : BaseComponent(parent) 
 {
 	// Notify Physics system that this component was created
@@ -15,7 +15,7 @@ void RigidbodyComponent::addActorStaticMesh(const Model& model, PxTransform star
 
 	PxTransform mesht = startPos;
 	actor = physicsSystem->pxPhysics->createRigidStatic(mesht);
-	actor->userData = static_cast<void*>(entity.get());
+	actor->userData = static_cast<void*>(getEntity().get());
 
 	PxTriangleMesh* mesh = physicsSystem->createStaticMesh(model);
 	PxTriangleMeshGeometry geom(mesh);
@@ -34,7 +34,7 @@ void RigidbodyComponent::addActorStaticMesh(const Model& model, PxTransform star
 void RigidbodyComponent::addActorStaticSphere(const float radius, PxTransform startPos) {
 
 	actor = physicsSystem->pxPhysics->createRigidStatic(startPos);
-	actor->userData = static_cast<void*>(entity.get());
+	actor->userData = static_cast<void*>(getEntity().get());
 
 	PxSphereGeometry sphereGeom(radius);
 
@@ -52,7 +52,7 @@ void RigidbodyComponent::addActorStaticSphere(const float radius, PxTransform st
 void RigidbodyComponent::addActorStaticBox(PxVec3 halfLen, PxTransform startPos) {
 
 	actor = physicsSystem->pxPhysics->createRigidStatic(startPos);
-	actor->userData = static_cast<void*>(entity.get());
+	actor->userData = static_cast<void*>(getEntity().get());
 
 	PxBoxGeometry boxGeom(halfLen);
 
@@ -70,7 +70,7 @@ void RigidbodyComponent::addActorDynamic(const Model& model, PxTransform startPo
 
 	PxTransform mesht = startPos;//PxTransform(PxVec3(0, 20.0f, 0.0f));
 	actor = physicsSystem->pxPhysics->createRigidDynamic(mesht);
-	actor->userData = static_cast<void*>(entity.get());
+	actor->userData = static_cast<void*>(getEntity().get());
 
 	PxConvexMesh* mesh = physicsSystem->createDynamicMesh(model);
 	PxConvexMeshGeometry geom(mesh);
@@ -92,5 +92,6 @@ ComponentEnum RigidbodyComponent::getType() {
 }
 
 RigidbodyComponent::~RigidbodyComponent() {
+	printf("RigidbodyComponent dtor\n");
     physicsSystem->pxScene->removeActor(*actor, true);
 }

@@ -15,7 +15,7 @@ enum class AudioTrigger {
 class AudioComponent : public BaseComponent {
 public:
 
-    AudioComponent(shared_ptr<Entity> parent);
+    AudioComponent(weak_ptr<Entity> parent);
     ~AudioComponent();
     static ComponentEnum getType();
 
@@ -24,7 +24,7 @@ public:
     void addSound(AudioTrigger t, const std::string soundFile);
 
     void playEngineSound();
-    void addEngineSound(const std::string soundFile, sp<VehicleComponent> vehicle);
+    void addEngineSound(const std::string soundFile, weak_ptr<VehicleComponent> vehicle);
     bool hasEngineSound() { return engineSource != nullptr; }
 
     void updatePosition(glm::vec3 newPos);
@@ -46,7 +46,7 @@ private:
 
     shared_ptr<AudioSource> engineSource;
     shared_ptr<Audio> engineSound;
-    shared_ptr<VehicleComponent> vehicle;
+	weak_ptr<VehicleComponent> vehicle;
     Script calculateEngineSound;
     float enginePitch, engineGain, engineSpeed;
 };

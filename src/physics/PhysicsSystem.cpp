@@ -42,8 +42,8 @@ PhysicsSystem::PhysicsSystem(
 /* PhysX per-frame updates */
 void PhysicsSystem::update() {
 	// Update each vehicle given it's input values
-	for (auto& vc : gameScene->iterate<VehicleComponent>()) {
-		vehicleUpdate(vc);
+	for (auto& wp_vc : gameScene->iterate<VehicleComponent>()) {
+		vehicleUpdate(wp_vc);
 	}
 
     simulateScene();
@@ -62,6 +62,13 @@ void PhysicsSystem::update() {
 		// Retrieve the entity associated with the actor
 		Entity* entity = static_cast<Entity*>(actor->userData);
 		if (!entity) continue; // If no associated entity, go to next actor
+
+		try {
+			auto sp_entity = entity->shared_from_this();
+		} catch (std::exception) {
+			printf("actor userdata invalid @ location (%.1f, %.1f)\n", actor->getGlobalPose().p.x, actor->getGlobalPose().p.z);
+			continue;
+		}
 
 		// If entity has a transform component, set position/orientation
 		if (auto tc = entity->getComponent<TransformComponent>()) {
@@ -92,7 +99,6 @@ void PhysicsSystem::update() {
 		}
 
 	}
-	// printf("\n");
 
 }
 
@@ -198,9 +204,10 @@ PxConvexMesh* PhysicsSystem::createDynamicMesh(const PxVec3* verts, const PxU32 
 }
 
 
-void PhysicsSystem::vehicleUpdate(shared_ptr<VehicleComponent> vc) {
+void PhysicsSystem::vehicleUpdate(weak_ptr<VehicleComponent> wp_vc) {
 
 	// Get reference to vehicle
+	auto vc = wp_vc.lock(); if (!vc) return;
 	PxVehicleDrive4W* vehicle = vc->vehicle;
 
 	// Smooth inputs
@@ -273,8 +280,14 @@ void PhysicsSystem::simulateScene()
 }
 
 
-void PhysicsSystem::vehicleAccelerateMode(shared_ptr<Entity> entity, float v) 
+void PhysicsSystem::vehicleAccelerateMode(weak_ptr<Entity> wpEntity, float v) 
 {
+
+	// Get shared ptr to entity
+	auto entity = wpEntity.lock();
+	if (!entity) return;
+
+	// Get vehicle component of entity
 	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
 
@@ -291,32 +304,48 @@ void PhysicsSystem::vehicleAccelerateMode(shared_ptr<Entity> entity, float v)
 	vc->inputData.setAnalogAccel(v);
 }
 
-void PhysicsSystem::vehicleTurnMode(shared_ptr<Entity> entity, float v) 
+void PhysicsSystem::vehicleTurnMode(weak_ptr<Entity> wpEntity, float v) 
 {
+	// Get shared ptr to entity
+	auto entity = wpEntity.lock();
+	if (!entity) return;
+
 	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
 
 	vc->inputData.setAnalogSteer(-v);
 }
 
-void PhysicsSystem::vehicleBrakeMode(shared_ptr<Entity> entity, float v) 
+void PhysicsSystem::vehicleBrakeMode(weak_ptr<Entity> wpEntity, float v) 
 {
+	// Get shared ptr to entity
+	auto entity = wpEntity.lock();
+	if (!entity) return;
+
 	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
 
 	vc->inputData.setAnalogBrake(v);
 }
 
-void PhysicsSystem::vehicleHandbrakeMode(shared_ptr<Entity> entity, float v) 
+void PhysicsSystem::vehicleHandbrakeMode(weak_ptr<Entity> wpEntity, float v) 
 {
+	// Get shared ptr to entity
+	auto entity = wpEntity.lock();
+	if (!entity) return;
+
 	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
 
 	vc->inputData.setAnalogHandbrake(v);
 }
 
-void PhysicsSystem::vehicleFlipMode(shared_ptr<Entity> entity, float v)
+void PhysicsSystem::vehicleFlipMode(weak_ptr<Entity> wpEntity, float v)
 {
+	// Get shared ptr to entity
+	auto entity = wpEntity.lock();
+	if (!entity) return;
+	
 	if (auto vc = entity->getComponent<VehicleComponent>()) {
 		PxTransform trans = vc->vehicle->getRigidDynamicActor()->getGlobalPose();
 		// Disallow flipping if car too high or spinning too fast

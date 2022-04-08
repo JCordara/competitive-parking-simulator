@@ -1,7 +1,7 @@
 #include "ModelComponent.h"
 
 
-ModelComponent::ModelComponent(shared_ptr<Entity> parent) 
+ModelComponent::ModelComponent(weak_ptr<Entity> parent)
     : BaseComponent(parent)
 {}
 

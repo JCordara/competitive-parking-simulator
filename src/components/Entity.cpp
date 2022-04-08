@@ -12,7 +12,7 @@ Entity::Entity(sp<Entity> parent)
 }
 
 
-sp<Entity> Entity::addChild() {
+weak_ptr<Entity> Entity::addChild() {
     auto self = shared_from_this();
     _children.emplace_back(make_shared<Entity>(self));
     _children.back()->_siblingNumber = _children.size() - 1;
@@ -20,15 +20,24 @@ sp<Entity> Entity::addChild() {
     return _children.back();
 }
 
-bool Entity::removeChild(sp<Entity> doomedEntity) {
+bool Entity::removeChild(weak_ptr<Entity> doomedEntity) {
+    
+    // Copy weak pointer to shared pointer
+    auto e = doomedEntity.lock();
+    if (!e) return false; // Entity is already deleted
+
+    for (int i = e->_children.size() - 1; i >= 0; i--) {
+        e->removeChild(e->_children[i]);
+    }
+
     for (auto it = _children.begin(); it != _children.end(); it++) {
-        if ((*it).get() == doomedEntity.get()) {
+        if ((*it).get() == e.get()) {
+            // e->killurself();
             _children.erase(it);
             return true;
         }
     }
-    Log::error("Entity::destroyChild()\nNo matching entity found. ID:  %d", 
-                doomedEntity->id());
+    std::cerr << "Entity::destroyChild()\nNo matching entity found. ID: " << e->id();
     return false;
 }
 
@@ -36,9 +45,16 @@ std::vector<sp<Entity>>& Entity::directChildren() {
     return _children;
 }
 
+
 bool Entity::removeChildByID(unsigned int entityID) {
+	auto e = getChildByID(entityID).lock();
+	if (!e) return false; // Entity is already deleted
+	for (int i = e->_children.size() - 1; i >= 0; i--)
+		e->removeChild(e->_children[i]);
+
     for (auto it = _children.begin(); it != _children.end(); it++) {
         if ((*it)->id() == entityID) {
+            // (*it)->killurself();
             _children.erase(it);
             return true;
         }
@@ -48,7 +64,7 @@ bool Entity::removeChildByID(unsigned int entityID) {
     return false;
 }
 
-sp<Entity> Entity::getChildByID(unsigned int entityID) {
+weak_ptr<Entity> Entity::getChildByID(unsigned int entityID) {
     for (auto it = _children.begin(); it != _children.end(); it++) {
         if ((*it)->id() == entityID) {
             return *it;
@@ -62,10 +78,16 @@ sp<Entity> Entity::getChildByID(unsigned int entityID) {
 }
 
 sp<Scene> Entity::getScene() {
-    sp<Entity> p = _parent;
-    while(p->parent() != nullptr) {
-        p = p->parent();
+    // p = direct parent
+    sp<Entity> p = _parent.lock();
+    if (!p) return dynamic_pointer_cast<Scene>(shared_from_this()); // If no parent then this must be the scene
+
+    // Get top level parent
+    while(!p->parent().expired()) {
+        p = p->parent().lock();
     }
+
+    // Return weak pointer to top level parent (Scene)
     return dynamic_pointer_cast<Scene>(p);
 }
 
@@ -75,55 +97,15 @@ Entity::~Entity() {
     // Call child destructors
     _children.clear();
 
-    // Delete components
-    for (auto keyValue : _components) {
-    
-        // Get component type enum
-        ComponentEnum type = keyValue.first;
+    // Delete components for real
+    _components.clear();
 
-        // Untrack component from scene
-        switch(type) {
-            case ComponentEnum::ai:
-                untrackComponentFromScene<AiComponent>(keyValue.second);
-                break;
-            case ComponentEnum::audio:
-                untrackComponentFromScene<AudioComponent>(keyValue.second);
-                break;
-            case ComponentEnum::camera:
-                untrackComponentFromScene<CameraComponent>(keyValue.second);
-                break;
-            case ComponentEnum::controller:
-                untrackComponentFromScene<ControllerComponent>(keyValue.second);
-                break;
-            case ComponentEnum::description:
-                untrackComponentFromScene<DescriptionComponent>(keyValue.second);
-                break;
-            case ComponentEnum::lighting:
-                untrackComponentFromScene<LightingComponent>(keyValue.second);
-                break;
-            case ComponentEnum::model:
-                untrackComponentFromScene<ModelComponent>(keyValue.second);
-                break;
-            case ComponentEnum::renderer:
-                untrackComponentFromScene<RendererComponent>(keyValue.second);
-                break;
-            case ComponentEnum::rigidbody:
-                untrackComponentFromScene<RigidbodyComponent>(keyValue.second);
-                break;
-            case ComponentEnum::transform:
-                untrackComponentFromScene<TransformComponent>(keyValue.second);
-                break;
-            case ComponentEnum::vehicle:
-                untrackComponentFromScene<VehicleComponent>(keyValue.second);
-                break;
-            case ComponentEnum::volumeTrigger:
-                untrackComponentFromScene<VolumeTriggerComponent>(keyValue.second);
-                break;
-        }
-    }
+    // Untrack components from scene
+   // getScene()->untrackDeletedComponents();
+
 }
 
-
+#if ENTITY_ITERATOR
 // --- Entity Iterator ---
 Entity::Iterator Entity::begin() {
     // Return an iterator pointing to the first child of traversal
@@ -153,7 +135,7 @@ Entity::Iterator Entity::end() {
  */
 Entity::Iterator& Entity::Iterator::operator++() {
 
-    std::vector<sp<Entity>> siblings;
+    std::vector<weak_ptr<Entity>> siblings;
 
     if(_current->_parent != nullptr)
         siblings = _current->_parent->_children;
@@ -216,19 +198,19 @@ Entity::Iterator Entity::Iterator::operator--(int) {
     return operator--();
 }
 
-shared_ptr<Entity>& Entity::Iterator::operator*() {
-    return _current; // Reference to entity pointed to by iterator
+sp<Entity>& Entity::Iterator::operator*() {
+    return _current.lock(); // Reference to entity pointed to by iterator
 }
 
-sp<Entity> Entity::Iterator::operator->() {
+weak_ptr<Entity> Entity::Iterator::operator->() {
     return _current;
 }
 
 bool Entity::Iterator::operator!=(Entity::Iterator other) {
     // Failsafe: If comparing to null entity, always return false
-    if (other._current == nullptr) return false;
+    if (other._current.lock() == nullptr) return false;
     // Compare underlying pointers
-    return _current.get() != other._current.get();
+    return _current.lock().get() != other._current.lock().get();
 }
 
 // Create an iterator that points to the specified entity
@@ -239,7 +221,7 @@ Entity::Iterator::Iterator(sp<Entity> e) : _current(e), _root(nullptr) {
     if (_current->_parent != nullptr)
         _root = _current->_parent;
 }
-
+#endif
 
 
 // --- Top level Scene aliases ---
@@ -251,11 +233,11 @@ sp<Scene> Scene::getScene() {
 }
 
 
-sp<Entity> Scene::addEntity() {
+weak_ptr<Entity> Scene::addEntity() {
     return addChild();
 }
 
-bool Scene::removeEntity(sp<Entity> doomedChild) {
+bool Scene::removeEntity(weak_ptr<Entity> doomedChild) {
     return removeChild(doomedChild);
 }
 
@@ -268,9 +250,99 @@ bool Scene::removeEntityByID(unsigned int entityID) {
     return removeChildByID(entityID);
 }
 
-sp<Entity> Scene::getEntityByID(unsigned int entityID) {
+weak_ptr<Entity> Scene::getEntityByID(unsigned int entityID) {
     return getChildByID(entityID);
 }
+
+// this function is disgusting ik but i dont care anymore
+void Scene::untrackDeletedComponents() {
+    
+    // Ai Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<AiComponent>>&>(componentMap.at(AiComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Audio Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<AudioComponent>>&>(componentMap.at(AudioComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Camera Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<CameraComponent>>&>(componentMap.at(CameraComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Controller Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<ControllerComponent>>&>(componentMap.at(ControllerComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Description Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<DescriptionComponent>>&>(componentMap.at(DescriptionComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Lighting Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<LightingComponent>>&>(componentMap.at(LightingComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Model Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<ModelComponent>>&>(componentMap.at(ModelComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Renderer Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<RendererComponent>>&>(componentMap.at(RendererComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Rigidbody Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<RigidbodyComponent>>&>(componentMap.at(RigidbodyComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Transform Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<TransformComponent>>&>(componentMap.at(TransformComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Vehicle Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<VehicleComponent>>&>(componentMap.at(VehicleComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // VolumeTrigger Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<VolumeTriggerComponent>>&>(componentMap.at(VolumeTriggerComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+}
+
 
 // Menu
 

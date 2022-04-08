@@ -3,6 +3,8 @@
 
 #include "Common.h"
 
+#define ENTITY_ITERATOR 0
+
 #define NULL_ID UINT_MAX - 1
 
 template<class T> using sp = std::shared_ptr<T>; // Shorter alias for shared_ptr
@@ -23,7 +25,7 @@ public:
 
     Entity(sp<Entity> parent);
     ~Entity();
-    sp<Entity> parent() { return _parent; }
+    weak_ptr<Entity> parent() { return _parent; }
 
     // Return this entity's unique ID
     unsigned int id() { return _entityID; }
@@ -54,11 +56,10 @@ public:
         if (!component) return false;
         // Remove component from map and retrieve success
         bool erased = static_cast<bool>(_components.erase(C::getType()));
-        // Untrack component in scene and retrieve success
-        bool untracked = getScene()->untrackComponent<C>(component);
-        // Return true only if the component was removed from the entity
-        // and untracked from the scene
-        return (erased && untracked);
+        // Untrack component in scene
+        getScene()->untrackDeletedComponents();
+        // Return true if the component was removed from the entity
+        return erased;
     }
 
     template<class C>
@@ -77,8 +78,8 @@ public:
         return static_cast<bool>(_components.count(C::getType()));
     }
 
-    sp<Entity> addChild();
-    bool removeChild(sp<Entity> doomedChild);
+    weak_ptr<Entity> addChild();
+    bool removeChild(weak_ptr<Entity> doomedChild);
 
     std::vector<sp<Entity>>& directChildren();
 
@@ -86,9 +87,9 @@ public:
     virtual sp<Scene> getScene();
     
     bool removeChildByID(unsigned int entityID);
-    sp<Entity> getChildByID(unsigned int entityID);
+    weak_ptr<Entity> getChildByID(unsigned int entityID);
 
-
+#if ENTITY_ITERATOR
     /* --- Entity iterator implementation --- */
 
     class Iterator {
@@ -101,7 +102,7 @@ public:
         Iterator& operator--();    // Traverse iterator to previous entity
         Iterator  operator--(int); // Same (pre/postfix current behave the same)
         shared_ptr<Entity>&   operator*();     // Access the entity at current iteration
-        sp<Entity> operator->();   // Overload class member access operator
+        weak_ptr<Entity> operator->();   // Overload class member access operator
         bool operator!=(Iterator); // Inequality comparison for iteration
 
 
@@ -110,13 +111,13 @@ public:
         Iterator(sp<Entity>);
         
         // The entity currently being pointed to
-        sp<Entity> _current;
+        weak_ptr<Entity> _current;
 
         // A list of entities visited to allow for quick reverse traversal
-        std::vector<sp<Entity>> _visited;
+        std::vector<weak_ptr<Entity>> _visited;
 
         // Pointer to the root entity of the (sub-)tree being traversed
-        sp<Entity> _root;
+        weak_ptr<Entity> _root;
     };
 
     // Constructs an iterator at the beginning of the children tree
@@ -124,7 +125,7 @@ public:
     
     // Constructs an iterator at the end of the children tree
 	Entity::Iterator end();
-
+#endif
 
 
 protected:
@@ -133,7 +134,7 @@ protected:
     unordered_map<ComponentEnum, sp<BaseComponent>> _components;
 
     // Reference to parent entity
-    sp<Entity> _parent;
+    weak_ptr<Entity> _parent;
 
     // List of child entities
     std::vector<sp<Entity>> _children;
@@ -146,14 +147,6 @@ protected:
 
     // Instance counter used for unique IDs
     static unsigned int instanceCounter;
-
-private:
-
-    template<class C>
-    void untrackComponentFromScene(sp<BaseComponent> component) {
-        sp<C> derived = dynamic_pointer_cast<C>(component);
-        getScene()->untrackComponent<C>(derived);
-    }
     
 };
 
@@ -166,56 +159,40 @@ public:
     Scene();
 
     template<class C>
-    vector<sp<C>>& iterate() {
+    vector<weak_ptr<C>>& iterate() {
         // If no components of this type are currently being tracked
         if (!static_cast<bool>(componentMap.count(C::getType()))) {
             // Create an empty list of components
-            componentMap[C::getType()] = vector<sp<C>>();
+            componentMap[C::getType()] = vector<weak_ptr<C>>();
         }
         // Return the vector of components
-        return std::any_cast<vector<sp<C>>&>(componentMap.at(C::getType()));
+        return std::any_cast<vector<weak_ptr<C>>&>(componentMap.at(C::getType()));
     }
 
     template<class C>
-    void trackComponent(sp<C> c) {
+    void trackComponent(weak_ptr<C> c) {
         // If no components of this type are currently being tracked
         if (!static_cast<bool>(componentMap.count(C::getType()))) {
             // Create an empty list of components
-            componentMap[C::getType()] = vector<sp<C>>();
+            componentMap[C::getType()] = vector<weak_ptr<C>>();
         }
         // Get the vector of components
-        vector<sp<C>>& components = std::any_cast<vector<sp<C>>&>(componentMap.at(C::getType()));
+        vector<weak_ptr<C>>& components = std::any_cast<vector<weak_ptr<C>>&>(componentMap.at(C::getType()));
         // Add the passed component to the vector
         components.push_back(c);
     }
 
-    template<class C>
-    bool untrackComponent(sp<C> c) {
-        // If no components of this type are currently being tracked
-        if (!static_cast<bool>(componentMap.count(C::getType()))) {
-            return false; // Do nothing
-        }
-        // Get the vector of components
-        vector<sp<C>>& components = std::any_cast<vector<sp<C>>&>(componentMap.at(C::getType()));
-        // Search the vector for a matching component (by underlying shared_ptr address)
-        for (auto it = components.begin(); it != components.end(); it++) {
-            if (it->get() == c.get()) {
-                components.erase(it);   // Erase matching component
-                return true;
-            }
-        }
-        return false;
-    }
+    void untrackDeletedComponents();
 
     sp<Scene> getScene();
 
-    sp<Entity> addEntity();
-    bool removeEntity(sp<Entity> doomedChild);
+    weak_ptr<Entity> addEntity();
+    bool removeEntity(weak_ptr<Entity> doomedChild);
 
     std::vector<sp<Entity>>& topLevelEntities();
     
     bool removeEntityByID(unsigned int entityID);
-    sp<Entity> getEntityByID(unsigned int entityID);
+    weak_ptr<Entity> getEntityByID(unsigned int entityID);
 
 private:
 
