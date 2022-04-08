@@ -18,7 +18,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 	//Events::MainMenu.broadcast();
 	gamestate = GameState::MainMenu;
 	nextAI_ID = 0;
-	startingAi_number = 1;
+	startingAi_number = 4;
 	currentAi_number = 0;
 }
 
@@ -153,6 +153,10 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 	for (auto s = scores.begin(); s != scores.end(); s++)
 		s->second = 0;
 //---------------------------------------------------------------------------------------------------------------------
+	// Reset Nodes
+	for (auto node : aiGlobalNodes) {
+		node->nodeTaken = false;
+	}
 }
 
 void GameplaySystem::cleanMap() {
@@ -270,18 +274,22 @@ void GameplaySystem::setNodeType(std::string nodeType, std::shared_ptr<AiGraphNo
 	if (!nodeType.compare("spawn")) {
 		aiNode->nodeType = AiGraphNode::NodeType::SPAWN;
 		aiNode->nodeSpeed = 0.25;
+		aiNode->nodeThreshold = 3.5;
 	}
 	if (!nodeType.compare("entrance")) {
 		aiNode->nodeType = AiGraphNode::NodeType::LOTENTRANCE;
 		aiNode->nodeSpeed = 0.35;
+		aiNode->nodeThreshold = 3.5;
 	}
 	if (!nodeType.compare("traversal")) {
 		aiNode->nodeType = AiGraphNode::NodeType::TRAVERSAL;
 		aiNode->nodeSpeed = 0.55;
+		aiNode->nodeThreshold = 5;
 	}
 	if (!nodeType.compare("parking")) {
 		aiNode->nodeType = AiGraphNode::NodeType::PARKINGSTALL;
-		aiNode->nodeSpeed = 0.35;
+		aiNode->nodeSpeed = 0.15;
+		aiNode->nodeThreshold = 1.5;
 	}
 }
 
