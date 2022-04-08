@@ -8,10 +8,10 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
         &GameplaySystem::registerAiComponent>(this);
 	Events::CarParked.registerHandler<GameplaySystem,
 		&GameplaySystem::registerCarParked>(this);
-	Events::NewGame.registerHandler<GameplaySystem,
-		&GameplaySystem::setupNewGame>(this);
 	Events::NextRound.registerHandler<GameplaySystem,
 		&GameplaySystem::setupNewRound>(this);
+	Events::NewGame.registerHandler<GameplaySystem,
+		&GameplaySystem::setupNewGame>(this);
 	Events::EndGame.registerHandler<GameplaySystem,
 		&GameplaySystem::cleanUpGame>(this);
 

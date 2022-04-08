@@ -68,12 +68,13 @@ void AiComponent::setSpawnNode() {
 	}
 	currentNode->nodeTaken = true;
 	//node->spawnAiComponent = entity->shared_from_this();
-	entity->getComponent<TransformComponent>()->setLocalPosition(currentNode->position);
+	auto e = entity.lock(); if (!e) return;
+	e->getComponent<TransformComponent>()->setLocalPosition(currentNode->position);
 	// If the ai has spawned on the nodes facing the fence
 	bool fenceIds = currentNode->id == 138 || currentNode->id == 143 ||
 		currentNode->id == 144 || currentNode->id == 145;
 	if (currentNode->position.z > 0 && fenceIds) {
-		entity->getComponent<TransformComponent>()->setLocalRotation(3.14, glm::vec3(0, 1, 0));
+		e->getComponent<TransformComponent>()->setLocalRotation(3.14, glm::vec3(0, 1, 0));
 	}
 }
 
@@ -87,13 +88,13 @@ void AiComponent::pickParkingNode() {
 	std::vector<std::shared_ptr<AiGraphNode>> possibleParkingSpaces;
 	// Assumes only parking spots have a trigger box, not ideal
 	for (auto wp : gameplaySystem->scene->iterate<VolumeTriggerComponent>()) {
-		auto trig = wp.lock();
+		auto trig = wp.lock(); if (!trig) continue;
 		//auto trig = it->getComponent<VolumeTriggerComponent>();
 		if (trig) {
 			for (auto node : possibleNodes) {
 				// Assumes only one node will be withing 8 distance
 				if (glm::distance(node->position,
-					it->getComponent<TransformComponent>()->getGlobalPosition()) < 10)
+					trig->getEntity()->getComponent<TransformComponent>()->getGlobalPosition()) < 10)
 				{
 					possibleParkingSpaces.push_back(node);
 					break;
@@ -106,7 +107,7 @@ void AiComponent::pickParkingNode() {
 		std::cout << "ERROR: NO POSSIBLE PARKING SPACES" << std::endl; return;
 	}
 	double now = time(nullptr);
-	std::srand(now + (double)entity->id()); // Get AI picking differently
+	std::srand(now + (double)entity.lock()->id()); // Get AI picking differently
 	// Should give number between 0 and vector.size()-1
 	int pick = rand() % randIntCeiling;
 	std::cout << "PICKED NODE: " << possibleParkingSpaces[pick]->id << std::endl;
@@ -287,7 +288,7 @@ void AiComponent::searchState() {
 	// Check for stuck status i.e. has not moved for too long
 	else if (recoveryTimeout > MAXSTUCKTIME) {
 		switchState(States::RECOVERY);
-		stuckPos = entity->getComponent<TransformComponent>()->getGlobalPosition();
+		stuckPos = entity.lock()->getComponent<TransformComponent>()->getGlobalPosition();
 		recoveryTimeout = 0;
 		aiSpeed = 0.45; accelReverse();
 	}
@@ -307,8 +308,8 @@ void AiComponent::searchState() {
 bool AiComponent::inRangeOfNode(const float nodeThreshhold) {
 	// Makes sure to only use the X-Z plane distance and ignore Y distance
 	glm::vec2 entityPos = glm::vec2(
-		entity->getComponent<TransformComponent>()->getGlobalPosition().x,
-		entity->getComponent<TransformComponent>()->getGlobalPosition().z);
+		entity.lock()->getComponent<TransformComponent>()->getGlobalPosition().x,
+		entity.lock()->getComponent<TransformComponent>()->getGlobalPosition().z);
 	glm::vec2 nodePos = glm::vec2(
 		currentNode->position.x, currentNode->position.z);
 	float distance = glm::distance(entityPos, nodePos);
@@ -328,7 +329,7 @@ void AiComponent::recoveryState() {
 		getEntity()->getComponent<TransformComponent>()->getGlobalPosition(), stuckPos);
 	//std::cout << entity->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y << std::endl;
 	if (recoveryTimeout > MAXSTUCKTIME) {
-		if (entity->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y < 0) {
+		if (entity.lock()->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y < 0) {
 			Events::VehicleFlip.broadcast(entity, 90.f);
 			Events::VehicleFlip.broadcast(entity, 90.f);
 			recoveryTimeout = 0;
@@ -360,7 +361,7 @@ void AiComponent::recoveryState() {
 // Gets angle between goal and current forward, turns towards goal
 void AiComponent::steerToNextNode() {
 	const float ANGLETHRESHOLD = 0.01;
-	physx::PxQuat aiCarRotation = entity->
+	physx::PxQuat aiCarRotation = entity.lock()->
 		getComponent<TransformComponent>()->getLocalRotation();
 	glm::vec3 aiForwardQuat = ComputeForwardVector(aiCarRotation);
 	aiForwardQuat = glm::normalize(aiForwardQuat);
