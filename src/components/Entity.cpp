@@ -23,17 +23,21 @@ weak_ptr<Entity> Entity::addChild() {
 bool Entity::removeChild(weak_ptr<Entity> doomedEntity) {
     
     // Copy weak pointer to shared pointer
-    auto dm = doomedEntity.lock();
-    if (!dm) return false; // Entity is already deleted
+    auto e = doomedEntity.lock();
+    if (!e) return false; // Entity is already deleted
+
+    for (int i = e->_children.size() - 1; i >= 0; i--) {
+        e->removeChild(e->_children[i]);
+    }
 
     for (auto it = _children.begin(); it != _children.end(); it++) {
-        if ((*it).get() == dm.get()) {
-            // dm->killurself();
+        if ((*it).get() == e.get()) {
+            // e->killurself();
             _children.erase(it);
             return true;
         }
     }
-    std::cerr << "Entity::destroyChild()\nNo matching entity found. ID: " << dm->id();
+    std::cerr << "Entity::destroyChild()\nNo matching entity found. ID: " << e->id();
     return false;
 }
 
@@ -73,7 +77,7 @@ sp<Scene> Entity::getScene() {
     sp<Entity> p = _parent.lock();
 
     // Get top level parent
-    while(p->parent().lock() != nullptr) {
+    while(!p->parent().expired()) {
         p = p->parent().lock();
     }
 
@@ -87,67 +91,12 @@ Entity::~Entity() {
     // Call child destructors
     _children.clear();
 
-    // Delete components
-    for (auto keyValue : _components) {
-    
-        // Get component type enum
-        ComponentEnum type = keyValue.first;
-
-        // Untrack component from scene
-        switch(type) {
-            case ComponentEnum::ai:
-                untrackComponentFromScene<AiComponent>(keyValue.second);
-                // removeComponent<AiComponent>();
-                break;
-            case ComponentEnum::audio:
-                untrackComponentFromScene<AudioComponent>(keyValue.second);
-                // removeComponent<AudioComponent>();
-                break;
-            case ComponentEnum::camera:
-                untrackComponentFromScene<CameraComponent>(keyValue.second);
-                // removeComponent<CameraComponent>();
-                break;
-            case ComponentEnum::controller:
-                untrackComponentFromScene<ControllerComponent>(keyValue.second);
-                // removeComponent<ControllerComponent>();
-                break;
-            case ComponentEnum::description:
-                untrackComponentFromScene<DescriptionComponent>(keyValue.second);
-                // removeComponent<DescriptionComponent>();
-                break;
-            case ComponentEnum::lighting:
-                untrackComponentFromScene<LightingComponent>(keyValue.second);
-                // removeComponent<LightingComponent>();
-                break;
-            case ComponentEnum::model:
-                untrackComponentFromScene<ModelComponent>(keyValue.second);
-                // removeComponent<ModelComponent>();
-                break;
-            case ComponentEnum::renderer:
-                untrackComponentFromScene<RendererComponent>(keyValue.second);
-                // removeComponent<RendererComponent>();
-                break;
-            case ComponentEnum::rigidbody:
-                untrackComponentFromScene<RigidbodyComponent>(keyValue.second);
-                // removeComponent<RigidbodyComponent>();
-                break;
-            case ComponentEnum::transform:
-                untrackComponentFromScene<TransformComponent>(keyValue.second);
-                // removeComponent<TransformComponent>();
-                break;
-            case ComponentEnum::vehicle:
-                untrackComponentFromScene<VehicleComponent>(keyValue.second);
-                // removeComponent<VehicleComponent>();
-                break;
-            case ComponentEnum::volumeTrigger:
-                untrackComponentFromScene<VolumeTriggerComponent>(keyValue.second);
-                // removeComponent<VolumeTriggerComponent>();
-                break;
-        }
-    }
-
     // Delete components for real
     _components.clear();
+
+    // Untrack components from scene
+    getScene()->untrackDeletedComponents();
+
 }
 
 #if ENTITY_ITERATOR
@@ -298,6 +247,96 @@ bool Scene::removeEntityByID(unsigned int entityID) {
 weak_ptr<Entity> Scene::getEntityByID(unsigned int entityID) {
     return getChildByID(entityID);
 }
+
+// this function is disgusting ik but i dont care anymore
+void Scene::untrackDeletedComponents() {
+    
+    // Ai Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<AiComponent>>&>(componentMap.at(AiComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Audio Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<AudioComponent>>&>(componentMap.at(AudioComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Camera Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<CameraComponent>>&>(componentMap.at(CameraComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Controller Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<ControllerComponent>>&>(componentMap.at(ControllerComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Description Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<DescriptionComponent>>&>(componentMap.at(DescriptionComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Lighting Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<LightingComponent>>&>(componentMap.at(LightingComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Model Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<ModelComponent>>&>(componentMap.at(ModelComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Renderer Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<RendererComponent>>&>(componentMap.at(RendererComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Rigidbody Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<RigidbodyComponent>>&>(componentMap.at(RigidbodyComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Transform Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<TransformComponent>>&>(componentMap.at(TransformComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // Vehicle Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<VehicleComponent>>&>(componentMap.at(VehicleComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+    // VolumeTrigger Components
+    {
+        auto components = std::any_cast<vector<weak_ptr<VolumeTriggerComponent>>&>(componentMap.at(VolumeTriggerComponent::getType()));        
+        for (int i = components.size() - 1; i >= 0; i--) // Reverse iterate
+            if (components[i].expired()) components.erase(components.begin() + i);
+    }
+    
+}
+
 
 // Menu
 

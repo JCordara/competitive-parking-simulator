@@ -64,9 +64,9 @@ void GameplaySystem::update() {
 
 	// Defer entity deletion so it doesn't occur during PhysX callback
 	for (auto wp : entitiesToDelete) {
-		auto e = wp.lock();
-		if (!e) continue;
-		scene->removeEntity(e);
+		auto e = wp.lock(); if (!e) continue;
+		auto p = e->parent().lock(); if (!p) return;
+		p->removeChild(e);
 	}
 	entitiesToDelete.clear();
 }

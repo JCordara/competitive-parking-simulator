@@ -56,11 +56,10 @@ public:
         if (!component) return false;
         // Remove component from map and retrieve success
         bool erased = static_cast<bool>(_components.erase(C::getType()));
-        // Untrack component in scene and retrieve success
-        bool untracked = getScene()->untrackComponent<C>(component);
-        // Return true only if the component was removed from the entity
-        // and untracked from the scene
-        return (erased && untracked);
+        // Untrack component in scene
+        getScene()->untrackDeletedComponents();
+        // Return true if the component was removed from the entity
+        return erased;
     }
 
     template<class C>
@@ -148,14 +147,6 @@ protected:
 
     // Instance counter used for unique IDs
     static unsigned int instanceCounter;
-
-private:
-
-    template<class C>
-    void untrackComponentFromScene(sp<BaseComponent> component) {
-        sp<C> derived = dynamic_pointer_cast<C>(component);
-        getScene()->untrackComponent<C>(derived);
-    }
     
 };
 
@@ -191,23 +182,7 @@ public:
         components.push_back(c);
     }
 
-    template<class C>
-    bool untrackComponent(weak_ptr<C> c) {
-        // If no components of this type are currently being tracked
-        if (!static_cast<bool>(componentMap.count(C::getType()))) {
-            return false; // Do nothing
-        }
-        // Get the vector of components
-        vector<weak_ptr<C>>& components = std::any_cast<vector<weak_ptr<C>>&>(componentMap.at(C::getType()));
-        // Search the vector for a matching component (by underlying shared_ptr address)
-        for (auto it = components.begin(); it != components.end(); it++) {
-            if (it->lock().get() == c.lock().get()) {
-                components.erase(it);   // Erase matching component
-                return true;
-            }
-        }
-        return false;
-    }
+    void untrackDeletedComponents();
 
     sp<Scene> getScene();
 
