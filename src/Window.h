@@ -55,6 +55,9 @@ public:
 	int getWidth() const { return getSize().x; }
 	int getHeight() const { return getSize().y; }
 
+	bool isFullScreen();
+	void setFullScreen(bool isFullscreen);
+
 	int shouldClose() { return glfwWindowShouldClose(window.get()); }
 	void makeContextCurrent() { glfwMakeContextCurrent(window.get()); }
 	void swapBuffers() { glfwSwapBuffers(window.get()); }

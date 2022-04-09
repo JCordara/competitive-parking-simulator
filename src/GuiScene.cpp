@@ -1,14 +1,5 @@
 #include "GuiScene.h"
 
-unsigned int g_numAiCars = 4;
-bool g_showHUD = true;
-extern std::unordered_map<unsigned int, int> scores;
-extern unsigned int playerId;
-extern std::vector<unsigned int> aiList;
-extern std::shared_ptr<Entity> playerCar;
-
-bool gameWon = false;
-
 GuiScene::GuiScene(shared_ptr<Window> window):
 	window(window)
 {
@@ -45,12 +36,10 @@ void GuiScene::draw() {
 
 		ImGui::Text("FPS: %.2f", Time::fps());
 
-		if (g_showHUD) {
-			ImGui::SetCursorScreenPos(ImVec2(window->getWidth() * 0.3f, 0.1f));
-			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[2]);
-			ImGui::Text("CONTESTANTS REMAINING: %d", g_numAiCars + 1);
-			ImGui::PopFont();
-		}
+		ImGui::SetCursorScreenPos(ImVec2(window->getWidth() * 0.3f, 0.1f));
+		ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[2]);
+		ImGui::Text("CONTESTANTS REMAINING: %d", ">1");
+		ImGui::PopFont();
 
 		// Render the scene's elements
 		for (auto& label : labels) {

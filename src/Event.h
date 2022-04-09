@@ -34,6 +34,7 @@ namespace Events {
 	extern Event<void> GameGUI;
 	extern Event<void> RoundEndGUI;
 	extern Event<string> GameEndGUI;
+	extern Event<void> GameOptions;
 	/* --- Entity Manipulation Events--- */
 	extern Event<string, instancedTransformation> AddPropCar;
 	extern Event<string, instancedTransformation> AddParkingSpace;
@@ -64,6 +65,8 @@ namespace Events {
 	extern Event<void> RecompileScripts;
 	/* --- miscellaneous Events --- */
     extern Event<float> ChangeMusicVolume;
+	extern Event<int> ChangeNumberOfAI;
+	extern Event<bool> Fullscreen;
 };
 
 #endif // EVENT_H

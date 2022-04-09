@@ -14,17 +14,21 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 		&GameplaySystem::setupNewGame>(this);
 	Events::EndGame.registerHandler<GameplaySystem,
 		&GameplaySystem::cleanUpGame>(this);
-
+	Events::ChangeNumberOfAI.registerHandler<GameplaySystem,
+		&GameplaySystem::setNumberOfAI>(this);
 	//Events::MainMenu.broadcast();
 	gamestate = GameState::MainMenu;
 	nextAI_ID = 0;
-	startingAi_number = 2;
+	startingAi_number = 6;
 	currentAi_number = 0;
 }
 
 void GameplaySystem::update() {
 	switch (gamestate) {
 	case GameState::MainMenu:
+		//Do nothing
+		break;
+	case GameState::Options:
 		//Do nothing
 		break;
 	case GameState::Playing:
@@ -66,15 +70,7 @@ void GameplaySystem::update() {
 	}
 
 	// Defer entity deletion so it doesn't occur during PhysX callback
-	if (entitiesToDelete.size() > 0) {
-		for (auto wp : entitiesToDelete) {
-			auto e = wp.lock(); if (!e) continue;
-			auto p = e->parent().lock(); if (!p) return;
-			p->removeChild(e);
-		}
-		entitiesToDelete.clear();
-		scene->untrackDeletedComponents();
-	}
+	deleteQueue();
 
 }
 
@@ -219,7 +215,10 @@ void GameplaySystem::cleanMap() {
 }
 
 void GameplaySystem::removeBottomAI(unsigned int num) {
-	using type = std::pair<std::shared_ptr<Entity>, int>;
+	using type = std::pair<
+		std::shared_ptr<Entity>,
+		std::pair<int, int>
+	>;
 	std::vector<type> listOfAIs;
 	for (auto wp_vc : scene->iterate<VehicleComponent>()) {
 		auto vc = wp_vc.lock(); if (!vc) continue;
@@ -231,44 +230,66 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 					auto score = scores.find(number);
 					if (score == scores.end())
 						throw std::exception("Player Score Not Found");
-					type element = type(ent, score->second);
+					type element = type(ent, std::pair<int, int>(number,score->second));
 					// Insertion Sort
 					bool inserted = false;
 					for (std::vector<type>::iterator it = listOfAIs.begin(); it < listOfAIs.end() && (!inserted); it++)
-						if (it->second > element.second)
+						if (it->second.second > element.second.second) {
 							listOfAIs.insert(it, element);
-					if (!inserted)
-						listOfAIs.push_back(element);
+							inserted = true;
+						}
+					if (!inserted) listOfAIs.push_back(element);
 				}
 			}
 		}
 	}
 	int i = 0;
-	for (std::vector<type>::iterator it = listOfAIs.begin(); i < num && it != listOfAIs.end(); it++, i++)
+	for (std::vector<type>::iterator it = listOfAIs.begin(); i < num && it != listOfAIs.end(); it++, i++) {
 		entitiesToDelete.push_back(it->first);//scene->removeEntity(it->first);
+		scores.erase(it->second.first);
+	}
 
+}
+
+void GameplaySystem::deleteQueue() {
+	if (entitiesToDelete.size() > 0) {
+		for (auto wp : entitiesToDelete) {
+			auto e = wp.lock(); if (!e) continue;
+			auto p = e->parent().lock(); if (!p) return;
+			p->removeChild(e);
+		}
+		entitiesToDelete.clear();
+		scene->untrackDeletedComponents();
+	}
 }
 
 void GameplaySystem::setupNewGame() {
 	currentAi_number = startingAi_number;
 	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number);
+	deleteQueue();
 	Events::GameGUI.broadcast();
 	setGameState(GameState::Playing);
 }
+
 void GameplaySystem::setupNewRound() {
 	removeBottomAI(1);
+	deleteQueue();
 	currentAi_number = currentAi_number - 1;
 	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number);
+	deleteQueue();
 	Events::GameGUI.broadcast();
 	setGameState(GameState::Playing);
 }
 void GameplaySystem::cleanUpGame() {
 	cleanMap();
+	deleteQueue();
 	Events::MainMenu.broadcast();
 	setGameState(GameState::MainMenu);
 }
 
 GameplaySystem::~GameplaySystem() {}
+
+void GameplaySystem::setNumberOfAI(int num) { startingAi_number = num; }
 
 void GameplaySystem::registerAiComponent(AiComponent& component) {
 	component.setGameplaySystem(

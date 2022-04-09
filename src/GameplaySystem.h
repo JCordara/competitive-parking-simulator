@@ -23,6 +23,7 @@ public:
 	void resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberOfParkingSpots);
 	void cleanMap();
 	void removeBottomAI(unsigned int num);
+	void deleteQueue();
 
 	//Game Events
 	void setupNewGame();
@@ -56,7 +57,7 @@ public:
 	std::vector<std::shared_ptr<AiGraphNode>> area970Nodes;
     void registerAiComponent(AiComponent& component);
 	void registerCarParked(weak_ptr<Entity> VehicleEntity, weak_ptr<Entity> TriggerEntity);
-
+	void setNumberOfAI(int num);
 	std::shared_ptr<AiGraphNode> addAINode(const std::string nodeType, int id, glm::vec3 nodePos);
 	void readAiGraph(string filepath);
 	void setNeigbours(std::shared_ptr<AiGraphNode> nodePrime, std::vector<int> nodeNeighbours);
@@ -70,10 +71,14 @@ public:
 	
 	std::vector<std::shared_ptr<AiGraphNode>> getAreaNodes(int nodeAreaCode);
 
+
+	//Not AI
+	unsigned int getStartingAi_number() { return startingAi_number; }
 private:
 	// --- Gui Control unit --- //
 	enum class GameState {
 		MainMenu,
+		Options,
 		Playing,
 		RoundEnd,
 		GameEnd

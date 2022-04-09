@@ -8,6 +8,7 @@ Event<void> Events::MainMenu;
 Event<void> Events::GameGUI;
 Event<void> Events::RoundEndGUI;
 Event<string> Events::GameEndGUI;
+Event<void> Events::GameOptions;
 /* --- Entity Manipulation Events--- */
 Event<string, instancedTransformation> Events::AddPropCar;
 Event<string, instancedTransformation> Events::AddParkingSpace;
@@ -38,6 +39,8 @@ Event<void> Events::CarUnParked;
 Event<void> Events::RecompileScripts;
 /* --- Miscellaneous Events --- */
 Event<float> Events::ChangeMusicVolume;
+Event<int>  Events::ChangeNumberOfAI;
+Event<bool> Events::Fullscreen;
 
 
 

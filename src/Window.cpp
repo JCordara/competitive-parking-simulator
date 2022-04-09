@@ -69,3 +69,35 @@ glm::ivec2 Window::getSize() const {
 	glfwGetWindowSize(window.get(), &w, &h);
 	return glm::ivec2(w, h);
 }
+
+bool Window::isFullScreen() {
+	return glfwGetWindowMonitor(window.get()) != NULL;
+}
+
+void Window::setFullScreen(bool isFullscreen){
+	if (isFullscreen) {
+		GLFWmonitor* mon = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(mon);
+		glfwSetWindowMonitor(
+			window.get(),
+			mon,
+			0,
+			0,
+			mode->width,
+			mode->height,
+			mode->refreshRate
+		);
+	}
+	else {
+		glm::ivec2 pos = getPos(), size = getSize();
+		glfwSetWindowMonitor(
+			window.get(),
+			NULL,
+			pos.x,
+			pos.y,
+			size.x,
+			size.y,
+			GLFW_DONT_CARE
+		);
+	}
+}

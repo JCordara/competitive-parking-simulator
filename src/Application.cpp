@@ -15,12 +15,17 @@ Application::Application(appSettings& settings):
 	Events::GameGUI.registerHandler<Application, &Application::setupBaseLevelGUI>(this);
 	Events::RoundEndGUI.registerHandler<Application, &Application::roundWonMenu>(this);
 	Events::GameEndGUI.registerHandler<Application, &Application::gameEndGui>(this);
+	Events::GameOptions.registerHandler<Application, &Application::setupOptions>(this);
 	/* --- Entity Manipulation Events --- */
 	Events::AddPropCar.registerHandler<Application, &Application::addPropCar>(this);
 	Events::AddParkingSpace.registerHandler<Application, &Application::addOpenParkingEntity>(this);
 	Events::AddAICar.registerHandler<Application, &Application::addAICarEvent>(this);
 	/* Framework - used by systems*/
-	window = std::make_shared<Window>(1200, 800, "Competitive Parking Simulator");
+	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	window = std::make_shared<Window>(mode->width, mode->height, "Competitive Parking Simulator");
+	//Needs to be after the window constructor (LEAVE HERE)
+	Events::Fullscreen.registerHandler<Window, &Window::setFullScreen>(window.get());
+	/// <param name="settings"></param>
 	scene = std::make_shared<Scene>();
 	/* Game systems - update() every frame */
 	input = std::make_shared<InputSystem>(window);
@@ -29,6 +34,12 @@ Application::Application(appSettings& settings):
 	render = std::make_shared<RenderSystem>(scene, guiScene, window);
 	audio = std::make_shared<AudioSystem>(scene);
 
+	/* Initialize the loading screen*/
+	std::shared_ptr<Texture> loadingTexture = std::make_shared<Texture>();
+	loadingTexture->load("textures/Loading.jpg", GL_LINEAR);
+	//To-do: ADD Loading render
+	window->swapBuffers();
+	/* Proceed */
 	setupMainMenu();
 	playgame = false;
 	// --- Loading the models our game uses --- //
@@ -414,15 +425,29 @@ void Application::setupMainMenu() {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	std::vector<string> names = { "Play","Options","Exit" };
 	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][0].positionY,"Play", Events::NewGame, 1);
-	//guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY,
-		//"Options", Events::GameOptions, 1);
+	guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY,
+		"Options", Events::GameOptions, 1);
 	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY,"Exit", Events::ExitApplication, 1);
 	render->changeGui(guiScene);
 	playgame = false;
 }
+
+void Application::setupOptions() {
+	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 3, 0.1f);
+	guiScene = std::make_shared<GuiScene>(window); // Reset gui
+	std::vector<string> names = { "Play","Options","Exit" };
+	guiScene->addSlider(menu->layout[0][0].positionX, menu->layout[0][0].positionY, "Starting Number of AI", Events::ChangeNumberOfAI, gameplay->getStartingAi_number(), 1, 8);
+	guiScene->addCheckbox(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen", Events::Fullscreen, window->isFullScreen());
+	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::EndGame, 1);
+	render->changeGui(guiScene);
+	playgame = false;
+}
+
 void Application::setupBaseLevelGUI() {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
+	guiScene->addButton(0.01f,0.9f, "Main Menu", Events::EndGame, 1);
+	guiScene->addButton(0.01f, 0.95f, "Exit", Events::ExitApplication, 1);
 	render->changeGui(guiScene);
 	playgame = true;
 }
@@ -437,7 +462,7 @@ void Application::roundWonMenu() {
 void Application::gameEndGui(string message) {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 2, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][0].positionY, message);
+	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][0].positionY, message, 2);
 	guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "Main Menu", Events::EndGame, 1);
 	render->changeGui(guiScene);
 	playgame = false;
