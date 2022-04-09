@@ -66,7 +66,7 @@ namespace Events {
 	/* --- miscellaneous Events --- */
     extern Event<float> ChangeMusicVolume;
 	extern Event<int> ChangeNumberOfAI;
-	extern Event<bool> Fullscreen;
+	extern Event<int> Fullscreen;
 };
 
 #endif // EVENT_H

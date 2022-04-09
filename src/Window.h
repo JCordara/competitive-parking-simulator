@@ -56,7 +56,9 @@ public:
 	int getHeight() const { return getSize().y; }
 
 	bool isFullScreen();
-	void setFullScreen(bool isFullscreen);
+	void setFullScreen(int monitor);
+	int numberOfMonitors();
+	int getCurrentMonitorNumber();
 
 	int shouldClose() { return glfwWindowShouldClose(window.get()); }
 	void makeContextCurrent() { glfwMakeContextCurrent(window.get()); }

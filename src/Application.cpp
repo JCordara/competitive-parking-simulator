@@ -437,7 +437,7 @@ void Application::setupOptions() {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	std::vector<string> names = { "Play","Options","Exit" };
 	guiScene->addSlider(menu->layout[0][0].positionX, menu->layout[0][0].positionY, "Starting Number of AI", Events::ChangeNumberOfAI, gameplay->getStartingAi_number(), 1, 8);
-	guiScene->addCheckbox(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen", Events::Fullscreen, window->isFullScreen());
+	guiScene->addSlider(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen monitor", Events::Fullscreen, window->getCurrentMonitorNumber(), -1, window->numberOfMonitors() - 1);
 	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::EndGame, 1);
 	render->changeGui(guiScene);
 	playgame = false;

@@ -40,7 +40,7 @@ Event<void> Events::RecompileScripts;
 /* --- Miscellaneous Events --- */
 Event<float> Events::ChangeMusicVolume;
 Event<int>  Events::ChangeNumberOfAI;
-Event<bool> Events::Fullscreen;
+Event<int> Events::Fullscreen;
 
 
 

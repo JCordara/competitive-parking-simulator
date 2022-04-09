@@ -74,13 +74,15 @@ bool Window::isFullScreen() {
 	return glfwGetWindowMonitor(window.get()) != NULL;
 }
 
-void Window::setFullScreen(bool isFullscreen){
-	if (isFullscreen) {
-		GLFWmonitor* mon = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(mon);
+void Window::setFullScreen(int monitor){
+	int count;
+	GLFWmonitor** monitors = glfwGetMonitors(&count);
+	if (monitor >= 0 && monitor < count) {
+		//GLFWmonitor* mon = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitors[monitor]);
 		glfwSetWindowMonitor(
 			window.get(),
-			mon,
+			monitors[monitor],
 			0,
 			0,
 			mode->width,
@@ -93,11 +95,26 @@ void Window::setFullScreen(bool isFullscreen){
 		glfwSetWindowMonitor(
 			window.get(),
 			NULL,
-			pos.x,
-			pos.y,
-			size.x,
-			size.y,
+			pos.x + int(size.x * 0.05f),
+			pos.y + int(size.y * 0.05f),
+			int(size.x * 0.9f),
+			int(size.y * 0.9f),
 			GLFW_DONT_CARE
 		);
 	}
+}
+int Window::numberOfMonitors() {
+	int count;
+	GLFWmonitor** monitors = glfwGetMonitors(&count);
+	return count;
+}
+
+int Window::getCurrentMonitorNumber() {
+	int count;
+	GLFWmonitor** monitors = glfwGetMonitors(&count);
+	GLFWmonitor* currentMonitor = glfwGetWindowMonitor(window.get());
+	for (int i = 0; i < count; i++)
+		if (currentMonitor == monitors[i])
+			return i;
+	return -1;
 }
