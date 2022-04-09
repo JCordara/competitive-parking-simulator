@@ -23,6 +23,7 @@ Application::Application(appSettings& settings):
 	/* Framework - used by systems*/
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	window = std::make_shared<Window>(mode->width, mode->height, "Competitive Parking Simulator");
+	window->setFullScreen(0);
 	//Needs to be after the window constructor (LEAVE HERE)
 	Events::Fullscreen.registerHandler<Window, &Window::setFullScreen>(window.get());
 	/// <param name="settings"></param>
@@ -448,6 +449,7 @@ void Application::setupBaseLevelGUI() {
 	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
 	guiScene->addButton(0.01f,0.9f, "Main Menu", Events::EndGame, 1);
 	guiScene->addButton(0.01f, 0.95f, "Exit", Events::ExitApplication, 1);
+	guiScene->addLabel(window->getWidth() * 0.3f, 0.1f, string("CONTESTANTS REMAINING: ") + std::to_string(gameplay->getCurrentAi_number()), 2);
 	render->changeGui(guiScene);
 	playgame = true;
 }

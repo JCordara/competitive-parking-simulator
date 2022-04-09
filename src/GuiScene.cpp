@@ -1,5 +1,9 @@
 #include "GuiScene.h"
 
+unsigned int g_numAiCars = 4;
+bool g_showHUD = true;
+
+
 GuiScene::GuiScene(shared_ptr<Window> window):
 	window(window)
 {
@@ -36,10 +40,7 @@ void GuiScene::draw() {
 
 		ImGui::Text("FPS: %.2f", Time::fps());
 
-		ImGui::SetCursorScreenPos(ImVec2(window->getWidth() * 0.3f, 0.1f));
-		ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[2]);
-		ImGui::Text("CONTESTANTS REMAINING: %d", ">1");
-		ImGui::PopFont();
+
 
 		// Render the scene's elements
 		for (auto& label : labels) {

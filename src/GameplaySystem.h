@@ -74,6 +74,7 @@ public:
 
 	//Not AI
 	unsigned int getStartingAi_number() { return startingAi_number; }
+	unsigned int getCurrentAi_number() { return currentAi_number; }
 private:
 	// --- Gui Control unit --- //
 	enum class GameState {
