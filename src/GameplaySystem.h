@@ -101,6 +101,7 @@ private:
 		int score = 0;
 		std::weak_ptr<Entity> car;
 		std::weak_ptr<Entity> trigger;
+		std::optional<float> parkedTime = std::optional<float>();
 	};
 	std::unordered_map<int, CarState> states;
 	unsigned int nextAI_ID;

@@ -1,10 +1,11 @@
 #include "GameplaySystem.h"
 
-#define MAX_SPEED_DRIVE 0.5f
+#define MAX_SPEED_DRIVE 0.1f
 #define MAX_SPEED_ENGINE 0.05f
 #define MAX_SPEED_SKID 0.1f
-#define MAX_DISTANCE 1.f
-#define MAX_COS_ANGLE 0.866025f
+#define MAX_DISTANCE 1.2f
+#define MAX_COS_ANGLE 0.94f
+#define PARKING_TIME 1.0f
 
 
 GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene): 
@@ -28,7 +29,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 	//Events::MainMenu.broadcast();
 	gamestate = GameState::MainMenu;
 	nextAI_ID = 0;
-	startingAi_number = 1;
+	startingAi_number = 5;
 	currentAi_number = 0;
 }
 
@@ -59,8 +60,18 @@ void GameplaySystem::update() {
 						glm::normalize(car->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(car->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f))
 					)) > MAX_COS_ANGLE
 				) {
-					it->second.score = 1;
-					toRemove.push_back(it->second.trigger);
+					if (it->second.parkedTime.has_value()) {
+						if (abs(it->second.parkedTime.value() - Time::now()) > PARKING_TIME) {
+							it->second.score = 1;
+							toRemove.push_back(it->second.trigger);
+						}
+					}
+					else {
+						it->second.parkedTime = Time::now();
+					}
+				}
+				else {
+					it->second.parkedTime = Time::now();
 				}
 			}
 		}
