@@ -1,8 +1,5 @@
 #include "GuiScene.h"
 
-unsigned int g_numAiCars = 4;
-bool g_showHUD = true;
-
 
 GuiScene::GuiScene(shared_ptr<Window> window):
 	window(window)
@@ -33,14 +30,13 @@ void GuiScene::draw() {
 
 	vector<Button> buttonEvents;
 	vector<Checkbox> checkboxEvents;
+	vector<Combo> comboEvents;
 	vector<SliderFloat> floatSliderEvents;
 	vector<SliderInt> intSliderEvents;
 
 	if (ImGui::Begin("GUI LAYER", nullptr, windowFlags)) {
 
 		ImGui::Text("FPS: %.2f", Time::fps());
-
-
 
 		// Render the scene's elements
 		for (auto& label : labels) {
@@ -68,6 +64,13 @@ void GuiScene::draw() {
 				checkboxEvents.push_back(checkbox);
 		}
 
+		for (auto& combo : combos) {
+			ImGui::SetCursorScreenPos(ImVec2(window->getWidth() * combo.x, window->getHeight() * combo.y));
+			if (ImGui::Combo(combo.name.c_str(), &combo.v ,stringArrayToConstCharArray(combo.texts.data(), combo.texts.size()), combo.texts.size()))
+				comboEvents.push_back(combo);
+			//
+		}
+
 		for (auto& slider : floatSliders) {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * slider.x, window->getHeight() * slider.y));
 			ImGui::PushItemWidth(window->getWidth() * 0.15f);
@@ -90,6 +93,7 @@ void GuiScene::draw() {
 	// Broadcast any events after rendering finished
 	if (buttonEvents.size() > 0) buttonEvents[0].event.broadcast();
 	if (checkboxEvents.size() > 0) checkboxEvents[0].event.broadcast(checkboxEvents[0].v);
+	if (comboEvents.size() > 0) comboEvents[0].event.broadcast(comboEvents[0].v);
 	if (floatSliderEvents.size() > 0) floatSliderEvents[0].event.broadcast(floatSliderEvents[0].v);
 	if (intSliderEvents.size() > 0) intSliderEvents[0].event.broadcast(intSliderEvents[0].v);
 
@@ -112,6 +116,10 @@ void GuiScene::addCheckbox(float x, float y, std::string text, Event<bool>& even
 	checkboxes.emplace_back(x, y, text, event, initialValue);
 }
 
+void GuiScene::addCombo(float x, float y, std::string name, std::vector<std::string> text, Event<int>& event, int initialValue) {
+	combos.emplace_back(x, y, name, text, event, initialValue);
+}
+
 void GuiScene::addSlider(float x, float y, std::string text, Event<float>& event, float initialValue, float min, float max) {
 	floatSliders.emplace_back(x, y, text, event, initialValue, min, max);
 }
@@ -120,3 +128,10 @@ void GuiScene::addSlider(float x, float y, std::string text, Event<int>& event, 
 	intSliders.emplace_back(x, y, text, event, initialValue, min, max);
 }
 
+
+const char** stringArrayToConstCharArray(std::string* arr, unsigned int count) {
+	std::vector<const char*> ret = std::vector<const char*>(count);
+	for (int i = 0; i < count; i++)
+		ret[i] = arr[i].data();
+	return ret.data();
+}

@@ -37,6 +37,14 @@ public:
 		Event<bool>& event, 
 		bool initialValue = false
 	);
+
+	void addCombo(
+		float x, float y,
+		std::string name,
+		std::vector<std::string> text,
+		Event<int>& event,
+		int initialValue = 0
+	);
 	
 	void addSlider(
 		float x, float y, 
@@ -105,6 +113,24 @@ private:
 		Event<bool>& event;
 	} Checkbox;
 
+	typedef struct GUI_COMBO {
+
+		GUI_COMBO(
+			float _x, float _y,
+			std::string _name,
+			std::vector<std::string> _texts,
+			Event<int>& _event, int _initialValue) :
+			x(_x), y(_y),
+			texts(_texts),
+			event(_event), v(_initialValue) {}
+
+		float x, y;
+		int v;
+		std::string name;
+		std::vector<std::string> texts;
+		Event<int>& event;
+	} Combo;
+
 	typedef struct GUI_SLIDER_FLOAT {
 
 		GUI_SLIDER_FLOAT(
@@ -145,6 +171,7 @@ private:
 	vector<Label>       labels;
 	vector<Button>      buttons;
 	vector<Checkbox>    checkboxes;
+	vector<Combo>       combos;
 	vector<SliderFloat> floatSliders;
 	vector<SliderInt>   intSliders;
 
@@ -153,5 +180,8 @@ private:
 	ImGuiWindowFlags windowFlags;
 
 };
+
+const char** stringArrayToConstCharArray(std::string* arr, unsigned int count);
+
 
 #endif

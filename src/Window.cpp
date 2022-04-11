@@ -77,12 +77,12 @@ bool Window::isFullScreen() {
 void Window::setFullScreen(int monitor){
 	int count;
 	GLFWmonitor** monitors = glfwGetMonitors(&count);
-	if (monitor >= 0 && monitor < count) {
+	if (monitor > 0 && monitor <= count) {
 		//GLFWmonitor* mon = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(monitors[monitor]);
+		const GLFWvidmode* mode = glfwGetVideoMode(monitors[monitor - 1]);
 		glfwSetWindowMonitor(
 			window.get(),
-			monitors[monitor],
+			monitors[monitor - 1],
 			0,
 			0,
 			mode->width,
@@ -115,6 +115,6 @@ int Window::getCurrentMonitorNumber() {
 	GLFWmonitor* currentMonitor = glfwGetWindowMonitor(window.get());
 	for (int i = 0; i < count; i++)
 		if (currentMonitor == monitors[i])
-			return i;
-	return -1;
+			return i + 1;
+	return 0;
 }
