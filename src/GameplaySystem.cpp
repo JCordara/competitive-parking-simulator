@@ -4,7 +4,7 @@
 #define MAX_SPEED_ENGINE 0.05f
 #define MAX_SPEED_SKID 0.1f
 #define MAX_DISTANCE 1.f
-#define MAX_ANGLE 0.866025f
+#define MAX_COS_ANGLE 0.866025f
 
 
 GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene): 
@@ -57,7 +57,7 @@ void GameplaySystem::update() {
 					glm::abs(glm::dot(
 						glm::normalize(trigger->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(trigger->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f)),
 						glm::normalize(car->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(car->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f))
-					)) > MAX_ANGLE
+					)) > MAX_COS_ANGLE
 				) {
 					it->second.score = 1;
 					toRemove.push_back(it->second.trigger);
