@@ -60,7 +60,7 @@ namespace Events {
 	extern Event<void> EndGame;
 	extern Event<weak_ptr<Entity>, float> GameReset;
 	extern Event<weak_ptr<Entity>, weak_ptr<Entity>> CarParked;
-	extern Event<void> CarUnParked;
+	extern Event<weak_ptr<Entity>> CarUnParked;
 	/* --- Script Events --- */
 	extern Event<void> RecompileScripts;
 	/* --- miscellaneous Events --- */

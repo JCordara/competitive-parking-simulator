@@ -34,7 +34,7 @@ Event<void> Events::NextRound;
 Event<void> Events::EndGame;
 Event<weak_ptr<Entity>, float> Events::GameReset;
 Event<weak_ptr<Entity>, weak_ptr<Entity>> Events::CarParked;
-Event<void> Events::CarUnParked;
+Event<weak_ptr<Entity>> Events::CarUnParked;
 /* --- Script Events --- */
 Event<void> Events::RecompileScripts;
 /* --- Miscellaneous Events --- */

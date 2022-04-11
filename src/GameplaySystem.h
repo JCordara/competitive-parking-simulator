@@ -23,7 +23,7 @@ public:
 	void resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberOfParkingSpots);
 	void cleanMap();
 	void removeBottomAI(unsigned int num);
-	void deleteQueue();
+	void deleteQueue(vector<weak_ptr<Entity>> e);
 
 	//Game Events
 	void setupNewGame();
@@ -57,6 +57,7 @@ public:
 	std::vector<std::shared_ptr<AiGraphNode>> area970Nodes;
     void registerAiComponent(AiComponent& component);
 	void registerCarParked(weak_ptr<Entity> VehicleEntity, weak_ptr<Entity> TriggerEntity);
+	void registerCarUnParked(weak_ptr<Entity> VehcleEntity);
 	void setNumberOfAI(int num);
 	std::shared_ptr<AiGraphNode> addAINode(const std::string nodeType, int id, glm::vec3 nodePos);
 	void readAiGraph(string filepath);
@@ -96,13 +97,17 @@ private:
 	std::vector<instancedTransformation>	possibleParkingSpots;
 	std::vector<bool>						parking;
 	/* --- Player Scores --- */
-	std::unordered_map<int, int> scores;
+	struct CarState {
+		int score = 0;
+		std::weak_ptr<Entity> car;
+		std::weak_ptr<Entity> trigger;
+	};
+	std::unordered_map<int, CarState> states;
 	unsigned int nextAI_ID;
 	unsigned int startingAi_number;
 	unsigned int currentAi_number;
 
-	vector<weak_ptr<Entity>> entitiesToDelete;
-
+	//vector<weak_ptr<Entity>> entitiesToDelete;
 };
 
 bool prefix(const string& prefix, const string& base);

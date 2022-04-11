@@ -23,7 +23,7 @@ Application::Application(appSettings& settings):
 	/* Framework - used by systems*/
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	window = std::make_shared<Window>(mode->width, mode->height, "Competitive Parking Simulator");
-	window->setFullScreen(0);
+	window->setFullScreen(0);//Set it to windowed
 	//Needs to be after the window constructor (LEAVE HERE)
 	Events::Fullscreen.registerHandler<Window, &Window::setFullScreen>(window.get());
 	/// <param name="settings"></param>
@@ -295,6 +295,7 @@ std::shared_ptr<Entity> Application::addTriggerBoxEntity(string alias, string mo
 	// --- Indicator for ent --- //
 	entity->addComponent<DescriptionComponent>()->setString("Name", alias);
 	entity->addComponent<VolumeTriggerComponent>()->createVolumeShape(PxTransform(convert<PxVec3>(transformation.location)), boxgeom);
+	entity->addComponent<DescriptionComponent>()->setVec3("Forward", glm::vec3(0.f, 0.f, 1.f));
 	return entity;
 }
 /* --- Entity Manipulation Events --- */
@@ -453,7 +454,8 @@ void Application::setupBaseLevelGUI() {
 	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
 	guiScene->addButton(0.01f,0.9f, "Main Menu", Events::EndGame, 1);
 	guiScene->addButton(0.01f, 0.95f, "Exit", Events::ExitApplication, 1);
-	guiScene->addLabel(window->getWidth() * 0.3f, 0.1f, string("CONTESTANTS REMAINING: ") + std::to_string(gameplay->getCurrentAi_number()), 2);
+	guiScene->addLabel( 0.3f, 0.01f, string("CONTESTANTS REMAINING: ")  + std::to_string(gameplay->getCurrentAi_number()), 2);
+	//ImGui::ProgressBar(float fraction, const ImVec2 & size_arg, const char* overlay)
 	render->changeGui(guiScene);
 	playgame = true;
 }
