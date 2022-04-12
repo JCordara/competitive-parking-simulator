@@ -44,15 +44,15 @@ private:
 
 class EntityControlAxis : public ControlAxis {
 public:
-	EntityControlAxis(int inputA, int inputB, shared_ptr<Entity> e, TypeEnum type = KEY);
+	EntityControlAxis(int inputA, int inputB, weak_ptr<Entity> e, TypeEnum type = KEY);
 	EntityControlAxis(
-		int inputA, int inputB, Event<shared_ptr<Entity>, float>* event, shared_ptr<Entity> e, TypeEnum type = KEY);
-	void bindEvent(Event<shared_ptr<Entity>, float>* event);
+		int inputA, int inputB, Event<weak_ptr<Entity>, float>* event, weak_ptr<Entity> e, TypeEnum type = KEY);
+	void bindEvent(Event<weak_ptr<Entity>, float>* event);
 	void update();
 	
 private:
-	shared_ptr<Entity> entity_;
-	Event<shared_ptr<Entity>, float>* event_;
+	weak_ptr<Entity> entity_;
+	Event<weak_ptr<Entity>, float>* event_;
 };
 
 #endif // INPUT_MANAGER_H

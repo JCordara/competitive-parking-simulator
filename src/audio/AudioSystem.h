@@ -64,7 +64,7 @@ public:
     ~AudioSystem();
 
     void onGameStart();
-    void onCollision(sp<Entity> e0, sp<Entity> s1);
+    void onCollision(weak_ptr<Entity> e0, weak_ptr<Entity> s1);
     void onMusicVolumeChanged(float gain);
 
 private:
@@ -79,7 +79,7 @@ private:
     std::vector<std::string> filepaths;
 
     shared_ptr<Scene> scene;
-    shared_ptr<TransformComponent> listener;
+    weak_ptr<TransformComponent> listener;
 
     shared_ptr<AudioSource> musicPlayer;
     shared_ptr<Audio> music;

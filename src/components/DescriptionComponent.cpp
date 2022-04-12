@@ -1,7 +1,7 @@
 #include "DescriptionComponent.h"
 
 
-DescriptionComponent::DescriptionComponent(shared_ptr<Entity> e)
+DescriptionComponent::DescriptionComponent(weak_ptr<Entity> e)
 	: BaseComponent(e)
 {}
 

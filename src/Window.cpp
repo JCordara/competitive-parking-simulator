@@ -69,3 +69,52 @@ glm::ivec2 Window::getSize() const {
 	glfwGetWindowSize(window.get(), &w, &h);
 	return glm::ivec2(w, h);
 }
+
+bool Window::isFullScreen() {
+	return glfwGetWindowMonitor(window.get()) != NULL;
+}
+
+void Window::setFullScreen(int monitor){
+	int count;
+	GLFWmonitor** monitors = glfwGetMonitors(&count);
+	if (monitor > 0 && monitor <= count) {
+		//GLFWmonitor* mon = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitors[monitor - 1]);
+		glfwSetWindowMonitor(
+			window.get(),
+			monitors[monitor - 1],
+			0,
+			0,
+			mode->width,
+			mode->height,
+			mode->refreshRate
+		);
+	}
+	else {
+		glm::ivec2 pos = getPos(), size = getSize();
+		glfwSetWindowMonitor(
+			window.get(),
+			NULL,
+			pos.x + int(size.x * 0.05f),
+			pos.y + int(size.y * 0.05f),
+			int(size.x * 0.9f),
+			int(size.y * 0.9f),
+			GLFW_DONT_CARE
+		);
+	}
+}
+int Window::numberOfMonitors() {
+	int count;
+	GLFWmonitor** monitors = glfwGetMonitors(&count);
+	return count;
+}
+
+int Window::getCurrentMonitorNumber() {
+	int count;
+	GLFWmonitor** monitors = glfwGetMonitors(&count);
+	GLFWmonitor* currentMonitor = glfwGetWindowMonitor(window.get());
+	for (int i = 0; i < count; i++)
+		if (currentMonitor == monitors[i])
+			return i + 1;
+	return 0;
+}

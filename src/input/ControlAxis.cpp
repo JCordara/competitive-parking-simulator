@@ -43,16 +43,16 @@ void ControlAxis::update() {
 }
 
 EntityControlAxis::EntityControlAxis(
-	int inputA, int inputB, Event<shared_ptr<Entity>, float>* event, shared_ptr<Entity> e, TypeEnum type):
+	int inputA, int inputB, Event<weak_ptr<Entity>, float>* event, weak_ptr<Entity> e, TypeEnum type):
 	ControlAxis(inputA, inputB, nullptr, type),
 	event_(event),
 	entity_(e)
 {}
 
-EntityControlAxis::EntityControlAxis(int inputA, int inputB, shared_ptr<Entity> e, TypeEnum type)
+EntityControlAxis::EntityControlAxis(int inputA, int inputB, weak_ptr<Entity> e, TypeEnum type)
 	: EntityControlAxis(inputA, inputB, nullptr, e, type) {}
 
-void EntityControlAxis::bindEvent(Event<shared_ptr<Entity>, float>* event) { event_ = event; }
+void EntityControlAxis::bindEvent(Event<weak_ptr<Entity>, float>* event) { event_ = event; }
 
 void EntityControlAxis::update() {
 	// Update the value

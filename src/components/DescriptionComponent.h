@@ -6,7 +6,7 @@
 class DescriptionComponent : public BaseComponent {
 public:
 
-	DescriptionComponent(shared_ptr<Entity> e);
+	DescriptionComponent(weak_ptr<Entity> e);
 
 	std::optional<int> getInteger(string key);
 	std::optional<double> getRealNumber(string key);

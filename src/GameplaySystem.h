@@ -23,6 +23,7 @@ public:
 	void resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberOfParkingSpots);
 	void cleanMap();
 	void removeBottomAI(unsigned int num);
+	void deleteQueue(vector<weak_ptr<Entity>> e);
 
 	//Game Events
 	void setupNewGame();
@@ -55,8 +56,9 @@ public:
 	std::vector<std::shared_ptr<AiGraphNode>> area969Nodes;
 	std::vector<std::shared_ptr<AiGraphNode>> area970Nodes;
     void registerAiComponent(AiComponent& component);
-	void registerCarParked(shared_ptr<Entity> entity);
-
+	void registerCarParked(weak_ptr<Entity> VehicleEntity, weak_ptr<Entity> TriggerEntity);
+	void registerCarUnParked(weak_ptr<Entity> VehcleEntity);
+	void setNumberOfAI(int num);
 	std::shared_ptr<AiGraphNode> addAINode(const std::string nodeType, int id, glm::vec3 nodePos);
 	void readAiGraph(string filepath);
 	void setNeigbours(std::shared_ptr<AiGraphNode> nodePrime, std::vector<int> nodeNeighbours);
@@ -70,20 +72,21 @@ public:
 	
 	std::vector<std::shared_ptr<AiGraphNode>> getAreaNodes(int nodeAreaCode);
 
+
+	//Not AI
+	unsigned int getStartingAi_number() { return startingAi_number; }
+	unsigned int getCurrentAi_number() { return currentAi_number; }
 private:
 	// --- Gui Control unit --- //
 	enum class GameState {
 		MainMenu,
+		Options,
 		Playing,
 		RoundEnd,
 		GameEnd
 	};
-	bool updateMenu;
-	bool win;
-	bool WeParked;
 	GameState gamestate;
 	void setGameState(GameState gs) {
-		updateMenu = true;
 		gamestate = gs;
 	}
 	// --- ---------------- --- //
@@ -94,11 +97,18 @@ private:
 	std::vector<instancedTransformation>	possibleParkingSpots;
 	std::vector<bool>						parking;
 	/* --- Player Scores --- */
-	std::unordered_map<int, int> scores;
+	struct CarState {
+		int score = 0;
+		std::weak_ptr<Entity> car;
+		std::weak_ptr<Entity> trigger;
+		std::optional<float> parkedTime = std::optional<float>();
+	};
+	std::unordered_map<int, CarState> states;
 	unsigned int nextAI_ID;
 	unsigned int startingAi_number;
 	unsigned int currentAi_number;
 
+	//vector<weak_ptr<Entity>> entitiesToDelete;
 };
 
 bool prefix(const string& prefix, const string& base);

@@ -41,8 +41,8 @@ public:
 	void createAxis(
 		int inputPositive, 
 		int inputNegative, 
-		Event<shared_ptr<Entity>, float>* event, 
-		shared_ptr<Entity> e,
+		Event<weak_ptr<Entity>, float>* event, 
+		weak_ptr<Entity> e,
 		ControlAxis::TypeEnum type = ControlAxis::KEY
 	);
 
@@ -60,7 +60,7 @@ public:
 	/* Bind a input (key/button) to a float event */
 	void bindInput(int input, Event<float>* event);
 	/* Bind a input (key/button) to a Entity, float event */
-	void bindInput(int input, Event<shared_ptr<Entity>, float>* event, shared_ptr<Entity> e);
+	void bindInput(int input, Event<weak_ptr<Entity>, float>* event, weak_ptr<Entity> e);
 
 
 private:
@@ -68,8 +68,10 @@ private:
 	/* Mapping of keys to events */
 	std::unordered_map<int, Event<void>*> voidKeyEvents;
 	std::unordered_map<int, Event<float>*> floatKeyEvents;
+	
 	std::unordered_map<int, 
-		std::pair<Event<shared_ptr<Entity>, float>*, shared_ptr<Entity>>> entityFloatKeyEvents;
+	std::pair<Event<weak_ptr<Entity>, float>*, weak_ptr<Entity>>> 
+	entityFloatKeyEvents;
 
 	/* Mapping of keys to axes */
 	std::unordered_map<int, std::shared_ptr<ControlAxis>> controlAxes;

@@ -34,18 +34,19 @@ namespace Events {
 	extern Event<void> GameGUI;
 	extern Event<void> RoundEndGUI;
 	extern Event<string> GameEndGUI;
+	extern Event<void> GameOptions;
 	/* --- Entity Manipulation Events--- */
 	extern Event<string, instancedTransformation> AddPropCar;
 	extern Event<string, instancedTransformation> AddParkingSpace;
 	extern Event<string> AddAICar;
 	/* --- Player Controller Events --- */
-	extern Event<shared_ptr<Entity>, float> VehicleAccelerate;
-	extern Event<shared_ptr<Entity>, float> VehicleSteer;
-	extern Event<shared_ptr<Entity>, float> VehicleBrake;
-	extern Event<shared_ptr<Entity>, float> VehicleHandbrake;
-	extern Event<shared_ptr<Entity>, float> VehicleFlip;
+	extern Event<weak_ptr<Entity>, float> VehicleAccelerate;
+	extern Event<weak_ptr<Entity>, float> VehicleSteer;
+	extern Event<weak_ptr<Entity>, float> VehicleBrake;
+	extern Event<weak_ptr<Entity>, float> VehicleHandbrake;
+	extern Event<weak_ptr<Entity>, float> VehicleFlip;
 	/* --- Physx --- */
-	extern Event<shared_ptr<Entity>, shared_ptr<Entity>> Collision;
+	extern Event<weak_ptr<Entity>, weak_ptr<Entity>> Collision;
 	/* --- Components --- */
 	extern Event<RigidbodyComponent&> RigidbodyComponentInit;
 	extern Event<VehicleComponent&> VehicleComponentInit;
@@ -57,13 +58,15 @@ namespace Events {
 	extern Event<void> NewGame;
 	extern Event<void> NextRound;
 	extern Event<void> EndGame;
-	extern Event<shared_ptr<Entity>, float> GameReset;
-	extern Event<shared_ptr<Entity>> CarParked;
-	extern Event<void> CarUnParked;
+	extern Event<weak_ptr<Entity>, float> GameReset;
+	extern Event<weak_ptr<Entity>, weak_ptr<Entity>> CarParked;
+	extern Event<weak_ptr<Entity>> CarUnParked;
 	/* --- Script Events --- */
 	extern Event<void> RecompileScripts;
 	/* --- miscellaneous Events --- */
     extern Event<float> ChangeMusicVolume;
+	extern Event<int> ChangeNumberOfAI;
+	extern Event<int> Fullscreen;
 };
 
 #endif // EVENT_H

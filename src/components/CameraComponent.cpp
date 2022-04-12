@@ -1,6 +1,6 @@
 #include "CameraComponent.h"
 
-CameraComponent::CameraComponent(shared_ptr<Entity> parent)
+CameraComponent::CameraComponent(weak_ptr<Entity> parent)
 	: BaseComponent(parent)
 {}
 

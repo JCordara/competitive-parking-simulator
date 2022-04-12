@@ -1,5 +1,13 @@
 #include "GameplaySystem.h"
 
+#define MAX_SPEED_DRIVE  0.15f
+#define MAX_SPEED_ENGINE 0.05f
+#define MAX_SPEED_SKID   0.1f
+#define MAX_DISTANCE     1.2f
+#define MAX_COS_ANGLE    0.94f
+#define PARKING_TIME     0.6f
+
+
 GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene): 
 	scene(scene),
 	lastUpdateTime(Time::now())
@@ -8,71 +16,105 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
         &GameplaySystem::registerAiComponent>(this);
 	Events::CarParked.registerHandler<GameplaySystem,
 		&GameplaySystem::registerCarParked>(this);
-	Events::NewGame.registerHandler<GameplaySystem,
-		&GameplaySystem::setupNewGame>(this);
+	Events::CarUnParked.registerHandler<GameplaySystem,
+		&GameplaySystem::registerCarUnParked>(this);
 	Events::NextRound.registerHandler<GameplaySystem,
 		&GameplaySystem::setupNewRound>(this);
+	Events::NewGame.registerHandler<GameplaySystem,
+		&GameplaySystem::setupNewGame>(this);
 	Events::EndGame.registerHandler<GameplaySystem,
 		&GameplaySystem::cleanUpGame>(this);
-
+	Events::ChangeNumberOfAI.registerHandler<GameplaySystem,
+		&GameplaySystem::setNumberOfAI>(this);
+	//Events::MainMenu.broadcast();
 	gamestate = GameState::MainMenu;
 	nextAI_ID = 0;
-	startingAi_number = 2;
+	startingAi_number = 5;
 	currentAi_number = 0;
-	
-	//setupAiNodes();
 }
 
 void GameplaySystem::update() {
+	vector<weak_ptr<Entity>> toRemove;
+
 	switch (gamestate) {
-		case GameState::MainMenu :
-			if (updateMenu) Events::MainMenu.broadcast();
-			updateMenu = false;
+	case GameState::MainMenu:
+		//Do nothing
 		break;
-		case GameState::Playing:
-			if (updateMenu) Events::GameGUI.broadcast();
-			updateMenu = false;
-			// Parking Spot Logic
-			
-			// Game State logic
-			if (scores.find(-1)->second > 0) { // Player has scored
-				updateMenu = true;
-				if (currentAi_number > 1) {//Round 
-					setGameState(GameState::RoundEnd);
-				}
-				else {//Win
-					setGameState(GameState::GameEnd);
-					win = true;
-				}
-			}
-			else {
-				bool end = true;
-				//If any ai hasnt made it, then game is not over
-				for (auto& it : scores) if (it.first != -1 && it.second < 1) end = false; 
-				if (end) {//Every single one has parked
-					updateMenu = true;
-					gamestate = GameState::GameEnd;
-					win = false;
-				}
-			}
-			// Update AI pathing
-			if (Time::now() - lastUpdateTime >= 0.25) {
-				for (auto& ai : scene->iterate<AiComponent>()) ai->update();
-				lastUpdateTime = Time::now();
-			}
+	case GameState::Options:
+		//Do nothing
 		break;
-		case GameState::RoundEnd:
-			if (updateMenu) Events::RoundEndGUI.broadcast();
-			updateMenu = false;
-		break;
-		case GameState::GameEnd:
-			if (updateMenu) {
-				if(win) Events::GameEndGUI.broadcast("YOU WIN");
-				else Events::GameEndGUI.broadcast("YOU LOSE");
+	case GameState::Playing:
+		// Update parking
+		for (auto it = states.begin(); it != states.end(); it++) {
+			auto trigger = it->second.trigger.lock();
+			if (trigger && (it->second.score < 1)) {
+				auto car = it->second.car.lock();
+				if (
+					car->getComponent<VehicleComponent>()->getSpeed() < MAX_SPEED_DRIVE &&
+					car->getComponent<VehicleComponent>()->getEngineSpeedNormalized() < MAX_SPEED_ENGINE &&
+					car->getComponent<VehicleComponent>()->getSkidSpeed() < MAX_SPEED_SKID &&
+					//HACK!!!!!!!!
+					glm::length(car->getComponent<TransformComponent>()->getGlobalPosition() - trigger->getComponent<TransformComponent>()->getGlobalPosition()) < MAX_DISTANCE &&
+					glm::abs(glm::dot(
+						glm::normalize(trigger->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(trigger->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f)),
+						glm::normalize(car->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(car->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f))
+					)) > MAX_COS_ANGLE
+				) {
+					if (it->second.parkedTime.has_value()) {
+						if (abs(it->second.parkedTime.value() - Time::now()) > PARKING_TIME) {
+							it->second.score = 1;
+							toRemove.push_back(it->second.trigger);
+						}
+					}
+					else {
+						it->second.parkedTime = Time::now();
+					}
+				}
+				else {
+					it->second.parkedTime = Time::now();
+				}
 			}
-			updateMenu = false;
+		}
+		//Check player
+		if (states.find(-1)->second.score) { // Player has scored
+			if (currentAi_number > 1) {//Round 
+				setGameState(GameState::RoundEnd);
+				Events::RoundEndGUI.broadcast();
+			}
+			else {//Win
+				setGameState(GameState::GameEnd);
+				Events::GameEndGUI.broadcast("YOU WIN");
+			}
+		}
+		else {
+			bool end = true;
+			//If any ai hasnt made it, then game is not over
+			for (auto& it : states) if (it.first != -1 && it.second.score < 1) end = false;
+			if (end) {//Every single one has parked
+				setGameState(GameState::GameEnd);
+				Events::GameEndGUI.broadcast("YOU LOSE");
+			}
+		}
+		// Update AI pathing
+		if (Time::now() - lastUpdateTime >= 0.25) {
+			for (auto& ai : scene->iterate<AiComponent>()) {
+				auto p = ai.lock(); if (!p) continue;
+				p->update();
+			}
+			lastUpdateTime = Time::now();
+		}
+		break;
+	case GameState::RoundEnd:
+		// Do nothing
+		break;
+	case GameState::GameEnd:
+		//Do nothing
 		break;
 	}
+
+	// Defer entity deletion so it doesn't occur during PhysX callback
+	deleteQueue(toRemove);
+
 }
 
 void GameplaySystem::defineMap(
@@ -93,12 +135,14 @@ void GameplaySystem::defineMap(
 
 void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberOfParkingSpots) {
 	//Generate random nodes
+	vector<weak_ptr<Entity>> toRemove;
 	std::vector<int> spotChoice = Random::permutationInt(0, possibleParkingSpots.size(), numberOfParkingSpots);
 	parking = std::vector<bool>(possibleParkingSpots.size());
 	for (int i = 0; i < spotChoice.size(); i++) parking[spotChoice[i]] = true;
 	std::vector<bool> parkingUpdated = std::vector<bool>(possibleParkingSpots.size());
 	// Reset or delete the cars
-	for (auto rb : scene->iterate<RigidbodyComponent>()) {
+	for (auto wp_rb : scene->iterate<RigidbodyComponent>()) {
+		auto rb = wp_rb.lock(); if (!rb) continue;
 		auto ent = rb->getEntity();
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
@@ -109,7 +153,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 				else if (prefix("Temporary propcar : ", name.value())) {
 					int number = std::stoi(name.value().substr(string("Temporary propcar : ").length()));
 					if (parking[number]) // Needs to be removed
-						scene->removeEntity(ent);
+						toRemove.push_back(ent);//scene->removeEntity(ent);
 					else { //Just needs to be placed back to its og transform
 						ent->getComponent<TransformComponent>()->setLocalPosition(des->getVec3("Spawn Position").value());
 						ent->getComponent<TransformComponent>()->setLocalRotation(glm::radians(des->getRealNumber("Spawn Y-Rotation").value()), glm::vec3(0.f, 1.f, 0.f));
@@ -120,16 +164,13 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		}
 	}
 	//Delete Parking Spots
-	for (auto rb : scene->iterate<VolumeTriggerComponent>()) {
+	for (auto wp_rb : scene->iterate<VolumeTriggerComponent>()) {
+		auto rb = wp_rb.lock(); if (!rb) continue;
 		auto ent = rb->getEntity();
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (prefix("Temporary parkingspot : ", name.value())) {
-					int number = std::stoi(name.value().substr(string("Temporary parkingspot : ").length()));
-					if (!parking[number]) // Needs to be removed
-						scene->removeEntity(ent);
-					else //Do nothing
-						parkingUpdated[number] = true;
+					toRemove.push_back(ent);//scene->removeEntity(ent);
 				}
 			}
 		}
@@ -146,113 +187,163 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 //---------------------------------------------------------------------------------------------------------------------
 	//reset Vechicles
 	int numberOfAI = 0;
-	for (auto rb : scene->iterate<VehicleComponent>()) {
-		auto ent = rb->getEntity();
+	for (auto wp_vc : scene->iterate<VehicleComponent>()) {
+		auto vc = wp_vc.lock(); if (!vc) continue;
+		auto ent = vc->getEntity();
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if ("Player Car" == name.value()) {
 					ent->getComponent<TransformComponent>()->setLocalPosition(des->getVec3("Spawn Position").value());
 					ent->getComponent<TransformComponent>()->setLocalRotation(glm::radians(des->getRealNumber("Spawn Y-Rotation").value()), glm::vec3(0.f, 1.f, 0.f));
+					auto st = states.find(-1);
+					st->second.score = 0;
+					st->second.trigger = std::weak_ptr<Entity>();
 				}
 				else if(prefix("AI Car : ", name.value())) {
+					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
 					ent->getComponent<AiComponent>()->resetAi();
+					auto st = states.find(number);
+					st->second.score = 0;
+					st->second.trigger = std::weak_ptr<Entity>();
 					numberOfAI++;
 				}
 			}
 		}
 	}
+	CarState temp;
 	for (; numberOfAI < numberOfParkingSpots; numberOfAI++) {
 		Events::AddAICar.broadcast("AI Car : " + std::to_string(nextAI_ID));
-		scores.insert(std::pair<int, int>(nextAI_ID, 0));
+		states.insert(std::pair<int, CarState>(nextAI_ID, temp));
 		nextAI_ID++;
 	}
-	for (auto s : scores)
-		s.second = 0;
+
+	deleteQueue(toRemove);
 //---------------------------------------------------------------------------------------------------------------------
+	// Reset Nodes
+	for (auto node : aiGlobalNodes) {
+		node->nodeTaken = false;
+	}
 }
 
 void GameplaySystem::cleanMap() {
+	vector<weak_ptr<Entity>> toRemove;
+
 	//Delete the cars
-	for (auto rb : scene->iterate<RigidbodyComponent>()) {
+	for (auto wp_rb : scene->iterate<RigidbodyComponent>()) {
+		auto rb = wp_rb.lock(); if (!rb) continue;
 		auto ent = rb->getEntity();
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (prefix("Temporary propcar : ", name.value())) {
-					scene->removeEntity(ent);
+					toRemove.push_back(ent);//scene->removeEntity(ent);
 				}
 			}
 		}
 	}
 	//Delete Parking Spots
-	for (auto rb : scene->iterate<VolumeTriggerComponent>()) {
-		auto ent = rb->getEntity();
+	for (auto wp_vt : scene->iterate<VolumeTriggerComponent>()) {
+		auto vt = wp_vt.lock(); if (!vt) continue;
+		auto ent = vt->getEntity();
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (prefix("Temporary parkingspot : ", name.value())) {
-					scene->removeEntity(ent);
+					toRemove.push_back(ent);//scene->removeEntity(ent);
 				}
 			}
 		}
 	}
 	//Delete the cars
-	for (auto rb : scene->iterate<VehicleComponent>()) {
-		auto ent = rb->getEntity();
+	for (auto wp_vc : scene->iterate<VehicleComponent>()) {
+		auto vc = wp_vc.lock(); if (!vc) continue;
+		auto ent = vc->getEntity();
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (prefix("AI Car : ", name.value())) {
-					scene->removeEntity(ent);
+					toRemove.push_back(ent); //scene->removeEntity(ent);
 				}
 			}
 		}
 	}
-	scores.clear();
-	scores.insert(std::pair<int, int>(-1, 0));
+	states.clear();
+	CarState temp;
+	states.insert(std::pair<int, CarState>(-1, temp));
+	deleteQueue(toRemove);
 }
 
 void GameplaySystem::removeBottomAI(unsigned int num) {
-	using type = std::pair<std::shared_ptr<Entity>, int>;
+	using type = std::pair<
+		std::shared_ptr<Entity>,
+		std::pair<int, int>
+	>;
+	vector<weak_ptr<Entity>> toRemove;
 	std::vector<type> listOfAIs;
-	for (auto rb : scene->iterate<VehicleComponent>()) {
-		auto ent = rb->getEntity();
+	for (auto wp_vc : scene->iterate<VehicleComponent>()) {
+		auto vc = wp_vc.lock(); if (!vc) continue;
+		auto ent = vc->getEntity();
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
 				if (prefix("AI Car : ", name.value())) {
 					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
-					auto score = scores.find(number);
-					if (score == scores.end())
+					auto score = states.find(number);
+					if (score == states.end())
 						throw std::exception("Player Score Not Found");
-					type element = type(ent, score->second);
+					type element = type(ent, std::pair<int, int>(number,score->second.score));
 					// Insertion Sort
-					for (std::vector<type>::iterator it = listOfAIs.begin(); it < listOfAIs.end(); it++)
-						if (it->second > element.second)
+					bool inserted = false;
+					for (std::vector<type>::iterator it = listOfAIs.begin(); it < listOfAIs.end() && (!inserted); it++)
+						if (it->second.second > element.second.second) {
 							listOfAIs.insert(it, element);
+							inserted = true;
+						}
+					if (!inserted) listOfAIs.push_back(element);
 				}
 			}
 		}
 	}
 	int i = 0;
-	for (std::vector<type>::iterator it = listOfAIs.begin(); i < num && it != listOfAIs.end(); it++, i++)
-		scene->removeEntity(it->first);
+	for (std::vector<type>::iterator it = listOfAIs.begin(); i < num && it != listOfAIs.end(); it++, i++) {
+		toRemove.push_back(it->first);//scene->removeEntity(it->first);
+		states.erase(it->second.first);
+	}
+	deleteQueue(toRemove);
 
+}
+
+void GameplaySystem::deleteQueue(vector<weak_ptr<Entity>> e) {
+	if (e.size() > 0) {
+		for (auto wp : e) {
+			auto e = wp.lock(); if (!e) continue;
+			auto p = e->parent().lock(); if (!p) return;
+			p->removeChild(e);
+		}
+		e.clear();
+		scene->untrackDeletedComponents();
+	}
 }
 
 void GameplaySystem::setupNewGame() {
+	currentAi_number = startingAi_number;
+	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number);
+	Events::GameGUI.broadcast();
 	setGameState(GameState::Playing);
-	cleanMap();
-	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number = startingAi_number);
 }
+
 void GameplaySystem::setupNewRound() {
-	setGameState(GameState::Playing);
 	removeBottomAI(1);
-	resetMapWithNumberOfEmptyParkingSpaces(--currentAi_number);
+	currentAi_number = currentAi_number - 1;
+	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number);
+	Events::GameGUI.broadcast();
+	setGameState(GameState::Playing);
 }
 void GameplaySystem::cleanUpGame() {
-	setGameState(GameState::MainMenu);
 	cleanMap();
+	Events::MainMenu.broadcast();
+	setGameState(GameState::MainMenu);
 }
 
-
 GameplaySystem::~GameplaySystem() {}
+
+void GameplaySystem::setNumberOfAI(int num) { startingAi_number = num; }
 
 void GameplaySystem::registerAiComponent(AiComponent& component) {
 	component.setGameplaySystem(
@@ -260,18 +351,53 @@ void GameplaySystem::registerAiComponent(AiComponent& component) {
 }
 
 
-void GameplaySystem::registerCarParked(shared_ptr<Entity> entity) {
-	if (auto des = entity->getComponent<DescriptionComponent>()) {
-		if (auto name = des->getString("Name")) {
-			if (name.value() == "Player Car") {
-				scores.find(-1)->second = 1;
-			}
-			else if (prefix("AI Car : ", name.value())) {
-				int number = std::stoi(name.value().substr(string("AI Car : ").length()));
-				scores.find(number)->second = 1;
+void GameplaySystem::registerCarParked(weak_ptr<Entity> VehcleEntity, weak_ptr<Entity> TriggerEntity) {
+	
+	// Get shared pointers
+	auto vehicle = VehcleEntity.lock();
+	auto trigger = TriggerEntity.lock();
+	if (!vehicle || !trigger) return;
+
+	if (gamestate == GameState::Playing) {
+		if (auto des = vehicle->getComponent<DescriptionComponent>()) {
+			if (auto name = des->getString("Name")) {
+				if (name.value() == "Player Car") {
+					auto p = states.find(-1);
+					p->second.car = VehcleEntity;
+					p->second.trigger = TriggerEntity;
+				}
+				else if (prefix("AI Car : ", name.value())) {
+					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
+					auto p = states.find(number);
+					p->second.car = VehcleEntity;
+					p->second.trigger = TriggerEntity;
+				}
 			}
 		}
 	}
+
+}
+
+void GameplaySystem::registerCarUnParked(weak_ptr<Entity> VehcleEntity) {
+
+	// Get shared pointers
+	auto vehicle = VehcleEntity.lock();
+	if (!vehicle) return;
+
+	if (gamestate == GameState::Playing) {
+		if (auto des = vehicle->getComponent<DescriptionComponent>()) {
+			if (auto name = des->getString("Name")) {
+				if (name.value() == "Player Car") {
+					//states.find(-1)->second.car = 
+				}
+				else if (prefix("AI Car : ", name.value())) {
+					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
+					//states.find(number)->second.second = true;
+				}
+			}
+		}
+	}
+
 }
 
 void GameplaySystem::setNodeType(std::string nodeType, std::shared_ptr<AiGraphNode> aiNode) {
@@ -279,18 +405,22 @@ void GameplaySystem::setNodeType(std::string nodeType, std::shared_ptr<AiGraphNo
 	if (!nodeType.compare("spawn")) {
 		aiNode->nodeType = AiGraphNode::NodeType::SPAWN;
 		aiNode->nodeSpeed = 0.25;
+		aiNode->nodeThreshold = 3.5;
 	}
 	if (!nodeType.compare("entrance")) {
 		aiNode->nodeType = AiGraphNode::NodeType::LOTENTRANCE;
 		aiNode->nodeSpeed = 0.35;
+		aiNode->nodeThreshold = 3.5;
 	}
 	if (!nodeType.compare("traversal")) {
 		aiNode->nodeType = AiGraphNode::NodeType::TRAVERSAL;
 		aiNode->nodeSpeed = 0.55;
+		aiNode->nodeThreshold = 5;
 	}
 	if (!nodeType.compare("parking")) {
 		aiNode->nodeType = AiGraphNode::NodeType::PARKINGSTALL;
-		aiNode->nodeSpeed = 0.35;
+		aiNode->nodeSpeed = 0.15;
+		aiNode->nodeThreshold = 1.5;
 	}
 }
 

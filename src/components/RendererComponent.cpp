@@ -1,7 +1,7 @@
 #include "RendererComponent.h"
 
 
-RendererComponent::RendererComponent(shared_ptr<Entity> parent) 
+RendererComponent::RendererComponent(weak_ptr<Entity> parent)
     : BaseComponent(parent)
 {}
 

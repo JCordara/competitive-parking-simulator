@@ -34,11 +34,12 @@ public:
 	float g = 0; // For A* algorithm
 	float h = 0; // For A* algorithm
 	NodeType nodeType = NodeType::SPAWN;
-	std::shared_ptr<Entity> spawnAiComponent = nullptr; // Only for Spawn nodes
+	//std::shared_ptr<Entity> spawnAiComponent = nullptr; // Only for Spawn nodes
 	bool nodeTaken = false;
 	int id = 0;
 	int areaCode;
 	float nodeSpeed = 0.05f; // When car hits node, tells to slow down or not
+	float nodeThreshold = 4.5; // A threshold for how far away the car has to be to the node
 };
 
 class AiComponent : public BaseComponent {
@@ -48,11 +49,12 @@ public:
 		SEARCH = 1,
 		ATTACK,
 		RECOVERY,
-		RESET
+		RESET,
+		PARKED
 	};
 
-	float aiSpeed = 0.55f;
-	const float NODETHRESHOLD = 3.5f;
+	float aiSpeed = 0.35f;
+	const float NODETHRESHOLD = 4.5f;
 	float sightFrontConeWidth;
 	float sightFrontConeHeight;
 	float sightBackConeWidth;
@@ -60,8 +62,8 @@ public:
 	// Node the AI car currently belongs to
 	std::shared_ptr<AiGraphNode> currentNode = std::make_shared<AiGraphNode>();
 
-    AiComponent(shared_ptr<Entity> parent);
-	AiComponent(shared_ptr<Entity> parent, std::vector<glm::vec3> nodeLocs);
+    AiComponent(weak_ptr<Entity> parent);
+	AiComponent(weak_ptr<Entity> parent, std::vector<glm::vec3> nodeLocs);
 	void setParkingNode(std::vector<glm::vec3> nodeLocs);
 	void pickParkingNode();
     ~AiComponent();

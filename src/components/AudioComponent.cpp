@@ -2,7 +2,7 @@
 #include "Audio/AudioSystem.h"
 
 
-AudioComponent::AudioComponent(shared_ptr<Entity> parent): 
+AudioComponent::AudioComponent(weak_ptr<Entity> parent):
     BaseComponent(parent), 
     calculateEngineSound("scripts/calculateEngineSound.lua"),
     enginePitch(1.0f),
@@ -12,7 +12,7 @@ AudioComponent::AudioComponent(shared_ptr<Entity> parent):
     // Get reference to AudioSystem
     Events::AudioComponentInit.broadcast(*this);
 
-    transform = entity->getComponent<TransformComponent>();
+    transform = getEntity()->getComponent<TransformComponent>();
 
     source = audioSystem->createSource(transform->getGlobalPosition());
 
@@ -45,14 +45,14 @@ void AudioComponent::addSound(AudioTrigger t, const std::string soundFile) {
 
 void AudioComponent::playEngineSound() {
     if (!hasEngineSound()) return;
-    engineSpeed = vehicle->getSpeed();
+    engineSpeed = vehicle.lock()->getSpeed();
     calculateEngineSound.run();
     engineSource->setGain(engineGain);
     engineSource->setPitch(enginePitch);
     if (!engineSource->isPlaying()) engineSource->playAudio(engineSound);
 }
 
-void AudioComponent::addEngineSound(const std::string soundFile, sp<VehicleComponent> vehicle) {
+void AudioComponent::addEngineSound(const std::string soundFile, weak_ptr<VehicleComponent> vehicle) {
     engineSource = audioSystem->createSource();
     engineSource->setLooping(true);
     this->vehicle = vehicle;
