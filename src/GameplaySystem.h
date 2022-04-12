@@ -76,6 +76,12 @@ public:
 	//Not AI
 	unsigned int getStartingAi_number() { return startingAi_number; }
 	unsigned int getCurrentAi_number() { return currentAi_number; }
+	void updateDisplayString() {
+		displayText = string("Number of Parking Spots Remaining: ") + std::to_string(number_of_parking_spots);
+	}
+	string* getDisplayString() {
+		return &displayText;
+	}
 private:
 	// --- Gui Control unit --- //
 	enum class GameState {
@@ -107,6 +113,8 @@ private:
 	unsigned int nextAI_ID;
 	unsigned int startingAi_number;
 	unsigned int currentAi_number;
+	unsigned int number_of_parking_spots;
+	string displayText;
 
 	//vector<weak_ptr<Entity>> entitiesToDelete;
 };

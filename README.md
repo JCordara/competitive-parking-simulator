@@ -8,7 +8,7 @@
 
 ### Keaton
 - Stop player from being able to drive in the menu
-- In game status (show count of spots remaining)
+- (DONE)In game status (show count of spots remaining)
 - Tuning parking parameters
 
 ### Joseph

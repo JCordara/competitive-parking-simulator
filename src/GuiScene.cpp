@@ -46,6 +46,13 @@ void GuiScene::draw() {
 			ImGui::PopFont();
 		}
 
+		for (auto& label : dynamicLabels) {
+			ImGui::SetCursorScreenPos(ImVec2(window->getWidth() * label.x, window->getHeight() * label.y));
+			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[label.emphasisLevel]);
+			ImGui::Text((*(label.text)).c_str());
+			ImGui::PopFont();
+		}
+
 		for (auto& button : buttons) {
 			// Calculate button size
 			float btnWidth = std::max(100.0f, (button.text.length() * 20.0f) ) * ((button.emphasisLevel + 1) * 0.5f);
@@ -106,6 +113,10 @@ void GuiScene::draw() {
 
 void GuiScene::addLabel(float x, float y, std::string text, int emphasisLevel) {
 	labels.emplace_back(x, y, text, emphasisLevel);
+}
+
+void GuiScene::addDynamicLabel(float x, float y, string* text, int emphasisLevel) {
+	dynamicLabels.emplace_back(x, y, text, emphasisLevel);
 }
 
 void GuiScene::addButton(float x, float y, std::string text, Event<void>& event, int emphasisLevel) {

@@ -69,6 +69,8 @@ void GameplaySystem::update() {
 						if (abs(it->second.parkedTime.value() - Time::now()) > PARKING_TIME) {
 							it->second.score = 1;
 							toRemove.push_back(it->second.trigger);
+							number_of_parking_spots--;
+							updateDisplayString();
 						}
 					}
 					else {
@@ -328,6 +330,8 @@ void GameplaySystem::deleteQueue(vector<weak_ptr<Entity>> e) {
 
 void GameplaySystem::setupNewGame() {
 	currentAi_number = startingAi_number;
+	number_of_parking_spots = currentAi_number;
+	updateDisplayString();
 	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number);
 	Events::GameGUI.broadcast();
 	setGameState(GameState::Playing);
@@ -336,6 +340,8 @@ void GameplaySystem::setupNewGame() {
 void GameplaySystem::setupNewRound() {
 	removeBottomAI(1);
 	currentAi_number = currentAi_number - 1;
+	number_of_parking_spots = currentAi_number;
+	updateDisplayString();
 	resetMapWithNumberOfEmptyParkingSpaces(currentAi_number);
 	Events::GameGUI.broadcast();
 	setGameState(GameState::Playing);
