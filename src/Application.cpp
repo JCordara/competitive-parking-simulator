@@ -214,6 +214,7 @@ void Application::createCar(string chassisModelName, std::shared_ptr<Entity> ent
 	//-------------------
 	ent->addComponent<VehicleComponent>();
 	ent->addComponent<DescriptionComponent>()->setVec3("Forward", glm::vec3(0.f, 0.f, 1.f));
+	ent->addComponent<DescriptionComponent>()->setVec3("Up", glm::vec3(0.f, 1.f, 0.f));
 }
 
 std::shared_ptr<Entity> Application::createPlayerEntity(instancedTransformation transformation) {
@@ -296,6 +297,7 @@ std::shared_ptr<Entity> Application::addTriggerBoxEntity(string alias, string mo
 	entity->addComponent<DescriptionComponent>()->setString("Name", alias);
 	entity->addComponent<VolumeTriggerComponent>()->createVolumeShape(PxTransform(convert<PxVec3>(transformation.location)), boxgeom);
 	entity->addComponent<DescriptionComponent>()->setVec3("Forward", glm::vec3(0.f, 0.f, 1.f));
+	entity->addComponent<DescriptionComponent>()->setVec3("Up", glm::vec3(0.f, 1.f, 0.f));
 	return entity;
 }
 /* --- Entity Manipulation Events --- */
@@ -435,24 +437,22 @@ void Application::setupMainMenu() {
 }
 
 void Application::setupOptions() {
-	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 3, 0.1f);
+	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 4, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	std::vector<string> names = { "Play","Options","Exit" };
 	guiScene->addSlider(menu->layout[0][0].positionX, menu->layout[0][0].positionY, "Starting Number of AI", Events::ChangeNumberOfAI, gameplay->getStartingAi_number(), 1, 8);
 	std::vector<std::string> list = { "Windowed" };
 	for (int i = 0; i < window->numberOfMonitors(); i++)
 		list.push_back(string("Monitor ") + std::to_string(i));
 	guiScene->addCombo(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen monitor", list, Events::Fullscreen, (window->getCurrentMonitorNumber()));
-	//guiScene->addSlider(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen monitor", Events::Fullscreen, window->getCurrentMonitorNumber(), -1, window->numberOfMonitors() - 1);
-	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::EndGame, 1);
+	guiScene->addSlider(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Music Volume", Events::ChangeMusicVolume, 0.1f);
+	guiScene->addButton(menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Main Menu", Events::EndGame, 1);
 	render->changeGui(guiScene);
 	playgame = false;
 }
 
 void Application::setupBaseLevelGUI() {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
-	guiScene->addButton(0.01f,0.9f, "Main Menu", Events::EndGame, 1);
+	guiScene->addButton(0.01f,0.9f, "Quit to Main Menu", Events::EndGame, 1);
 	guiScene->addButton(0.01f, 0.95f, "Exit", Events::ExitApplication, 1);
 	guiScene->addLabel( 0.3f, 0.01f, string("CONTESTANTS REMAINING: ")  + std::to_string(gameplay->getCurrentAi_number() + 1), 2);
 	//ImGui::ProgressBar(float fraction, const ImVec2 & size_arg, const char* overlay)
@@ -464,6 +464,7 @@ void Application::roundWonMenu() {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][0].positionY, "Next Round", Events::NextRound, 1);
 	guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "Main Menu", Events::EndGame, 1);
+	guiScene->addLabel(0.3f, 0.01f, "Spectating Mode", 2);
 	render->changeGui(guiScene);
 	playgame = false;
 }
@@ -472,6 +473,7 @@ void Application::gameEndGui(string message) {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][0].positionY, message, 2);
 	guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "Main Menu", Events::EndGame, 1);
+	guiScene->addLabel(0.3f, 0.01f, "Spectating Mode", 2);
 	render->changeGui(guiScene);
 	playgame = false;
 }

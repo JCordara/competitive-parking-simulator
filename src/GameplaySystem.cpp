@@ -1,11 +1,12 @@
 #include "GameplaySystem.h"
 
-#define MAX_SPEED_DRIVE  0.15f
-#define MAX_SPEED_ENGINE 0.05f
-#define MAX_SPEED_SKID   0.1f
-#define MAX_DISTANCE     1.2f
-#define MAX_COS_ANGLE    0.94f
-#define PARKING_TIME     0.6f
+#define MAX_SPEED_DRIVE				0.15f
+#define MAX_SPEED_ENGINE			0.05f
+#define MAX_SPEED_SKID				0.1f
+#define MAX_DISTANCE				1.2f
+#define MAX_COS_ANGLE_FORWARD		0.94f
+#define MAX_COS_ANGLE_UP			0.96f
+#define PARKING_TIME				0.6f
 
 
 GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene): 
@@ -58,7 +59,11 @@ void GameplaySystem::update() {
 					glm::abs(glm::dot(
 						glm::normalize(trigger->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(trigger->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f)),
 						glm::normalize(car->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(car->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f))
-					)) > MAX_COS_ANGLE
+					)) > MAX_COS_ANGLE_FORWARD &&
+					glm::abs(glm::dot(
+						glm::normalize(trigger->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(trigger->getComponent<DescriptionComponent>()->getVec3("Up").value(), 0.f)),
+						glm::normalize(car->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(car->getComponent<DescriptionComponent>()->getVec3("Up").value(), 0.f))
+					)) > MAX_COS_ANGLE_UP
 				) {
 					if (it->second.parkedTime.has_value()) {
 						if (abs(it->second.parkedTime.value() - Time::now()) > PARKING_TIME) {
