@@ -1,11 +1,11 @@
 #include "GameplaySystem.h"
 
-#define MAX_SPEED_DRIVE 0.1f
+#define MAX_SPEED_DRIVE  0.15f
 #define MAX_SPEED_ENGINE 0.05f
-#define MAX_SPEED_SKID 0.1f
-#define MAX_DISTANCE 1.2f
-#define MAX_COS_ANGLE 0.94f
-#define PARKING_TIME 1.0f
+#define MAX_SPEED_SKID   0.1f
+#define MAX_DISTANCE     1.2f
+#define MAX_COS_ANGLE    0.94f
+#define PARKING_TIME     0.6f
 
 
 GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene): 

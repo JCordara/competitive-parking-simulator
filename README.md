@@ -1,54 +1,21 @@
 # CPSC 585 Project
 ## Tasks to complete:
-- Per Round Reset for Gameplay
-- Kinematic PhysX for Sweeper? (If time)
-- Obstacle triggerbox (Puddle changes car tuning)
-- Drivable on Objects (Curbs, Ramps, Speedbumps)
+- AI
+ - Park quicker
+ - Bug fixing (fighting for the same spot, parking in spots that aren't open)
 
-### Joseph's tasks
-- WHEELS
-- - Tunable vehicle parameters
-	- Top speed
-	- Acceleration
-	- Turning radius
-	- Turn smoothing
-	- Center of mass
-	- Mass
-	- Tire friction
-	- Braking strength
-	- Drivetrain (FWD/RWD/AWD)
-	- Tire size
-- Physics system
-- Refactor audio system
-- Fix controller support (remove raw pointers in input system)
-- Lua scripting (functional)
-- Entity iteration (fixed, needs testing)
-
-
-### Keaton's tasks
-- Flipping cars
-- Create rigidbody component functions to add geometric objects (Just Capsule)
-- Wait to assign point until cars are stopped in stall
-
-### Kaynen's tasks
-- Main Menu
-- Gameplay System
-	- Clean up previous ad-hoc gameplay code
-	- GameMode Logic
-		- Game mode for musical chairs style
-		- Game mode for timed score based
-- Modify AI Behaviour logic to sight radius
-- Collapse nodes to Traversal nodes with a float for car speed.
-
-
-### Brayden's tasks
-- Add Ramp, Speedbump, Sweeper and Puddle Models to the Map
-
-
-### Jeff's tasks
-- Rendering support for transparency
-- Camera tuning
-
+- Tuning parking parameters
+- Add a check to see if the vehicle is flipped when parking
+- Add a menu window backdrop thing
+- Fix options menu (crashes?)
+- Stop player from being able to drive in the menu
+- Decide what to do with music
+- Add parking sounds
+- Street lamps, other lighting props
+- Ramp tuning?
+- Fix shadow map camera during the menu
+- Controller support in menu (nice to have)
+- In game status (show count of spots remaining)
 
 ### Team 4
 

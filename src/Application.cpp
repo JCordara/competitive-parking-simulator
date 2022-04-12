@@ -454,7 +454,7 @@ void Application::setupBaseLevelGUI() {
 	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
 	guiScene->addButton(0.01f,0.9f, "Main Menu", Events::EndGame, 1);
 	guiScene->addButton(0.01f, 0.95f, "Exit", Events::ExitApplication, 1);
-	guiScene->addLabel( 0.3f, 0.01f, string("CONTESTANTS REMAINING: ")  + std::to_string(gameplay->getCurrentAi_number()), 2);
+	guiScene->addLabel( 0.3f, 0.01f, string("CONTESTANTS REMAINING: ")  + std::to_string(gameplay->getCurrentAi_number() + 1), 2);
 	//ImGui::ProgressBar(float fraction, const ImVec2 & size_arg, const char* overlay)
 	render->changeGui(guiScene);
 	playgame = true;

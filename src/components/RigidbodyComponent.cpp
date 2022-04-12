@@ -92,6 +92,5 @@ ComponentEnum RigidbodyComponent::getType() {
 }
 
 RigidbodyComponent::~RigidbodyComponent() {
-	printf("RigidbodyComponent dtor\n");
     physicsSystem->pxScene->removeActor(*actor, true);
 }
