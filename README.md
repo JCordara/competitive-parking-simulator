@@ -19,7 +19,6 @@
 
 ### Brayden
 - Speed bumps
-- Ramp widening/tuning
 - Street lamps, other lighting props
 
 ### Jeff

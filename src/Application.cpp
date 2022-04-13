@@ -145,7 +145,7 @@ void Application::generateStaticMap() {
 			if(StaticPhysxObjectcode == 1)
 				entity->addComponent<RigidbodyComponent>()->addActorStaticMesh(
 					*model, convert<physx::PxTransform>(entity->getComponent<TransformComponent>()->getGlobalMatrix()),
-					0.05f, 0.05f
+					0.5f, 0.0005f
 				);
 			else if (StaticPhysxObjectcode == 2 && halfLengths.has_value())
 				entity->addComponent<RigidbodyComponent>()->addActorStaticBox(
@@ -169,7 +169,7 @@ void Application::generateStaticMap() {
 	// --- Map Curb ---
 	InstancedStatic("cpsMap_Curb.obj", "cpsMap_Curb.obj", 1, fail);
 	// --- Map Hedges ---
-	InstancedStatic("cpsMap_Hedge.obj", "cpsMap_Hedge.obj", 2, physx::PxVec3(7.0f, 1.5f, 0.8f));
+	InstancedStatic("cpsMap_Hedge.obj", "cpsMap_Hedge.obj", 2, physx::PxVec3(7.0f, 1.43f, 0.8f));
 	// --- Map Wood Fence ---
 	InstancedStatic("cpsMap_Woodfence.obj", "cpsMap_Woodfence.obj", 1, fail);
 	// --- Map Wood Fence Pole ---
@@ -177,7 +177,7 @@ void Application::generateStaticMap() {
 	// --- Map Trees ---
 	InstancedStatic("cpsMap_TreeStump.obj", "cpsMap_TreeStump.obj & cpsMap_TreeLeaves.obj", 1, fail);
 	// --- Map Ramps ---
-	InstancedStatic("cpsMap_Ramp2.obj", "cpsMap_Ramp2.obj", 1, fail);
+	InstancedStatic("cpsMap_Ramp.obj", "cpsMap_Ramp.obj", 1, fail);
 	// --- Enviromental light ---
 	auto environmentalLight = scene->addEntity().lock();
 	environmentalLight->addComponent<LightingComponent>()->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
@@ -375,8 +375,8 @@ void Application::loadModels() {
 	loadModel("cpsMap_BGRoad.obj", glm::vec3(.5f, .1f, .2f));
 	loadInstancedTransformations("cpsMap_BGRoad.obj", "roadLocation.txt", "");
 	loadModel("cpsMap_ParkingIndicator.obj", glm::vec3(.5f, .1f, .2f));
-	loadModel("cpsMap_Ramp2.obj", glm::vec3(.6f, .4f, .6f));
-	loadInstancedTransformations("cpsMap_Ramp2.obj", "rampLocation.txt", "rampRotation.txt");
+	loadModel("cpsMap_Ramp.obj", glm::vec3(.6f, .4f, .6f));
+	loadInstancedTransformations("cpsMap_Ramp.obj", "rampLocation.txt", "rampRotation.txt");
 
 	// --- Loading Game transformations ---
 	loadInstancedTransformations("parkingSpots", "parkingSpotLocation.txt", "parkingSpotRotation.txt");
