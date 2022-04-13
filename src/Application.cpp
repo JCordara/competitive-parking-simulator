@@ -379,7 +379,7 @@ void Application::loadModels() {
 	loadModel("cpsMap_ParkingIndicator.obj", glm::vec3(.5f, .1f, .2f));
 	loadModel("cpsMap_Ramp.obj", glm::vec3(.6f, .4f, .6f));
 	loadInstancedTransformations("cpsMap_Ramp.obj", "rampLocation.txt", "rampRotation.txt");
-	loadModel("cpsMap_Speedbump.obj", glm::vec3(.6f, .4f, .6f));
+	loadModel("cpsMap_Speedbump.obj", glm::vec3(.3f, .5f, .9f));
 	loadInstancedTransformations("cpsMap_Speedbump.obj", "speedbumpLocation.txt", "speedbumpRotation.txt");
 
 	// --- Loading Game transformations ---
