@@ -180,6 +180,8 @@ void Application::generateStaticMap() {
 	InstancedStatic("cpsMap_Ramp.obj", "cpsMap_Ramp.obj", 1, fail);
 	// --- Map SpeedBumps ---
 	InstancedStatic("cpsMap_Speedbump.obj", "cpsMap_Speedbump.obj", 1, fail);
+	// --- Map Streetlight ---
+	InstancedStatic("cpsMap_Streetlight.obj", "cpsMap_Streetlight.obj", 1, fail);
 	// --- Enviromental light ---
 	auto environmentalLight = scene->addEntity().lock();
 	environmentalLight->addComponent<LightingComponent>()->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
@@ -381,6 +383,10 @@ void Application::loadModels() {
 	loadInstancedTransformations("cpsMap_Ramp.obj", "rampLocation.txt", "rampRotation.txt");
 	loadModel("cpsMap_Speedbump.obj", glm::vec3(.3f, .5f, .9f));
 	loadInstancedTransformations("cpsMap_Speedbump.obj", "speedbumpLocation.txt", "speedbumpRotation.txt");
+	loadModel("cpsMap_Streetlight.obj", glm::vec3(.1f, .2f, .1f));
+	loadInstancedTransformations("cpsMap_Streetlight.obj", "streetlightLocation.txt", "streetlightRotation.txt");
+	loadModel("cpsMap_MallLamp.obj", glm::vec3(.8f, .5f, .3f));
+	loadInstancedTransformations("cpsMap_MallLamp.obj", "malllampLocation.txt", "malllampRotation.txt");
 
 	// --- Loading Game transformations ---
 	loadInstancedTransformations("parkingSpots", "parkingSpotLocation.txt", "parkingSpotRotation.txt");
