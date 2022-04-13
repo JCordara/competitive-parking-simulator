@@ -178,6 +178,8 @@ void Application::generateStaticMap() {
 	InstancedStatic("cpsMap_TreeStump.obj", "cpsMap_TreeStump.obj & cpsMap_TreeLeaves.obj", 1, fail);
 	// --- Map Ramps ---
 	InstancedStatic("cpsMap_Ramp.obj", "cpsMap_Ramp.obj", 1, fail);
+	// --- Map SpeedBumps ---
+	InstancedStatic("cpsMap_Speedbump.obj", "cpsMap_Speedbump.obj", 1, fail);
 	// --- Enviromental light ---
 	auto environmentalLight = scene->addEntity().lock();
 	environmentalLight->addComponent<LightingComponent>()->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
@@ -377,6 +379,8 @@ void Application::loadModels() {
 	loadModel("cpsMap_ParkingIndicator.obj", glm::vec3(.5f, .1f, .2f));
 	loadModel("cpsMap_Ramp.obj", glm::vec3(.6f, .4f, .6f));
 	loadInstancedTransformations("cpsMap_Ramp.obj", "rampLocation.txt", "rampRotation.txt");
+	loadModel("cpsMap_Speedbump.obj", glm::vec3(.6f, .4f, .6f));
+	loadInstancedTransformations("cpsMap_Speedbump.obj", "speedbumpLocation.txt", "speedbumpRotation.txt");
 
 	// --- Loading Game transformations ---
 	loadInstancedTransformations("parkingSpots", "parkingSpotLocation.txt", "parkingSpotRotation.txt");
