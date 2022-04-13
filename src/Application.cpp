@@ -165,6 +165,8 @@ void Application::generateStaticMap() {
 	InstancedStatic("cpsMap_ParkingLine.obj", "cpsMap_ParkingLine.obj", 0, fail);
 	// --- Tree Leaves ---
 	InstancedStatic("cpsMap_TreeLeaves.obj", "cpsMap_TreeStump.obj & cpsMap_TreeLeaves.obj", 0, fail);
+	// --- Mall Lamps ---
+	InstancedStatic("cpsMap_MallLamp.obj", "cpsMap_MallLamp.obj", 0, fail);
 	// --- Static Mesh Entities ---
 	// --- Map Curb ---
 	InstancedStatic("cpsMap_Curb.obj", "cpsMap_Curb.obj", 1, fail);
