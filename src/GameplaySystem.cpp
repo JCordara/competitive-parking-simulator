@@ -25,8 +25,6 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
         &GameplaySystem::registerAiComponent>(this);
 	Events::CarParked.registerHandler<GameplaySystem,
 		&GameplaySystem::registerCarParked>(this);
-	Events::CarUnParked.registerHandler<GameplaySystem,
-		&GameplaySystem::registerCarUnParked>(this);
 	Events::NextRound.registerHandler<GameplaySystem,
 		&GameplaySystem::setupNewRound>(this);
 	Events::NewGame.registerHandler<GameplaySystem,
@@ -66,6 +64,7 @@ void GameplaySystem::update() {
 							number_of_parking_spots--;
 							updateDisplayString();
 							car->getComponent<VehicleComponent>()->setDisabled(true);
+							Events::CarParked_Official.broadcast(it->second.car);
 						}
 					}
 					else it->second.parkedTime = Time::now();
@@ -379,6 +378,8 @@ void GameplaySystem::setupNewRound() {
 void GameplaySystem::cleanUpGame() {
 	cleanMap();
 	Events::MainMenu.broadcast();
+	if(gamestate != GameState::MainMenu)
+		Events::SetMenuMusic.broadcast();
 	setGameState(GameState::MainMenu);
 }
 

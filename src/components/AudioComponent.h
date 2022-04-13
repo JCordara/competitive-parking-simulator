@@ -9,7 +9,8 @@ class AudioSource;
 class Audio;
 
 enum class AudioTrigger {
-    Collision
+    Collision,
+	Park
 };
 
 class AudioComponent : public BaseComponent {

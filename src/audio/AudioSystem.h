@@ -64,7 +64,9 @@ public:
     ~AudioSystem();
 
     void onGameStart();
+	void onMenuStart();
     void onCollision(weak_ptr<Entity> e0, weak_ptr<Entity> s1);
+	void onPark(weak_ptr<Entity> wpe0);
     void onMusicVolumeChanged(float gain);
 
 private:
@@ -83,7 +85,7 @@ private:
 
     shared_ptr<AudioSource> musicPlayer;
     shared_ptr<Audio> music;
-
+	shared_ptr<Audio> menuMusic;
 };
 
 

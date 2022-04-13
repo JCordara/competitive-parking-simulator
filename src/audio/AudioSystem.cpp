@@ -34,6 +34,7 @@ AudioSystem::AudioSystem(shared_ptr<Scene> scene): scene(scene) {
     musicPlayer->setGain(0.1f);
     musicPlayer->setLooping(true);
     music = loadAudio("audio/CoconutMall.wav");
+	menuMusic = loadAudio("audio/tempMenu.wav"); //Need to change
 
     // Register self with audio components when they are created
     Events::AudioComponentInit.registerHandler<AudioSystem,
@@ -42,8 +43,14 @@ AudioSystem::AudioSystem(shared_ptr<Scene> scene): scene(scene) {
     Events::NewGame.registerHandler<AudioSystem,
         &AudioSystem::onGameStart>(this);
 
+	Events::SetMenuMusic.registerHandler<AudioSystem,
+		&AudioSystem::onMenuStart>(this);
+
     Events::Collision.registerHandler<AudioSystem,
         &AudioSystem::onCollision>(this);
+
+	Events::CarParked_Official.registerHandler<AudioSystem,
+		&AudioSystem::onPark>(this);
 
     Events::ChangeMusicVolume.registerHandler<AudioSystem,
         &AudioSystem::onMusicVolumeChanged>(this);
@@ -77,6 +84,10 @@ void AudioSystem::onGameStart() {
     musicPlayer->playAudio(music);
 }
 
+void AudioSystem::onMenuStart() {
+	musicPlayer->playAudio(menuMusic);
+}
+
 void AudioSystem::onCollision(weak_ptr<Entity> wpe0, weak_ptr<Entity> wpe1) {
     auto e0 = wpe0.lock(); auto e1 = wpe1.lock();
     if (!e0 || !e1) return;
@@ -85,6 +96,14 @@ void AudioSystem::onCollision(weak_ptr<Entity> wpe0, weak_ptr<Entity> wpe1) {
         c->playSoundVaried(AudioTrigger::Collision);
     if (auto c = e1->getComponent<AudioComponent>())
         c->playSoundVaried(AudioTrigger::Collision);
+}
+
+void AudioSystem::onPark(weak_ptr<Entity> wpe0) {
+	auto e0 = wpe0.lock();
+	if (!e0) return;
+
+	if (auto c = e0->getComponent<AudioComponent>())
+		c->playSoundVaried(AudioTrigger::Park);
 }
 
 void AudioSystem::onMusicVolumeChanged(float gain) {

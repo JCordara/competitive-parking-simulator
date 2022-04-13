@@ -40,7 +40,7 @@ Application::Application(appSettings& settings):
 	physics = std::make_shared<PhysicsSystem>(scene);
 	render = std::make_shared<RenderSystem>(scene, guiScene, window);
 	audio = std::make_shared<AudioSystem>(scene);
-
+	Events::SetMenuMusic.broadcast();
 	/* Proceed */
 	setupMainMenu();
 	playgame = false;
@@ -289,6 +289,7 @@ std::shared_ptr<Entity> Application::createPlayerEntity(instancedTransformation 
 	playerCar->getComponent<DescriptionComponent>()->setRealNumber("Spawn Y-Rotation", transformation.rotationAxisAngle.y);
 	// --- Audio --- //
 	playerCar->addComponent<AudioComponent>()->addEngineSound("audio/engine.wav", playerCar->getComponent<VehicleComponent>());
+	playerCar->addComponent<AudioComponent>()->addSound(AudioTrigger::Park, "audio/ding.wav");
 	audio->setListener(mainCamera->getComponent<TransformComponent>());
 	return playerCar;
 }
@@ -297,6 +298,7 @@ std::shared_ptr<Entity> Application::addAICar(string alias) {
 	auto aiCar = scene->addEntity().lock();
 	createCar("car2chassis.obj", aiCar);
 	aiCar->addComponent<AudioComponent>()->addSound(AudioTrigger::Collision, "audio/oof.wav");
+	aiCar->addComponent<AudioComponent>()->addSound(AudioTrigger::Park, "audio/ding.wav");
 	// --- Indicator for Ai car --- //
 	aiCar->addComponent<DescriptionComponent>()->setString("Name", alias);
 	// --- Ai Component --- //
