@@ -297,10 +297,11 @@ void GameplaySystem::removeBottomAI(unsigned int num) {
 					type element = type(ent, std::pair<int, int>(number,score->second.score));
 					// Insertion Sort
 					bool inserted = false;
-					for (std::vector<type>::iterator it = listOfAIs.begin(); it < listOfAIs.end() && (!inserted); it++)
+					for (std::vector<type>::iterator it = listOfAIs.begin(); it != listOfAIs.end(); it++)
 						if (it->second.second > element.second.second) {
 							listOfAIs.insert(it, element);
 							inserted = true;
+							break;
 						}
 					if (!inserted) listOfAIs.push_back(element);
 				}
