@@ -74,6 +74,7 @@ void RenderSystem::update() {
 	}
 
 	//Not sure where to do this
+	//night fog 0.176f,0.098f,0.384f
 	renderPipeline->setTranslucentIntensity(glm::vec3(0.3f, 0.3f, 0.3f));
 
 	//Render the output

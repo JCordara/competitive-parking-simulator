@@ -168,7 +168,9 @@ void main() {
 	//Depth Fade
 	float depthfactor =  min(max(2.0*LinearizeDepth(texture(textureDepth,fragUv2).r) / clipDistance[1] - 0.98, 0.0), 1.0);
 	float a = depthfactor * depthfactor;
-	color = (1.0 - a) * color + a * vec4(0.52, 0.80, 0.92,1.0);
+	//night fog 0.025,0.025,0.064
+	// fog 0.52, 0.80, 0.92
+	color = (1.0 - a) * color + a * vec4(0.025,0.025,0.064,1.0);
 #endif
 	color[3] = 1.0; //Alpha Correction
 } 
