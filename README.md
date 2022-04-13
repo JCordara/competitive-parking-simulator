@@ -18,8 +18,7 @@
 - Controller support in menu (nice to have)
 
 ### Brayden
-- Speed bumps
-- Street lamps, other lighting props
+- other lighting props
 
 ### Jeff
 - (DONE) Add "spectator mode" text to round over thing
