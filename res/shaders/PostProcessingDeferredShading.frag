@@ -22,7 +22,7 @@ uniform vec3 pointLightAttenuationConstaints[MAX_NUMBER_POINT_LIGHTS];
 uniform float pointLightRadius[MAX_NUMBER_POINT_LIGHTS];
 uniform int numberOfPointLights;
 	//Spot Lighting Uniforms
-#define MAX_NUMBER_SPOT_LIGHTS 50
+#define MAX_NUMBER_SPOT_LIGHTS 70
 uniform vec3 spotLightPositions[MAX_NUMBER_SPOT_LIGHTS];
 uniform vec3 spotLightColours[MAX_NUMBER_SPOT_LIGHTS];
 uniform vec3 spotLightAttenuationConstaints[MAX_NUMBER_SPOT_LIGHTS];

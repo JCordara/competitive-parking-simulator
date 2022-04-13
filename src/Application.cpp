@@ -132,6 +132,9 @@ void Application::generateStaticMap() {
 		string modelName,
 		string transformationsName,
 		int StaticPhysxObjectcode,
+		std::optional<physx::PxVec3> spotlightP,
+		std::optional<physx::PxQuat> spotlightR,
+		std::optional<SpotLight> spotlight,
 		std::optional<physx::PxVec3> halfLengths
 	) {
 		auto transformations = ptr->getInstancedTransformationsOrThrow(transformationsName);
@@ -152,42 +155,58 @@ void Application::generateStaticMap() {
 					halfLengths.value(),
 					convert<physx::PxTransform>(entity->getComponent<TransformComponent>()->getGlobalMatrix())
 				);
+
+			if (spotlight.has_value() && spotlightP.has_value() && spotlightR.has_value()) {
+				auto light = entity->addChild().lock();
+				light->addComponent<LightingComponent>()->setSpotLight(
+					spotlight.value().getCol(),
+					spotlight.value().getAttenuationConsts(),
+					spotlight.value().getInnerAngle(),
+					spotlight.value().getOuterAngle()
+				);
+				light->addComponent<TransformComponent>()->setLocalPosition(spotlightP.value());
+				light->getComponent<TransformComponent>()->setLocalRotation(spotlightR.value());
+			}
 		}
+
 	};
-	auto fail = std::optional<physx::PxVec3>();
+	auto fail1 = std::optional<physx::PxVec3>();
+	auto fail2 = std::optional<SpotLight>();
+	auto fail3 = std::optional<physx::PxQuat>();
 	// --- Map Metal Fence ---
-	InstancedStatic("cpsMap_MetalFence.obj", "cpsMap_MetalFence.obj", 0, fail);
+	InstancedStatic("cpsMap_MetalFence.obj", "cpsMap_MetalFence.obj", 0, fail1, fail3, fail2, fail1);
 	// --- Map Warning Wall ---
-	InstancedStatic("cpsMap_WarningWall.obj", "cpsMap_WarningWall.obj", 0, fail);
+	InstancedStatic("cpsMap_WarningWall.obj", "cpsMap_WarningWall.obj", 0, fail1, fail3, fail2, fail1);
 	// --- Map Background Road ---
-	InstancedStatic("cpsMap_BGRoad.obj", "cpsMap_BGRoad.obj", 0, fail);
+	InstancedStatic("cpsMap_BGRoad.obj", "cpsMap_BGRoad.obj", 0, fail1, fail3, fail2, fail1);
 	// --- Map Parking Lines ---
-	InstancedStatic("cpsMap_ParkingLine.obj", "cpsMap_ParkingLine.obj", 0, fail);
+	InstancedStatic("cpsMap_ParkingLine.obj", "cpsMap_ParkingLine.obj", 0, fail1, fail3, fail2, fail1);
 	// --- Tree Leaves ---
-	InstancedStatic("cpsMap_TreeLeaves.obj", "cpsMap_TreeStump.obj & cpsMap_TreeLeaves.obj", 0, fail);
+	InstancedStatic("cpsMap_TreeLeaves.obj", "cpsMap_TreeStump.obj & cpsMap_TreeLeaves.obj", 0, fail1, fail3, fail2, fail1);
 	// --- Mall Lamps ---
-	InstancedStatic("cpsMap_MallLamp.obj", "cpsMap_MallLamp.obj", 0, fail);
+	SpotLight sl = SpotLight(1.5f * glm::vec3(0.97f, 0.7f, 0.3f), glm::vec3(1.f, 0.007f, 0.0002f), glm::radians(50.f), glm::radians(60.f));
+	InstancedStatic("cpsMap_MallLamp.obj", "cpsMap_MallLamp.obj", 0, physx::PxVec3(0.f, -0.3f, 0.f), physx::PxQuat(glm::radians(90.f), physx::PxVec3(1.0f, 0.f, 0.f)), sl, fail1);
 	// --- Static Mesh Entities ---
 	// --- Map Curb ---
-	InstancedStatic("cpsMap_Curb.obj", "cpsMap_Curb.obj", 1, fail);
+	InstancedStatic("cpsMap_Curb.obj", "cpsMap_Curb.obj", 1, fail1, fail3, fail2, fail1);
 	// --- Map Hedges ---
-	InstancedStatic("cpsMap_Hedge.obj", "cpsMap_Hedge.obj", 2, physx::PxVec3(7.0f, 1.43f, 0.8f));
+	InstancedStatic("cpsMap_Hedge.obj", "cpsMap_Hedge.obj", 2, fail1, fail3, fail2, physx::PxVec3(7.0f, 1.43f, 0.8f));
 	// --- Map Wood Fence ---
-	InstancedStatic("cpsMap_Woodfence.obj", "cpsMap_Woodfence.obj", 1, fail);
+	InstancedStatic("cpsMap_Woodfence.obj", "cpsMap_Woodfence.obj", 1, fail1, fail3, fail2, fail1);
 	// --- Map Wood Fence Pole ---
-	InstancedStatic("cpsMap_WoodfencePole.obj", "cpsMap_WoodfencePole.obj", 1, fail);
+	InstancedStatic("cpsMap_WoodfencePole.obj", "cpsMap_WoodfencePole.obj", 1, fail1, fail3, fail2, fail1);
 	// --- Map Trees ---
-	InstancedStatic("cpsMap_TreeStump.obj", "cpsMap_TreeStump.obj & cpsMap_TreeLeaves.obj", 1, fail);
+	InstancedStatic("cpsMap_TreeStump.obj", "cpsMap_TreeStump.obj & cpsMap_TreeLeaves.obj", 1, fail1, fail3, fail2, fail1);
 	// --- Map Ramps ---
-	InstancedStatic("cpsMap_Ramp.obj", "cpsMap_Ramp.obj", 1, fail);
+	InstancedStatic("cpsMap_Ramp.obj", "cpsMap_Ramp.obj", 1, fail1, fail3, fail2, fail1);
 	// --- Map SpeedBumps ---
-	//InstancedStatic("cpsMap_Speedbump.obj", "cpsMap_Speedbump.obj", 1, fail);
+	//InstancedStatic("cpsMap_Speedbump.obj", "cpsMap_Speedbump.obj", 1, fail1, fail3, fail2, fail1);
 	// --- Map Streetlight ---
-	InstancedStatic("cpsMap_Streetlight.obj", "cpsMap_Streetlight.obj", 1, fail);
+	InstancedStatic("cpsMap_Streetlight.obj", "cpsMap_Streetlight.obj", 1, physx::PxVec3(0.f, 14.1f, -6.11f), physx::PxQuat(glm::radians(90.f),physx::PxVec3(1.0f,0.f,0.f)), sl, fail1);
 	// --- Enviromental light ---
 	auto environmentalLight = scene->addEntity().lock();
-	environmentalLight->addComponent<LightingComponent>()->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
-	environmentalLight->getComponent<LightingComponent>()->setDirectionalLight(glm::vec3(0.3f, 0.3f, 0.3f));
+	environmentalLight->addComponent<LightingComponent>()->setAmbient(glm::vec3(0.01f, 0.01f, 0.01f));
+	environmentalLight->getComponent<LightingComponent>()->setDirectionalLight(glm::vec3(0.1f, 0.1f, 0.1f));
 	environmentalLight->addComponent<DescriptionComponent>()->setString("Name", "World Lighting");
 	// --- Static Menu Camera ---
 	auto menuCamera = scene->addEntity().lock();
@@ -221,7 +240,7 @@ void Application::createCar(string chassisModelName, std::shared_ptr<Entity> ent
 	lightEntity->getComponent<TransformComponent>()->setLocalRotation(glm::radians(10.f), glm::vec3(1.f, 0.f, 0.f));
 
 	lightEntity = ent->addChild().lock();
-	lightEntity->addComponent<LightingComponent>()->setSpotLight(glm::vec3(0.94f, 0.89f, 0.54f), glm::vec3(1.f, 0.007f, 0.0002f), glm::radians(20.f), glm::radians(30.f));
+	lightEntity->addComponent<LightingComponent>()->setSpotLight( 2.5f * glm::vec3(0.94f, 0.89f, 0.54f), glm::vec3(1.f, 0.007f, 0.0002f), glm::radians(20.f), glm::radians(30.f));
 	lightEntity->getComponent<TransformComponent>()->setLocalPosition(0.8f, 0.15f, 1.5);
 	lightEntity->getComponent<TransformComponent>()->setLocalRotation(glm::radians(10.f), glm::vec3(1.f, 0.f, 0.f));
 	//-------------------
