@@ -62,7 +62,7 @@ void RenderSystem::update() {
 				cc->getFarClipPlane()
 			);
 		}
-		else if (purpose == CameraPurpose::shadowMap) {
+		else if ((playing && purpose == CameraPurpose::shadowMap) || ((!playing) && purpose == CameraPurpose::shadowMapMenu)) {
 			renderPipeline->setDirectionalLightShadowMapProperties(
 				glm::normalize(glm::vec3(localToGlobaltransform * glm::vec4(0.f, 0.f, -1.f, 0.f))),
 				cc->getViewMatrix(localToGlobaltransform),

@@ -189,6 +189,12 @@ void Application::generateStaticMap() {
 	menuCamera->getComponent<TransformComponent>()->localRotate(glm::radians(-45.0f), glm::vec3(0.f, 1.f, 0.f));
 	menuCamera->addComponent<CameraComponent>()->setPurpose(CameraPurpose::menu);
 	menuCamera->getComponent<CameraComponent>()->setPerspectiveCamera(glm::radians(110.f), 1.f /*Will be modified to the window*/, 5.f, 300.f);
+	// --- Static Menu Shadow Camera --
+	auto shadowCamera = scene->addEntity().lock();
+	shadowCamera->getComponent<TransformComponent>()->setLocalPosition(50.f, 100.0f, 100.0f);
+	shadowCamera->getComponent<TransformComponent>()->setLocalRotation(glm::radians(-45.f), physx::PxVec3(1.f, 0.f, 0.f));
+	shadowCamera->addComponent<CameraComponent>()->setPurpose(CameraPurpose::shadowMapMenu);
+	shadowCamera->getComponent<CameraComponent>()->setOrthographicCamera(300.f, 250.f, 10.f, 300.f);
 }
 
 void Application::createCar(string chassisModelName, std::shared_ptr<Entity> ent) {
