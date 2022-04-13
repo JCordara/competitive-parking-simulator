@@ -24,6 +24,8 @@ public:
 	void cleanMap();
 	void removeBottomAI(unsigned int num);
 	void deleteQueue(vector<weak_ptr<Entity>> e);
+	bool playerCarCheck(std::shared_ptr<Entity> player, std::shared_ptr<Entity> trigger);
+	bool AICarCheck(std::shared_ptr<Entity> ai, std::shared_ptr<Entity> trigger);
 
 	//Game Events
 	void setupNewGame();

@@ -8,6 +8,14 @@
 #define MAX_COS_ANGLE_UP			0.96f
 #define PARKING_TIME				0.6f
 
+#define MAX_SPEED_DRIVE_AI			MAX_SPEED_DRIVE
+#define MAX_SPEED_ENGINE_AI			MAX_SPEED_ENGINE
+#define MAX_SPEED_SKID_AI			MAX_SPEED_SKID
+#define MAX_DISTANCE_AI				MAX_DISTANCE
+#define MAX_COS_ANGLE_FORWARD_AI	MAX_COS_ANGLE_FORWARD
+#define MAX_COS_ANGLE_UP_AI			MAX_COS_ANGLE_UP
+#define PARKING_TIME_AI				PARKING_TIME
+
 
 GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene): 
 	scene(scene),
@@ -45,26 +53,12 @@ void GameplaySystem::update() {
 		//Do nothing
 		break;
 	case GameState::Playing:
-		// Update parking
+		// Update parking AI
 		for (auto it = states.begin(); it != states.end(); it++) {
 			auto trigger = it->second.trigger.lock();
 			if (trigger && (it->second.score < 1)) {
 				auto car = it->second.car.lock();
-				if (
-					car->getComponent<VehicleComponent>()->getSpeed() < MAX_SPEED_DRIVE &&
-					car->getComponent<VehicleComponent>()->getEngineSpeedNormalized() < MAX_SPEED_ENGINE &&
-					car->getComponent<VehicleComponent>()->getSkidSpeed() < MAX_SPEED_SKID &&
-					//HACK!!!!!!!!
-					glm::length(car->getComponent<TransformComponent>()->getGlobalPosition() - trigger->getComponent<TransformComponent>()->getGlobalPosition()) < MAX_DISTANCE &&
-					glm::abs(glm::dot(
-						glm::normalize(trigger->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(trigger->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f)),
-						glm::normalize(car->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(car->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f))
-					)) > MAX_COS_ANGLE_FORWARD &&
-					glm::abs(glm::dot(
-						glm::normalize(trigger->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(trigger->getComponent<DescriptionComponent>()->getVec3("Up").value(), 0.f)),
-						glm::normalize(car->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(car->getComponent<DescriptionComponent>()->getVec3("Up").value(), 0.f))
-					)) > MAX_COS_ANGLE_UP
-				) {
+				if ((it->first < 0) ? playerCarCheck(car, trigger) : AICarCheck(car, trigger)) {
 					if (it->second.parkedTime.has_value()) {
 						if (abs(it->second.parkedTime.value() - Time::now()) > PARKING_TIME) {
 							it->second.score = 1;
@@ -73,13 +67,9 @@ void GameplaySystem::update() {
 							updateDisplayString();
 						}
 					}
-					else {
-						it->second.parkedTime = Time::now();
-					}
+					else it->second.parkedTime = Time::now();
 				}
-				else {
-					it->second.parkedTime = Time::now();
-				}
+				else it->second.parkedTime = Time::now();
 			}
 		}
 		//Check player
@@ -122,6 +112,37 @@ void GameplaySystem::update() {
 	// Defer entity deletion so it doesn't occur during PhysX callback
 	deleteQueue(toRemove);
 
+}
+
+bool GameplaySystem::playerCarCheck(std::shared_ptr<Entity> car, std::shared_ptr<Entity> trigger) {
+	return 		car->getComponent<VehicleComponent>()->getSpeed() < MAX_SPEED_DRIVE &&
+				car->getComponent<VehicleComponent>()->getEngineSpeedNormalized() < MAX_SPEED_ENGINE &&
+				car->getComponent<VehicleComponent>()->getSkidSpeed() < MAX_SPEED_SKID &&
+				//HACK!!!!!!!!
+				glm::length(car->getComponent<TransformComponent>()->getGlobalPosition() - trigger->getComponent<TransformComponent>()->getGlobalPosition()) < MAX_DISTANCE &&
+				glm::abs(glm::dot(
+					glm::normalize(trigger->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(trigger->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f)),
+					glm::normalize(car->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(car->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f))
+				)) > MAX_COS_ANGLE_FORWARD &&
+				glm::abs(glm::dot(
+					glm::normalize(trigger->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(trigger->getComponent<DescriptionComponent>()->getVec3("Up").value(), 0.f)),
+					glm::normalize(car->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(car->getComponent<DescriptionComponent>()->getVec3("Up").value(), 0.f))
+				)) > MAX_COS_ANGLE_UP;
+}
+bool GameplaySystem::AICarCheck(std::shared_ptr<Entity> car, std::shared_ptr<Entity> trigger) {
+	return 		car->getComponent<VehicleComponent>()->getSpeed() < MAX_SPEED_DRIVE_AI &&
+				car->getComponent<VehicleComponent>()->getEngineSpeedNormalized() < MAX_SPEED_ENGINE_AI &&
+				car->getComponent<VehicleComponent>()->getSkidSpeed() < MAX_SPEED_SKID_AI &&
+				//HACK!!!!!!!!
+				glm::length(car->getComponent<TransformComponent>()->getGlobalPosition() - trigger->getComponent<TransformComponent>()->getGlobalPosition()) < MAX_DISTANCE_AI &&
+				glm::abs(glm::dot(
+					glm::normalize(trigger->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(trigger->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f)),
+					glm::normalize(car->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(car->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f))
+				)) > MAX_COS_ANGLE_FORWARD_AI &&
+				glm::abs(glm::dot(
+					glm::normalize(trigger->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(trigger->getComponent<DescriptionComponent>()->getVec3("Up").value(), 0.f)),
+					glm::normalize(car->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(car->getComponent<DescriptionComponent>()->getVec3("Up").value(), 0.f))
+				)) > MAX_COS_ANGLE_UP_AI;
 }
 
 void GameplaySystem::defineMap(
