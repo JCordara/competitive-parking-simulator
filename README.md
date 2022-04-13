@@ -1,5 +1,6 @@
 # CPSC 585 Project
 ## Tasks to complete:
+  - Menu formatting (where buttons/sliders are placed, consistent look for buttons)
 
 ### Kaynen & Brayden & Keaton
 - AI
@@ -7,14 +8,18 @@
   - Bug fixing (fighting for the same spot, parking in spots that aren't open)
   - Tuning parking parameters
 
+  ## Issues found with AI
+  - Doesn't end in actual parking spot, ends in node before
+  - AI should stop when parked, not continue to turn/spin
+  - AI search state needs to be reset per round
 
 ### Joseph
 - Add a menu image rendering
 - Select Menu music!!!!!!!!!!!!1
-- Controller support in menu (nice to have)
+- Controller support in menu
 
 ### Keaton
-- Cap
+- Capsule Physics Mesh
 
 ### Brayden
 

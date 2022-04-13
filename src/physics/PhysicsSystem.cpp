@@ -452,7 +452,7 @@ void PhysicsSystem::initPhysX()
 	// -------------------
 
 	// A material ???
-	gMaterial = pxPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+	gMaterial = pxPhysics->createMaterial(0.5f, 0.5f, 0.5f);
 
 	PxInitVehicleSDK(*pxPhysics);
 	PxVehicleSetBasisVectors(PxVec3(0, 1, 0), PxVec3(0, 0, 1));
