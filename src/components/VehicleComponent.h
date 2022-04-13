@@ -30,6 +30,8 @@ public:
     float getEngineSpeedNormalized();
     float getSkidSpeed();
     bool isGrounded();
+	bool isDisabled() { return disabled; }
+	void setDisabled(bool v) { disabled = v; }
 
     inline void setTransform(PxTransform& transform) {
         vehicle->getRigidDynamicActor()->setGlobalPose(transform);
@@ -45,6 +47,7 @@ private:
 
     PxVehicleDrive4WRawInputData inputData;
     bool isInAir_;
+	bool disabled;
     int numWheels;
 
     PxConvexMesh* chassisMesh;

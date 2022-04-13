@@ -65,6 +65,7 @@ void GameplaySystem::update() {
 							toRemove.push_back(it->second.trigger);
 							number_of_parking_spots--;
 							updateDisplayString();
+							car->getComponent<VehicleComponent>()->setDisabled(true);
 						}
 					}
 					else it->second.parkedTime = Time::now();
@@ -226,6 +227,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 					auto st = states.find(-1);
 					st->second.score = 0;
 					st->second.trigger = std::weak_ptr<Entity>();
+					ent->getComponent<VehicleComponent>()->setDisabled(false);
 				}
 				else if(prefix("AI Car : ", name.value())) {
 					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
@@ -234,6 +236,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 					st->second.score = 0;
 					st->second.trigger = std::weak_ptr<Entity>();
 					numberOfAI++;
+					ent->getComponent<VehicleComponent>()->setDisabled(false);
 				}
 			}
 		}
@@ -286,7 +289,12 @@ void GameplaySystem::cleanMap() {
 		auto ent = vc->getEntity();
 		if (auto des = ent->getComponent<DescriptionComponent>()) {
 			if (auto name = des->getString("Name")) {
-				if (prefix("AI Car : ", name.value())) {
+				if ("Player Car" == name.value()) {
+					vc->setDisabled(true);
+					ent->getComponent<TransformComponent>()->setLocalPosition(des->getVec3("Spawn Position").value());
+					ent->getComponent<TransformComponent>()->setLocalRotation(glm::radians(des->getRealNumber("Spawn Y-Rotation").value()), glm::vec3(0.f, 1.f, 0.f));
+				}
+				else if (prefix("AI Car : ", name.value())) {
 					toRemove.push_back(ent); //scene->removeEntity(ent);
 				}
 			}

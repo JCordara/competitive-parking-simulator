@@ -313,18 +313,19 @@ void PhysicsSystem::vehicleAccelerateMode(weak_ptr<Entity> wpEntity, float v)
 	// Get vehicle component of entity
 	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
+	if (!vc->isDisabled()) {
+		vc->inputData.setAnalogBrake(0.0f);
 
-	vc->inputData.setAnalogBrake(0.0f);
-	
-	if (v >= 0.0f) {
-		vc->vehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-	}
-	else if (v < 0.0f) {
-		vc->vehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-		v *= -1;
-	}
+		if (v >= 0.0f) {
+			vc->vehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+		}
+		else if (v < 0.0f) {
+			vc->vehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+			v *= -1;
+		}
 
-	vc->inputData.setAnalogAccel(v);
+		vc->inputData.setAnalogAccel(v);
+	}
 }
 
 void PhysicsSystem::vehicleTurnMode(weak_ptr<Entity> wpEntity, float v) 
@@ -335,8 +336,9 @@ void PhysicsSystem::vehicleTurnMode(weak_ptr<Entity> wpEntity, float v)
 
 	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
-
-	vc->inputData.setAnalogSteer(-v);
+	if (!vc->isDisabled()) {
+		vc->inputData.setAnalogSteer(-v);
+	}
 }
 
 void PhysicsSystem::vehicleBrakeMode(weak_ptr<Entity> wpEntity, float v) 
@@ -347,8 +349,9 @@ void PhysicsSystem::vehicleBrakeMode(weak_ptr<Entity> wpEntity, float v)
 
 	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
-
-	vc->inputData.setAnalogBrake(v);
+	if (!vc->isDisabled()) {
+		vc->inputData.setAnalogBrake(v);
+	}
 }
 
 void PhysicsSystem::vehicleHandbrakeMode(weak_ptr<Entity> wpEntity, float v) 
@@ -359,8 +362,9 @@ void PhysicsSystem::vehicleHandbrakeMode(weak_ptr<Entity> wpEntity, float v)
 
 	auto vc = entity->getComponent<VehicleComponent>();
 	if (!vc) return;
-
-	vc->inputData.setAnalogHandbrake(v);
+	if (!vc->isDisabled()) {
+		vc->inputData.setAnalogHandbrake(v);
+	}
 }
 
 void PhysicsSystem::vehicleFlipMode(weak_ptr<Entity> wpEntity, float v)
@@ -368,8 +372,9 @@ void PhysicsSystem::vehicleFlipMode(weak_ptr<Entity> wpEntity, float v)
 	// Get shared ptr to entity
 	auto entity = wpEntity.lock();
 	if (!entity) return;
-	
-	if (auto vc = entity->getComponent<VehicleComponent>()) {
+	auto vc = entity->getComponent<VehicleComponent>();
+	if (!vc) return;
+	if (!vc->isDisabled()) {
 		PxTransform trans = vc->vehicle->getRigidDynamicActor()->getGlobalPose();
 		// Disallow flipping if car too high or spinning too fast
 		if (trans.p.y > 2.75f || 

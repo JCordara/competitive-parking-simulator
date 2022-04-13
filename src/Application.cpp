@@ -270,6 +270,7 @@ std::shared_ptr<Entity> Application::createPlayerEntity(instancedTransformation 
 	shadowCamera->addComponent<DescriptionComponent>()->setInteger("Ignore parent rotations in render", 1);
 	// --- Vehicle --- //
 	createCar("car1chassis.obj", playerCar);
+	playerCar->getComponent<VehicleComponent>()->setDisabled(true);
 	// --- Controller --- //
 	auto playerController = playerCar->addComponent<ControllerComponent>();
 	playerController->createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::VehicleAccelerate);

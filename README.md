@@ -18,11 +18,9 @@
 - Cap. 
 
 ### Brayden
-- Loading Screen
 
 ### Jeff
-- Put in those things to make sure that they look correctly just in the implementation the lights I'm talking about
-- Stop player from being able to drive in the menu
+
 
 
 ### Team 4

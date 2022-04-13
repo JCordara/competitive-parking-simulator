@@ -8,7 +8,8 @@ VehicleComponent::VehicleComponent(weak_ptr<Entity> parent):
     BaseComponent(parent),
     numWheels(0),
     chassisMass(1500.0f),
-    tuningScript("scripts/vehicleTuning.lua")
+    tuningScript("scripts/vehicleTuning.lua"),
+	disabled(0)
 {
 
     // Notify Physics system that this component was created
