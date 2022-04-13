@@ -18,7 +18,6 @@
 - Controller support in menu (nice to have)
 
 ### Brayden
-- other lighting props
 
 ### Jeff
 - (DONE) Add "spectator mode" text to round over thing
