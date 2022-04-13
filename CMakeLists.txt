@@ -14,7 +14,6 @@ project(CPSC_585_Project VERSION 0.1 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
-AAAAA
 # Link to C/C++ runtime library statically
 # Note: Still seems to link to vcruntime140_1.dll which may not be installed on
 # all users systems. Current fix is to copy the shared library to executable 

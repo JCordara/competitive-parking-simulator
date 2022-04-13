@@ -116,6 +116,29 @@ PxRigidActor* PhysicsSystem::createTriggerBox(PxTransform startPos, PxBoxGeometr
 	return trigger;
 
 }
+
+/*
+* 
+dims.x = radius
+dims.y = half height
+
+*/
+PxRigidActor* PhysicsSystem::createCylinderStatic(PxTransform startPos, PxVec3 dims) {
+	// test triggerShape
+	PxRigidActor* cylActor = pxPhysics->createRigidStatic(startPos);
+	PxShape* cylShape = PxRigidActorExt::createExclusiveShape(*cylActor,PxCapsuleGeometry(dims.x, dims.y), *gMaterial);
+	//PxFilterFlags Tflags;
+
+	cylShape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+	cylShape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+
+	pxScene->addActor(*cylActor);
+	cylShape->release();
+	return cylActor;
+}
+
+
+
 PxTriangleMesh* PhysicsSystem::createStaticMesh(const Model& model) {
 
 	PxTolerancesScale scale;

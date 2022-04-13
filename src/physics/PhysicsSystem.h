@@ -30,6 +30,7 @@ public:
     PxConvexMesh*   createDynamicMesh(const Model& model);
     PxConvexMesh*   createDynamicMesh(const PxVec3* v, const PxU32 n);
 	PxRigidActor* createTriggerBox(PxTransform startPos, PxBoxGeometry boxGeom);
+	PxRigidActor* createCylinderStatic(PxTransform startPos, PxVec3 dims);
 	
 
     ~PhysicsSystem();
