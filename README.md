@@ -10,8 +10,12 @@
 
   ## Issues found with AI
   - Doesn't end in actual parking spot, ends in node before
+    # Solution
+      - Add parking subset to node file with ID
   - AI should stop when parked, not continue to turn/spin
-  - AI search state needs to be reset per round
+  - AI attempts to go back to the parking spot it was trying to go to last round
+    # Solution
+      - Reset the AI searching to a new parking spot
 
 ### Joseph
 - Add a menu image rendering
