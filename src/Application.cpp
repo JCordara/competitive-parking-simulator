@@ -179,7 +179,7 @@ void Application::generateStaticMap() {
 	// --- Map Ramps ---
 	InstancedStatic("cpsMap_Ramp.obj", "cpsMap_Ramp.obj", 1, fail);
 	// --- Map SpeedBumps ---
-	InstancedStatic("cpsMap_Speedbump.obj", "cpsMap_Speedbump.obj", 1, fail);
+	//InstancedStatic("cpsMap_Speedbump.obj", "cpsMap_Speedbump.obj", 1, fail);
 	// --- Map Streetlight ---
 	InstancedStatic("cpsMap_Streetlight.obj", "cpsMap_Streetlight.obj", 1, fail);
 	// --- Enviromental light ---

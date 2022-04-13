@@ -1,15 +1,12 @@
 # CPSC 585 Project
 ## Tasks to complete:
 
-### Kaynen & friends
+### Kaynen & Brayden & Keaton
 - AI
   - Park quicker
   - Bug fixing (fighting for the same spot, parking in spots that aren't open)
+  - Tuning parking parameters
 
-### Keaton
-- Stop player from being able to drive in the menu
-- (DONE)In game status (show count of spots remaining)
-- Tuning parking parameters
 
 ### Joseph
 - Add a menu image rendering
@@ -17,15 +14,15 @@
 - Decide what to do with music
 - Controller support in menu (nice to have)
 
+### Keaton
+- Cap. 
+
 ### Brayden
+- Loading Screen
 
 ### Jeff
-- (DONE) Add "spectator mode" text to round over thing
-- (DONE) Move music slider to options menu
-- (DONE) Add a check to see if the vehicle is flipped when parking
-- (DONE) Fix shadow map camera during the menu
-- (DONE) Fix options menu (crashes in debug?)
 - Put in those things to make sure that they look correctly just in the implementation the lights I'm talking about
+- Stop player from being able to drive in the menu
 
 
 ### Team 4
