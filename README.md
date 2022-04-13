@@ -10,10 +10,11 @@
 
 ### Joseph
 - Add a menu image rendering
+- Select Menu music!!!!!!!!!!!!1
 - Controller support in menu (nice to have)
 
 ### Keaton
-- Cap. 
+- Cap
 
 ### Brayden
 

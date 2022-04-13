@@ -108,8 +108,12 @@ void AudioSystem::onPark(weak_ptr<Entity> wpe0) {
 
 void AudioSystem::onMusicVolumeChanged(float gain) {
     musicPlayer->setGain(gain);
+	currentVolume = gain;
 }
 
+float AudioSystem::getCurrentVolume() {
+	return currentVolume;
+}
 
 shared_ptr<Audio> AudioSystem::loadAudio(std::string filepath) {
     audioBuffers.push_back(std::make_shared<Audio>(filepath));

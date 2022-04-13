@@ -69,6 +69,8 @@ public:
 	void onPark(weak_ptr<Entity> wpe0);
     void onMusicVolumeChanged(float gain);
 
+	float getCurrentVolume();
+
 private:
 
     std::vector<std::shared_ptr<Audio>> audioBuffers;
@@ -85,6 +87,7 @@ private:
 
     shared_ptr<AudioSource> musicPlayer;
     shared_ptr<Audio> music;
+	float currentVolume = 0.1f;
 	shared_ptr<Audio> menuMusic;
 };
 

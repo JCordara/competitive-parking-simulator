@@ -485,7 +485,7 @@ void Application::setupOptions() {
 	for (int i = 0; i < window->numberOfMonitors(); i++)
 		list.push_back(string("Monitor ") + std::to_string(i));
 	guiScene->addCombo(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen monitor", list, Events::Fullscreen, (window->getCurrentMonitorNumber()));
-	guiScene->addSlider(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Music Volume", Events::ChangeMusicVolume, 0.1f);
+	guiScene->addSlider(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Music Volume", Events::ChangeMusicVolume, audio->getCurrentVolume());
 	guiScene->addButton(menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Main Menu", Events::EndGame, 1);
 	render->changeGui(guiScene);
 	playgame = false;
