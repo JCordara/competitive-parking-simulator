@@ -10,8 +10,6 @@
 
 ### Joseph
 - Add a menu image rendering
-- Add parking sounds
-- Decide what to do with music
 - Controller support in menu (nice to have)
 
 ### Keaton
@@ -20,8 +18,6 @@
 ### Brayden
 
 ### Jeff
-
-
 
 ### Team 4
 
