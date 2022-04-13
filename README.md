@@ -27,7 +27,7 @@
 - (DONE) Move music slider to options menu
 - (DONE) Add a check to see if the vehicle is flipped when parking
 - Fix shadow map camera during the menu
-- Fix options menu (crashes in debug?)
+- (DONE) Fix options menu (crashes in debug?)
 - Put in those things to make sure that they look correctly just in the implementation the lights I'm talking about
 
 

@@ -140,6 +140,7 @@ private:
 			std::vector<std::string> _texts,
 			Event<int>& _event, int _initialValue) :
 			x(_x), y(_y),
+			name(_name),
 			texts(_texts),
 			event(_event), v(_initialValue) {}
 
@@ -201,7 +202,7 @@ private:
 
 };
 
-const char** stringArrayToConstCharArray(std::string* arr, unsigned int count);
+char** stringArrayToConstCharArray(std::string* arr, unsigned int count);
 
 
 #endif
