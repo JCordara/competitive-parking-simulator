@@ -23,6 +23,12 @@ public:
 		std::string text, 
 		int emphasisLevel = 0
 	);
+
+	void addDynamicLabel(
+		float x, float y,
+		string* text,
+		int emphasisLevel = 0
+	);
 	
 	void addButton(
 		float x, float y, 
@@ -81,6 +87,19 @@ private:
 		int emphasisLevel;
 	} Label;
 
+	typedef struct GUI_DYNAMIC_LABEL {
+
+		GUI_DYNAMIC_LABEL(
+			float _x, float _y,
+			string* _text, int _emphasisLevel) :
+			x(_x), y(_y),
+			text(_text), emphasisLevel(_emphasisLevel) {}
+
+		float x, y;
+		string* text;
+		int emphasisLevel;
+	} DynamicLabel;
+
 	typedef struct GUI_BUTTON {
 
 		GUI_BUTTON(
@@ -121,6 +140,7 @@ private:
 			std::vector<std::string> _texts,
 			Event<int>& _event, int _initialValue) :
 			x(_x), y(_y),
+			name(_name),
 			texts(_texts),
 			event(_event), v(_initialValue) {}
 
@@ -169,6 +189,7 @@ private:
 
 	// Elements to render
 	vector<Label>       labels;
+	vector<DynamicLabel>dynamicLabels;
 	vector<Button>      buttons;
 	vector<Checkbox>    checkboxes;
 	vector<Combo>       combos;
@@ -181,7 +202,7 @@ private:
 
 };
 
-const char** stringArrayToConstCharArray(std::string* arr, unsigned int count);
+char** stringArrayToConstCharArray(std::string* arr, unsigned int count);
 
 
 #endif

@@ -21,9 +21,15 @@ Application::Application(appSettings& settings):
 	Events::AddParkingSpace.registerHandler<Application, &Application::addOpenParkingEntity>(this);
 	Events::AddAICar.registerHandler<Application, &Application::addAICarEvent>(this);
 	/* Framework - used by systems*/
-	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	window = std::make_shared<Window>(mode->width, mode->height, "Competitive Parking Simulator");
-	window->setFullScreen(0);//Set it to windowed
+	window = std::make_shared<Window>(80, 80, "Competitive Parking Simulator");
+	window->setFullScreen(1);//Set it to primary screen
+	//Render loading screen
+	auto loadingTexture = std::make_shared<Texture>();
+	loadingTexture->load("textures/Loading.jpg", GL_LINEAR);
+	ImageRender loadingScreenImageRender;
+	loadingScreenImageRender.use();
+	loadingScreenImageRender.draw(loadingTexture);
+	window->swapBuffers();
 	//Needs to be after the window constructor (LEAVE HERE)
 	Events::Fullscreen.registerHandler<Window, &Window::setFullScreen>(window.get());
 	/// <param name="settings"></param>
@@ -35,11 +41,6 @@ Application::Application(appSettings& settings):
 	render = std::make_shared<RenderSystem>(scene, guiScene, window);
 	audio = std::make_shared<AudioSystem>(scene);
 
-	/* Initialize the loading screen*/
-	std::shared_ptr<Texture> loadingTexture = std::make_shared<Texture>();
-	loadingTexture->load("textures/Loading.jpg", GL_LINEAR);
-	//To-do: ADD Loading render
-	window->swapBuffers();
 	/* Proceed */
 	setupMainMenu();
 	playgame = false;
@@ -144,7 +145,7 @@ void Application::generateStaticMap() {
 			if(StaticPhysxObjectcode == 1)
 				entity->addComponent<RigidbodyComponent>()->addActorStaticMesh(
 					*model, convert<physx::PxTransform>(entity->getComponent<TransformComponent>()->getGlobalMatrix()),
-					0.05f, 0.05f
+					0.5f, 0.0005f
 				);
 			else if (StaticPhysxObjectcode == 2 && halfLengths.has_value())
 				entity->addComponent<RigidbodyComponent>()->addActorStaticBox(
@@ -168,7 +169,7 @@ void Application::generateStaticMap() {
 	// --- Map Curb ---
 	InstancedStatic("cpsMap_Curb.obj", "cpsMap_Curb.obj", 1, fail);
 	// --- Map Hedges ---
-	InstancedStatic("cpsMap_Hedge.obj", "cpsMap_Hedge.obj", 2, physx::PxVec3(7.0f, 1.5f, 0.8f));
+	InstancedStatic("cpsMap_Hedge.obj", "cpsMap_Hedge.obj", 2, physx::PxVec3(7.0f, 1.43f, 0.8f));
 	// --- Map Wood Fence ---
 	InstancedStatic("cpsMap_Woodfence.obj", "cpsMap_Woodfence.obj", 1, fail);
 	// --- Map Wood Fence Pole ---
@@ -176,7 +177,11 @@ void Application::generateStaticMap() {
 	// --- Map Trees ---
 	InstancedStatic("cpsMap_TreeStump.obj", "cpsMap_TreeStump.obj & cpsMap_TreeLeaves.obj", 1, fail);
 	// --- Map Ramps ---
-	InstancedStatic("cpsMap_Ramp2.obj", "cpsMap_Ramp2.obj", 1, fail);
+	InstancedStatic("cpsMap_Ramp.obj", "cpsMap_Ramp.obj", 1, fail);
+	// --- Map SpeedBumps ---
+	InstancedStatic("cpsMap_Speedbump.obj", "cpsMap_Speedbump.obj", 1, fail);
+	// --- Map Streetlight ---
+	InstancedStatic("cpsMap_Streetlight.obj", "cpsMap_Streetlight.obj", 1, fail);
 	// --- Enviromental light ---
 	auto environmentalLight = scene->addEntity().lock();
 	environmentalLight->addComponent<LightingComponent>()->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
@@ -189,6 +194,12 @@ void Application::generateStaticMap() {
 	menuCamera->getComponent<TransformComponent>()->localRotate(glm::radians(-45.0f), glm::vec3(0.f, 1.f, 0.f));
 	menuCamera->addComponent<CameraComponent>()->setPurpose(CameraPurpose::menu);
 	menuCamera->getComponent<CameraComponent>()->setPerspectiveCamera(glm::radians(110.f), 1.f /*Will be modified to the window*/, 5.f, 300.f);
+	// --- Static Menu Shadow Camera --
+	auto shadowCamera = scene->addEntity().lock();
+	shadowCamera->getComponent<TransformComponent>()->setLocalPosition(50.f, 100.0f, 100.0f);
+	shadowCamera->getComponent<TransformComponent>()->setLocalRotation(glm::radians(-45.f), physx::PxVec3(1.f, 0.f, 0.f));
+	shadowCamera->addComponent<CameraComponent>()->setPurpose(CameraPurpose::shadowMapMenu);
+	shadowCamera->getComponent<CameraComponent>()->setOrthographicCamera(300.f, 250.f, 10.f, 300.f);
 }
 
 void Application::createCar(string chassisModelName, std::shared_ptr<Entity> ent) {
@@ -214,6 +225,7 @@ void Application::createCar(string chassisModelName, std::shared_ptr<Entity> ent
 	//-------------------
 	ent->addComponent<VehicleComponent>();
 	ent->addComponent<DescriptionComponent>()->setVec3("Forward", glm::vec3(0.f, 0.f, 1.f));
+	ent->addComponent<DescriptionComponent>()->setVec3("Up", glm::vec3(0.f, 1.f, 0.f));
 }
 
 std::shared_ptr<Entity> Application::createPlayerEntity(instancedTransformation transformation) {
@@ -296,6 +308,7 @@ std::shared_ptr<Entity> Application::addTriggerBoxEntity(string alias, string mo
 	entity->addComponent<DescriptionComponent>()->setString("Name", alias);
 	entity->addComponent<VolumeTriggerComponent>()->createVolumeShape(PxTransform(convert<PxVec3>(transformation.location)), boxgeom);
 	entity->addComponent<DescriptionComponent>()->setVec3("Forward", glm::vec3(0.f, 0.f, 1.f));
+	entity->addComponent<DescriptionComponent>()->setVec3("Up", glm::vec3(0.f, 1.f, 0.f));
 	return entity;
 }
 /* --- Entity Manipulation Events --- */
@@ -366,8 +379,14 @@ void Application::loadModels() {
 	loadModel("cpsMap_BGRoad.obj", glm::vec3(.5f, .1f, .2f));
 	loadInstancedTransformations("cpsMap_BGRoad.obj", "roadLocation.txt", "");
 	loadModel("cpsMap_ParkingIndicator.obj", glm::vec3(.5f, .1f, .2f));
-	loadModel("cpsMap_Ramp2.obj", glm::vec3(.6f, .4f, .6f));
-	loadInstancedTransformations("cpsMap_Ramp2.obj", "rampLocation.txt", "rampRotation.txt");
+	loadModel("cpsMap_Ramp.obj", glm::vec3(.6f, .4f, .6f));
+	loadInstancedTransformations("cpsMap_Ramp.obj", "rampLocation.txt", "rampRotation.txt");
+	loadModel("cpsMap_Speedbump.obj", glm::vec3(.3f, .5f, .9f));
+	loadInstancedTransformations("cpsMap_Speedbump.obj", "speedbumpLocation.txt", "speedbumpRotation.txt");
+	loadModel("cpsMap_Streetlight.obj", glm::vec3(.1f, .2f, .1f));
+	loadInstancedTransformations("cpsMap_Streetlight.obj", "streetlightLocation.txt", "streetlightRotation.txt");
+	loadModel("cpsMap_MallLamp.obj", glm::vec3(.8f, .5f, .3f));
+	loadInstancedTransformations("cpsMap_MallLamp.obj", "malllampLocation.txt", "malllampRotation.txt");
 
 	// --- Loading Game transformations ---
 	loadInstancedTransformations("parkingSpots", "parkingSpotLocation.txt", "parkingSpotRotation.txt");
@@ -435,26 +454,25 @@ void Application::setupMainMenu() {
 }
 
 void Application::setupOptions() {
-	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 3, 0.1f);
+	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 4, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	std::vector<string> names = { "Play","Options","Exit" };
 	guiScene->addSlider(menu->layout[0][0].positionX, menu->layout[0][0].positionY, "Starting Number of AI", Events::ChangeNumberOfAI, gameplay->getStartingAi_number(), 1, 8);
 	std::vector<std::string> list = { "Windowed" };
 	for (int i = 0; i < window->numberOfMonitors(); i++)
 		list.push_back(string("Monitor ") + std::to_string(i));
 	guiScene->addCombo(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen monitor", list, Events::Fullscreen, (window->getCurrentMonitorNumber()));
-	//guiScene->addSlider(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen monitor", Events::Fullscreen, window->getCurrentMonitorNumber(), -1, window->numberOfMonitors() - 1);
-	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Main Menu", Events::EndGame, 1);
+	guiScene->addSlider(menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Music Volume", Events::ChangeMusicVolume, 0.1f);
+	guiScene->addButton(menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Main Menu", Events::EndGame, 1);
 	render->changeGui(guiScene);
 	playgame = false;
 }
 
 void Application::setupBaseLevelGUI() {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	guiScene->addSlider(0.01f, 0.1f, "Music Volume", Events::ChangeMusicVolume, 0.1f);
-	guiScene->addButton(0.01f,0.9f, "Main Menu", Events::EndGame, 1);
+	guiScene->addButton(0.01f,0.9f, "Quit to Main Menu", Events::EndGame, 1);
 	guiScene->addButton(0.01f, 0.95f, "Exit", Events::ExitApplication, 1);
-	guiScene->addLabel( 0.3f, 0.01f, string("CONTESTANTS REMAINING: ")  + std::to_string(gameplay->getCurrentAi_number() + 1), 2);
+	guiScene->addLabel( 0.05f, 0.01f, string("Contestants Remaining: ")  + std::to_string(gameplay->getCurrentAi_number() + 1), 2);
+	guiScene->addDynamicLabel(0.5f, 0.01f, gameplay->getDisplayString(), 2);
 	//ImGui::ProgressBar(float fraction, const ImVec2 & size_arg, const char* overlay)
 	render->changeGui(guiScene);
 	playgame = true;
@@ -464,6 +482,7 @@ void Application::roundWonMenu() {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addButton(menu->layout[0][0].positionX, menu->layout[0][0].positionY, "Next Round", Events::NextRound, 1);
 	guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "Main Menu", Events::EndGame, 1);
+	guiScene->addLabel(0.3f, 0.01f, "Spectating Mode", 2);
 	render->changeGui(guiScene);
 	playgame = false;
 }
@@ -472,6 +491,7 @@ void Application::gameEndGui(string message) {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][0].positionY, message, 2);
 	guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY, "Main Menu", Events::EndGame, 1);
+	guiScene->addLabel(0.3f, 0.01f, "Spectating Mode", 2);
 	render->changeGui(guiScene);
 	playgame = false;
 }

@@ -20,7 +20,7 @@ void RigidbodyComponent::addActorStaticMesh(const Model& model, PxTransform star
 	PxTriangleMesh* mesh = physicsSystem->createStaticMesh(model);
 	PxTriangleMeshGeometry geom(mesh);
 
-	PxMaterial* material = physicsSystem->pxPhysics->createMaterial(sFriction, dFriction, 0.6f);
+	PxMaterial* material = physicsSystem->pxPhysics->createMaterial(sFriction, dFriction, 0.05f);
 	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*actor, geom, *material);
 
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);

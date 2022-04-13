@@ -8,6 +8,40 @@
 #include "Lighting.h"
 
 
+class ImageRender {
+public:
+	ImageRender();
+	void use();
+	void draw(std::shared_ptr<Texture> tex);
+private:
+	//Program to run Shader
+	ShaderProgram shader;
+	//Simple draw geom
+	glm::vec3 quad[6] = {
+		glm::vec3(1.f, 1.f, 0.f),
+		glm::vec3(-1.f, 1.f, 0.f),
+		glm::vec3(-1.f, -1.f, 0.f),
+		glm::vec3(1.f, 1.f, 0.f),
+		glm::vec3(-1.f, -1.f, 0.f),
+		glm::vec3(1.f, -1.f, 0.f)
+	};
+	glm::vec2 quadUV[6] = {
+		glm::vec2(1.f, 1.f),
+		glm::vec2(0.f, 1.f),
+		glm::vec2(0.f, 0.f),
+		glm::vec2(1.f, 1.f),
+		glm::vec2(0.f, 0.f),
+		glm::vec2(1.f, 0.f)
+	};
+	//Vertex Array with the vertBuffer and textureUVBuffer
+	VertexArray vao;
+	VertexBuffer vertBuffer;
+	VertexBuffer uvBuffer;
+
+	GLint textureLocation;
+};
+
+
 struct instancedPair {
 	std::shared_ptr<Model> model;
 	std::vector<glm::mat4> modelTransformations;

@@ -8,6 +8,7 @@ enum class CameraPurpose {
 	render,
 	shadowMap,
 	menu,
+	shadowMapMenu,
 	unknown
 };
 

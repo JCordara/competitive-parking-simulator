@@ -1,21 +1,32 @@
 # CPSC 585 Project
 ## Tasks to complete:
-- AI
- - Park quicker
- - Bug fixing (fighting for the same spot, parking in spots that aren't open)
 
-- Tuning parking parameters
-- Add a check to see if the vehicle is flipped when parking
-- Add a menu window backdrop thing
-- Fix options menu (crashes?)
+### Kaynen & friends
+- AI
+  - Park quicker
+  - Bug fixing (fighting for the same spot, parking in spots that aren't open)
+
+### Keaton
 - Stop player from being able to drive in the menu
-- Decide what to do with music
+- (DONE)In game status (show count of spots remaining)
+- Tuning parking parameters
+
+### Joseph
+- Add a menu image rendering
 - Add parking sounds
-- Street lamps, other lighting props
-- Ramp tuning?
-- Fix shadow map camera during the menu
+- Decide what to do with music
 - Controller support in menu (nice to have)
-- In game status (show count of spots remaining)
+
+### Brayden
+
+### Jeff
+- (DONE) Add "spectator mode" text to round over thing
+- (DONE) Move music slider to options menu
+- (DONE) Add a check to see if the vehicle is flipped when parking
+- (DONE) Fix shadow map camera during the menu
+- (DONE) Fix options menu (crashes in debug?)
+- Put in those things to make sure that they look correctly just in the implementation the lights I'm talking about
+
 
 ### Team 4
 

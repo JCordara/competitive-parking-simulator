@@ -34,6 +34,8 @@ void GuiScene::draw() {
 	vector<SliderFloat> floatSliderEvents;
 	vector<SliderInt> intSliderEvents;
 
+	std::vector<char*> toDelete;
+
 	if (ImGui::Begin("GUI LAYER", nullptr, windowFlags)) {
 
 		ImGui::Text("FPS: %.2f", Time::fps());
@@ -43,6 +45,13 @@ void GuiScene::draw() {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * label.x, window->getHeight() * label.y));
 			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[label.emphasisLevel]);
 			ImGui::Text(label.text.c_str());
+			ImGui::PopFont();
+		}
+
+		for (auto& label : dynamicLabels) {
+			ImGui::SetCursorScreenPos(ImVec2(window->getWidth() * label.x, window->getHeight() * label.y));
+			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[label.emphasisLevel]);
+			ImGui::Text((*(label.text)).c_str());
 			ImGui::PopFont();
 		}
 
@@ -66,9 +75,11 @@ void GuiScene::draw() {
 
 		for (auto& combo : combos) {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth() * combo.x, window->getHeight() * combo.y));
-			if (ImGui::Combo(combo.name.c_str(), &combo.v ,stringArrayToConstCharArray(combo.texts.data(), combo.texts.size()), combo.texts.size()))
+			auto v = stringArrayToConstCharArray(combo.texts.data(), combo.texts.size());
+			if (ImGui::Combo(combo.name.c_str(), &combo.v ,v, combo.texts.size()))
 				comboEvents.push_back(combo);
-			//
+			for(int i = 0 ; i < combo.texts.size(); i++)
+				toDelete.push_back(v[i]);
 		}
 
 		for (auto& slider : floatSliders) {
@@ -101,11 +112,18 @@ void GuiScene::draw() {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); // Some middleware thing
 
+	for (auto p : toDelete) delete[] p;
+
 	glEnable(GL_FRAMEBUFFER_SRGB);
+
 }
 
 void GuiScene::addLabel(float x, float y, std::string text, int emphasisLevel) {
 	labels.emplace_back(x, y, text, emphasisLevel);
+}
+
+void GuiScene::addDynamicLabel(float x, float y, string* text, int emphasisLevel) {
+	dynamicLabels.emplace_back(x, y, text, emphasisLevel);
 }
 
 void GuiScene::addButton(float x, float y, std::string text, Event<void>& event, int emphasisLevel) {
@@ -129,9 +147,13 @@ void GuiScene::addSlider(float x, float y, std::string text, Event<int>& event, 
 }
 
 
-const char** stringArrayToConstCharArray(std::string* arr, unsigned int count) {
-	std::vector<const char*> ret = std::vector<const char*>(count);
-	for (int i = 0; i < count; i++)
-		ret[i] = arr[i].data();
-	return ret.data();
+char** stringArrayToConstCharArray(std::string* arr, unsigned int count) {
+	char** ret = new char*[count];
+	for (int i = 0; i < count; i++) {
+		ret[i] = new char[arr[i].size() + 1];
+		for (int j = 0; j < arr[i].size(); j++)
+			ret[i][j] = arr[i][j];
+		ret[i][arr[i].size()] = '\0';
+	}
+	return ret;
 }
