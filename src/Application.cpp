@@ -25,7 +25,7 @@ Application::Application(appSettings& settings):
 	window->setFullScreen(1);//Set it to primary screen
 	//Render loading screen
 	auto loadingTexture = std::make_shared<Texture>();
-	loadingTexture->load("textures/Loading.jpg", GL_LINEAR);
+	loadingTexture->load("textures/LoadingScreen.png", GL_LINEAR);
 	ImageRender loadingScreenImageRender;
 	loadingScreenImageRender.use();
 	loadingScreenImageRender.draw(loadingTexture);
