@@ -21,9 +21,15 @@ Application::Application(appSettings& settings):
 	Events::AddParkingSpace.registerHandler<Application, &Application::addOpenParkingEntity>(this);
 	Events::AddAICar.registerHandler<Application, &Application::addAICarEvent>(this);
 	/* Framework - used by systems*/
-	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	window = std::make_shared<Window>(mode->width, mode->height, "Competitive Parking Simulator");
-	window->setFullScreen(0);//Set it to windowed
+	window = std::make_shared<Window>(80, 80, "Competitive Parking Simulator");
+	window->setFullScreen(1);//Set it to primary screen
+	//Render loading screen
+	auto loadingTexture = std::make_shared<Texture>();
+	loadingTexture->load("textures/Loading.jpg", GL_LINEAR);
+	ImageRender loadingScreenImageRender;
+	loadingScreenImageRender.use();
+	loadingScreenImageRender.draw(loadingTexture);
+	window->swapBuffers();
 	//Needs to be after the window constructor (LEAVE HERE)
 	Events::Fullscreen.registerHandler<Window, &Window::setFullScreen>(window.get());
 	/// <param name="settings"></param>
@@ -35,11 +41,6 @@ Application::Application(appSettings& settings):
 	render = std::make_shared<RenderSystem>(scene, guiScene, window);
 	audio = std::make_shared<AudioSystem>(scene);
 
-	/* Initialize the loading screen*/
-	std::shared_ptr<Texture> loadingTexture = std::make_shared<Texture>();
-	loadingTexture->load("textures/Loading.jpg", GL_LINEAR);
-	//To-do: ADD Loading render
-	window->swapBuffers();
 	/* Proceed */
 	setupMainMenu();
 	playgame = false;

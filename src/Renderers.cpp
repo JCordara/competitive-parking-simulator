@@ -164,6 +164,39 @@ void GameRenderPipeline::executeRender() {
 
 }
 
+ImageRender::ImageRender() :
+	shader("shaders/test.vert", "shaders/test.frag"),
+	vao(),
+	vertBuffer(0, 3, GL_FLOAT),
+	uvBuffer(1, 2, GL_FLOAT)
+{
+	textureLocation = glGetUniformLocation(shader, "_texture");
+	vao.bind();
+	vertBuffer.uploadData(sizeof(glm::vec3) * 6, quad, GL_STATIC_DRAW);
+	uvBuffer.uploadData(sizeof(glm::vec2) * 6, quadUV, GL_STATIC_DRAW);
+	vao.unbind();
+}
+
+void ImageRender::use() {
+	shader.use();
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_FRAMEBUFFER_SRGB);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_STENCIL_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+void ImageRender::draw(std::shared_ptr<Texture> tex) {
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(textureLocation, 0);
+	tex->bind();
+	//Draw quad
+	vao.bind();
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	vao.unbind();
+}
+
 DepthRenderer::DepthRenderer() : shader("shaders/DepthTexture.vert", "shaders/DepthTexture.frag"), frameBuffer() {
 	std::vector<GLenum> drawBuffer = { GL_NONE };
 	frameBuffer.drawBuffers(drawBuffer);
