@@ -1,29 +1,36 @@
 # CPSC 585 Project
 ## Tasks to complete:
-  - Menu formatting (where buttons/sliders are placed, consistent look for buttons)
+  - EVERYTHING UNDERNEATH
 
 ### Kaynen & Brayden & Keaton
 - AI
-  - Park quicker
-  - Bug fixing (fighting for the same spot, parking in spots that aren't open)
+  - Bug fixing (Down below)
   - Tuning parking parameters
 
-  ## Issues found with AI
-  - Doesn't end in actual parking spot, ends in node before
-    # Solution
-      - Add parking subset to node file with ID
-  - AI should stop when parked, not continue to turn/spin
+  ### MASSIVE ISSUE
+      - Turning timeout (finds zero spaces, turns indefinitely)
+
+  ## AI BUGS 
   - AI attempts to go back to the parking spot it was trying to go to last round
     # Solution
-      - Reset the AI searching to a new parking spot
+      - Reset the AI searching to a new parking spot PER ROUND?
+  - Nodes before parking too close
+  - Speed on nodes too fast for before parking?
+    # Solution
+      - Check if node list is less than or equal to 2 (if so lower speed)
+  - AI turning gets stuck on node (indefinite circle)
+    # Solution
+      - Handbrake to fix turning?
+
+### Joseph & Jeff
+- Menu formatting (where buttons/sliders are placed, consistent look for buttons)
+- Add a menu image rendering (PLEASE)
+- Select Menu music!!!!!!!!!!!!1 (Other than wheels on the bus? Snoop dogg???)
+- Controller support in menu (A MUST)
 
 ### Joseph
-- Add a menu image rendering
-- Select Menu music!!!!!!!!!!!!1
-- Controller support in menu
 
 ### Keaton
-- Capsule Physics Mesh
 
 ### Brayden
 
