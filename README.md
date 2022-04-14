@@ -23,10 +23,12 @@
       - Handbrake to fix turning?
 
 ### Joseph & Jeff
-- - Finalize formatting for menu (where buttons/sliders are placed, consistent look for buttons)
+- Finalize formatting for menu (where buttons/sliders are placed, consistent look for buttons)
 - Add a menu image rendering (MUST)
 - Music Additions? Select Menu Music (Fall Guys intro?)
 - Controller support in menu (MUST)
+
+### Kaynen
 
 ### Joseph
 
