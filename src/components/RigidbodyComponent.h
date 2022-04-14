@@ -18,7 +18,7 @@ public:
     
 	void addActorStaticMesh(const Model& model, PxTransform startPos, float sFriction, float dFriction);
 	void addActorStaticBox(PxVec3 halfLen, PxTransform startPos);
-	void addActorStaticSphere(const float radius, PxTransform startPos);
+	void addActorStaticCapsule(PxVec3 halfHeight, const float radius, PxTransform startPos, float sFriction, float dFriction);
 	void addActorDynamic(const Model& model, PxTransform startPos);
 
     PxRigidActor* getActor() { return actor; }

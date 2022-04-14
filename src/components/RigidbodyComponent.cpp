@@ -31,21 +31,22 @@ void RigidbodyComponent::addActorStaticMesh(const Model& model, PxTransform star
 	meshShape->release();
 }
 
-void RigidbodyComponent::addActorStaticSphere(const float radius, PxTransform startPos) {
+void RigidbodyComponent::addActorStaticCapsule(PxVec3 halfHeight, const float radius, PxTransform startPos, float sFriction, float dFriction) {
 
 	actor = physicsSystem->pxPhysics->createRigidStatic(startPos);
 	actor->userData = static_cast<void*>(getEntity().get());
 
-	PxSphereGeometry sphereGeom(radius);
+	PxCapsuleGeometry capsuleGeom(radius, halfHeight);
 
-	PxShape* sphere = PxRigidActorExt::createExclusiveShape(*actor, sphereGeom, *gMaterial);
+	PxMaterial* material = physicsSystem->pxPhysics->createMaterial(sFriction, dFriction, 0.05f);
+	PxShape* capsule = PxRigidActorExt::createExclusiveShape(*actor, capsuleGeom, *material);
 
 	PxFilterData meshFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
 	setupDrivableSurface(meshFilterData);
-	sphere->setSimulationFilterData(meshFilterData);
-	sphere->setQueryFilterData(meshFilterData);
+	capsule->setSimulationFilterData(meshFilterData);
+	capsule->setQueryFilterData(meshFilterData);
 	physicsSystem->pxScene->addActor(*actor);
-	sphere->release();
+	capsule->release();
 }
 
 
