@@ -257,11 +257,17 @@ void AiComponent::searchState() {
 		if(currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
 			if (currentNode->nodeTaken) {
 				pickParkingNode();
+				currentNode = nodeQueue[0];
+				nodeQueue.erase(nodeQueue.begin());
+				aiSpeed = currentNode->nodeSpeed; accelForwards();
+				steerToNextNode();
 			}
 			else {
-				aiSpeed = 0.1; accelForwards();
+				//aiSpeed = 0.1; accelForwards();
 				currentNode->nodeTaken = true;
+				aiSpeed = 0.f; accelForwards();
 				Events::VehicleBrake.broadcast(entity, 1.f);
+				Events::VehicleSteer.broadcast(entity, 0.f);
 				switchState(States::PARKED);
 			}
 
@@ -296,6 +302,21 @@ void AiComponent::searchState() {
 	else if (getEntity()->getComponent<VehicleComponent>()->
 				vehicle->computeForwardSpeed() < MINSPEED) {
 		 recoveryTimeout++; // One more frame of not moving enough
+	}
+	// If the next node is a parking stall but hasn't been reached yet
+	else if (currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
+		if (currentNode->nodeTaken) {
+			pickParkingNode();
+			currentNode = nodeQueue[0];
+			nodeQueue.erase(nodeQueue.begin());
+			aiSpeed = currentNode->nodeSpeed; accelForwards();
+			steerToNextNode();
+		}
+		else {
+			aiSpeed = 0.15; accelForwards();
+			recoveryTimeout = 0;
+			steerToNextNode();
+		}
 	}
 	// Normal movement for the AI, just move to the next node
 	else {

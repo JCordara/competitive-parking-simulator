@@ -6,13 +6,13 @@
 #define MAX_DISTANCE				1.2f
 #define MAX_COS_ANGLE_FORWARD		0.94f
 #define MAX_COS_ANGLE_UP			0.96f
-#define PARKING_TIME				0.6f
+#define PARKING_TIME				0.4f
 
 #define MAX_SPEED_DRIVE_AI			MAX_SPEED_DRIVE
 #define MAX_SPEED_ENGINE_AI			MAX_SPEED_ENGINE
 #define MAX_SPEED_SKID_AI			MAX_SPEED_SKID
-#define MAX_DISTANCE_AI				MAX_DISTANCE
-#define MAX_COS_ANGLE_FORWARD_AI	MAX_COS_ANGLE_FORWARD
+#define MAX_DISTANCE_AI				4
+#define MAX_COS_ANGLE_FORWARD_AI	0.85f
 #define MAX_COS_ANGLE_UP_AI			MAX_COS_ANGLE_UP
 #define PARKING_TIME_AI				PARKING_TIME
 
@@ -36,7 +36,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 	//Events::MainMenu.broadcast();
 	gamestate = GameState::MainMenu;
 	nextAI_ID = 0;
-	startingAi_number = 5;
+	startingAi_number = 2;
 	currentAi_number = 0;
 }
 
