@@ -218,6 +218,10 @@ float AiComponent::getFValue(std::shared_ptr<AiGraphNode> node) {
 
 // Resets the AI to a chosen spawn position and search state
 void AiComponent::resetAi() {
+	recoveryTimeout = 0;
+	nodeTravelTimeout = 0;
+	attemptedFlip = false;
+	REVERSEMINIMUM = 7.f;
 	setSpawnNode();
 	//visitedAreas.clear();
 	switchState(States::SEARCH);
@@ -237,11 +241,13 @@ void AiComponent::switchState(States newState) {
 // Handles logic for detecting if the car gets stuck
 void AiComponent::searchState() {
 	const float MINSPEED = 2.f; // minimum speed to be considered moving
-	const int MAXSTUCKTIME = 6; 
+	const int MAXSTUCKTIME = 6;
+	const int MAXTRAVELTIME = 24; // at 1 update every quarter of a second, 6 seconds
 	bool inBounds = inRangeOfNode(currentNode->nodeThreshold);
 
 	// Checks if the car has reached the current node
 	if (inBounds) {
+		nodeTravelTimeout = 0; // Reached the node, reset travel timeout
 		/*if (nodeQueue.size() == 1) {
 			if (pickClosestParkingNode(nodeQueue[0])) {
 				currentNode = nodeQueue[0];
@@ -291,10 +297,11 @@ void AiComponent::searchState() {
 		}
 	}
 	// Check for stuck status i.e. has not moved for too long
-	else if (recoveryTimeout > MAXSTUCKTIME) {
+	else if (recoveryTimeout > MAXSTUCKTIME || nodeTravelTimeout > MAXTRAVELTIME) {
 		switchState(States::RECOVERY);
 		stuckPos = entity.lock()->getComponent<TransformComponent>()->getGlobalPosition();
 		recoveryTimeout = 0;
+		nodeTravelTimeout = 0;
 		aiSpeed = 0.45; accelReverse();
 	}
 	// If the AI's speed is low, count it as stuck and update the timeout count
@@ -319,7 +326,7 @@ void AiComponent::searchState() {
 			}
 			// If the node hasn't been taken, continue into the spot, but slow down
 			else {
-				aiSpeed = 0.25; accelForwards();
+				aiSpeed = 0.25; accelForwards();// TODO figure out why changing this value lower breaks the AI
 				recoveryTimeout = 0;
 				steerToNextNode();
 			}
@@ -343,6 +350,7 @@ void AiComponent::searchState() {
 	// Normal movement for the AI, just move to the next node
 	else {
 		recoveryTimeout = 0;
+		nodeTravelTimeout++;
 		steerToNextNode();
 	}
 }
@@ -367,7 +375,6 @@ bool AiComponent::inRangeOfNode(const float nodeThreshhold) {
 // Then forward and random turns until further away from the point where stuck
 void AiComponent::recoveryState() {
 	const int MAXSTUCKTIME = 20; // 6 Second recovery time allowance
-	float REVERSEMINIMUM = 7.f;
 	float amountMoved = glm::distance(
 		getEntity()->getComponent<TransformComponent>()->getGlobalPosition(), stuckPos);
 	//std::cout << entity->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y << std::endl;
@@ -377,8 +384,18 @@ void AiComponent::recoveryState() {
 			Events::VehicleFlip.broadcast(entity, 90.f);
 			recoveryTimeout = 0;
 		}
+		// If the AI has not attempted a flip, try that before reseting
+		else if (!attemptedFlip) {
+			Events::VehicleFlip.broadcast(entity, 90.f);
+			stuckPos = entity.lock()->getComponent<TransformComponent>()->getGlobalPosition();
+			recoveryTimeout = 0;
+			nodeTravelTimeout = 0;
+			attemptedFlip = true;
+			REVERSEMINIMUM = REVERSEMINIMUM / 2;
+		}
 		else {
 			resetAi();
+			attemptedFlip = false;
 			recoveryTimeout = 0;
 		}
 		//recoveryTimeout = 0;
@@ -397,6 +414,9 @@ void AiComponent::recoveryState() {
 	else {
 		state = lastState;
 		recoveryTimeout = 0;
+		nodeTravelTimeout = 0;
+		attemptedFlip = false;
+		REVERSEMINIMUM = 7.f;
 		aiSpeed = 0.35; accelForwards();
 	}
 }
@@ -443,9 +463,9 @@ void AiComponent::steerToNextNode() {
 		//turn left
 		Events::VehicleSteer.broadcast(getEntity(), -turnAmount);
 		bool isLargeTurn = angleFinal < -0.5 && angleFinal > -1;
-		if(isLargeTurn && entity.lock()->getComponent<VehicleComponent>()->getSpeed() > 5)
-			Events::VehicleHandbrake.broadcast(getEntity(), 0.5f);
-		else Events::VehicleHandbrake.broadcast(getEntity(), 0.f);
+		if(isLargeTurn && entity.lock()->getComponent<VehicleComponent>()->getSpeed() > 4)
+			Events::VehicleHandbrake.broadcast(getEntity(), 1.f);
+		//else Events::VehicleHandbrake.broadcast(getEntity(), 0.f);
 	}
 	else if (angleFinal > ANGLETHRESHOLD && angleFinal < 0.3) {
 		if (aiSpeed <= 0.55) aiSpeed = aiSpeed + 0.05; accelForwards(); // Increase speed slowly
@@ -462,19 +482,21 @@ void AiComponent::steerToNextNode() {
 		//turn right
 		Events::VehicleSteer.broadcast(getEntity(), -turnAmount);
 		bool isLargeTurn = angleFinal > 0.5 && angleFinal < 1;
-		if (isLargeTurn && entity.lock()->getComponent<VehicleComponent>()->getSpeed() > 5)
-			Events::VehicleHandbrake.broadcast(getEntity(), 0.5f);
-		else Events::VehicleHandbrake.broadcast(getEntity(), 0.f);
+		if (isLargeTurn && entity.lock()->getComponent<VehicleComponent>()->getSpeed() > 4)
+			Events::VehicleHandbrake.broadcast(getEntity(), 1.f);
+		//else Events::VehicleHandbrake.broadcast(getEntity(), 0.f);
 	}
 	
 }
 
 // Method for accelerating forwards
 void AiComponent::accelForwards() {
+	Events::VehicleHandbrake.broadcast(getEntity(), 0.f);
 	Events::VehicleAccelerate.broadcast(getEntity(), aiSpeed);
 }
 // Method for accelerating backwards i.e. reversing
 void AiComponent::accelReverse() {
+	Events::VehicleHandbrake.broadcast(getEntity(), 0.f);
 	Events::VehicleAccelerate.broadcast(getEntity(), -aiSpeed);
 }
 

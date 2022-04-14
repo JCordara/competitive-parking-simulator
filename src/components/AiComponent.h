@@ -83,7 +83,10 @@ private:
 	States state = States::SEARCH; // Default search
 	States lastState = States::RESET; // Default
 	glm::vec3 stuckPos = glm::vec3(); // Used for original stuck position
+	bool attemptedFlip = false;
+	float REVERSEMINIMUM = 7.f; // Value for distance traveled backwards when an AI gets stuck
 	int recoveryTimeout = 0; // Count of frames where the vehicle is not moving enough
+	int nodeTravelTimeout = 0;
 	std::vector<Entity> carQueue;
 	std::vector<std::shared_ptr<AiGraphNode>> nodeQueue;
 	std::vector<std::shared_ptr<AiGraphNode>> emptyParkingNodes;
