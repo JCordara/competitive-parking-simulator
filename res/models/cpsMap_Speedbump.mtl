@@ -1,7 +1,7 @@
-# Blender MTL File: 'cpsMap.blend'
+# Blender MTL File: 'None'
 # Material Count: 1
 
-newmtl speedbump
+newmtl speedbump.001
 Ns 1.535905
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
