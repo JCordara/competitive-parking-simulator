@@ -7,10 +7,10 @@
 
 
 
-void Texture::load(std::string path, GLint interpolation){
+void Texture::load(std::string path, GLint interpolation, bool flip){
 	this->interpolation = interpolation;
 	int numComponents;
-	stbi_set_flip_vertically_on_load(true);
+	stbi_set_flip_vertically_on_load(flip);
 	const char* pathData = path.c_str();
 	unsigned char* data = stbi_load(pathData, &width, &height, &numComponents, 0);
 	if (data != nullptr)

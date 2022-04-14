@@ -12,7 +12,7 @@
 class Texture {
 public:
 
-	void load(std::string path, GLint interpolation);
+	void load(std::string path, GLint interpolation, bool flip=true);
 	void setUpInternal(int width, int height, GLint interpolation, GLuint internalformat, GLuint format, GLenum type);
 	void setBorderColour(glm::vec4 col);
 

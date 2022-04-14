@@ -480,6 +480,7 @@ void Application::setupMainMenu() {
 	guiScene->addButton(menu->layout[0][1].positionX, menu->layout[0][1].positionY,
 		"Options", Events::GameOptions, 1);
 	guiScene->addButton(menu->layout[0][2].positionX, menu->layout[0][2].positionY,"Exit", Events::ExitApplication, 1);
+	guiScene->addImage(0.1, 0.1, 0.8, 0.8, "textures/smile.jpg");
 	render->changeGui(guiScene);
 	playgame = false;
 }
