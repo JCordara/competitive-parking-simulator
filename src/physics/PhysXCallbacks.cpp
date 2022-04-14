@@ -60,7 +60,7 @@ void PhysXSimCallback::onTrigger(
 					// Get shared pointers to entities
 					weak_ptr<Entity> wp_car = pCar->weak_from_this();
 					weak_ptr<Entity> wp_trigger = pTrigger->weak_from_this();
-					Events::CarParked.broadcast(wp_car, wp_trigger);
+					Events::ParkingStallTriggered.broadcast(wp_car, wp_trigger);
 				}
 			} catch (std::exception) {
 				std::cerr << "[PhysXSimCallback::onTrigger] Failed to convert "

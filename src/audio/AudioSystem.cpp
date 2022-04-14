@@ -49,7 +49,7 @@ AudioSystem::AudioSystem(shared_ptr<Scene> scene): scene(scene) {
     Events::Collision.registerHandler<AudioSystem,
         &AudioSystem::onCollision>(this);
 
-	Events::CarParked_Official.registerHandler<AudioSystem,
+	Events::CarParked.registerHandler<AudioSystem,
 		&AudioSystem::onPark>(this);
 
     Events::ChangeMusicVolume.registerHandler<AudioSystem,

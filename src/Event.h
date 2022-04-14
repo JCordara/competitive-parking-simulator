@@ -59,15 +59,18 @@ namespace Events {
 	extern Event<void> NextRound;
 	extern Event<void> EndGame;
 	extern Event<weak_ptr<Entity>, float> GameReset;
-	extern Event<weak_ptr<Entity>, weak_ptr<Entity>> CarParked;
+	extern Event<weak_ptr<Entity>, weak_ptr<Entity>> ParkingStallTriggered;
+	extern Event<weak_ptr<Entity>> CarParked;
 	extern Event<void> SetMenuMusic;
-	extern Event<weak_ptr<Entity>> CarParked_Official;
 	/* --- Script Events --- */
 	extern Event<void> RecompileScripts;
 	/* --- miscellaneous Events --- */
     extern Event<float> ChangeMusicVolume;
 	extern Event<int> ChangeNumberOfAI;
 	extern Event<int> Fullscreen;
+
+	extern Event<float> StickMoveY;
+	extern Event<void> APressed;
 };
 
 #endif // EVENT_H

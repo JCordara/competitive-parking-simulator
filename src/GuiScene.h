@@ -32,6 +32,7 @@ public:
 	);
 	
 	void addButton(
+		int index,
 		float x, float y, 
 		std::string text, 
 		Event<void>& event, 
@@ -39,6 +40,7 @@ public:
 	);
 	
 	void addCheckbox(
+		int index,
 		float x, float y, 
 		std::string text, 
 		Event<bool>& event, 
@@ -46,6 +48,7 @@ public:
 	);
 
 	void addCombo(
+		int index,
 		float x, float y,
 		std::string name,
 		std::vector<std::string> text,
@@ -54,6 +57,7 @@ public:
 	);
 	
 	void addSlider(
+		int index,
 		float x, float y, 
 		std::string text, 
 		Event<float>& event, 
@@ -63,6 +67,7 @@ public:
 	);
 
 	void addSlider(
+		int index,
 		float x, float y, 
 		std::string text, 
 		Event<int>& event, 
@@ -110,13 +115,16 @@ private:
 	typedef struct GUI_BUTTON {
 
 		GUI_BUTTON(
+			int _ix,
 			float _x, float _y, 
 			std::string _text, 
 			Event<void>& _event, int _emphasisLevel):
+			index(_ix),
 			x(_x), y(_y), 
 			text(_text), 
 			event(_event), emphasisLevel(_emphasisLevel) {}
 
+		int index;
 		float x, y;
 		std::string text;
 		int emphasisLevel;
@@ -126,13 +134,16 @@ private:
 	typedef struct GUI_CHECKBOX {
 
 		GUI_CHECKBOX(
+			int _ix,
 			float _x, float _y, 
 			std::string _text, 
 			Event<bool>& _event, bool _initialValue): 
+			index(_ix),
 			x(_x), y(_y), 
 			text(_text), 
 			event(_event), v(_initialValue) {}
 
+		int index;
 		float x, y;
 		bool v;
 		std::string text;
@@ -142,15 +153,18 @@ private:
 	typedef struct GUI_COMBO {
 
 		GUI_COMBO(
+			int _ix,
 			float _x, float _y,
 			std::string _name,
 			std::vector<std::string> _texts,
 			Event<int>& _event, int _initialValue) :
+			index(_ix),
 			x(_x), y(_y),
 			name(_name),
 			texts(_texts),
 			event(_event), v(_initialValue) {}
 
+		int index;
 		float x, y;
 		int v;
 		std::string name;
@@ -161,15 +175,18 @@ private:
 	typedef struct GUI_SLIDER_FLOAT {
 
 		GUI_SLIDER_FLOAT(
+			int _ix,
 			float _x, float _y, 
 			std::string _text, 
 			Event<float>& _event, 
 			float _initialValue, float _min, float _max): 
+			index(_ix),
 			x(_x), y(_y), 
 			text(_text), 
 			event(_event), 
 			v(_initialValue), min(_min), max(_max) {}
 
+		int index;
 		float x, y;
 		float v, min, max;
 		std::string text;
@@ -179,15 +196,18 @@ private:
 	typedef struct GUI_SLIDER_INT {
 
 		GUI_SLIDER_INT(
+			int _ix,
 			float _x, float _y, 
 			std::string _text, 
 			Event<int>& _event, 
 			int _initialValue, int _min, int _max): 
+			index(_ix),
 			x(_x), y(_y), 
 			text(_text), 
 			event(_event), 
 			v(_initialValue), min(_min), max(_max) {}
 
+		int index;
 		float x, y;
 		int v, min, max;
 		std::string text;
@@ -206,18 +226,43 @@ private:
 	} Image;
 
 	// Elements to render
-	vector<Label>       labels;
-	vector<DynamicLabel>dynamicLabels;
-	vector<Button>      buttons;
-	vector<Checkbox>    checkboxes;
-	vector<Combo>       combos;
-	vector<SliderFloat> floatSliders;
-	vector<SliderInt>   intSliders;
-	vector<Image>   	images;
+	vector<Label>        labels;
+	vector<DynamicLabel> dynamicLabels;
+	vector<Button>       buttons;
+	vector<Checkbox>     checkboxes;
+	vector<Combo>        combos;
+	vector<SliderFloat>  floatSliders;
+	vector<SliderInt>    intSliders;
+	vector<Image>   	 images;
+
+	vector<Button>      buttonEvents;
+	vector<Checkbox>    checkboxEvents;
+	vector<Combo>       comboEvents;
+	vector<SliderFloat> floatSliderEvents;
+	vector<SliderInt>   intSliderEvents;
 
 	shared_ptr<Window> window;
 
 	ImGuiWindowFlags windowFlags;
+
+	ImVec4 highlightColor = ImVec4(0.7f, 0.7f, 0.2f, 1.0f);
+	int selectedElement = -1;
+	int maxIndex = -1;
+
+	void menuNav (float v) {
+		if (selectedElement <= 0) selectedElement = 0;
+		if (selectedElement >= maxIndex) selectedElement = maxIndex;
+		if (v == 1.0f) selectedElement++;
+		if (v == -1.0f) selectedElement--;
+	}
+
+	void menuSelect () {
+		for (auto button : buttons) if (button.index == selectedElement) buttonEvents.push_back(button);
+		for (auto checkbox : checkboxes) if (checkbox.index == selectedElement) checkboxEvents.push_back(checkbox);
+		for (auto combo : combos) if (combo.index == selectedElement) comboEvents.push_back(combo);
+		for (auto slider : floatSliderEvents) if (slider.index == selectedElement) floatSliderEvents.push_back(slider);
+		for (auto slider : intSliderEvents) if (slider.index == selectedElement) intSliderEvents.push_back(slider);
+	}
 
 };
 

@@ -99,11 +99,17 @@ void Callbacks::gamepadAxisCallback(float axes[], int axis, unsigned int n) {
 		controlAxis->setInputValue(axis, axes[axis]);
 	}
 
+	if (axis == GLFW_GAMEPAD_AXIS_LEFT_Y)      Events::StickMoveY.broadcast(axes[axis]);
+	if (axis == GLFW_GAMEPAD_BUTTON_DPAD_DOWN) Events::StickMoveY.broadcast(-1.0f);
+	if (axis == GLFW_GAMEPAD_BUTTON_DPAD_UP)   Events::StickMoveY.broadcast( 1.0f);
+
 }
 
 // Assign keys to events
 Callbacks::Callbacks() {
 	// Could set default values in here if we want, probs wont tho
+	// Sike
+	voidKeyEvents[createMapKey(GLFW_GAMEPAD_BUTTON_A, GLFW_PRESS)] = &Events::APressed;
 }
 
 
