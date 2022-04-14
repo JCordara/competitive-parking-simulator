@@ -36,7 +36,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 	//Events::MainMenu.broadcast();
 	gamestate = GameState::MainMenu;
 	nextAI_ID = 0;
-	startingAi_number = 2;
+	startingAi_number = 4;
 	currentAi_number = 0;
 }
 

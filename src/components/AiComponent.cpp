@@ -263,11 +263,10 @@ void AiComponent::searchState() {
 				steerToNextNode();
 			}
 			else {
-				//aiSpeed = 0.1; accelForwards();
 				currentNode->nodeTaken = true;
-				aiSpeed = 0.f; accelForwards();
-				Events::VehicleBrake.broadcast(entity, 1.f);
-				Events::VehicleSteer.broadcast(entity, 0.f);
+				aiSpeed = 0.f; accelForwards(); // Stop engine
+				Events::VehicleBrake.broadcast(entity, 1.f); // Stop moving quickly
+				Events::VehicleSteer.broadcast(entity, 0.f); // Stop turning
 				switchState(States::PARKED);
 			}
 
@@ -302,6 +301,29 @@ void AiComponent::searchState() {
 	else if (getEntity()->getComponent<VehicleComponent>()->
 				vehicle->computeForwardSpeed() < MINSPEED) {
 		 recoveryTimeout++; // One more frame of not moving enough
+	}
+
+	// If the ai is heading towards a traversal, then a parking node
+	// This traversal should be right outside the parking node
+	else if (nodeQueue.size() == 1) {
+		// If the next node is a parking stall, look ahead to save time
+		// Last spot should be a parking node, just a check for errors
+		if (nodeQueue[0]->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
+			// If the node is taken calculate a new path and stop trying to get into the parking stall
+			if (nodeQueue[0]->nodeTaken) {
+				pickParkingNode();
+				currentNode = nodeQueue[0];
+				nodeQueue.erase(nodeQueue.begin());
+				aiSpeed = currentNode->nodeSpeed; accelForwards();
+				steerToNextNode();
+			}
+			// If the node hasn't been taken, continue into the spot, but slow down
+			else {
+				aiSpeed = 0.25; accelForwards();
+				recoveryTimeout = 0;
+				steerToNextNode();
+			}
+		}
 	}
 	// If the next node is a parking stall but hasn't been reached yet
 	else if (currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
@@ -405,34 +427,44 @@ void AiComponent::steerToNextNode() {
 	if (angleFinal < 0) angleFinal = angle*-1;
 	if (angleFinal > 0) angleFinal = angle;
 	//angleFinal = angleFinal * 3.14;
-	if (angleFinal < -ANGLETHRESHOLD && angleFinal > -0.6) {
+	if (angleFinal < -ANGLETHRESHOLD && angleFinal > -0.3) {
 		if(aiSpeed <= 0.55) aiSpeed = aiSpeed + 0.05; accelForwards(); // Increase speed slowly
 		angleFinal = angleFinal / 2; // 3.14;
 		float turnAmount = std::max(-1.f, (angleFinal));
 		//turn left
 		Events::VehicleSteer.broadcast(getEntity(), -turnAmount);
+		Events::VehicleHandbrake.broadcast(getEntity(), 0.f);
 	}
 	// If the is greater than around 60 degrees slow down and turn in that direction
 	else if (angleFinal < -ANGLETHRESHOLD) {
-		if (aiSpeed >= 0.2) aiSpeed = aiSpeed - 0.10; accelForwards();
+		if (aiSpeed >= 0.2) aiSpeed = aiSpeed - 0.05; accelForwards();
 		angleFinal = angleFinal / 1.75; // 3.14;
 		float turnAmount = std::max(-1.f, (angleFinal));
 		//turn left
 		Events::VehicleSteer.broadcast(getEntity(), -turnAmount);
+		bool isLargeTurn = angleFinal < -0.5 && angleFinal > -1;
+		if(isLargeTurn && entity.lock()->getComponent<VehicleComponent>()->getSpeed() > 5)
+			Events::VehicleHandbrake.broadcast(getEntity(), 0.5f);
+		else Events::VehicleHandbrake.broadcast(getEntity(), 0.f);
 	}
-	else if (angleFinal > ANGLETHRESHOLD && angleFinal < 0.6) {
+	else if (angleFinal > ANGLETHRESHOLD && angleFinal < 0.3) {
 		if (aiSpeed <= 0.55) aiSpeed = aiSpeed + 0.05; accelForwards(); // Increase speed slowly
 		angleFinal = angleFinal / 2; // 3.14;
 		float turnAmount = std::min(1.f, (angleFinal));
 		//turn right
 		Events::VehicleSteer.broadcast(getEntity(), -turnAmount);
+		Events::VehicleHandbrake.broadcast(getEntity(), 0.f);
 	}
 	else if (angleFinal > ANGLETHRESHOLD) {
-		if (aiSpeed >= 0.2) aiSpeed = aiSpeed - 0.10; accelForwards();
+		if (aiSpeed >= 0.2) aiSpeed = aiSpeed - 0.05; accelForwards();
 		angleFinal = angleFinal / 1.75; // 3.14;
 		float turnAmount = std::min(1.f, (angleFinal));
 		//turn right
 		Events::VehicleSteer.broadcast(getEntity(), -turnAmount);
+		bool isLargeTurn = angleFinal > 0.5 && angleFinal < 1;
+		if (isLargeTurn && entity.lock()->getComponent<VehicleComponent>()->getSpeed() > 5)
+			Events::VehicleHandbrake.broadcast(getEntity(), 0.5f);
+		else Events::VehicleHandbrake.broadcast(getEntity(), 0.f);
 	}
 	
 }
