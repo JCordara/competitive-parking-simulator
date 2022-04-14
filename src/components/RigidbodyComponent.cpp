@@ -31,7 +31,7 @@ void RigidbodyComponent::addActorStaticMesh(const Model& model, PxTransform star
 	meshShape->release();
 }
 
-void RigidbodyComponent::addActorStaticCapsule(PxVec3 halfHeight, const float radius, PxTransform startPos, float sFriction, float dFriction) {
+void RigidbodyComponent::addActorStaticCapsule(const float halfHeight, const float radius, PxTransform startPos, float sFriction, float dFriction) {
 
 	actor = physicsSystem->pxPhysics->createRigidStatic(startPos);
 	actor->userData = static_cast<void*>(getEntity().get());

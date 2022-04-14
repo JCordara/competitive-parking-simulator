@@ -155,6 +155,13 @@ void Application::generateStaticMap() {
 					halfLengths.value(),
 					convert<physx::PxTransform>(entity->getComponent<TransformComponent>()->getGlobalMatrix())
 				);
+			else if (StaticPhysxObjectcode == 3 && halfLengths.has_value())
+				entity->addComponent<RigidbodyComponent>()->addActorStaticCapsule(
+					halfLengths.value().y,
+					halfLengths.value().x,
+					convert<physx::PxTransform>(entity->getComponent<TransformComponent>()->getGlobalMatrix()),
+					0.5f, 0.0005f
+				);
 
 			if (spotlight.has_value() && spotlightP.has_value() && spotlightR.has_value()) {
 				auto light = entity->addChild().lock();
@@ -200,7 +207,7 @@ void Application::generateStaticMap() {
 	// --- Map Ramps ---
 	InstancedStatic("cpsMap_Ramp.obj", "cpsMap_Ramp.obj", 1, fail1, fail3, fail2, fail1);
 	// --- Map SpeedBumps ---
-	//InstancedStatic("cpsMap_Speedbump.obj", "cpsMap_Speedbump.obj", 1, fail1, fail3, fail2, fail1);
+	InstancedStatic("cpsMap_Speedbump.obj", "cpsMap_Speedbump.obj", 3, fail1, fail3, fail2, physx::PxVec3(.5f, 4.f, 0.f));
 	// --- Map Streetlight ---
 	InstancedStatic("cpsMap_Streetlight.obj", "cpsMap_Streetlight.obj", 1, physx::PxVec3(0.f, 14.1f, -6.11f), physx::PxQuat(glm::radians(90.f),physx::PxVec3(1.0f,0.f,0.f)), sl, fail1);
 	// --- Enviromental light ---
