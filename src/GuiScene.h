@@ -235,11 +235,11 @@ private:
 	vector<SliderInt>    intSliders;
 	vector<Image>   	 images;
 
-	vector<Button>      buttonEvents;
-	vector<Checkbox>    checkboxEvents;
-	vector<Combo>       comboEvents;
-	vector<SliderFloat> floatSliderEvents;
-	vector<SliderInt>   intSliderEvents;
+	Button*      buttonEvent = nullptr;
+	Checkbox*    checkboxEvent = nullptr;
+	Combo*       comboEvent = nullptr;
+	SliderFloat* floatSliderEvent = nullptr;
+	SliderInt*   intSliderEvent = nullptr;
 
 	shared_ptr<Window> window;
 
@@ -257,11 +257,11 @@ private:
 	}
 
 	void menuSelect () {
-		for (auto button : buttons) if (button.index == selectedElement) buttonEvents.push_back(button);
-		for (auto checkbox : checkboxes) if (checkbox.index == selectedElement) checkboxEvents.push_back(checkbox);
-		for (auto combo : combos) if (combo.index == selectedElement) comboEvents.push_back(combo);
-		for (auto slider : floatSliderEvents) if (slider.index == selectedElement) floatSliderEvents.push_back(slider);
-		for (auto slider : intSliderEvents) if (slider.index == selectedElement) intSliderEvents.push_back(slider);
+		for (auto& button : buttons) if (button.index == selectedElement) buttonEvent = &button;
+		for (auto& checkbox : checkboxes) if (checkbox.index == selectedElement) checkboxEvent = &checkbox;
+		for (auto& combo : combos) if (combo.index == selectedElement) comboEvent = &combo;
+		for (auto& slider : floatSliders) if (slider.index == selectedElement) floatSliderEvent = &slider;
+		for (auto& slider : intSliders) if (slider.index == selectedElement) intSliderEvent = &slider;
 	}
 
 };

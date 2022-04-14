@@ -29,7 +29,7 @@ void GuiScene::draw() {
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(
 		ImVec2(static_cast<float>(window->getWidth()), static_cast<float>(window->getHeight())), 
-		ImGuiCond_FirstUseEver);
+		ImGuiCond_FirstUseEver); 
 
 	std::vector<char*> toDelete;
 
@@ -71,7 +71,7 @@ void GuiScene::draw() {
 			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[button.emphasisLevel]);
 			if (selectedElement == button.index) ImGui::PushStyleColor(ImGuiCol_Button, highlightColor);
 			if (ImGui::Button(button.text.c_str(), ImVec2(btnWidth, btnHeight)))
-				buttonEvents.push_back(button);
+				buttonEvent = &button;
 			if (selectedElement == button.index) ImGui::PopStyleColor();
 			ImGui::PopFont();
 		}
@@ -80,7 +80,7 @@ void GuiScene::draw() {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * checkbox.x, window->getHeight() * checkbox.y));
 			if (selectedElement == checkbox.index) ImGui::PushStyleColor(ImGuiCol_Button, highlightColor);
 			if (ImGui::Checkbox(checkbox.text.c_str(), &checkbox.v))
-				checkboxEvents.push_back(checkbox);
+				checkboxEvent = &checkbox;
 			if (selectedElement == checkbox.index) ImGui::PopStyleColor();
 		}
 
@@ -89,7 +89,7 @@ void GuiScene::draw() {
 			auto v = stringArrayToConstCharArray(combo.texts.data(), combo.texts.size());
 			if (selectedElement == combo.index) ImGui::PushStyleColor(ImGuiCol_Button, highlightColor);
 			if (ImGui::Combo(combo.name.c_str(), &combo.v ,v, combo.texts.size()))
-				comboEvents.push_back(combo);
+				comboEvent = &combo;
 			for(int i = 0 ; i < combo.texts.size(); i++)
 				toDelete.push_back(v[i]);
 			if (selectedElement == combo.index) ImGui::PopStyleColor();
@@ -100,7 +100,7 @@ void GuiScene::draw() {
 			ImGui::PushItemWidth(window->getWidth() * 0.15f);
 			if (selectedElement == slider.index) ImGui::PushStyleColor(ImGuiCol_Button, highlightColor);
 			if (ImGui::SliderFloat(slider.text.c_str(), &slider.v, slider.min, slider.max, "%.2f"))
-				floatSliderEvents.push_back(slider);
+				floatSliderEvent = &slider;
 			ImGui::PopItemWidth();
 			if (selectedElement == slider.index) ImGui::PopStyleColor();
 		}
@@ -110,7 +110,7 @@ void GuiScene::draw() {
 			ImGui::PushItemWidth(window->getWidth() * 0.15f);
 			if (selectedElement == slider.index) ImGui::PushStyleColor(ImGuiCol_Button, highlightColor);
 			if (ImGui::SliderInt(slider.text.c_str(), &slider.v, slider.min, slider.max))
-				intSliderEvents.push_back(slider);
+				intSliderEvent = &slider;
 			ImGui::PopItemWidth();
 			if (selectedElement == slider.index) ImGui::PopStyleColor();
 		}
@@ -120,17 +120,17 @@ void GuiScene::draw() {
 	}
 
 	// Broadcast any events after rendering finished
-	if (buttonEvents.size() > 0) buttonEvents[0].event.broadcast();
-	if (checkboxEvents.size() > 0) checkboxEvents[0].event.broadcast(checkboxEvents[0].v);
-	if (comboEvents.size() > 0) comboEvents[0].event.broadcast(comboEvents[0].v);
-	if (floatSliderEvents.size() > 0) floatSliderEvents[0].event.broadcast(floatSliderEvents[0].v);
-	if (intSliderEvents.size() > 0) intSliderEvents[0].event.broadcast(intSliderEvents[0].v);
+	if (!buttons.empty()) if (buttonEvent) buttonEvent->event.broadcast();
+	if (!checkboxes.empty()) if (checkboxEvent) checkboxEvent->event.broadcast(checkboxEvent->v);
+	if (!combos.empty()) if (comboEvent) comboEvent->event.broadcast(comboEvent->v);
+	if (!floatSliders.empty()) if (floatSliderEvent) floatSliderEvent->event.broadcast(floatSliderEvent->v);
+	if (!intSliders.empty()) if (intSliderEvent) intSliderEvent->event.broadcast(intSliderEvent->v);
 
-	buttonEvents.clear();
-	checkboxEvents.clear();
-	comboEvents.clear();
-	floatSliderEvents.clear();
-	intSliderEvents.clear();
+	buttonEvent = nullptr;
+	checkboxEvent = nullptr;
+	comboEvent = nullptr;
+	floatSliderEvent = nullptr;
+	intSliderEvent = nullptr;
 
 	// Render the ImGui window
 	ImGui::Render();
