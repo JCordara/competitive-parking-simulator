@@ -31,7 +31,7 @@ AudioSystem::AudioSystem(shared_ptr<Scene> scene): scene(scene) {
 
     // Setup music player
     musicPlayer = createStaticSource();
-    musicPlayer->setGain(0.1f);
+    musicPlayer->setGain(currentVolume);
     musicPlayer->setLooping(true);
     music = loadAudio("audio/CoconutMall.wav");
 	menuMusic = loadAudio("audio/EverybodyFalls.wav"); //Need to change

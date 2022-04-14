@@ -1,5 +1,5 @@
 #include "GuiScene.h"
-
+#include "Texture.h"
 
 GuiScene::GuiScene(shared_ptr<Window> window):
 	window(window)
@@ -36,11 +36,21 @@ void GuiScene::draw() {
 
 	std::vector<char*> toDelete;
 
+	// Render the scene's elements
 	if (ImGui::Begin("GUI LAYER", nullptr, windowFlags)) {
 
 		ImGui::Text("FPS: %.2f", Time::fps());
 
-		// Render the scene's elements
+		// Render images first (behind other things)
+		for (auto& image : images) {
+			float x = window->getWidth() * image.x;
+			float y = window->getHeight() * image.y;
+			float w = window->getWidth() * image.w;
+			float h = window->getHeight() * image.h;
+			ImGui::SetCursorScreenPos(ImVec2(x, y));
+			ImGui::Image((void*)(intptr_t)image.image->getTextureHandleID(), ImVec2(w, h));
+		}
+
 		for (auto& label : labels) {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * label.x, window->getHeight() * label.y));
 			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[label.emphasisLevel]);
@@ -98,6 +108,7 @@ void GuiScene::draw() {
 			ImGui::PopItemWidth();
 		}
 
+
 		ImGui::End();
 	}
 
@@ -144,6 +155,12 @@ void GuiScene::addSlider(float x, float y, std::string text, Event<float>& event
 
 void GuiScene::addSlider(float x, float y, std::string text, Event<int>& event, int initialValue, int min, int max) {
 	intSliders.emplace_back(x, y, text, event, initialValue, min, max);
+}
+
+void GuiScene::addImage(float x, float y, float w, float h, std::string filepath) {
+	auto t = make_shared<Texture>();
+	images.emplace_back(x, y, w, h, t);
+	images.back().image->load(filepath.c_str(), GL_LINEAR, false);
 }
 
 

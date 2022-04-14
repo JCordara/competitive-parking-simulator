@@ -7,6 +7,7 @@
 
 #include "Framework.h"
 #include "Window.h"
+#include "Texture.h"
 
 #include <stdarg.h>
 
@@ -68,6 +69,12 @@ public:
 		int initialValue = 0.5f, 
 		int min = 0.0f, 
 		int max = 1.0f
+	);
+
+	void addImage(
+		float x, float y, 
+		float w, float h, 
+		std::string filepath
 	);
 
 	bool gameWon;
@@ -187,6 +194,17 @@ private:
 		Event<int>& event;
 	} SliderInt;
 
+	typedef struct GUI_IMAGE {
+
+		GUI_IMAGE(
+			float _x, float _y, float _w, float _h, shared_ptr<Texture> _image): 
+			x(_x), y(_y), w(_w), h(_h), image(_image) {}
+
+		float x, y;
+		float w, h;
+		shared_ptr<Texture> image;
+	} Image;
+
 	// Elements to render
 	vector<Label>       labels;
 	vector<DynamicLabel>dynamicLabels;
@@ -195,6 +213,7 @@ private:
 	vector<Combo>       combos;
 	vector<SliderFloat> floatSliders;
 	vector<SliderInt>   intSliders;
+	vector<Image>   	images;
 
 	shared_ptr<Window> window;
 
