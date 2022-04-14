@@ -23,10 +23,10 @@
       - Handbrake to fix turning?
 
 ### Joseph & Jeff
-- Menu formatting (where buttons/sliders are placed, consistent look for buttons)
-- Add a menu image rendering (PLEASE)
-- Select Menu music!!!!!!!!!!!!1 (Other than wheels on the bus? Snoop dogg???)
-- Controller support in menu (A MUST)
+- - Finalize formatting for menu (where buttons/sliders are placed, consistent look for buttons)
+- Add a menu image rendering (MUST)
+- Music Additions? Select Menu Music (Fall Guys intro?)
+- Controller support in menu (MUST)
 
 ### Joseph
 
