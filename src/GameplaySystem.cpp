@@ -203,6 +203,9 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 			}
 		}
 	}
+
+	deleteQueue(toRemove);
+
 	//Fill the spots will either a triggerbox or a car
 	for (int i = 0, index = 0; i < parkingUpdated.size(); i++) {
 		if ((!parkingUpdated[i])) {
@@ -247,7 +250,6 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 		nextAI_ID++;
 	}
 
-	deleteQueue(toRemove);
 //---------------------------------------------------------------------------------------------------------------------
 	// Reset Nodes
 	for (auto node : aiGlobalNodes) {
