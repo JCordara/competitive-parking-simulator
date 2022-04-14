@@ -87,14 +87,16 @@ void AiComponent::pickParkingNode() {
 	}
 	std::vector<std::shared_ptr<AiGraphNode>> possibleParkingSpaces;
 	// Assumes only parking spots have a trigger box, not ideal
+	int counter = 0;
 	for (auto wp : gameplaySystem->scene->iterate<VolumeTriggerComponent>()) {
 		auto trig = wp.lock(); if (!trig) continue;
 		//auto trig = it->getComponent<VolumeTriggerComponent>();
 		if (trig) {
+			counter++;
 			for (auto node : possibleNodes) {
-				// Assumes only one node will be withing 8 distance
+				// Assumes only one node will be within distance
 				if (glm::distance(node->position,
-					trig->getEntity()->getComponent<TransformComponent>()->getGlobalPosition()) < 10)
+					trig->getEntity()->getComponent<TransformComponent>()->getGlobalPosition()) < 5)
 				{
 					possibleParkingSpaces.push_back(node);
 					break;
@@ -102,6 +104,8 @@ void AiComponent::pickParkingNode() {
 			}
 		}
 	}
+	//std::cout << "FOUND " << counter << " ENTITIES WITH A TRIGGER WHEN PICKING A NODE" << std::endl;
+	//std::cout << "POSSIBLE NODES SIZE: " << possibleParkingSpaces.size() << std::endl;
 	int randIntCeiling = possibleParkingSpaces.size();
 	if (randIntCeiling == 0) {
 		std::cout << "ERROR: NO POSSIBLE PARKING SPACES" << std::endl; return;
@@ -312,7 +316,7 @@ void AiComponent::searchState() {
 
 	// If the ai is heading towards a traversal, then a parking node
 	// This traversal should be right outside the parking node
-	else if (nodeQueue.size() == 1) {
+	else if (nodeQueue.size() == 2 || nodeQueue.size() == 1) {
 		// If the next node is a parking stall, look ahead to save time
 		// Last spot should be a parking node, just a check for errors
 		if (nodeQueue[0]->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
@@ -330,6 +334,12 @@ void AiComponent::searchState() {
 				recoveryTimeout = 0;
 				steerToNextNode();
 			}
+		}
+		// The AI is going to the node before parking, slow down a little 
+		else {
+			aiSpeed = 0.35; accelForwards();// TODO figure out why changing this value lower breaks the AI
+			recoveryTimeout = 0;
+			steerToNextNode();
 		}
 	}
 	// If the next node is a parking stall but hasn't been reached yet
@@ -457,7 +467,7 @@ void AiComponent::steerToNextNode() {
 	}
 	// If the is greater than around 60 degrees slow down and turn in that direction
 	else if (angleFinal < -ANGLETHRESHOLD) {
-		if (aiSpeed >= 0.2) aiSpeed = aiSpeed - 0.05; accelForwards();
+		if (aiSpeed >= 0.3) aiSpeed = aiSpeed - 0.05; accelForwards();
 		angleFinal = angleFinal / 1.75; // 3.14;
 		float turnAmount = std::max(-1.f, (angleFinal));
 		//turn left
@@ -476,7 +486,7 @@ void AiComponent::steerToNextNode() {
 		Events::VehicleHandbrake.broadcast(getEntity(), 0.f);
 	}
 	else if (angleFinal > ANGLETHRESHOLD) {
-		if (aiSpeed >= 0.2) aiSpeed = aiSpeed - 0.05; accelForwards();
+		if (aiSpeed >= 0.3) aiSpeed = aiSpeed - 0.05; accelForwards();
 		angleFinal = angleFinal / 1.75; // 3.14;
 		float turnAmount = std::min(1.f, (angleFinal));
 		//turn right
