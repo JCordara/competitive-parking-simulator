@@ -17,17 +17,11 @@
     # Solution
       - Reset the AI searching to a new parking spot
 
-### Joseph
+### Joseph and Jeff
 - Add a menu image rendering
-- Select Menu music!!!!!!!!!!!!1
+- Finalize formatting for menu
+- Select Menu music
 - Controller support in menu
-
-### Keaton
-- Capsule Physics Mesh
-
-### Brayden
-
-### Jeff
 
 ### Team 4
 
