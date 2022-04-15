@@ -43,6 +43,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 void GameplaySystem::update() {
 	vector<weak_ptr<Entity>> toRemove;
 	vector<int> toRemoveNumbers;
+	bool updated = false;
 
 	switch (gamestate) {
 	case GameState::MainMenu:
@@ -53,6 +54,7 @@ void GameplaySystem::update() {
 		break;
 	case GameState::Playing:
 		// Update parking AI
+		
 		for (auto it = states.begin(); it != states.end(); it++) {
 			auto trigger = it->second.trigger.lock();
 			if (trigger && (it->second.score < 1)) {
@@ -60,7 +62,7 @@ void GameplaySystem::update() {
 				if ((it->first < 0) ? playerCarCheck(car, trigger) : AICarCheck(car, trigger)) {
 					if (it->second.parkedTime.has_value()) {
 						if (abs(it->second.parkedTime.value() - Time::now()) > PARKING_TIME) {
-							if (std::find(toRemoveNumbers.begin(), toRemoveNumbers.end(), it->second.triggerNumber) == toRemoveNumbers.end()) {
+							if (!updated){//std::find(toRemoveNumbers.begin(), toRemoveNumbers.end(), it->second.triggerNumber) == toRemoveNumbers.end()) {
 								it->second.score = 1;
 								toRemove.push_back(it->second.trigger);
 								toRemoveNumbers.push_back(it->second.triggerNumber);
@@ -68,6 +70,7 @@ void GameplaySystem::update() {
 								updateDisplayString();
 								car->getComponent<VehicleComponent>()->setDisabled(true);
 								Events::CarParked.broadcast(it->second.car);
+								updated = true;
 							}
 						}
 					}
@@ -260,7 +263,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 					auto st = states.find(number);
 					st->second.score = 0;
 					st->second.trigger = std::weak_ptr<Entity>();
-					
+					st->second.triggerNumber = -1;
 					numberOfAI++;
 					ent->getComponent<VehicleComponent>()->setDisabled(false);
 				}
