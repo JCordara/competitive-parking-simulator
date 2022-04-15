@@ -526,7 +526,7 @@ void Application::gameEndGui(string message) {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addLabel(menu->layout[0][0].positionX, menu->layout[0][0].positionY, message, 2);
 	guiScene->addButton(0, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "Main Menu", Events::EndGame, 1);
-	guiScene->addLabel(0.3f, 0.01f, "Spectating Mode", 2);
+	//guiScene->addLabel(0.3f, 0.01f, "Spectating Mode", 2);
 	render->changeGui(guiScene);
 	playgame = false;
 }
