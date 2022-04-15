@@ -42,6 +42,7 @@ GameplaySystem::GameplaySystem(std::shared_ptr<Scene> scene):
 
 void GameplaySystem::update() {
 	vector<weak_ptr<Entity>> toRemove;
+	vector<int> toRemoveNumbers;
 
 	switch (gamestate) {
 	case GameState::MainMenu:
@@ -59,12 +60,15 @@ void GameplaySystem::update() {
 				if ((it->first < 0) ? playerCarCheck(car, trigger) : AICarCheck(car, trigger)) {
 					if (it->second.parkedTime.has_value()) {
 						if (abs(it->second.parkedTime.value() - Time::now()) > PARKING_TIME) {
-							it->second.score = 1;
-							toRemove.push_back(it->second.trigger);
-							number_of_parking_spots--;
-							updateDisplayString();
-							car->getComponent<VehicleComponent>()->setDisabled(true);
-							Events::CarParked.broadcast(it->second.car);
+							if (std::find(toRemoveNumbers.begin(), toRemoveNumbers.end(), it->second.triggerNumber) == toRemoveNumbers.end()) {
+								it->second.score = 1;
+								toRemove.push_back(it->second.trigger);
+								toRemoveNumbers.push_back(it->second.triggerNumber);
+								number_of_parking_spots--;
+								updateDisplayString();
+								car->getComponent<VehicleComponent>()->setDisabled(true);
+								Events::CarParked.broadcast(it->second.car);
+							}
 						}
 					}
 					else it->second.parkedTime = Time::now();
@@ -247,6 +251,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 					auto st = states.find(-1);
 					st->second.score = 0;
 					st->second.trigger = std::weak_ptr<Entity>();
+					st->second.triggerNumber = -1;
 					ent->getComponent<VehicleComponent>()->setDisabled(false);
 				}
 				else if(prefix("AI Car : ", name.value())) {
@@ -255,6 +260,7 @@ void GameplaySystem::resetMapWithNumberOfEmptyParkingSpaces(unsigned int numberO
 					auto st = states.find(number);
 					st->second.score = 0;
 					st->second.trigger = std::weak_ptr<Entity>();
+					
 					numberOfAI++;
 					ent->getComponent<VehicleComponent>()->setDisabled(false);
 				}
@@ -422,22 +428,30 @@ void GameplaySystem::registerCarParked(weak_ptr<Entity> VehcleEntity, weak_ptr<E
 
 	if (gamestate == GameState::Playing) {
 		if (auto des = vehicle->getComponent<DescriptionComponent>()) {
-			if (auto name = des->getString("Name")) {
-				if (name.value() == "Player Car") {
-					auto p = states.find(-1);
-					p->second.car = VehcleEntity;
-					p->second.trigger = TriggerEntity;
-				}
-				else if (prefix("AI Car : ", name.value())) {
-					int number = std::stoi(name.value().substr(string("AI Car : ").length()));
-					auto p = states.find(number);
-					p->second.car = VehcleEntity;
-					p->second.trigger = TriggerEntity;
+			if (auto desT = trigger->getComponent<DescriptionComponent>()) {
+				if (auto name = des->getString("Name")) {
+					if (auto nameT = desT->getString("Name")){
+						if (prefix("Temporary parkingspot : ", nameT.value())) {
+							int numberT = std::stoi(nameT.value().substr(string("Temporary parkingspot : ").length()));
+							if (name.value() == "Player Car") {
+								auto p = states.find(-1);
+								p->second.car = VehcleEntity;
+								p->second.trigger = TriggerEntity;
+								p->second.triggerNumber = numberT;
+							}
+							else if (prefix("AI Car : ", name.value())) {
+								int number = std::stoi(name.value().substr(string("AI Car : ").length()));
+								auto p = states.find(number);
+								p->second.car = VehcleEntity;
+								p->second.trigger = TriggerEntity;
+								p->second.triggerNumber = numberT;
+							}
+						}
+					}
 				}
 			}
 		}
 	}
-
 }
 
 void GameplaySystem::registerCarUnParked(weak_ptr<Entity> VehcleEntity) {
