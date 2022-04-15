@@ -549,6 +549,7 @@ void Application::setupOptions() {
 	guiScene->addImage(0.24, 0.05, 0.5, 0.9, getImguiTextureOrThrow("Backdrop3.png"));
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("settings.png"));
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("logo2.png"));
+	guiScene->addLabel(menu->layout[0][1].positionX, menu->layout[0][1].positionY + 0.02f,"* Please use mouse to select", 0);
 	render->changeGui(guiScene);
 	playgame = false;
 }
