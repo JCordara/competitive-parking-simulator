@@ -473,14 +473,16 @@ std::vector<instancedTransformation> Application::getInstancedTransformationsOrT
 
 // --- GUI Manager Function ---
 void Application::setupMainMenu() {
-	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 3, 0.1f);
+	//std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 3, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	std::vector<string> names = { "Play","Options","Exit" };
-	guiScene->addButton(0, menu->layout[0][0].positionX, menu->layout[0][0].positionY,"Play", Events::NewGame, 1);
-	guiScene->addButton(1, menu->layout[0][1].positionX, menu->layout[0][1].positionY,
-		"Options", Events::GameOptions, 1);
-	guiScene->addButton(2, menu->layout[0][2].positionX, menu->layout[0][2].positionY,"Exit", Events::ExitApplication, 1);
-	guiScene->addImage(0.1, 0.1, 0.8, 0.8, "textures/Backdrop.png");
+	std::vector<string> names = { "Play","Settings","Exit" };
+	guiScene->addButton(0, 0.4f, 0.35f,"  Play  ", Events::NewGame, 1);
+	guiScene->addButton(1, 0.4f, 0.45f,
+		"Settings", Events::GameOptions, 1);
+	guiScene->addButton(2, 0.4f, 0.65f,"  Exit  ", Events::ExitApplication, 1);
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/Backdrop.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/gamename2.png");
 	render->changeGui(guiScene);
 	playgame = false;
 }
@@ -495,6 +497,7 @@ void Application::setupOptions() {
 	guiScene->addCombo(1, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen monitor", list, Events::Fullscreen, (window->getCurrentMonitorNumber()));
 	guiScene->addSlider(2, menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Music Volume", Events::ChangeMusicVolume, audio->getCurrentVolume());
 	guiScene->addButton(3, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Main Menu", Events::EndGame, 1);
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/Backdrop.png");
 	render->changeGui(guiScene);
 	playgame = false;
 }
