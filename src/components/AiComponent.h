@@ -85,6 +85,7 @@ private:
 	States lastState = States::RESET; // Default
 	glm::vec3 stuckPos = glm::vec3(); // Used for original stuck position
 	bool attemptedFlip = false;
+	int attemptedRecoveryNum = 0;
 	float REVERSEMINIMUM = 7.f; // Value for distance traveled backwards when an AI gets stuck
 	int recoveryTimeout = 0; // Count of frames where the vehicle is not moving enough
 	int nodeTravelTimeout = 0;
