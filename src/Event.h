@@ -31,6 +31,7 @@ namespace Events {
 	extern Event<int, int> WindowResized;
 	/* --- GUI Swap Events --- */
 	extern Event<void> MainMenu;
+	extern Event<void> PlayMenu;
 	extern Event<void> GameGUI;
 	extern Event<void> RoundEndGUI;
 	extern Event<string> GameEndGUI;
