@@ -48,6 +48,9 @@ void AiComponent::update() {
 	else if (state == States::RECOVERY) {
 		recoveryState();
 	}
+	else if (state == States::PARKING) {
+		parkingState();
+	}
 }
 
 
@@ -91,12 +94,10 @@ void AiComponent::pickParkingNode() {
 	}
 	std::vector<std::shared_ptr<AiGraphNode>> possibleParkingSpaces;
 	// Assumes only parking spots have a trigger box, not ideal
-	int counter = 0;
 	for (auto wp : gameplaySystem->scene->iterate<VolumeTriggerComponent>()) {
 		auto trig = wp.lock(); if (!trig) continue;
 		//auto trig = it->getComponent<VolumeTriggerComponent>();
 		if (trig) {
-			counter++;
 			for (auto node : possibleNodes) {
 				// Assumes only one node will be within distance
 				if (glm::distance(node->position,
@@ -108,8 +109,6 @@ void AiComponent::pickParkingNode() {
 			}
 		}
 	}
-	//std::cout << "FOUND " << counter << " ENTITIES WITH A TRIGGER WHEN PICKING A NODE" << std::endl;
-	//std::cout << "POSSIBLE NODES SIZE: " << possibleParkingSpaces.size() << std::endl;
 	int randIntCeiling = possibleParkingSpaces.size();
 	if (randIntCeiling == 0) {
 		std::cout << "ERROR: NO POSSIBLE PARKING SPACES" << std::endl; return;
@@ -334,7 +333,7 @@ void AiComponent::searchState() {
 			}
 			// If the node hasn't been taken, continue into the spot, but slow down
 			else {
-				aiSpeed = 0.25; accelForwards();// TODO figure out why changing this value lower breaks the AI
+				aiSpeed = 0.3; accelForwards();// TODO figure out why changing this value lower breaks the AI
 				recoveryTimeout = 0;
 				steerToNextNode();
 			}
@@ -367,6 +366,53 @@ void AiComponent::searchState() {
 		nodeTravelTimeout++;
 		steerToNextNode();
 	}
+}
+
+void AiComponent::parkingState() {
+	// need to align with vector/axis thing
+	// Need to get close to center of parking stall
+	const int MAXSTUCKTIME = 8;
+	float MAX_COS_ANGLE_FORWARD_AI = 0.85f;
+	shared_ptr<VolumeTriggerComponent> trigger = nullptr;
+	for (auto wp : gameplaySystem->scene->iterate<VolumeTriggerComponent>()) {
+		auto trig = wp.lock(); if (!trig) continue;
+		//auto trig = it->getComponent<VolumeTriggerComponent>();
+		if (trig) {
+			// Assumes only one node will be within distance
+			if (glm::distance(currentNode->position,
+				trig->getEntity()->getComponent<TransformComponent>()->getGlobalPosition()) < 5)
+			{
+				trigger = trig;
+				break;
+			}
+		}
+	}
+	if (recoveryTimeout > MAXSTUCKTIME) {
+		switchState(States::RECOVERY);
+		stuckPos = entity.lock()->getComponent<TransformComponent>()->getGlobalPosition();
+		recoveryTimeout = 0;
+		nodeTravelTimeout = 0;
+		aiSpeed = 0.45; accelReverse();
+	}
+
+	if (glm::distance(entity.lock()->getComponent<TransformComponent>()->getGlobalPosition(),
+		trigger->getEntity()->getComponent<TransformComponent>()->getGlobalPosition()) < 2.f) {
+		aiSpeed = 0.f; accelForwards(); // Stop engine
+		Events::VehicleBrake.broadcast(entity, 1.f); // Stop moving quickly
+		Events::VehicleHandbrake.broadcast(entity, 1.f);
+		Events::VehicleSteer.broadcast(entity, 0.f); // Stop turning
+		recoveryTimeout++;
+	}
+	else {
+		aiSpeed = 0.15f; accelForwards(); // Stop engine
+		steerToNextNode();
+		recoveryTimeout++;
+	}
+	/*
+	glm::abs(glm::dot(
+		glm::normalize(trigger->getEntity()->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(trigger->getEntity()->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f)),
+		glm::normalize(entity.lock()->getComponent<TransformComponent>()->getGlobalMatrix() * glm::vec4(entity.lock()->getComponent<DescriptionComponent>()->getVec3("Forward").value(), 0.f))
+	)) > MAX_COS_ANGLE_FORWARD_AI;*/
 }
 
 // Helper method for calculating if the AI car has reached an area around a node
@@ -530,13 +576,13 @@ glm::vec3 AiComponent::ComputeForwardVector(physx::PxQuat quat) const
 }
 
 void AiComponent::handleParkingTriggerEvent(weak_ptr<Entity> VehcleEntity, weak_ptr<Entity> triggerEntity) {
-	if (VehcleEntity.lock()->id() == entity.lock()->id()) {
+	if (VehcleEntity.lock() == entity.lock()) {
 		switchState(States::PARKING);
 	}
 }
 
 void AiComponent::handleCarParked(weak_ptr<Entity> VehcleEntity) {
-	if (VehcleEntity.lock()->id() == entity.lock()->id()) {
+	if (VehcleEntity.lock() == entity.lock()) {
 		currentNode->nodeTaken = true;
 		aiSpeed = 0.f; accelForwards(); // Stop engine
 		Events::VehicleBrake.broadcast(entity, 1.f); // Stop moving quickly
