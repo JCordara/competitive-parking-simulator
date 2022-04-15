@@ -94,6 +94,7 @@ private:
 	void setupGameMenu();
 	void setupOptions();
 	void infoMenu();
+	void controlsMenu();
 	void setupBaseLevelGUI();
 	void roundWonMenu();
 	void gameEndGui(string message);

@@ -11,6 +11,7 @@ Event<void> Events::GameGUI;
 Event<void> Events::RoundEndGUI;
 Event<string> Events::GameEndGUI;
 Event<void> Events::GameOptions;
+Event<void> Events::GameControls;
 /* --- Entity Manipulation Events--- */
 Event<string, instancedTransformation> Events::AddPropCar;
 Event<string, instancedTransformation> Events::AddParkingSpace;
