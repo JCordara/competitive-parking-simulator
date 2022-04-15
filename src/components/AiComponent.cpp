@@ -531,6 +531,7 @@ glm::vec3 AiComponent::ComputeForwardVector(physx::PxQuat quat) const
 
 void AiComponent::handleParkingTriggerEvent(weak_ptr<Entity> VehcleEntity, weak_ptr<Entity> triggerEntity) {
 	if (VehcleEntity.lock()->id() == entity.lock()->id()) {
+		//Move to \/ ???
 		currentNode->nodeTaken = true;
 		aiSpeed = 0.f; accelForwards(); // Stop engine
 		Events::VehicleBrake.broadcast(entity, 1.f); // Stop moving quickly
@@ -544,6 +545,7 @@ void AiComponent::handleCarParked(weak_ptr<Entity> VehcleEntity) {
 		switchState(States::PARKED);
 	}
 }
+
 
 
 

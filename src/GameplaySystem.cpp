@@ -89,6 +89,7 @@ void GameplaySystem::update() {
 			for (auto& it : states) if (it.first != -1 && it.second.score < 1) end = false;
 			if (end) {//Every single one has parked
 				setGameState(GameState::GameEnd);
+				
 				Events::GameEndGUI.broadcast("YOU LOSE");
 			}
 		}
