@@ -78,6 +78,7 @@ void GameplaySystem::update() {
 				}
 				else it->second.parkedTime = Time::now();
 			}
+			else it->second.parkedTime = Time::now();
 		}
 		//Check player
 		if (states.find(-1)->second.score) { // Player has scored
