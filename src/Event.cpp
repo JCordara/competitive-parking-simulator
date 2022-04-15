@@ -6,6 +6,7 @@ Event<int, int> Events::WindowResized;
 /* --- GUI Swap Events --- */
 Event<void> Events::MainMenu;
 Event<void> Events::PlayMenu;
+Event<void> Events::GameInfo;
 Event<void> Events::GameGUI;
 Event<void> Events::RoundEndGUI;
 Event<string> Events::GameEndGUI;

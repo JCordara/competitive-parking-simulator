@@ -17,6 +17,7 @@ Application::Application(appSettings& settings):
 	Events::GameEndGUI.registerHandler<Application, &Application::gameEndGui>(this);
 	Events::GameOptions.registerHandler<Application, &Application::setupOptions>(this);
 	Events::PlayMenu.registerHandler<Application, &Application::setupGameMenu>(this);
+	Events::GameInfo.registerHandler<Application, &Application::infoMenu>(this);
 	/* --- Entity Manipulation Events --- */
 	Events::AddPropCar.registerHandler<Application, &Application::addPropCar>(this);
 	Events::AddParkingSpace.registerHandler<Application, &Application::addOpenParkingEntity>(this);
@@ -474,11 +475,13 @@ std::vector<instancedTransformation> Application::getInstancedTransformationsOrT
 
 // --- GUI Manager Function ---
 void Application::setupMainMenu() {
+	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 8, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	std::vector<string> names = { "Play","Settings","Exit" };
-	guiScene->addButton(0, 0.4f, 0.35f, "  Play  ", Events::PlayMenu, 1);
-	guiScene->addButton(1, 0.4f, 0.45f, "Settings", Events::GameOptions, 1);
-	guiScene->addButton(2, 0.4f, 0.65f, "  Exit  ", Events::ExitApplication, 1);
+	guiScene->addButton(0, menu->layout[0][2].positionX, menu->layout[0][2].positionY, "  Play  ", Events::PlayMenu, 1);
+	guiScene->addButton(1, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Settings", Events::GameOptions, 1);
+	guiScene->addButton(2, menu->layout[0][4].positionX, menu->layout[0][4].positionY, "  Info  ", Events::GameInfo, 1);
+	guiScene->addButton(3, menu->layout[0][5].positionX, menu->layout[0][5].positionY, "  Exit  ", Events::ExitApplication, 1);
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/Backdrop.png");
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/gamename2.png");
@@ -489,25 +492,38 @@ void Application::setupMainMenu() {
 void Application::setupGameMenu() {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 4, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window);
-	guiScene->addButton(0, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "    Play  Game   ", Events::NewGame, 1);
+	guiScene->addButton(0, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "    Start Game   ", Events::NewGame, 1);
 	guiScene->addSlider(1, 0.4f, 0.55f, "Starting Number of AI", Events::ChangeNumberOfAI, gameplay->getStartingAi_number(), 1, 8);
 	guiScene->addButton(2, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Back to Main Menu", Events::EndGame, 1);
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/Backdrop.png");
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/setupgame.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
 	render->changeGui(guiScene);
 	playgame = false;
 }
 
 void Application::setupOptions() {
-	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 4, 0.1f);
+	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 6, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	std::vector<std::string> list = { "Windowed" };
 	for (int i = 0; i < window->numberOfMonitors(); i++)
 		list.push_back(string("Monitor ") + std::to_string(i));
-	guiScene->addCombo(1, menu->layout[0][0].positionX, menu->layout[0][0].positionY, "FullScreen monitor", list, Events::Fullscreen, (window->getCurrentMonitorNumber()));
-	guiScene->addSlider(2, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "Music Volume", Events::ChangeMusicVolume, audio->getCurrentVolume());
-	guiScene->addButton(3, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Back to Main Menu", Events::EndGame, 1);
+	guiScene->addCombo(0, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen monitor", list, Events::Fullscreen, (window->getCurrentMonitorNumber()));
+	guiScene->addSlider(1, menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Music Volume", Events::ChangeMusicVolume, audio->getCurrentVolume());
+	guiScene->addButton(2, menu->layout[0][5].positionX, menu->layout[0][5].positionY, "Back to Main Menu", Events::EndGame, 1);
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/Backdrop.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/settings.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
+	render->changeGui(guiScene);
+	playgame = false;
+}
+
+void Application::infoMenu() {
+	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 4, 0.1f);
+	guiScene = std::make_shared<GuiScene>(window); // Reset gui
+	guiScene->addButton(0, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Back to Main Menu", Events::EndGame, 1);
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/Backdrop.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/aboutmenu.png");
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
 	render->changeGui(guiScene);
 	playgame = false;
@@ -526,9 +542,10 @@ void Application::setupBaseLevelGUI() {
 void Application::roundWonMenu() {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 4, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	guiScene->addButton(0, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "Next Round", Events::NextRound, 1);
+	guiScene->addButton(0, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "Start Next Round ", Events::NextRound, 1);
 	guiScene->addButton(1, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Back to Main Menu", Events::EndGame, 1);
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/spectating.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
 	render->changeGui(guiScene);
 	playgame = false;
 }
@@ -541,6 +558,7 @@ void Application::gameEndGui(string message) {
 	} else {
 		guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/playerwin.png");
 	}
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
 	render->changeGui(guiScene);
 	playgame = false;
 }
