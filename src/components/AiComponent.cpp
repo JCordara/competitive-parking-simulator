@@ -382,7 +382,7 @@ void AiComponent::parkingState() {
 		if (trig) {
 			// Assumes only one node will be within distance
 			if (glm::distance(currentNode->position,
-				trig->getEntity()->getComponent<TransformComponent>()->getGlobalPosition()) < 5)
+				trig->getEntity()->getComponent<TransformComponent>()->getGlobalPosition()) < 10.f)
 			{
 				trigger = trig;
 				break;
