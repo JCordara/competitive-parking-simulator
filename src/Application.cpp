@@ -245,7 +245,7 @@ void Application::createCar(string chassisModelName, std::shared_ptr<Entity> ent
 	ent->addComponent<RendererComponent>()->enableRender();
 	//Add the two head lights to the player car
 	auto lightEntity = ent->addChild().lock();
-	lightEntity->addComponent<LightingComponent>()->setSpotLight(glm::vec3(0.94f, 0.89f, 0.54f), glm::vec3(1.f, 0.007f, 0.0002f), glm::radians(20.f), glm::radians(30.f));
+	lightEntity->addComponent<LightingComponent>()->setSpotLight( 2.5f * glm::vec3(0.94f, 0.89f, 0.54f), glm::vec3(1.f, 0.007f, 0.0002f), glm::radians(20.f), glm::radians(30.f));
 	lightEntity->getComponent<TransformComponent>()->setLocalPosition(-0.8f, 0.15f, 1.5f);
 	lightEntity->getComponent<TransformComponent>()->setLocalRotation(glm::radians(10.f), glm::vec3(1.f, 0.f, 0.f));
 
