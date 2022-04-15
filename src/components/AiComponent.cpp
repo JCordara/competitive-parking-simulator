@@ -455,6 +455,7 @@ void AiComponent::recoveryState() {
 			Events::VehicleFlip.broadcast(entity, 90.f);
 			Events::VehicleFlip.broadcast(entity, 90.f);
 			recoveryTimeout = 0;
+			nodeTravelTimeout = 0;
 		}
 		// If the AI has not attempted a flip, try that before reseting
 		else if (!attemptedFlip) {
