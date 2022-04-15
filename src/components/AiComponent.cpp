@@ -101,7 +101,7 @@ void AiComponent::pickParkingNode() {
 			for (auto node : possibleNodes) {
 				// Assumes only one node will be within distance
 				if (glm::distance(node->position,
-					trig->getEntity()->getComponent<TransformComponent>()->getGlobalPosition()) < 5)
+					trig->getEntity()->getComponent<TransformComponent>()->getGlobalPosition()) < 10.0f)
 				{
 					possibleParkingSpaces.push_back(node);
 					break;
@@ -111,7 +111,11 @@ void AiComponent::pickParkingNode() {
 	}
 	int randIntCeiling = possibleParkingSpaces.size();
 	if (randIntCeiling == 0) {
+
 		std::cout << "ERROR: NO POSSIBLE PARKING SPACES" << std::endl;
+
+
+
 		randIntCeiling = gameplaySystem->aiGlobalNodes.size();
 		double now = time(nullptr);
 		std::srand(now + (double)entity.lock()->id()); // Get AI picking differently
@@ -382,6 +386,7 @@ void AiComponent::searchState() {
 }
 
 void AiComponent::parkingState() {
+	std::cout << recoveryTimeout<< "\n";
 	// need to align with vector/axis thing
 	// Need to get close to center of parking stall
 	const int MAXSTUCKTIME = 8;
@@ -402,6 +407,8 @@ void AiComponent::parkingState() {
 	}
 	if (trigger == nullptr) {
 		std::cout << "TRIGGER IS NULL BUMBNUTS\n";
+		
+		switchState(States::RECOVERY);
 		return;
 	}
 	if (recoveryTimeout > MAXSTUCKTIME) {

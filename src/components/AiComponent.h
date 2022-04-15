@@ -90,6 +90,7 @@ private:
 	int recoveryTimeout = 0; // Count of frames where the vehicle is not moving enough
 	int nodeTravelTimeout = 0;
 	std::vector<Entity> carQueue;
+	std::vector<glm::vec3> triggerLocations;
 	std::vector<std::shared_ptr<AiGraphNode>> nodeQueue;
 	std::vector<std::shared_ptr<AiGraphNode>> emptyParkingNodes;
 	std::vector<int> visitedAreas;
