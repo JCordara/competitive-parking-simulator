@@ -37,6 +37,7 @@ namespace Events {
 	extern Event<void> RoundEndGUI;
 	extern Event<string> GameEndGUI;
 	extern Event<void> GameOptions;
+	extern Event<void> GameControls;
 	/* --- Entity Manipulation Events--- */
 	extern Event<string, instancedTransformation> AddPropCar;
 	extern Event<string, instancedTransformation> AddParkingSpace;
