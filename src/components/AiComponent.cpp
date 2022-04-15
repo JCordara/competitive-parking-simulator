@@ -111,7 +111,14 @@ void AiComponent::pickParkingNode() {
 	}
 	int randIntCeiling = possibleParkingSpaces.size();
 	if (randIntCeiling == 0) {
-		std::cout << "ERROR: NO POSSIBLE PARKING SPACES" << std::endl; return;
+		std::cout << "ERROR: NO POSSIBLE PARKING SPACES" << std::endl;
+		randIntCeiling = gameplaySystem->aiGlobalNodes.size();
+		double now = time(nullptr);
+		std::srand(now + (double)entity.lock()->id()); // Get AI picking differently
+		// Should give number between 0 and vector.size()-1
+		int pick = rand() % randIntCeiling;
+		std::cout << "PICKED NODE: " << gameplaySystem->aiGlobalNodes[pick]->id << std::endl;
+		aStar(gameplaySystem->aiGlobalNodes[pick]);
 	}
 	double now = time(nullptr);
 	std::srand(now + (double)entity.lock()->id()); // Get AI picking differently
@@ -597,7 +604,7 @@ void AiComponent::handleParkingTriggerEvent(weak_ptr<Entity> VehcleEntity, weak_
 }
 
 void AiComponent::handleCarParked(weak_ptr<Entity> VehcleEntity) {
-	if (VehcleEntity.lock() == entity.lock()) {
+	if (VehcleEntity.lock() == entity.lock() && !currentNode->nodeTaken) {
 		currentNode->nodeTaken = true;
 		aiSpeed = 0.f; accelForwards(); // Stop engine
 		Events::VehicleBrake.broadcast(entity, 1.f); // Stop moving quickly
