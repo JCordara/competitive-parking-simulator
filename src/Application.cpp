@@ -18,6 +18,7 @@ Application::Application(appSettings& settings):
 	Events::GameOptions.registerHandler<Application, &Application::setupOptions>(this);
 	Events::PlayMenu.registerHandler<Application, &Application::setupGameMenu>(this);
 	Events::GameInfo.registerHandler<Application, &Application::infoMenu>(this);
+	Events::GameControls.registerHandler<Application, &Application::controlsMenu>(this);
 	/* --- Entity Manipulation Events --- */
 	Events::AddPropCar.registerHandler<Application, &Application::addPropCar>(this);
 	Events::AddParkingSpace.registerHandler<Application, &Application::addOpenParkingEntity>(this);
@@ -510,7 +511,8 @@ void Application::setupOptions() {
 		list.push_back(string("Monitor ") + std::to_string(i));
 	guiScene->addCombo(0, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen monitor", list, Events::Fullscreen, (window->getCurrentMonitorNumber()));
 	guiScene->addSlider(1, menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Music Volume", Events::ChangeMusicVolume, audio->getCurrentVolume());
-	guiScene->addButton(2, menu->layout[0][5].positionX, menu->layout[0][5].positionY, "Back to Main Menu", Events::EndGame, 1);
+	guiScene->addButton(2, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "  Game Controls  ", Events::GameControls, 1);
+	guiScene->addButton(3, menu->layout[0][5].positionX, menu->layout[0][5].positionY, "Back to Main Menu", Events::EndGame, 1);
 	guiScene->addImage(0.24, 0.05, 0.5, 0.9, "textures/Backdrop3.png");
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/settings.png");
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
@@ -524,6 +526,17 @@ void Application::infoMenu() {
 	guiScene->addButton(0, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Back to Main Menu", Events::EndGame, 1);
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/Backdrop3.png");
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/aboutmenu.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
+	render->changeGui(guiScene);
+	playgame = false;
+}
+
+void Application::controlsMenu() {
+	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 4, 0.1f);
+	guiScene = std::make_shared<GuiScene>(window); // Reset gui
+	guiScene->addButton(0, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Back to Main Menu", Events::EndGame, 1);
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/Backdrop3.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/controls.png");
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
 	render->changeGui(guiScene);
 	playgame = false;

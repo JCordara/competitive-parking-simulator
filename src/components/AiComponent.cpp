@@ -455,6 +455,7 @@ void AiComponent::recoveryState() {
 	if (recoveryTimeout > MAXSTUCKTIME) {
 		if (entity.lock()->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y < 0) {
 			recoveryTimeout = 0;
+			nodeTravelTimeout = 0;
 		}
 		// If the AI has not attempted a flip, try that before reseting
 		else if (!attemptedFlip) {
