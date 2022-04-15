@@ -90,6 +90,19 @@ void GameplaySystem::update() {
 			if (end) {//Every single one has parked
 				setGameState(GameState::GameEnd);
 				
+				//Finds the player car to disable it
+				for (auto wp_vc : scene->iterate<VehicleComponent>()) {
+					auto vc = wp_vc.lock(); if (!vc) continue;
+					auto ent = vc->getEntity();
+					if (auto des = ent->getComponent<DescriptionComponent>()) {
+						if (auto name = des->getString("Name")) {
+							if ("Player Car" == name.value()) {
+								vc->setDisabled(true);
+							}
+						}
+					}
+				}
+
 				Events::GameEndGUI.broadcast("YOU LOSE");
 			}
 		}

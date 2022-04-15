@@ -36,8 +36,6 @@ void GuiScene::draw() {
 	// Render the scene's elements
 	if (ImGui::Begin("GUI LAYER", nullptr, windowFlags)) {
 
-		ImGui::Text("FPS: %.2f", Time::fps());
-
 		// Render images first (behind other things)
 		for (auto& image : images) {
 			float x = window->getWidth() * image.x;
@@ -115,6 +113,8 @@ void GuiScene::draw() {
 			if (selectedElement == slider.index) ImGui::PopStyleColor();
 		}
 
+		ImGui::SetCursorScreenPos(ImVec2(window->getWidth() * 0.005f, window->getHeight() * 0.005f));
+		ImGui::Text("FPS: %.0f", Time::fps());
 
 		ImGui::End();
 	}
@@ -180,7 +180,6 @@ void GuiScene::addImage(float x, float y, float w, float h, std::string filepath
 	images.emplace_back(x, y, w, h, t);
 	images.back().image->load(filepath.c_str(), GL_LINEAR, false);
 }
-
 
 char** stringArrayToConstCharArray(std::string* arr, unsigned int count) {
 	char** ret = new char*[count];
