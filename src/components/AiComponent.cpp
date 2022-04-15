@@ -355,7 +355,7 @@ void AiComponent::searchState() {
 			steerToNextNode();
 		}
 		else {
-			aiSpeed = 0.15; accelForwards();
+			aiSpeed = 0.2; accelForwards();
 			recoveryTimeout = 0;
 			steerToNextNode();
 		}
@@ -393,9 +393,9 @@ void AiComponent::parkingState() {
 		recoveryTimeout = 0;
 		nodeTravelTimeout = 0;
 		Events::VehicleBrake.broadcast(entity, 0.f); // Stop moving quickly
-		aiSpeed = 0.45; accelReverse();
+		aiSpeed = 0.25; accelReverse();
 	}
-	else if (glm::distance(entity.lock()->getComponent<TransformComponent>()->getGlobalPosition(),
+	else if (trigger->getEntity() != nullptr && glm::distance(entity.lock()->getComponent<TransformComponent>()->getGlobalPosition(),
 		trigger->getEntity()->getComponent<TransformComponent>()->getGlobalPosition()) < 2.f) {
 		aiSpeed = 0.f; accelForwards(); // Stop engine
 		Events::VehicleBrake.broadcast(entity, 1.f); // Stop moving quickly
@@ -404,9 +404,11 @@ void AiComponent::parkingState() {
 		recoveryTimeout++;
 	}
 	else {
-		aiSpeed = 0.15f; accelForwards(); // Stop engine
+		aiSpeed = 0.2f; accelForwards(); // Stop engine
 		steerToNextNode();
-		recoveryTimeout++;
+		if(getEntity()->getComponent<VehicleComponent>()->
+			vehicle->computeForwardSpeed() < 2.f)
+			recoveryTimeout++;
 	}
 	/*
 	glm::abs(glm::dot(
