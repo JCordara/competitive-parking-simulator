@@ -6,6 +6,7 @@
 - AI
   - Bug fixing (Down below)
   - Tuning parking parameters
+  - Ai needs to flip/reset when flipped
 
   ### MASSIVE ISSUE
       - Read access violation for AI during recovery mode
