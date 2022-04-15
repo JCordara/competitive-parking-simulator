@@ -15,6 +15,7 @@
 class GuiScene {
 public:
 	GuiScene(shared_ptr<Window> window);
+	~GuiScene();
 
 	/* Render all GUI elements in the scene */
 	void draw();
@@ -249,20 +250,8 @@ private:
 	int selectedElement = -1;
 	int maxIndex = -1;
 
-	void menuNav (float v) {
-		if (selectedElement <= 0) selectedElement = 0;
-		if (selectedElement >= maxIndex) selectedElement = maxIndex;
-		if (v == 1.0f) selectedElement++;
-		if (v == -1.0f) selectedElement--;
-	}
-
-	void menuSelect () {
-		for (auto& button : buttons) if (button.index == selectedElement) buttonEvent = &button;
-		for (auto& checkbox : checkboxes) if (checkbox.index == selectedElement) checkboxEvent = &checkbox;
-		for (auto& combo : combos) if (combo.index == selectedElement) comboEvent = &combo;
-		for (auto& slider : floatSliders) if (slider.index == selectedElement) floatSliderEvent = &slider;
-		for (auto& slider : intSliders) if (slider.index == selectedElement) intSliderEvent = &slider;
-	}
+	void menuNav (float v);
+	void menuSelect ();
 
 };
 

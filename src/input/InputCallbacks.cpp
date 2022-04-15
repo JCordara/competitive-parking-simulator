@@ -81,6 +81,11 @@ void Callbacks::gamepadButtonCallback(
 		float v = static_cast<float>(buttons[button]);
 		controlAxis->setInputValue(button, v);
 	}
+
+	if (button == GLFW_GAMEPAD_BUTTON_DPAD_DOWN || GLFW_PRESS) 
+		Events::StickMoveY.broadcast(-1.0f);
+	if (button == GLFW_GAMEPAD_BUTTON_DPAD_UP || GLFW_PRESS)
+		Events::StickMoveY.broadcast( 1.0f);
 	
 }
 
@@ -100,8 +105,6 @@ void Callbacks::gamepadAxisCallback(float axes[], int axis, unsigned int n) {
 	}
 
 	if (axis == GLFW_GAMEPAD_AXIS_LEFT_Y)      Events::StickMoveY.broadcast(axes[axis]);
-	if (axis == GLFW_GAMEPAD_BUTTON_DPAD_DOWN) Events::StickMoveY.broadcast(-1.0f);
-	if (axis == GLFW_GAMEPAD_BUTTON_DPAD_UP)   Events::StickMoveY.broadcast( 1.0f);
 
 }
 
