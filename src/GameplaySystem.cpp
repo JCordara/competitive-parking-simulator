@@ -63,6 +63,7 @@ void GameplaySystem::update() {
 							toRemove.push_back(it->second.trigger);
 							number_of_parking_spots--;
 							updateDisplayString();
+							car->getComponent<VehicleComponent>()->setDisabled(true);
 							Events::CarParked.broadcast(it->second.car);
 						}
 					}
