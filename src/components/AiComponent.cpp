@@ -394,10 +394,10 @@ void AiComponent::parkingState() {
 		Events::VehicleHandbrake.broadcast(entity, 0.f);
 		recoveryTimeout = 0;
 		nodeTravelTimeout = 0;
+		Events::VehicleBrake.broadcast(entity, 0.f); // Stop moving quickly
 		aiSpeed = 0.45; accelReverse();
 	}
-
-	if (glm::distance(entity.lock()->getComponent<TransformComponent>()->getGlobalPosition(),
+	else if (glm::distance(entity.lock()->getComponent<TransformComponent>()->getGlobalPosition(),
 		trigger->getEntity()->getComponent<TransformComponent>()->getGlobalPosition()) < 2.f) {
 		aiSpeed = 0.f; accelForwards(); // Stop engine
 		Events::VehicleBrake.broadcast(entity, 1.f); // Stop moving quickly
