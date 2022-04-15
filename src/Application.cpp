@@ -210,7 +210,7 @@ void Application::generateStaticMap() {
 	// --- Map Ramps ---
 	InstancedStatic("cpsMap_Ramp.obj", "cpsMap_Ramp.obj", 1, fail1, fail3, fail2, fail1);
 	// --- Map SpeedBumps ---
-	InstancedStatic("cpsMap_Speedbump.obj", "cpsMap_Speedbump.obj", 3, fail1, fail3, fail2, physx::PxVec3(0.9f, 5.f, 0.f));
+	InstancedStatic("cpsMap_Speedbump.obj", "cpsMap_Speedbump.obj", 3, fail1, fail3, fail2, physx::PxVec3(1.0f, 5.f, 0.f));
 	// --- Map Streetlight ---
 	InstancedStatic("cpsMap_Streetlight.obj", "cpsMap_Streetlight.obj", 1, physx::PxVec3(0.f, 14.1f, -6.11f), physx::PxQuat(glm::radians(90.f),physx::PxVec3(1.0f,0.f,0.f)), sl, fail1);
 	// --- Enviromental light ---
