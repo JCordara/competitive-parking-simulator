@@ -66,16 +66,22 @@ private:
 	shared_ptr<RenderSystem>   render;
 	shared_ptr<AudioSystem>    audio;
 	shared_ptr<InputSystem>    input;
+	/* --- Imgui Textures --- */
+	std::vector<std::pair<string, std::shared_ptr<Texture>>> imguiTextures;
 	/* --- Loaded Data --- */
 	std::vector<std::pair<string, std::shared_ptr<Model>>> loadedModels;
 	std::vector<std::pair<string, std::vector<instancedTransformation>>> loadedInstancedTransformations;
 	std::vector<std::shared_ptr<AiGraphNode>> aiGraph;
 	appSettings settings;
 	void loadModels();
+	void loadImguiTextures();
+	void loadImguiTexture(std::string path, GLint interpolation, bool flip);
 	void loadModel(string filename, glm::vec3 col);
 	void loadInstancedTransformations(string modelKey, string positionTransformation, string axisAngleRotationTransformation);
 	std::optional<std::vector<instancedTransformation>> retrieveInstancedTransformations(string name);
 	std::vector<instancedTransformation> getInstancedTransformationsOrThrow(string name);
+	std::optional<std::shared_ptr<Texture>> retrieveImguiTexture(string name);
+	std::shared_ptr<Texture> getImguiTextureOrThrow(string name);
 	std::optional <std::shared_ptr<Model>> retrieveModel(string name);
 	std::shared_ptr<Model> getModelOrThrow(string name);
 	/* --- Level manipulators --- */
