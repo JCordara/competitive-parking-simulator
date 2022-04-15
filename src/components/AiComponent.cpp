@@ -24,6 +24,12 @@ AiComponent::AiComponent(weak_ptr<Entity> parent)
 	Events::CarParked.registerHandler<AiComponent,
 		&AiComponent::handleCarParked>(this);
 	Events::AiComponentInit.broadcast(*this);
+	// Random start times
+	int randIntCeiling = 8;
+	double now = time(nullptr);
+	std::srand(now + (double)getEntity()->id()); // Get AI picking differently
+	int pick = rand() % randIntCeiling;
+	randomStartCountdown = pick;
 	setSpawnNode();
 	pickParkingNode();
 	//accelForwards();
@@ -42,7 +48,10 @@ AiComponent::~AiComponent() {
 // The update method that is called continously for the AI
 // Switches between function calls depending on current state
 void AiComponent::update() {
-	if (state == States::SEARCH) {
+	if (randomStartCountdown > 0) {
+		randomStartCountdown--;
+	}
+	else if (state == States::SEARCH) {
 		searchState();
 	}
 	else if (state == States::RECOVERY) {
@@ -237,6 +246,13 @@ float AiComponent::getFValue(std::shared_ptr<AiGraphNode> node) {
 
 // Resets the AI to a chosen spawn position and search state
 void AiComponent::resetAi() {
+	// Random start times
+	int randIntCeiling = 8;
+	double now = time(nullptr);
+	std::srand(now + (double)getEntity()->id()); // Get AI picking differently
+	int pick = rand() % randIntCeiling;
+	randomStartCountdown = pick;
+
 	recoveryTimeout = 0;
 	nodeTravelTimeout = 0;
 	attemptedFlip = false;
