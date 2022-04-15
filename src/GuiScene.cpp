@@ -96,7 +96,10 @@ void GuiScene::draw() {
 		for (auto& slider : floatSliders) {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * slider.x, window->getHeight() * slider.y));
 			ImGui::PushItemWidth(window->getWidth() * 0.15f);
-			if (selectedElement == slider.index) ImGui::PushStyleColor(ImGuiCol_Border, highlightColor);
+			if (selectedElement == slider.index) {
+				if (uiState == eNONE_STATE) ImGui::PushStyleColor(ImGuiCol_FrameBg, highlightColor);
+				if (uiState == eSLIDER_STATE) ImGui::PushStyleColor(ImGuiCol_SliderGrab, highlightColor);
+			}
 			if (ImGui::SliderFloat(slider.text.c_str(), &slider.v, slider.min, slider.max, "%.2f"))
 				floatSliderEvent = &slider;
 			ImGui::PopItemWidth();
@@ -106,7 +109,10 @@ void GuiScene::draw() {
 		for (auto& slider : intSliders) {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * slider.x, window->getHeight() * slider.y));
 			ImGui::PushItemWidth(window->getWidth() * 0.15f);
-			if (selectedElement == slider.index) ImGui::PushStyleColor(ImGuiCol_Border, highlightColor);
+			if (selectedElement == slider.index) {
+				if (uiState == eNONE_STATE) ImGui::PushStyleColor(ImGuiCol_FrameBg, highlightColor);
+				if (uiState == eSLIDER_STATE) ImGui::PushStyleColor(ImGuiCol_SliderGrab, highlightColor);
+			}
 			if (ImGui::SliderInt(slider.text.c_str(), &slider.v, slider.min, slider.max))
 				intSliderEvent = &slider;
 			ImGui::PopItemWidth();
@@ -183,19 +189,119 @@ void GuiScene::addImage(float x, float y, float w, float h, std::string filepath
 
 
 void GuiScene::menuNav (float v) {
-	if (selectedElement < 0) selectedElement = maxIndex;
-	if (selectedElement > maxIndex) selectedElement = 0;
-	if (v == 1.0f) selectedElement++;
-	else if (v == -1.0f) selectedElement--;
+	
+	switch (uiState) {
+		case eNONE_STATE:
+			if (selectedElement < 0) selectedElement = maxIndex;
+			if (selectedElement > maxIndex) selectedElement = 0;
+			if (v == 1.0f) selectedElement++;
+			else if (v == -1.0f) selectedElement--;
+			break;
+
+		case eCOMBO_STATE:
+			break;
+
+		case eSLIDER_STATE:
+			for (auto& slider : floatSliders) {
+				if (slider.index == selectedElement) {
+					if (v == 1.0f) {
+						slider.v -= 0.05f;
+						slider.event.broadcast(slider.v);
+					}
+					else if (v == -1.0f) {
+						slider.v += 0.05f;
+						slider.event.broadcast(slider.v);
+					}
+					break;
+				}
+			}
+			for (auto& slider : intSliders) {
+				if (slider.index == selectedElement) {
+					if (v == 1.0f) {
+						slider.v -= 1;	
+						slider.event.broadcast(slider.v);
+					}
+					else if (v == -1.0f) {
+						slider.v += 1;
+						slider.event.broadcast(slider.v);
+					}
+					break;
+				}
+			}
+			break;
+	};
 }
 
 void GuiScene::menuSelect () {
-	for (auto& button : buttons) if (button.index == selectedElement) buttonEvent = &button;
-	for (auto& checkbox : checkboxes) if (checkbox.index == selectedElement) checkboxEvent = &checkbox;
-	for (auto& combo : combos) if (combo.index == selectedElement) comboEvent = &combo;
-	for (auto& slider : floatSliders) if (slider.index == selectedElement) floatSliderEvent = &slider;
-	for (auto& slider : intSliders) if (slider.index == selectedElement) intSliderEvent = &slider;
+
+	// Get the type of element that is currently highlighted by the controller
+	ElementType selectedType = getSelectedType();
+
+	// Define behavior depending on type of element selected
+	switch (selectedType) {
+		case eBUTTON:
+			for (auto& button : buttons) 
+				if (button.index == selectedElement) buttonEvent = &button;
+			break;
+
+		case eCHECKBOX:
+			for (auto& checkbox : checkboxes) 
+				if (checkbox.index == selectedElement) {
+					checkboxEvent = &checkbox;
+					checkbox.v = !checkbox.v;
+				}
+			break;
+
+		case eCOMBO:
+			/* for (auto& combo : combos) {
+				if (combo.index == selectedElement) {
+					// Behavior when 'A' is pressed on a dropdown menu
+					if (uiState == eNONE_STATE) {
+						uiState = eCOMBO_STATE;
+					}
+					else if (uiState == eCOMBO_STATE) {
+						uiState = eNONE_STATE;
+						comboEvent = &combo;
+					}
+				}
+			} */
+			break;
+
+		case eSLIDER_FLOAT:
+			for (auto& slider : floatSliders) {
+				if (slider.index == selectedElement) {
+					// Behavior when 'A' is pressed on a slider
+					if 		(uiState == eNONE_STATE) uiState = eSLIDER_STATE;
+					else if (uiState == eSLIDER_STATE) uiState = eNONE_STATE;
+				}
+			}
+			break;
+
+		case eSLIDER_INT:
+			for (auto& slider : intSliders) {
+				if (slider.index == selectedElement) {
+					// Behavior when 'A' is pressed on a slider
+					if 		(uiState == eNONE_STATE) uiState = eSLIDER_STATE;
+					else if (uiState == eSLIDER_STATE) uiState = eNONE_STATE;
+				}
+			}
+			break; 
+	};
 }
+
+GuiScene::ElementType GuiScene::getSelectedType() {
+	for (auto& button : buttons) 
+		if (button.index == selectedElement) return GuiScene::eBUTTON;
+	for (auto& checkbox : checkboxes) 
+		if (checkbox.index == selectedElement) return GuiScene::eCHECKBOX;
+	for (auto& combo : combos) 
+		if (combo.index == selectedElement) return GuiScene::eCOMBO;
+	for (auto& slider : floatSliders) 
+		if (slider.index == selectedElement) return GuiScene::eSLIDER_FLOAT;
+	for (auto& slider : intSliders) 
+		if (slider.index == selectedElement) return GuiScene::eSLIDER_INT;
+}
+
 
 
 GuiScene::~GuiScene() {

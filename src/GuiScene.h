@@ -87,6 +87,23 @@ public:
 
 private:
 
+	enum ElementType {
+		eLABEL,
+		eDYNAMIC_LABEL,
+		eBUTTON,
+		eCHECKBOX,
+		eCOMBO,
+		eSLIDER_FLOAT, 
+		eSLIDER_INT,
+		eIMAGE
+	};
+
+	enum UIState {
+		eNONE_STATE,
+		eCOMBO_STATE,
+		eSLIDER_STATE
+	};
+
 	typedef struct GUI_LABEL {
 
 		GUI_LABEL(
@@ -249,9 +266,11 @@ private:
 	ImVec4 highlightColor = ImVec4(0.7f, 0.7f, 0.2f, 1.0f);
 	int selectedElement = -1;
 	int maxIndex = -1;
+	UIState uiState = eNONE_STATE;
 
 	void menuNav (float v);
 	void menuSelect ();
+	ElementType getSelectedType();
 
 };
 
