@@ -568,7 +568,7 @@ void Application::controlsMenu() {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 4, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addButton(0, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Back to Main Menu", Events::EndGame, 1);
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("Backdrop3.png"));
+	guiScene->addImage(0.0, 0.085, 1.0, 0.9, getImguiTextureOrThrow("Backdrop3.png"));
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("controls.png"));
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("logo2.png"));
 	render->changeGui(guiScene);
