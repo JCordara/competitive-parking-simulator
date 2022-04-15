@@ -30,8 +30,21 @@ AiComponent::AiComponent(weak_ptr<Entity> parent)
 	std::srand(now + (double)getEntity()->id()); // Get AI picking differently
 	int pick = rand() % randIntCeiling;
 	randomStartCountdown = pick;
+
+	for (auto wp : gameplaySystem->scene->iterate<VolumeTriggerComponent>()) {
+		auto trig = wp.lock(); if (!trig) continue;
+		//auto trig = it->getComponent<VolumeTriggerComponent>();
+		if (trig) {
+			
+			triggerLocations.push_back(trig->getEntity()->getComponent<TransformComponent>()->getGlobalPosition());
+			
+		}
+	}
+
 	setSpawnNode();
 	pickParkingNode();
+
+
 	//accelForwards();
 }
 
@@ -103,37 +116,34 @@ void AiComponent::pickParkingNode() {
 	}
 	std::vector<std::shared_ptr<AiGraphNode>> possibleParkingSpaces;
 	// Assumes only parking spots have a trigger box, not ideal
-	for (auto wp : gameplaySystem->scene->iterate<VolumeTriggerComponent>()) {
-		auto trig = wp.lock(); if (!trig) continue;
-		//auto trig = it->getComponent<VolumeTriggerComponent>();
-		if (trig) {
+	for (auto wp : triggerLocations) {
 			for (auto node : possibleNodes) {
 				// Assumes only one node will be within distance
-				if (glm::distance(node->position,
-					trig->getEntity()->getComponent<TransformComponent>()->getGlobalPosition()) < 5)
+				if (glm::distance(node->position, wp) < 10.0f)
 				{
 					possibleParkingSpaces.push_back(node);
 					break;
 				}
 			}
-		}
 	}
 	int randIntCeiling = possibleParkingSpaces.size();
 	if (randIntCeiling == 0) {
+
 		std::cout << "ERROR: NO POSSIBLE PARKING SPACES" << std::endl;
 		randIntCeiling = gameplaySystem->aiGlobalNodes.size();
 		double now = time(nullptr);
 		std::srand(now + (double)entity.lock()->id()); // Get AI picking differently
 		// Should give number between 0 and vector.size()-1
 		int pick = rand() % randIntCeiling;
-		std::cout << "PICKED NODE: " << gameplaySystem->aiGlobalNodes[pick]->id << std::endl;
+		std::cout << "1 PICKED NODE: " << gameplaySystem->aiGlobalNodes[pick]->id << std::endl;
 		aStar(gameplaySystem->aiGlobalNodes[pick]);
+
 	} else {
 		double now = time(nullptr);
 		std::srand(now + (double)entity.lock()->id()); // Get AI picking differently
 		// Should give number between 0 and vector.size()-1
 		int pick = rand() % randIntCeiling;
-		std::cout << "PICKED NODE: " << possibleParkingSpaces[pick]->id << std::endl;
+		std::cout << "2 PICKED NODE: " << possibleParkingSpaces[pick]->id << std::endl;
 		aStar(possibleParkingSpaces[pick]);
 	}
 }
@@ -253,6 +263,18 @@ void AiComponent::resetAi() {
 	nodeTravelTimeout = 0;
 	attemptedFlip = false;
 	REVERSEMINIMUM = 7.f;
+
+	triggerLocations.clear();
+	for (auto wp : gameplaySystem->scene->iterate<VolumeTriggerComponent>()) {
+		auto trig = wp.lock(); if (!trig) continue;
+		//auto trig = it->getComponent<VolumeTriggerComponent>();
+		if (trig) {
+
+			triggerLocations.push_back(trig->getEntity()->getComponent<TransformComponent>()->getGlobalPosition());
+
+		}
+	}
+
 	setSpawnNode();
 	//visitedAreas.clear();
 	switchState(States::SEARCH);
@@ -398,6 +420,7 @@ void AiComponent::searchState() {
 }
 
 void AiComponent::parkingState() {
+	std::cout << recoveryTimeout<< "\n";
 	// need to align with vector/axis thing
 	// Need to get close to center of parking stall
 	const int MAXSTUCKTIME = 8;
@@ -417,7 +440,9 @@ void AiComponent::parkingState() {
 		}
 	}
 	if (trigger == nullptr) {
-		std::cout << "TRIGGER IS NULL\n";
+		std::cout << "TRIGGER IS NULL BUMBNUTS\n";
+		
+		resetAi();
 		return;
 	}
 	if (recoveryTimeout > MAXSTUCKTIME) {
