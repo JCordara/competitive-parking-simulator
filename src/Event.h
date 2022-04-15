@@ -32,6 +32,7 @@ namespace Events {
 	/* --- GUI Swap Events --- */
 	extern Event<void> MainMenu;
 	extern Event<void> PlayMenu;
+	extern Event<void> GameInfo;
 	extern Event<void> GameGUI;
 	extern Event<void> RoundEndGUI;
 	extern Event<string> GameEndGUI;
