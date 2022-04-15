@@ -542,10 +542,10 @@ void Application::setupOptions() {
 	std::vector<std::string> list = { "Windowed" };
 	for (int i = 0; i < window->numberOfMonitors(); i++)
 		list.push_back(string("Monitor ") + std::to_string(i));
-	guiScene->addCombo(0, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen monitor", list, Events::Fullscreen, (window->getCurrentMonitorNumber()));
-	guiScene->addSlider(1, menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Music Volume", Events::ChangeMusicVolume, audio->getCurrentVolume());
-	guiScene->addButton(2, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "  Game Controls  ", Events::GameControls, 1);
-	guiScene->addButton(3, menu->layout[0][5].positionX, menu->layout[0][5].positionY, "Back to Main Menu", Events::EndGame, 1);
+	guiScene->addCombo(-1, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "FullScreen monitor", list, Events::Fullscreen, (window->getCurrentMonitorNumber()));
+	guiScene->addSlider(0, menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Music Volume", Events::ChangeMusicVolume, audio->getCurrentVolume());
+	guiScene->addButton(1, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "  Game Controls  ", Events::GameControls, 1);
+	guiScene->addButton(2, menu->layout[0][5].positionX, menu->layout[0][5].positionY, "Back to Main Menu", Events::EndGame, 1);
 	guiScene->addImage(0.24, 0.05, 0.5, 0.9, getImguiTextureOrThrow("Backdrop3.png"));
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("settings.png"));
 	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("logo2.png"));

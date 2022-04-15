@@ -85,12 +85,10 @@ void GuiScene::draw() {
 		for (auto& combo : combos) {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth() * combo.x, window->getHeight() * combo.y));
 			auto v = stringArrayToConstCharArray(combo.texts.data(), combo.texts.size());
-			if (selectedElement == combo.index) ImGui::PushStyleColor(ImGuiCol_Button, highlightColor);
 			if (ImGui::Combo(combo.name.c_str(), &combo.v ,v, combo.texts.size()))
 				comboEvent = &combo;
 			for(int i = 0 ; i < combo.texts.size(); i++)
 				toDelete.push_back(v[i]);
-			if (selectedElement == combo.index) ImGui::PopStyleColor();
 		}
 
 		for (auto& slider : floatSliders) {
