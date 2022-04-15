@@ -96,7 +96,7 @@ void GuiScene::draw() {
 		for (auto& slider : floatSliders) {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * slider.x, window->getHeight() * slider.y));
 			ImGui::PushItemWidth(window->getWidth() * 0.15f);
-			if (selectedElement == slider.index) ImGui::PushStyleColor(ImGuiCol_Button, highlightColor);
+			if (selectedElement == slider.index) ImGui::PushStyleColor(ImGuiCol_Border, highlightColor);
 			if (ImGui::SliderFloat(slider.text.c_str(), &slider.v, slider.min, slider.max, "%.2f"))
 				floatSliderEvent = &slider;
 			ImGui::PopItemWidth();
@@ -106,7 +106,7 @@ void GuiScene::draw() {
 		for (auto& slider : intSliders) {
 			ImGui::SetCursorScreenPos(ImVec2(window->getWidth()  * slider.x, window->getHeight() * slider.y));
 			ImGui::PushItemWidth(window->getWidth() * 0.15f);
-			if (selectedElement == slider.index) ImGui::PushStyleColor(ImGuiCol_Button, highlightColor);
+			if (selectedElement == slider.index) ImGui::PushStyleColor(ImGuiCol_Border, highlightColor);
 			if (ImGui::SliderInt(slider.text.c_str(), &slider.v, slider.min, slider.max))
 				intSliderEvent = &slider;
 			ImGui::PopItemWidth();
@@ -180,6 +180,39 @@ void GuiScene::addImage(float x, float y, float w, float h, std::string filepath
 	images.emplace_back(x, y, w, h, t);
 	images.back().image->load(filepath.c_str(), GL_LINEAR, false);
 }
+
+
+void GuiScene::menuNav (float v) {
+	if (selectedElement < 0) selectedElement = maxIndex;
+	if (selectedElement > maxIndex) selectedElement = 0;
+	if (v == 1.0f) selectedElement++;
+	else if (v == -1.0f) selectedElement--;
+}
+
+void GuiScene::menuSelect () {
+	for (auto& button : buttons) if (button.index == selectedElement) buttonEvent = &button;
+	for (auto& checkbox : checkboxes) if (checkbox.index == selectedElement) checkboxEvent = &checkbox;
+	for (auto& combo : combos) if (combo.index == selectedElement) comboEvent = &combo;
+	for (auto& slider : floatSliders) if (slider.index == selectedElement) floatSliderEvent = &slider;
+	for (auto& slider : intSliders) if (slider.index == selectedElement) intSliderEvent = &slider;
+}
+
+
+GuiScene::~GuiScene() {
+	labels.clear();
+	dynamicLabels.clear();
+	buttons.clear();
+	checkboxes.clear();
+	combos.clear();
+	floatSliders.clear();
+	intSliders.clear();
+	images.clear();
+
+	Events::StickMoveY.unregisterHandler<GuiScene, &GuiScene::menuNav>(this);
+	Events::APressed.unregisterHandler<GuiScene, &GuiScene::menuSelect>(this);
+}
+
+
 
 char** stringArrayToConstCharArray(std::string* arr, unsigned int count) {
 	char** ret = new char*[count];

@@ -255,6 +255,7 @@ void AiComponent::searchState() {
 	// Checks if the car has reached the current node
 	if (inBounds) {
 		nodeTravelTimeout = 0; // Reached the node, reset travel timeout
+		attemptedRecoveryNum = 0;
 		/*if (nodeQueue.size() == 1) {
 			if (pickClosestParkingNode(nodeQueue[0])) {
 				currentNode = nodeQueue[0];
@@ -305,6 +306,7 @@ void AiComponent::searchState() {
 	}
 	// Check for stuck status i.e. has not moved for too long
 	else if (recoveryTimeout > MAXSTUCKTIME || nodeTravelTimeout > MAXTRAVELTIME) {
+		attemptedRecoveryNum++;
 		switchState(States::RECOVERY);
 		stuckPos = entity.lock()->getComponent<TransformComponent>()->getGlobalPosition();
 		recoveryTimeout = 0;
@@ -392,6 +394,7 @@ void AiComponent::parkingState() {
 		return;
 	}
 	if (recoveryTimeout > MAXSTUCKTIME) {
+		attemptedRecoveryNum++;
 		switchState(States::RECOVERY);
 		stuckPos = entity.lock()->getComponent<TransformComponent>()->getGlobalPosition();
 		Events::VehicleBrake.broadcast(entity, 0.f); // Stop moving quickly
@@ -446,6 +449,14 @@ void AiComponent::recoveryState() {
 	float amountMoved = glm::distance(
 		getEntity()->getComponent<TransformComponent>()->getGlobalPosition(), stuckPos);
 	//std::cout << entity->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y << std::endl;
+	if (attemptedRecoveryNum > 5) {
+		state = lastState;
+		recoveryTimeout = 0;
+		nodeTravelTimeout = 0;
+		attemptedFlip = false;
+		REVERSEMINIMUM = 7.f;
+		aiSpeed = 0.35; accelForwards();
+	}
 	if (recoveryTimeout > MAXSTUCKTIME) {
 		if (entity.lock()->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y < 0) {
 			recoveryTimeout = 0;
