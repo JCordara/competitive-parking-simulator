@@ -205,14 +205,16 @@ void GuiScene::menuNav (float v) {
 					float sliderStep = (slider.max - slider.min) / 20.0f;
 					if (v == 1.0f) {
 						slider.v -= sliderStep;
+						if (slider.v <= slider.min) slider.v = slider.min;
+						if (slider.v >= slider.max) slider.v = slider.max;
 						slider.event.broadcast(slider.v);
 					}
 					else if (v == -1.0f) {
 						slider.v += sliderStep;
+						if (slider.v <= slider.min) slider.v = slider.min;
+						if (slider.v >= slider.max) slider.v = slider.max;
 						slider.event.broadcast(slider.v);
 					}
-					if (slider.v <= slider.min) slider.v = slider.min;
-					if (slider.v >= slider.max) slider.v = slider.max;
 					break;
 				}
 			}
@@ -220,14 +222,16 @@ void GuiScene::menuNav (float v) {
 				if (slider.index == selectedElement) {
 					if (v == 1.0f) {
 						slider.v -= 1;	
+						if (slider.v <= slider.min) slider.v = slider.min;
+						if (slider.v >= slider.max) slider.v = slider.max;
 						slider.event.broadcast(slider.v);
 					}
 					else if (v == -1.0f) {
 						slider.v += 1;
+						if (slider.v <= slider.min) slider.v = slider.min;
+						if (slider.v >= slider.max) slider.v = slider.max;
 						slider.event.broadcast(slider.v);
 					}
-					if (slider.v <= slider.min) slider.v = slider.min;
-					if (slider.v >= slider.max) slider.v = slider.max;
 					break;
 				}
 			}
