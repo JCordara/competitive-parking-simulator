@@ -450,12 +450,7 @@ void AiComponent::recoveryState() {
 		getEntity()->getComponent<TransformComponent>()->getGlobalPosition(), stuckPos);
 	//std::cout << entity->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y << std::endl;
 	if (attemptedRecoveryNum > 5) {
-		state = lastState;
-		recoveryTimeout = 0;
-		nodeTravelTimeout = 0;
-		attemptedFlip = false;
-		REVERSEMINIMUM = 7.f;
-		aiSpeed = 0.35; accelForwards();
+		resetAi();
 	}
 	if (recoveryTimeout > MAXSTUCKTIME) {
 		if (entity.lock()->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y < 0) {
