@@ -119,13 +119,14 @@ void AiComponent::pickParkingNode() {
 		int pick = rand() % randIntCeiling;
 		std::cout << "PICKED NODE: " << gameplaySystem->aiGlobalNodes[pick]->id << std::endl;
 		aStar(gameplaySystem->aiGlobalNodes[pick]);
+	} else {
+		double now = time(nullptr);
+		std::srand(now + (double)entity.lock()->id()); // Get AI picking differently
+		// Should give number between 0 and vector.size()-1
+		int pick = rand() % randIntCeiling;
+		std::cout << "PICKED NODE: " << possibleParkingSpaces[pick]->id << std::endl;
+		aStar(possibleParkingSpaces[pick]);
 	}
-	double now = time(nullptr);
-	std::srand(now + (double)entity.lock()->id()); // Get AI picking differently
-	// Should give number between 0 and vector.size()-1
-	int pick = rand() % randIntCeiling;
-	std::cout << "PICKED NODE: " << possibleParkingSpaces[pick]->id << std::endl;
-	aStar(possibleParkingSpaces[pick]);
 }
 
 

@@ -377,7 +377,7 @@ void PhysicsSystem::vehicleFlipMode(weak_ptr<Entity> wpEntity, float v)
 	if (!vc->isDisabled()) {
 		PxTransform trans = vc->vehicle->getRigidDynamicActor()->getGlobalPose();
 		// Disallow flipping if car too high or spinning too fast
-		if (trans.p.y > 2.75f || 
+		if (trans.p.y > 2.9f || 
 		vc->vehicle->getRigidDynamicActor()->getAngularVelocity().magnitudeSquared() > 10.0f) {
 			return;
 		}
