@@ -201,6 +201,16 @@ void VehicleComponent::reloadVehicleSettings()
 
 }
 
+void VehicleComponent::setDisabled(bool v) {
+	disabled = v;
+
+	if (v == false) {
+		Events::VehicleHandbrake.broadcast(getEntity(), 0.f);
+		Events::VehicleSteer.broadcast(getEntity(), 0.f);
+		Events::VehicleBrake.broadcast(getEntity(), 0.f);
+		Events::VehicleAccelerate.broadcast(getEntity(), 0.f);
+	}
+}
 
 PxConvexMesh* VehicleComponent::createWheelMesh(
 	const PxF32 width, const PxF32 radius) 

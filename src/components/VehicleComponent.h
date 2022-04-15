@@ -31,7 +31,7 @@ public:
     float getSkidSpeed();
     bool isGrounded();
 	bool isDisabled() { return disabled; }
-	void setDisabled(bool v) { disabled = v; }
+	void setDisabled(bool v);
 
     inline void setTransform(PxTransform& transform) {
         vehicle->getRigidDynamicActor()->setGlobalPose(transform);
