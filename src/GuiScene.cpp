@@ -190,8 +190,6 @@ void GuiScene::menuNav (float v) {
 
 	switch (uiState) {
 		case eNONE_STATE:
-			if (selectedElement < 0) selectedElement = maxIndex;
-			if (selectedElement > maxIndex) selectedElement = 0;
 			if (v == 1.0f) {
 				selectedElement++;
 				Events::MenuMoveHighlight.broadcast();
@@ -200,6 +198,8 @@ void GuiScene::menuNav (float v) {
 				selectedElement--;
 				Events::MenuMoveHighlight.broadcast();
 			}
+			if (selectedElement < 0) selectedElement = maxIndex;
+			if (selectedElement > maxIndex) selectedElement = 0;
 			break;
 
 		case eCOMBO_STATE:
