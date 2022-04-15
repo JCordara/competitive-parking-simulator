@@ -605,7 +605,7 @@ void AiComponent::handleParkingTriggerEvent(weak_ptr<Entity> VehcleEntity, weak_
 
 void AiComponent::handleCarParked(weak_ptr<Entity> VehcleEntity) {
 	if (VehcleEntity.lock() == entity.lock() && currentNode->nodeTaken) {
-		switchState(States::SEARCH);
+		resetAi();;
 	}
 
 	else if (VehcleEntity.lock() == entity.lock() && !currentNode->nodeTaken) {
