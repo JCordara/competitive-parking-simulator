@@ -19,6 +19,10 @@ AiComponent::AiComponent(weak_ptr<Entity> parent)
 	//	std::cout << "NODE ID" << node->id << std::endl;
 	//	std::cout << "AREA CODE" << node->areaCode << std::endl;
 	//}
+	Events::ParkingStallTriggered.registerHandler<AiComponent,
+		&AiComponent::handleParkingTriggerEvent>(this);
+	Events::CarParked.registerHandler<AiComponent,
+		&AiComponent::handleCarParked>(this);
 	Events::AiComponentInit.broadcast(*this);
 	setSpawnNode();
 	pickParkingNode();
@@ -525,7 +529,21 @@ glm::vec3 AiComponent::ComputeForwardVector(physx::PxQuat quat) const
 	return glm::vec3(z2x + y2w, z2y - x2w, 1.0f - (x2x + y2y));
 }
 
+void AiComponent::handleParkingTriggerEvent(weak_ptr<Entity> VehcleEntity, weak_ptr<Entity> triggerEntity) {
+	if (VehcleEntity.lock()->id() == entity.lock()->id()) {
+		currentNode->nodeTaken = true;
+		aiSpeed = 0.f; accelForwards(); // Stop engine
+		Events::VehicleBrake.broadcast(entity, 1.f); // Stop moving quickly
+		Events::VehicleSteer.broadcast(entity, 0.f); // Stop turning
+		switchState(States::PARKING);
+	}
+}
 
+void AiComponent::handleCarParked(weak_ptr<Entity> VehcleEntity) {
+	if (VehcleEntity.lock()->id() == entity.lock()->id()) {
+		switchState(States::PARKED);
+	}
+}
 
 
 

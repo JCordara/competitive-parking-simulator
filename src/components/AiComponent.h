@@ -50,6 +50,7 @@ public:
 		ATTACK,
 		RECOVERY,
 		RESET,
+		PARKING,
 		PARKED
 	};
 
@@ -109,6 +110,8 @@ private:
 	glm::vec3 ComputeForwardVector(physx::PxQuat quat) const;
 	float calcAngle2Vec();
 	void setupAreaMap();
+	void handleParkingTriggerEvent(weak_ptr<Entity> VehcleEntity, weak_ptr<Entity> triggerEntity);
+	void handleCarParked(weak_ptr<Entity> VehcleEntity);
 };
 
 #endif // AI_COMPONENT_H
