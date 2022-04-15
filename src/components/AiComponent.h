@@ -99,6 +99,7 @@ private:
 	float getHValue(std::shared_ptr<AiGraphNode> node,
 					std::shared_ptr<AiGraphNode> goalNode);
 	void searchState();
+	void parkingState();
 	void recoveryState();
 	float calcDistanceFromCurrentNode();
 	bool inRangeOfNode(float nodeThreshhold);
