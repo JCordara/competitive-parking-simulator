@@ -82,10 +82,13 @@ void Callbacks::gamepadButtonCallback(
 		controlAxis->setInputValue(button, v);
 	}
 
-	if (button == GLFW_GAMEPAD_BUTTON_DPAD_DOWN || GLFW_PRESS) 
-		Events::StickMoveY.broadcast(-1.0f);
-	if (button == GLFW_GAMEPAD_BUTTON_DPAD_UP || GLFW_PRESS)
-		Events::StickMoveY.broadcast( 1.0f);
+	// On DPAD press
+	if (buttons[button] > 0.0f) {
+		if (button == GLFW_GAMEPAD_BUTTON_DPAD_DOWN || button == GLFW_GAMEPAD_BUTTON_DPAD_LEFT) 
+			Events::StickMoveY.broadcast( 1.0f);
+		if (button == GLFW_GAMEPAD_BUTTON_DPAD_UP || button == GLFW_GAMEPAD_BUTTON_DPAD_RIGHT)
+			Events::StickMoveY.broadcast(-1.0f);
+	}
 	
 }
 
