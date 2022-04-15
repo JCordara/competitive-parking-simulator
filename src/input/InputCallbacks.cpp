@@ -88,6 +88,8 @@ void Callbacks::gamepadButtonCallback(
 			Events::StickMoveY.broadcast( 1.0f);
 		if (button == GLFW_GAMEPAD_BUTTON_DPAD_UP || button == GLFW_GAMEPAD_BUTTON_DPAD_RIGHT)
 			Events::StickMoveY.broadcast(-1.0f);
+		if (button == GLFW_GAMEPAD_BUTTON_A)
+			Events::APressed.broadcast();
 	}
 	
 }
@@ -116,7 +118,12 @@ void Callbacks::gamepadAxisCallback(float axes[], int axis, unsigned int n) {
 Callbacks::Callbacks() {
 	// Could set default values in here if we want, probs wont tho
 	// Sike
-	voidKeyEvents[createMapKey(GLFW_GAMEPAD_BUTTON_A, GLFW_PRESS)] = &Events::APressed;
+	voidKeyEvents[createMapKey(GLFW_KEY_ENTER, GLFW_PRESS)] = &Events::APressed;
+	voidKeyEvents[createMapKey(GLFW_KEY_KP_ENTER, GLFW_PRESS)] = &Events::APressed;
+	createAxis(GLFW_KEY_W, GLFW_KEY_S, &Events::StickMoveY);
+	createAxis(GLFW_KEY_D, GLFW_KEY_A, &Events::StickMoveY);
+	createAxis(GLFW_KEY_UP, GLFW_KEY_DOWN, &Events::StickMoveY);
+	createAxis(GLFW_KEY_RIGHT, GLFW_KEY_LEFT, &Events::StickMoveY);
 }
 
 
