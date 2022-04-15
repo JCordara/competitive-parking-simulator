@@ -80,7 +80,7 @@ public:
 	void addImage(
 		float x, float y, 
 		float w, float h, 
-		std::string filepath
+		std::shared_ptr<Texture> filepath
 	);
 
 	bool gameWon;
