@@ -6,7 +6,7 @@
 #define MAX_DISTANCE				1.2f
 #define MAX_COS_ANGLE_FORWARD		0.94f
 #define MAX_COS_ANGLE_UP			0.96f
-#define PARKING_TIME				0.4f
+#define PARKING_TIME				0.3f
 
 #define MAX_SPEED_DRIVE_AI			MAX_SPEED_DRIVE
 #define MAX_SPEED_ENGINE_AI			MAX_SPEED_ENGINE
@@ -89,6 +89,20 @@ void GameplaySystem::update() {
 			for (auto& it : states) if (it.first != -1 && it.second.score < 1) end = false;
 			if (end) {//Every single one has parked
 				setGameState(GameState::GameEnd);
+				
+				//Finds the player car to disable it
+				for (auto wp_vc : scene->iterate<VehicleComponent>()) {
+					auto vc = wp_vc.lock(); if (!vc) continue;
+					auto ent = vc->getEntity();
+					if (auto des = ent->getComponent<DescriptionComponent>()) {
+						if (auto name = des->getString("Name")) {
+							if ("Player Car" == name.value()) {
+								vc->setDisabled(true);
+							}
+						}
+					}
+				}
+
 				Events::GameEndGUI.broadcast("YOU LOSE");
 			}
 		}
