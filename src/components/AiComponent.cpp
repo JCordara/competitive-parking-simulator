@@ -387,6 +387,10 @@ void AiComponent::parkingState() {
 			}
 		}
 	}
+	if (trigger == nullptr) {
+		std::cout << "TRIGGER IS NULL BUMBNUTS\n";
+		return;
+	}
 	if (recoveryTimeout > MAXSTUCKTIME) {
 		switchState(States::RECOVERY);
 		stuckPos = entity.lock()->getComponent<TransformComponent>()->getGlobalPosition();
