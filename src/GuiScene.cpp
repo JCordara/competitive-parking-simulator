@@ -188,12 +188,20 @@ void GuiScene::addImage(float x, float y, float w, float h, std::shared_ptr<Text
 
 void GuiScene::menuNav (float v) {
 	
+	if (maxIndex == -1) return;
+
 	switch (uiState) {
 		case eNONE_STATE:
 			if (selectedElement < 0) selectedElement = maxIndex;
 			if (selectedElement > maxIndex) selectedElement = 0;
-			if (v == 1.0f) selectedElement++;
-			else if (v == -1.0f) selectedElement--;
+			if (v == 1.0f) {
+				selectedElement++;
+				Events::MenuMoveHighlight.broadcast();
+			}
+			else if (v == -1.0f) {
+				selectedElement--;
+				Events::MenuMoveHighlight.broadcast();
+			}
 			break;
 
 		case eCOMBO_STATE:
@@ -208,12 +216,14 @@ void GuiScene::menuNav (float v) {
 						if (slider.v <= slider.min) slider.v = slider.min;
 						if (slider.v >= slider.max) slider.v = slider.max;
 						slider.event.broadcast(slider.v);
+						Events::MenuMoveHighlight.broadcast();
 					}
 					else if (v == -1.0f) {
 						slider.v += sliderStep;
 						if (slider.v <= slider.min) slider.v = slider.min;
 						if (slider.v >= slider.max) slider.v = slider.max;
 						slider.event.broadcast(slider.v);
+						Events::MenuMoveHighlight.broadcast();
 					}
 					break;
 				}
@@ -225,12 +235,14 @@ void GuiScene::menuNav (float v) {
 						if (slider.v <= slider.min) slider.v = slider.min;
 						if (slider.v >= slider.max) slider.v = slider.max;
 						slider.event.broadcast(slider.v);
+						Events::MenuMoveHighlight.broadcast();
 					}
 					else if (v == -1.0f) {
 						slider.v += 1;
 						if (slider.v <= slider.min) slider.v = slider.min;
 						if (slider.v >= slider.max) slider.v = slider.max;
 						slider.event.broadcast(slider.v);
+						Events::MenuMoveHighlight.broadcast();
 					}
 					break;
 				}
@@ -247,8 +259,12 @@ void GuiScene::menuSelect () {
 	// Define behavior depending on type of element selected
 	switch (selectedType) {
 		case eBUTTON:
-			for (auto& button : buttons) 
-				if (button.index == selectedElement) buttonEvent = &button;
+			for (auto& button : buttons) {
+				if (button.index == selectedElement) {
+					buttonEvent = &button;
+					Events::MenuSelect.broadcast();
+				}
+			}
 			break;
 
 		case eCHECKBOX:
@@ -256,6 +272,7 @@ void GuiScene::menuSelect () {
 				if (checkbox.index == selectedElement) {
 					checkboxEvent = &checkbox;
 					checkbox.v = !checkbox.v;
+					Events::MenuMoveHighlight.broadcast();
 				}
 			break;
 
@@ -278,8 +295,14 @@ void GuiScene::menuSelect () {
 			for (auto& slider : floatSliders) {
 				if (slider.index == selectedElement) {
 					// Behavior when 'A' is pressed on a slider
-					if 		(uiState == eNONE_STATE) uiState = eSLIDER_STATE;
-					else if (uiState == eSLIDER_STATE) uiState = eNONE_STATE;
+					if (uiState == eNONE_STATE) {
+						uiState = eSLIDER_STATE;
+						Events::MenuSelect.broadcast();
+					}
+					else if (uiState == eSLIDER_STATE) {
+						uiState = eNONE_STATE;
+						Events::MenuMoveHighlight.broadcast();
+					}
 				}
 			}
 			break;
@@ -288,8 +311,14 @@ void GuiScene::menuSelect () {
 			for (auto& slider : intSliders) {
 				if (slider.index == selectedElement) {
 					// Behavior when 'A' is pressed on a slider
-					if 		(uiState == eNONE_STATE) uiState = eSLIDER_STATE;
-					else if (uiState == eSLIDER_STATE) uiState = eNONE_STATE;
+					if (uiState == eNONE_STATE) {
+						uiState = eSLIDER_STATE;
+						Events::MenuSelect.broadcast();
+					}
+					else if (uiState == eSLIDER_STATE) {
+						uiState = eNONE_STATE;
+						Events::MenuMoveHighlight.broadcast();
+					}
 				}
 			}
 			break; 

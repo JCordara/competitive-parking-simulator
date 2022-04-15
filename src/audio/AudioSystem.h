@@ -68,6 +68,8 @@ public:
     void onCollision(weak_ptr<Entity> e0, weak_ptr<Entity> s1);
 	void onPark(weak_ptr<Entity> wpe0);
     void onMusicVolumeChanged(float gain);
+    void onMenuMove();
+    void onMenuSelect();
 
 	float getCurrentVolume();
 
@@ -85,10 +87,15 @@ private:
     shared_ptr<Scene> scene;
     weak_ptr<TransformComponent> listener;
 
+	float currentVolume = 0.1f;
     shared_ptr<AudioSource> musicPlayer;
     shared_ptr<Audio> music;
-	float currentVolume = 0.1f;
 	shared_ptr<Audio> menuMusic;
+
+    shared_ptr<AudioSource> auxSource;
+    shared_ptr<Audio> menuSelect;
+    shared_ptr<Audio> menuClick;
+
 };
 
 

@@ -4,8 +4,12 @@
 void Callbacks::keyCallback(int key, int scancode, int action, int mods) {
 
 	// Recompile scripts (alt + R)
-	if ((mods & GLFW_MOD_ALT) && (key == GLFW_KEY_R) && (action && GLFW_PRESS)) {
+	if ((mods & GLFW_MOD_ALT) && (key == GLFW_KEY_R) && (action & GLFW_PRESS)) {
 		Events::RecompileScripts.broadcast();
+	}
+
+	if ((key == GLFW_KEY_ESCAPE) && (action & GLFW_PRESS)){
+		Events::EndGame.broadcast();
 	}
 
 	// Broadcast void events bound to this key
@@ -90,6 +94,8 @@ void Callbacks::gamepadButtonCallback(
 			Events::StickMoveY.broadcast(-1.0f);
 		if (button == GLFW_GAMEPAD_BUTTON_A)
 			Events::APressed.broadcast();
+		if (button == GLFW_GAMEPAD_BUTTON_START)
+			Events::EndGame.broadcast();
 	}
 	
 }

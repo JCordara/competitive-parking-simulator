@@ -74,6 +74,8 @@ namespace Events {
 
 	extern Event<float> StickMoveY;
 	extern Event<void> APressed;
+	extern Event<void> MenuMoveHighlight;
+	extern Event<void> MenuSelect;
 };
 
 #endif // EVENT_H

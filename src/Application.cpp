@@ -577,8 +577,8 @@ void Application::controlsMenu() {
 
 void Application::setupBaseLevelGUI() {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
-	guiScene->addButton(0, 0.01f,0.87f, "Quit to Main Menu", Events::EndGame, 1);
-	guiScene->addButton(1, 0.01f, 0.95f, "Exit to Desktop", Events::ExitApplication, 1);
+	// guiScene->addButton(0, 0.01f,0.87f, "Quit to Main Menu", Events::EndGame, 1);
+	// guiScene->addButton(1, 0.01f, 0.95f, "Exit to Desktop", Events::ExitApplication, 1);
 	guiScene->addLabel(0.05f, 0.01f, string("Contestants Remaining: ")  + std::to_string(gameplay->getCurrentAi_number() + 1), 2);
 	guiScene->addDynamicLabel(0.5f, 0.01f, gameplay->getDisplayString(), 2);
 	//ImGui::ProgressBar(float fraction, const ImVec2 & size_arg, const char* overlay)
