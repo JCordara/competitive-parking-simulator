@@ -390,6 +390,8 @@ void AiComponent::parkingState() {
 	if (recoveryTimeout > MAXSTUCKTIME) {
 		switchState(States::RECOVERY);
 		stuckPos = entity.lock()->getComponent<TransformComponent>()->getGlobalPosition();
+		Events::VehicleBrake.broadcast(entity, 0.f); // Stop moving quickly
+		Events::VehicleHandbrake.broadcast(entity, 0.f);
 		recoveryTimeout = 0;
 		nodeTravelTimeout = 0;
 		aiSpeed = 0.45; accelReverse();
