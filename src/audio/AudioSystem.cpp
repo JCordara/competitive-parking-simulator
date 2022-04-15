@@ -29,17 +29,23 @@ AudioSystem::AudioSystem(shared_ptr<Scene> scene): scene(scene) {
         exit(1);
     }
 
-    // Setup music player
+    // Set up music player
     musicPlayer = createStaticSource();
     musicPlayer->setGain(currentVolume);
     musicPlayer->setLooping(true);
     music = loadAudio("audio/CoconutMall.wav");
 	menuMusic = loadAudio("audio/EverybodyFalls.wav"); //Need to change
 
+    // Set up aux source
+    auxSource = createStaticSource();
+    menuClick = loadAudio("audio/menu_nav.wav");
+    menuSelect = loadAudio("audio/menu_select.wav");
+
     // Register self with audio components when they are created
     Events::AudioComponentInit.registerHandler<AudioSystem,
         &AudioSystem::registerAudioComponent>(this);
 
+    // Register handlers for various audio events
     Events::NewGame.registerHandler<AudioSystem,
         &AudioSystem::onGameStart>(this);
 
@@ -54,6 +60,12 @@ AudioSystem::AudioSystem(shared_ptr<Scene> scene): scene(scene) {
 
     Events::ChangeMusicVolume.registerHandler<AudioSystem,
         &AudioSystem::onMusicVolumeChanged>(this);
+
+    Events::MenuMoveHighlight.registerHandler<AudioSystem, 
+        &AudioSystem::onMenuMove>(this);
+
+    Events::MenuSelect.registerHandler<AudioSystem, 
+        &AudioSystem::onMenuSelect>(this);
 
 }
 
@@ -109,6 +121,22 @@ void AudioSystem::onPark(weak_ptr<Entity> wpe0) {
 void AudioSystem::onMusicVolumeChanged(float gain) {
     musicPlayer->setGain(gain);
 	currentVolume = gain;
+}
+
+void AudioSystem::onMenuMove() {
+    auto l = listener.lock();
+    auxSource->setPosition(l->getGlobalPosition());
+    auxSource->setPitch(Random::randomFloat(0.85f, 1.15f));
+    auxSource->setGain(Random::randomFloat(0.85f, 0.95f));
+    auxSource->playAudio(menuClick);
+}
+
+void AudioSystem::onMenuSelect() {
+    auto l = listener.lock();
+    auxSource->setPosition(l->getGlobalPosition());
+    auxSource->setPitch(Random::randomFloat(0.95f, 1.15f));
+    auxSource->setGain(Random::randomFloat(0.85f, 0.9f));
+    auxSource->playAudio(menuSelect);
 }
 
 float AudioSystem::getCurrentVolume() {

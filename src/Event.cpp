@@ -47,6 +47,8 @@ Event<int>  Events::ChangeNumberOfAI;
 Event<int> Events::Fullscreen;
 Event<float> Events::StickMoveY;
 Event<void> Events::APressed;
+Event<void> Events::MenuMoveHighlight;
+Event<void> Events::MenuSelect;
 
 
 
