@@ -91,6 +91,7 @@ private:
 	void addAICarEvent(string alias);
 	/* --- GUI Handlers --- */
 	void setupMainMenu();
+	void setupGameMenu();
 	void setupOptions();
 	void setupBaseLevelGUI();
 	void roundWonMenu();
