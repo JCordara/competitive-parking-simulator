@@ -406,7 +406,7 @@ void AiComponent::parkingState() {
 		recoveryTimeout++;
 	}
 	else {
-		aiSpeed = 0.15f; accelForwards(); // Stop engine
+		aiSpeed = 0.15f; accelForwards();
 		steerToNextNode();
 		recoveryTimeout++;
 	}
@@ -442,8 +442,6 @@ void AiComponent::recoveryState() {
 	//std::cout << entity->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y << std::endl;
 	if (recoveryTimeout > MAXSTUCKTIME) {
 		if (entity.lock()->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y < 0) {
-			Events::VehicleFlip.broadcast(entity, 90.f);
-			Events::VehicleFlip.broadcast(entity, 90.f);
 			recoveryTimeout = 0;
 		}
 		// If the AI has not attempted a flip, try that before reseting
