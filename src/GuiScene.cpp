@@ -181,10 +181,8 @@ void GuiScene::addSlider(int index, float x, float y, std::string text, Event<in
 	if (index > maxIndex) maxIndex = index;
 }
 
-void GuiScene::addImage(float x, float y, float w, float h, std::string filepath) {
-	auto t = make_shared<Texture>();
-	images.emplace_back(x, y, w, h, t);
-	images.back().image->load(filepath.c_str(), GL_LINEAR, false);
+void GuiScene::addImage(float x, float y, float w, float h, std::shared_ptr<Texture> tex) {
+	images.emplace_back(x, y, w, h, tex);
 }
 
 

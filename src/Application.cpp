@@ -45,6 +45,7 @@ Application::Application(appSettings& settings):
 	audio = std::make_shared<AudioSystem>(scene);
 	Events::SetMenuMusic.broadcast();
 	/* Proceed */
+	loadImguiTextures();
 	setupMainMenu();
 	playgame = false;
 	// --- Loading the models our game uses --- //
@@ -431,6 +432,25 @@ void Application::loadModel(string filename, glm::vec3 col) {
 	loadedModels.push_back(std::pair<string, std::shared_ptr<Model>>(string(filename), std::make_shared<Model>("models/" + filename, col)));
 }
 
+void Application::loadImguiTextures() {
+	loadImguiTexture("Backdrop3.png",	GL_LINEAR, false);
+	loadImguiTexture("setupgame.png",	GL_LINEAR, false);
+	loadImguiTexture("logo2.png",		GL_LINEAR, false);
+	loadImguiTexture("settings.png",	GL_LINEAR, false);
+	loadImguiTexture("aboutmenu.png",	GL_LINEAR, false);
+	loadImguiTexture("controls.png",	GL_LINEAR, false);
+	loadImguiTexture("spectating.png",	GL_LINEAR, false);
+	loadImguiTexture("playerlost.png",	GL_LINEAR, false);
+	loadImguiTexture("playerwin.png",	GL_LINEAR, false);
+	loadImguiTexture("gamename2.png",   GL_LINEAR, false);
+}
+
+void Application::loadImguiTexture(std::string path, GLint interpolation, bool flip) {
+	auto t = std::make_shared<Texture>();
+	t->load("textures/" + path, interpolation, flip);
+	imguiTextures.push_back(std::pair<string, std::shared_ptr<Texture>>(path, t));
+}
+
 std::optional<std::shared_ptr<Model>> Application::retrieveModel(string name) {
 	for (auto it = loadedModels.begin(); it != loadedModels.end(); it++)
 		if (it->first == name) return it->second;
@@ -474,6 +494,19 @@ std::vector<instancedTransformation> Application::getInstancedTransformationsOrT
 	return m.value();
 }
 
+
+std::optional<std::shared_ptr<Texture>> Application::retrieveImguiTexture(string name) {
+	for (auto it = imguiTextures.begin(); it != imguiTextures.end(); it++)
+		if (it->first == name) return it->second;
+	return std::nullopt;
+}
+std::shared_ptr<Texture> Application::getImguiTextureOrThrow(string name) {
+	auto m = retrieveImguiTexture(name);
+	if (!m.has_value())
+		throw std::exception("No texture exists");
+	return m.value();
+}
+
 // --- GUI Manager Function ---
 void Application::setupMainMenu() {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 9, 0.1f);
@@ -483,9 +516,9 @@ void Application::setupMainMenu() {
 	guiScene->addButton(1, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "  Game Settings  ", Events::GameOptions, 1);
 	guiScene->addButton(2, menu->layout[0][4].positionX, menu->layout[0][4].positionY, "  About / Info   ", Events::GameInfo, 1);
 	guiScene->addButton(3, menu->layout[0][5].positionX, menu->layout[0][5].positionY, " Exit to Desktop ", Events::ExitApplication, 1);
-	guiScene->addImage(0.24, 0.05, 0.5, 0.9, "textures/Backdrop3.png");
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/gamename2.png");
+	guiScene->addImage(0.24, 0.05, 0.5, 0.9, getImguiTextureOrThrow("Backdrop3.png"));
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("logo2.png"));
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("gamename2.png"));
 	render->changeGui(guiScene);
 	playgame = false;
 }
@@ -496,9 +529,9 @@ void Application::setupGameMenu() {
 	guiScene->addButton(0, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "    Start Game   ", Events::NewGame, 1);
 	guiScene->addSlider(1, menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Starting Number of AI", Events::ChangeNumberOfAI, gameplay->getStartingAi_number(), 1, 8);
 	guiScene->addButton(2, menu->layout[0][4].positionX, menu->layout[0][4].positionY, "Back to Main Menu", Events::EndGame, 1);
-	guiScene->addImage(0.24, 0.05, 0.5, 0.9, "textures/Backdrop3.png");
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/setupgame.png");
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
+	guiScene->addImage(0.24, 0.05, 0.5, 0.9, getImguiTextureOrThrow("Backdrop3.png"));
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("setupgame.png"));
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("logo2.png"));
 	render->changeGui(guiScene);
 	playgame = false;
 }
@@ -513,9 +546,9 @@ void Application::setupOptions() {
 	guiScene->addSlider(1, menu->layout[0][2].positionX, menu->layout[0][2].positionY, "Music Volume", Events::ChangeMusicVolume, audio->getCurrentVolume());
 	guiScene->addButton(2, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "  Game Controls  ", Events::GameControls, 1);
 	guiScene->addButton(3, menu->layout[0][5].positionX, menu->layout[0][5].positionY, "Back to Main Menu", Events::EndGame, 1);
-	guiScene->addImage(0.24, 0.05, 0.5, 0.9, "textures/Backdrop3.png");
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/settings.png");
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
+	guiScene->addImage(0.24, 0.05, 0.5, 0.9, getImguiTextureOrThrow("Backdrop3.png"));
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("settings.png"));
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("logo2.png"));
 	render->changeGui(guiScene);
 	playgame = false;
 }
@@ -524,9 +557,9 @@ void Application::infoMenu() {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 4, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addButton(0, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Back to Main Menu", Events::EndGame, 1);
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/Backdrop3.png");
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/aboutmenu.png");
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("Backdrop3.png"));
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("aboutmenu.png"));
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("logo2.png"));
 	render->changeGui(guiScene);
 	playgame = false;
 }
@@ -535,9 +568,9 @@ void Application::controlsMenu() {
 	std::shared_ptr<Menu> menu = std::make_shared<Menu>(1, 4, 0.1f);
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addButton(0, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Back to Main Menu", Events::EndGame, 1);
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/Backdrop3.png");
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/controls.png");
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("Backdrop3.png"));
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("controls.png"));
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("logo2.png"));
 	render->changeGui(guiScene);
 	playgame = false;
 }
@@ -558,8 +591,8 @@ void Application::roundWonMenu() {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addButton(0, menu->layout[0][1].positionX, menu->layout[0][1].positionY, "Start Next Round ", Events::NextRound, 1);
 	guiScene->addButton(1, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Back to Main Menu", Events::EndGame, 1);
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/spectating.png");
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("spectating.png"));
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("logo2.png"));
 	render->changeGui(guiScene);
 	playgame = false;
 }
@@ -569,11 +602,11 @@ void Application::gameEndGui(string message) {
 	guiScene = std::make_shared<GuiScene>(window); // Reset gui
 	guiScene->addButton(0, menu->layout[0][3].positionX, menu->layout[0][3].positionY, "Back to Main Menu", Events::EndGame, 1);
 	if(message == "YOU LOSE"){
-		guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/playerlost.png");
+		guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("playerlost.png"));
 	} else {
-		guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/playerwin.png");
+		guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("playerwin.png"));
 	}
-	guiScene->addImage(0.0, 0.0, 1.0, 1.0, "textures/logo2.png");
+	guiScene->addImage(0.0, 0.0, 1.0, 1.0, getImguiTextureOrThrow("logo2.png"));
 	render->changeGui(guiScene);
 	playgame = false;
 }
