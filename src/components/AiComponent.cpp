@@ -604,7 +604,11 @@ void AiComponent::handleParkingTriggerEvent(weak_ptr<Entity> VehcleEntity, weak_
 }
 
 void AiComponent::handleCarParked(weak_ptr<Entity> VehcleEntity) {
-	if (VehcleEntity.lock() == entity.lock() && !currentNode->nodeTaken) {
+	if (VehcleEntity.lock() == entity.lock() && currentNode->nodeTaken) {
+		switchState(States::SEARCH);
+	}
+
+	else if (VehcleEntity.lock() == entity.lock() && !currentNode->nodeTaken) {
 		currentNode->nodeTaken = true;
 		aiSpeed = 0.f; accelForwards(); // Stop engine
 		Events::VehicleBrake.broadcast(entity, 1.f); // Stop moving quickly
