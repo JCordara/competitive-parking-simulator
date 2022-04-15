@@ -453,7 +453,11 @@ void AiComponent::recoveryState() {
 		resetAi();
 	}
 	if (recoveryTimeout > MAXSTUCKTIME) {
+		std::cout << "MAXSTUCKKK" << endl;
 		if (entity.lock()->getComponent<VehicleComponent>()->vehicle->getRigidDynamicActor()->getGlobalPose().q.getBasisVector1().y < 0) {
+			std::cout << "UPSIDEDOWNNNNNN" << endl;
+			Events::VehicleFlip.broadcast(entity,90.f);
+			Events::VehicleFlip.broadcast(entity, 90.f);
 			recoveryTimeout = 0;
 			nodeTravelTimeout = 0;
 		}
