@@ -107,7 +107,8 @@ void Callbacks::gamepadAxisCallback(float axes[], int axis, unsigned int n) {
 		controlAxis->setInputValue(axis, axes[axis]);
 	}
 
-	if (axis == GLFW_GAMEPAD_AXIS_LEFT_Y)      Events::StickMoveY.broadcast(axes[axis]);
+	if (axis == GLFW_GAMEPAD_AXIS_LEFT_Y) Events::StickMoveY.broadcast(axes[axis]);
+	if (axis == GLFW_GAMEPAD_AXIS_LEFT_X) Events::StickMoveY.broadcast(-axes[axis]);
 
 }
 
