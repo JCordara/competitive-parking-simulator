@@ -42,7 +42,10 @@ enum class ComponentEnum {
 class BaseComponent {
 public:
     BaseComponent(weak_ptr<Entity> e) : entity(e) {}
-	sp<Entity> getEntity() { return entity.lock(); }
+	sp<Entity> getEntity() {
+		if (entity.expired()) return nullptr;
+		return entity.lock();
+	}
     virtual ~BaseComponent() {};
 protected:
 	weak_ptr<Entity> entity;
