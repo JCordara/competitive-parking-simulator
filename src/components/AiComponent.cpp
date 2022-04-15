@@ -358,10 +358,13 @@ void AiComponent::searchState() {
 	else if (currentNode->nodeType == AiGraphNode::NodeType::PARKINGSTALL) {
 		if (currentNode->nodeTaken) {
 			pickParkingNode();
-			currentNode = nodeQueue[0];
-			nodeQueue.erase(nodeQueue.begin());
-			aiSpeed = currentNode->nodeSpeed; accelForwards();
-			steerToNextNode();
+			if (nodeQueue.size() > 0) {
+				currentNode = nodeQueue[0];
+				nodeQueue.erase(nodeQueue.begin());
+				aiSpeed = currentNode->nodeSpeed; accelForwards();
+				steerToNextNode();
+			}
+			
 		}
 		else {
 			aiSpeed = 0.2; accelForwards();
